@@ -1,0 +1,15 @@
+network model = 
+assets :
+attacker;
+webserver;
+printer;
+	
+facts :
+	quality:webserver,MoinMoin,vuln_stack_overflow;
+	quality:printer,access,open;
+	quality:printer,ready_message,READY;
+	topology:attacker,webserver,connected_web;
+	topology:webserver,printer,connected;
+.
+  
+  

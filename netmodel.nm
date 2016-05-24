@@ -1,0 +1,30 @@
+network model = 
+assets :
+host1;
+host2;
+host3;
+host4;
+host5;
+host6;
+	
+facts :
+    quality:host1,OS,WinXP;
+    quality:host2,OS,MacOSX;
+    quality:host3,OS,Unix;
+    quality:host4,OS,OS2;
+    quality:host5,OS,OS2;
+    quality:host6,OS,OS2;
+    topology:host1,host2,trust;
+    topology:host1,host3,trust;
+    topology:host1,host4,trust;
+    topology:host1,host6,trust;
+    topology:host1,host2,connected;
+    topology:host1,host3,connected;
+    topology:host1,host4,connected;
+    topology:host1,host6,connected;
+    topology:host2,host3,connected;
+    topology:host3,host4,connected;
+    topology:host6,host4,connected;
+.
+  
+  

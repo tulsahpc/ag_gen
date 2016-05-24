@@ -1,0 +1,49 @@
+network model = 
+assets :
+attacker;
+Xserver;
+Host1;
+Host2;
+Host4;
+Host6;
+Host9;
+Router1;
+Router2;
+Firewall;
+printer;
+	
+facts :
+	quality:Xserver,OSX,vuln_stack_overflow;
+	quality:Xserver,access,open;
+	quality:printer,access,open;
+	quality:printer,ready_message,READY;
+	quality:Host1, Windows_XP,open;
+	quality:Host2, Windows_XP,open;
+	quality:Host4, OSX,open;
+	quality:Host6, Windows_XP,open;
+	quality:Host9, Windows_7,open;
+	quality:Router1,CISCO,open;
+	quality:Router1,is_router,yes;
+	quality:Router2,CISCO,open;
+	quality:Router2,is_router,yes;
+	quality:Firewall,CISCO,open;
+	topology:attacker,Xserver,connected_web;
+	topology:Firewall,Router1,connected;
+	topology:Router1,Firewall,connected;
+	topology:Router1,Xserver,connected;
+	topology:Router1,Host1,connected;
+	topology:Router1,Host2,connected;
+	topology:Router1,printer,connected;
+	topology:Xserver,Router1,connected;
+	topology:Host1,Router1,connected;
+	topology:Host2,Router1,connected;
+	topology:Host4,Router1,connected;
+	topology:Router1,Router2,connected;
+	topology:Router2,Router1,connected;
+	topology:Router2,Host6,connected;
+	topology:Router2,Host9,connected;
+	topology:Host6,Router2,connected;
+	topology:Host9,Router2,connected;
+.
+  
+  
