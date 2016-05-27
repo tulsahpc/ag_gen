@@ -4,6 +4,7 @@ project(${PROJECT_NAME} C)
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG -Wall")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
 #find_package(FLEX)
 #find_package(BISON)
@@ -32,6 +33,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 #${FLEX_ExploitLexer_OUTPUTS}
 #${BISON_NetworkParser_OUTPUTS}
 #${FLEX_NetworkLexer_OUTPUTS}
+
 add_executable(attack-graph-generator
         ag_network.c
         ag_asset.c
@@ -43,6 +45,6 @@ add_executable(db_test
         db_test.c
         ag_asset.c
         ag_network.c
-        db_util.c)
+        db_util.c ag_facts.h)
 target_link_libraries(db_test
         ${PostgreSQL_LIBRARIES})

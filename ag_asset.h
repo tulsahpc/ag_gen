@@ -18,7 +18,7 @@ struct AGAsset {
 };
 
 struct AGAssetList *AGGetAssets(void);
-int AGFreeAssets(struct AGAssetList *assetList);
-void printAssets(const struct AGAssetList*);
+int AGAssetsFree(struct AGAssetList *);
+void AGAssetsPrint(const struct AGAssetList *);
 
 #endif //C_AG_ASSET_H

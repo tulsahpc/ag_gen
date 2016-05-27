@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <libpq-fe.h>
 
 #include "ag_asset.h"
@@ -24,9 +25,13 @@ struct AGAssetList *AGGetAssets() {
         char *nameValue = PQgetvalue(res, i, 1);
         char *networkIdValue = PQgetvalue(res, i, 2);
 
+        size_t nameLen = strlen(nameValue);
+        char *name = calloc(nameLen + 1, sizeof(char));
+        strncpy(name, nameValue, nameLen);
+
         assets[i] = malloc(sizeof(struct AGAsset));
         assets[i]->id = atoi(idValue);
-        assets[i]->name = nameValue;
+        assets[i]->name = name;
         assets[i]->network_id = atoi(networkIdValue);
     }
 
@@ -40,11 +45,12 @@ struct AGAssetList *AGGetAssets() {
     return assetList;
 }
 
-int AGFreeAssets(struct AGAssetList *assetList) {
+int AGAssetsFree(struct AGAssetList *assetList) {
     int len = assetList->len;
     struct AGAsset **assets = assetList->assets;
 
     for(int i=0; i<len; i++) {
+        free(assets[i]->name);
         free(assets[i]);
     }
 
@@ -52,7 +58,7 @@ int AGFreeAssets(struct AGAssetList *assetList) {
     return 0;
 }
 
-void printAssets(const struct AGAssetList *assetList) {
+void AGAssetsPrint(const struct AGAssetList *assetList) {
     int len = assetList->len;
     struct AGAsset **assets = assetList->assets;
 

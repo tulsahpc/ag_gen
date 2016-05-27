@@ -9,12 +9,12 @@ int main() {
     AGDbConnect(CONNINFO);
 
     struct AGNetworkList *networkList = AGGetNetworks();
-    printNetworks(networkList);
-    AGFreeNetworks(networkList);
+    AGNetworksPrint(networkList);
+    AGNetworksFree(networkList);
 
     struct AGAssetList *assetList = AGGetAssets();
-    printAssets(assetList);
-    AGFreeAssets(assetList);
+    AGAssetsPrint(assetList);
+    AGAssetsFree(assetList);
 
     AGDbDisconnect();
 }

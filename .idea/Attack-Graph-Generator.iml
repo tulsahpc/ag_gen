@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/db_test.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/db_util.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ag_network.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ag_facts.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ag_asset.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ag_network.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ag_asset.c" isTestSource="false" />

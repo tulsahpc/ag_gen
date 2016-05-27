@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <libpq-fe.h>
 
 #include "ag_network.h"
@@ -22,10 +23,14 @@ struct AGNetworkList *AGGetNetworks() {
     for(int i=0; i<numRows; i++) {
         char *idValue = PQgetvalue(res, i, 0);
         char *nameValue = PQgetvalue(res, i, 1);
+        size_t nameLen = strlen(nameValue);
+
+        char *name = calloc(nameLen+1, sizeof(char));
+        strncpy(name, nameValue, nameLen);
 
         networks[i] = malloc(sizeof(struct AGNetwork));
         networks[i]->id = atoi(idValue);
-        networks[i]->name = nameValue;
+        networks[i]->name = name;
     }
 
     AGDbEndTransaction();
@@ -38,11 +43,12 @@ struct AGNetworkList *AGGetNetworks() {
     return networkList;
 }
 
-int AGFreeNetworks(struct AGNetworkList *networkList) {
+int AGNetworksFree(struct AGNetworkList *networkList) {
     int len = networkList->len;
     struct AGNetwork **networks = networkList->networks;
 
     for(int i=0; i<len; i++) {
+        free(networks[i]->name);
         free(networks[i]);
     }
 
@@ -50,7 +56,7 @@ int AGFreeNetworks(struct AGNetworkList *networkList) {
     return 0;
 }
 
-void printNetworks(const struct AGNetworkList *networkList) {
+void AGNetworksPrint(const struct AGNetworkList *networkList) {
     int len = networkList->len;
     struct AGNetwork **networks = networkList->networks;
 
