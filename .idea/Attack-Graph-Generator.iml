@@ -1,64 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Debug/exploit.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Debug/exploit.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Debug/exploit_parser.tab.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Debug/exploit_parser.tab.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Debug/network_state.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Debug/network_state.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Debug/network_state_parser.tab.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Debug/network_state_parser.tab.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/MinSizeRel/exploit.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/MinSizeRel/exploit.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/MinSizeRel/exploit_parser.tab.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/MinSizeRel/exploit_parser.tab.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/MinSizeRel/network_state.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/MinSizeRel/network_state.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/MinSizeRel/network_state_parser.tab.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/MinSizeRel/network_state_parser.tab.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/RelWithDebInfo/exploit.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/RelWithDebInfo/exploit.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/RelWithDebInfo/exploit_parser.tab.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/RelWithDebInfo/exploit_parser.tab.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/RelWithDebInfo/network_state.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/RelWithDebInfo/network_state.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/RelWithDebInfo/network_state_parser.tab.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/RelWithDebInfo/network_state_parser.tab.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Release/exploit.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Release/exploit.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Release/exploit_parser.tab.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Release/exploit_parser.tab.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Release/network_state.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Release/network_state.c" isTestSource="false" />
-    </content>
-    <content url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Release/network_state_parser.tab.c">
-      <sourceFolder url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Release/network_state_parser.tab.c" isTestSource="false" />
-    </content>
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/db_test.c" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/exploit_utils.c" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/identifier.c" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/ag_generator_utils.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/caggen.c" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/ag_generator_utils.c" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/network_state_util.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/db_util.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ag_network.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ag_asset.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ag_network.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ag_asset.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/identifier.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/db_util.h" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
@@ -427,24 +378,6 @@
           <root url="file:///Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include" />
           <root url="file:///Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/7.3.0/include" />
         </SOURCES>
-        <excluded>
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/MinSizeRel/network_state_parser.tab.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/MinSizeRel/network_state.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/MinSizeRel/exploit.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/MinSizeRel/exploit_parser.tab.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Debug/network_state_parser.tab.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Debug/network_state.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Debug/exploit.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Debug/exploit_parser.tab.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Release/network_state_parser.tab.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Release/network_state.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Release/exploit.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/Release/exploit_parser.tab.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/RelWithDebInfo/network_state_parser.tab.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/RelWithDebInfo/network_state.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/RelWithDebInfo/exploit.c" />
-          <root url="file://$USER_HOME$/Library/Caches/CLion2016.1/cmake/generated/Attack-Graph-Generator-15b606b1/15b606b1/RelWithDebInfo/exploit_parser.tab.c" />
-        </excluded>
       </library>
     </orderEntry>
   </component>
