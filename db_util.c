@@ -1,6 +1,6 @@
 #include <stdlib.h>
-#include <libpq-fe.h>
 #include <string.h>
+#include <libpq-fe.h>
 
 #include "util.h"
 #include "db_util.h"
@@ -55,12 +55,13 @@ void exit_nicely(void) {
 
 void printResult(const PGresult *res) {
     int rows, cols;
-    int colWidths[cols];
 
     rows = PQntuples(res);
     cols = PQnfields(res);
     DEBUG_PRINT("Rows: %d\n", rows);
     DEBUG_PRINT("Columns: %d\n", cols);
+
+    int colWidths[cols];
 
     // Get the maximum length of each column
     for(int i=0; i<cols; i++) {
