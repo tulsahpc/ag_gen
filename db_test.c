@@ -16,7 +16,6 @@ int main() {
     AGNetworksFree(networkList);
 
     struct AGNetwork *first = networkList->networks[0];
-    AGNetworkNew("hello1");
 
     assetList = AGGetAssets();
     AGAssetsPrint(assetList);
