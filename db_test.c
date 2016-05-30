@@ -6,13 +6,19 @@
 #define CONNINFO "postgresql://localhost:5432/ag_gen"
 
 int main() {
+    struct AGNetworkList *networkList;
+    struct AGAssetList *assetList;
+
     AGDbConnect(CONNINFO);
 
-    struct AGNetworkList *networkList = AGGetNetworks();
+    networkList = AGGetNetworks();
     AGNetworksPrint(networkList);
     AGNetworksFree(networkList);
 
-    struct AGAssetList *assetList = AGGetAssets();
+    struct AGNetwork *first = networkList->networks[0];
+    AGNetworkNew("hello1");
+
+    assetList = AGGetAssets();
     AGAssetsPrint(assetList);
     AGAssetsFree(assetList);
 

@@ -54,18 +54,21 @@ void exit_nicely(void) {
 }
 
 void printResult(const PGresult *res) {
-    int rows = PQntuples(res);
-    int cols = PQnfields(res);
+    int rows, cols;
+    int colWidths[cols];
 
+    rows = PQntuples(res);
+    cols = PQnfields(res);
     DEBUG_PRINT("Rows: %d\n", rows);
     DEBUG_PRINT("Columns: %d\n", cols);
 
     // Get the maximum length of each column
-    int colWidths[cols];
     for(int i=0; i<cols; i++) {
-        int colMax = (int)strlen(PQfname(res, i));
+        int colMax;
+        colMax = (int)strlen(PQfname(res, i));
         for(int j=0; j<rows; j++) {
-            int nextVal = PQgetlength(res, j, i);
+            int nextVal;
+            nextVal = PQgetlength(res, j, i);
             if(nextVal > colMax){
                 colMax = nextVal;
             }

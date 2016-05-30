@@ -5,21 +5,41 @@
 #ifndef C_AG_FACTS_H
 #define C_AG_FACTS_H
 
-enum PROPERTY { OS, Thing };
+enum PROPERTY { OS };
+enum ATTRIBUTE { TRUSTED, CONNECTED };
 
+struct AGPropertyList {
+    enum PROPERTY **properties;
+    int len;
+};
+
+struct AGAttributeList {
+    enum ATTRIBUTE **attributes;
+    int len;
+};
+
+// Uniqueness defined by (asset_id, property)
 struct AGQuality {
     int asset_id;
-    char *property;
+    struct AGPropertyList *properties;
     char *value;
 };
 
+// Uniqueness defined by (from, to)
 struct AGTopology {
+    int from;
+    int to;
+    struct AGAttributeList *attributes;
+};
 
+union AGFactList {
+    union AGFact **facts;
+    int len;
 };
 
 union AGFact {
-    struct AGQuality*;
-    struct AGTopology*;
+    struct AGQuality *quality;
+    struct AGTopology *topology;
 };
 
 #endif //C_AG_FACTS_H

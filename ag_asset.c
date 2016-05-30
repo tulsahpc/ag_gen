@@ -7,6 +7,9 @@
 
 struct AGAssetList *AGGetAssets() {
     PGresult *res;
+    int numRows;
+    struct AGAsset **assets;
+    struct AGAssetList *assetList;
 
     AGDbBeginTransaction();
 
@@ -17,16 +20,22 @@ struct AGAssetList *AGGetAssets() {
         exit_nicely();
     }
 
-    int numRows = PQntuples(res);
-    struct AGAsset **assets = malloc(sizeof(struct AGAsset*) * numRows);
+    numRows = PQntuples(res);
+    assets = malloc(sizeof(struct AGAsset*) * numRows);
 
     for(int i=0; i<numRows; i++) {
-        char *idValue = PQgetvalue(res, i, 0);
-        char *nameValue = PQgetvalue(res, i, 1);
-        char *networkIdValue = PQgetvalue(res, i, 2);
+        char *idValue;
+        char *nameValue;
+        char *name;
+        char *networkIdValue;
+        size_t nameLen;
 
-        size_t nameLen = strlen(nameValue);
-        char *name = calloc(nameLen + 1, sizeof(char));
+        idValue = PQgetvalue(res, i, 0);
+        nameValue = PQgetvalue(res, i, 1);
+        networkIdValue = PQgetvalue(res, i, 2);
+
+        nameLen = strlen(nameValue);
+        name = calloc(nameLen + 1, sizeof(char));
         strncpy(name, nameValue, nameLen);
 
         assets[i] = malloc(sizeof(struct AGAsset));
@@ -38,7 +47,7 @@ struct AGAssetList *AGGetAssets() {
     AGDbEndTransaction();
     PQclear(res);
 
-    struct AGAssetList *assetList = malloc(sizeof(struct AGAssetList));
+    assetList = malloc(sizeof(struct AGAssetList));
     assetList->assets = assets;
     assetList->len = numRows;
 
@@ -46,8 +55,11 @@ struct AGAssetList *AGGetAssets() {
 }
 
 int AGAssetsFree(struct AGAssetList *assetList) {
-    int len = assetList->len;
-    struct AGAsset **assets = assetList->assets;
+    int len;
+    struct AGAsset **assets;
+
+    len = assetList->len;
+    assets = assetList->assets;
 
     for(int i=0; i<len; i++) {
         free(assets[i]->name);
@@ -59,11 +71,16 @@ int AGAssetsFree(struct AGAssetList *assetList) {
 }
 
 void AGAssetsPrint(const struct AGAssetList *assetList) {
-    int len = assetList->len;
-    struct AGAsset **assets = assetList->assets;
+    int len;
+    struct AGAsset **assets;
+
+    len = assetList->len;
+    assets = assetList->assets;
 
     for(int i=0; i<len; i++) {
-        const struct AGAsset *asset = assets[i];
+        const struct AGAsset *asset;
+
+        asset = assets[i];
         printf("Asset %d: %s on Network %d\n", asset->id, asset->name, asset->network_id);
     }
 }

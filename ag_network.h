@@ -19,9 +19,12 @@ struct AGNetworkList *AGGetNetworks(void);
 int AGNetworksFree(struct AGNetworkList *);
 void AGNetworksPrint(const struct AGNetworkList *);
 
-int AGNetworkNew(char *);
-int AGNetworkCreateAsset(char *);
+int AGNetworkNew(const char *);
+int AGNetworkDestroy(int);
+int AGNetworkSave(int);
+int AGNetworkCreateAsset(const char *);
 int AGNetworkRemoveAsset(int);
-int AGNetworkFindAsset(char *);
+int AGNetworkFindAsset(const struct AGNetwork *, const char *);
+int AGNetworkAllAssets(const struct AGNetwork *);
 
 #endif //C_AG_NETWORK_H
