@@ -11,8 +11,8 @@ void AGDbConnect(const char *conninfo)
 	// Create database connection
 	conn = PQconnectdb(conninfo);
 	if(PQstatus(conn) != CONNECTION_OK) {
-	fprintf(stderr, "Connection failed: %s", PQerrorMessage(conn));
-	exit_nicely();
+		fprintf(stderr, "Connection failed: %s", PQerrorMessage(conn));
+		exit_nicely();
 	}
 }
 
@@ -29,11 +29,10 @@ void AGDbBeginTransaction()
 	// Create transaction
 	res = PQexec(conn, "BEGIN");
 	if(PQresultStatus(res) != PGRES_COMMAND_OK) {
-	fprintf(stderr, "BEGIN command failed: %s", PQerrorMessage(conn));
-	PQclear(res);
-	exit_nicely();
+		fprintf(stderr, "BEGIN command failed: %s", PQerrorMessage(conn));
+		PQclear(res);
+		exit_nicely();
 	}
-
 	PQclear(res);
 }
 
@@ -44,9 +43,9 @@ void AGDbEndTransaction()
 	// Finish transaction
 	res = PQexec(conn, "COMMIT");
 	if(PQresultStatus(res) != PGRES_COMMAND_OK) {
-	fprintf(stderr, "COMMIT failed: %s", PQerrorMessage(conn));
-	PQclear(res);
-	exit_nicely();
+		fprintf(stderr, "COMMIT failed: %s", PQerrorMessage(conn));
+		PQclear(res);
+		exit_nicely();
 	}
 
 	PQclear(res);
@@ -71,8 +70,7 @@ void printResult(const PGresult *res)
 	for(int i=0; i<cols; i++) {
 		int colMax = strlen(PQfname(res, i));
 		for(int j=0; j<rows; j++) {
-			int nextVal;
-			nextVal = PQgetlength(res, j, i);
+			int nextVal = PQgetlength(res, j, i);
 			if(nextVal > colMax){
 				colMax = nextVal;
 			}

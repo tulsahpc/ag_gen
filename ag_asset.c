@@ -65,16 +65,11 @@ int AGAssetsFree(struct AGAssetList *assetList)
 
 void AGAssetsPrint(const struct AGAssetList *assetList)
 {
-	int len;
-	struct AGAsset **assets;
-
-	len = assetList->len;
-	assets = assetList->assets;
+	int len = assetList->len;
+	struct AGAsset **assets = assetList->assets;
 
 	for(int i=0; i<len; i++) {
-		const struct AGAsset *asset;
-
-		asset = assets[i];
+		const struct AGAsset *asset = assets[i];
 		printf("Asset %d: %s on Network %d\n",
 			asset->id, asset->name, asset->network_id);
 	}
