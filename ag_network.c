@@ -8,79 +8,68 @@
 
 #define BUFSIZE 32
 
-struct AGNetworkList *AGGetNetworks() {
-    PGresult *res;
-    int numRows;
-    struct AGNetwork **networks;
-    struct AGNetworkList *networkList;
+struct AGNetworkList *AGGetNetworks()
+{
+	PGresult *res;
+	int numRows;
+	struct AGNetwork **networks;
+	struct AGNetworkList *networkList;
 
-    AGDbBeginTransaction();
+	AGDbBeginTransaction();
 
-    res = PQexec(conn, "SELECT * FROM network");
-    if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-        fprintf(stderr, "SELECT command failed: %s", PQerrorMessage(conn));
-        PQclear(res);
-        exit_nicely();
-    }
+	res = PQexec(conn, "SELECT * FROM network");
+	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
+		fprintf(stderr, "SELECT command failed: %s", PQerrorMessage(conn));
+		PQclear(res);
+		exit_nicely();
+	}
 
-    numRows = PQntuples(res);
-    networks = malloc(sizeof(struct AGNetwork*) * numRows);
+	numRows = PQntuples(res);
+	networks = malloc(sizeof(struct AGNetwork*) * numRows);
 
-    for(int i=0; i<numRows; i++) {
-        char *idValue;
-        char *nameValue;
-        char *name;
-        size_t nameLen;
+	for(int i=0; i<numRows; i++) {
+		char *idValue = PQgetvalue(res, i, 0);
+		char *nameValue = PQgetvalue(res, i, 1);
+		size_t nameLen = strlen(nameValue);
+		char *name = calloc(nameLen+1, sizeof(char));
+		strncpy(name, nameValue, nameLen);
 
-        idValue = PQgetvalue(res, i, 0);
-        nameValue = PQgetvalue(res, i, 1);
-        nameLen = strlen(nameValue);
-        name = calloc(nameLen+1, sizeof(char));
+		networks[i] = malloc(sizeof(struct AGNetwork));
+		networks[i]->id = atoi(idValue);
+		networks[i]->name = name;
+	}
 
-        strncpy(name, nameValue, nameLen);
+	AGDbEndTransaction();
+	PQclear(res);
 
-        networks[i] = malloc(sizeof(struct AGNetwork));
-        networks[i]->id = atoi(idValue);
-        networks[i]->name = name;
-    }
+	networkList = malloc(sizeof(struct AGNetworkList));
+	networkList->networks = networks;
+	networkList->len = numRows;
 
-    AGDbEndTransaction();
-    PQclear(res);
-
-    networkList = malloc(sizeof(struct AGNetworkList));
-    networkList->networks = networks;
-    networkList->len = numRows;
-
-    return networkList;
+	return networkList;
 }
 
-int AGNetworksFree(struct AGNetworkList *networkList) {
-    int len;
-    struct AGNetwork **networks;
+int AGNetworksFree(struct AGNetworkList *networkList)
+{
+	int len = networkList->len;
+	struct AGNetwork **networks = networkList->networks;
 
-    len = networkList->len;
-    networks = networkList->networks;
+	for(int i=0; i<len; i++) {
+		free(networks[i]->name);
+		free(networks[i]);
+	}
 
-    for(int i=0; i<len; i++) {
-        free(networks[i]->name);
-        free(networks[i]);
-    }
-
-    free(networks);
-    return 0;
+	free(networks);
+	return 0;
 }
 
-void AGNetworksPrint(const struct AGNetworkList *networkList) {
-    int len;
-    struct AGNetwork **networks;
+void AGNetworksPrint(const struct AGNetworkList *networkList)
+{
+	int len = networkList->len;
+	struct AGNetwork **networks = networkList->networks;
 
-    len = networkList->len;
-    networks = networkList->networks;
-
-    for(int i=0; i<len; i++) {
-        const struct AGNetwork *network;
-
-        network = networks[i];
-        printf("Network %d: %s\n", network->id, network->name);
-    }
+	for(int i=0; i<len; i++) {
+		const struct AGNetwork *network = networks[i];
+		printf("Network %d: %s\n", network->id, network->name);
+	}
 }

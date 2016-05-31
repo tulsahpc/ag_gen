@@ -1,8 +1,5 @@
 #!/usr/bin/make -f
 
-SHELL = /bin/sh
-srcdir = .
-
 CC = clang
 CFLAGS = -g -Wall -Wpedantic --std=c99
 
@@ -18,6 +15,9 @@ db_test: $(OBJS)
 .PHONY: clean
 clean:
 	rm -f *.o db_test
+
+.PHONY: get-deps
+get-deps:
 
 .PHONY: test
 test:

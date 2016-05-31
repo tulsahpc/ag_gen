@@ -6,13 +6,13 @@
 #define C_AG_NETWORK_H
 
 struct AGNetworkList {
-    struct AGNetwork **networks;
-    int len;
+	struct AGNetwork **networks;
+	int len;
 };
 
 struct AGNetwork {
-    int id;
-    char *name;
+	int id;
+	char *name;
 };
 
 struct AGNetworkList *AGGetNetworks(void);

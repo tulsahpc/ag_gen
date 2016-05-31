@@ -1,3 +1,10 @@
-install: ./install-dependencies.sh
+language: c
+compiler:
+    - clang
+    - gcc
+before_install:
+  - test -n $CC && unset CC
+install: make get-deps
+script: make && make test
 notifications:
   slack: utulsa-esg:9jdnxW7hOScax4XdAQnPDT0S

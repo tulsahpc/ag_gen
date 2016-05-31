@@ -5,9 +5,11 @@
 // Database connection information
 #define CONNINFO "postgresql://localhost:5432/ag_gen"
 
-int main() {
+int main()
+{
     struct AGNetworkList *networkList;
     struct AGAssetList *assetList;
+    struct AGNetwork *first;
 
     AGDbConnect(CONNINFO);
 
@@ -15,7 +17,7 @@ int main() {
     AGNetworksPrint(networkList);
     AGNetworksFree(networkList);
 
-    struct AGNetwork *first = networkList->networks[0];
+    first = networkList->networks[0];
 
     assetList = AGGetAssets();
     AGAssetsPrint(assetList);

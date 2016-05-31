@@ -9,37 +9,37 @@ enum PROPERTY { OS };
 enum ATTRIBUTE { TRUSTED, CONNECTED };
 
 struct AGPropertyList {
-    enum PROPERTY **properties;
-    int len;
+	enum PROPERTY **properties;
+	int len;
 };
 
 struct AGAttributeList {
-    enum ATTRIBUTE **attributes;
-    int len;
+	enum ATTRIBUTE **attributes;
+	int len;
 };
 
 // Uniqueness defined by (asset_id, property)
 struct AGQuality {
-    int asset_id;
-    struct AGPropertyList *properties;
-    char *value;
+	int asset_id;
+	struct AGPropertyList *properties;
+	char *value;
 };
 
 // Uniqueness defined by (from, to)
 struct AGTopology {
-    int from;
-    int to;
-    struct AGAttributeList *attributes;
+	int from;
+	int to;
+	struct AGAttributeList *attributes;
 };
 
 union AGFactList {
-    union AGFact **facts;
-    int len;
+	union AGFact **facts;
+	int len;
 };
 
 union AGFact {
-    struct AGQuality *quality;
-    struct AGTopology *topology;
+	struct AGQuality *quality;
+	struct AGTopology *topology;
 };
 
 #endif //C_AG_FACTS_H
