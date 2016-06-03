@@ -1,6 +1,7 @@
 #include "ag_network.h"
 #include "ag_asset.h"
 #include "db_util.h"
+#include "redis_test.h"
 
 // Database connection information
 #define CONNINFO "postgresql://localhost:5432/ag_gen"
