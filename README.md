@@ -8,8 +8,8 @@
 
 ### Ubuntu
 
-    sudo apt update && sudo apt install -y build-essentials \
-        postgresql postgresql-server postgresql-contrib libpq5 \
+    sudo apt update && sudo apt install -y build-essential \
+        postgresql postgresql-contrib libpq5 \
         libpq-dev redis-server redis-tools libhiredis0.13 libhiredis-dev
 
 ### Mac OSX

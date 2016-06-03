@@ -6,19 +6,19 @@
 
 #include "ag_redisconnect.h"
 #include "ag_asset.h"
+#include "ag_redisclient.h"
+
 
 int main()
 {
 	redisContext *c;
-	redisReply *reply;
 
 	c = malloc(sizeof(int*));
 	c = RedisConnect(c);
 
-	/* PING server */
-	reply = redisCommand(c,"PING");
-	printf("PING: %s\n", reply->str);
-	freeReplyObject(reply);
+	RedisSetContext(c);
+
+	printf("Ping %s\n", RedisPing());
 
 	RedisFree(c);
 

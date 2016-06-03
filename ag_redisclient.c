@@ -6,11 +6,9 @@
 
 #include "ag_asset.h"
 
-#define MAXSTRLEN 128
+#include "ag_redisclient.h"
 
-char* assetlistkey; //name of list in redis
-redisContext *c; //context of the redis server so the rest of the program doesn't need it
-redisReply *reply; 
+#define MAXSTRLEN 128
 
 int RedisSetContext(redisContext *context)
 {
@@ -25,10 +23,11 @@ int RedisSetListName(char* name)
 	return 0;
 }
 
-char* RedisPing(){
-	char* pong;
+char* RedisPing()
+{
+	char* pong = malloc(sizeof(char)*MAXSTRLEN);
 	reply = redisCommand(c,"PING");
-	pong = reply->str;
+	strncpy(pong,reply->str,reply->len);
 	freeReplyObject(reply);
 	return pong;
 }
@@ -58,7 +57,8 @@ struct AGAsset* RedisDequeueAsset()
 	return asset;
 }
 
-int RedisQueueLength(){
+int RedisQueueLength()
+{
 	int len = 0;
 	reply = redisCommand(c, "LLEN %s", assetlistkey);
 	len = atoi(reply->str);
