@@ -5,21 +5,17 @@
 #include <hiredis/hiredis.h>
 
 #include "ag_redisconnect.h"
-#include "ag_asset.h"
 #include "ag_redisclient.h"
-
 
 int main()
 {
 	redisContext *c;
 
-	c = malloc(sizeof(int*));
+	c = malloc(sizeof(redisContext*));
 	c = RedisConnect(c);
 
 	RedisSetContext(c);
-
-	printf("Ping %s\n", RedisPing());
-
+	RedisPing();
 	RedisFree(c);
 
 	return 0;

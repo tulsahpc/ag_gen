@@ -9,12 +9,22 @@ SRC = db_test.c ag_asset.c ag_facts.c ag_network.c \
 		db_util.c
 OBJS = $(SRC:.c=.o)
 
+default: all
+
+all: db_test redis_test
+
 db_test: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
+REDIS_TEST_SRC = redis_test.c ag_redisconnect.c ag_asset.c \
+		ag_redisclient.c db_util.c
+REDIS_TEST_OBJS = $(REDIS_TEST_SRC:.c=.o)
+redis_test: $(REDIS_TEST_OBJS)
+	$(CC) $(CFLAGS) -o $@ $(REDIS_TEST_OBJS) -lpq -lhiredis
+
 .PHONY: clean
 clean:
-	rm -f *.o db_test
+	rm -f *.o db_test redis_test
 
 .PHONY: get-deps
 get-deps:

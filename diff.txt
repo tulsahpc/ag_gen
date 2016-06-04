@@ -1,0 +1,245 @@
+diff --git a/.editorconfig b/.editorconfig
+index 87e2c24..815fc00 100644
+--- a/.editorconfig
++++ b/.editorconfig
+@@ -15,3 +15,7 @@ indent_size = 8
+ [*.sql]
+ indent_style = space
+ indent_size = 2
++
++[Makefile]
++indent_style = tab
++indent_size = 8
+diff --git a/Makefile b/Makefile
+index 6cfab5b..72598b4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -9,12 +9,22 @@ SRC = db_test.c ag_asset.c ag_facts.c ag_network.c \
+ 		db_util.c
+ OBJS = $(SRC:.c=.o)
+ 
++default: all
++
++all: db_test redis_test
++
+ db_test: $(OBJS)
+ 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
+ 
++REDIS_TEST_SRC = redis_test.c ag_redisconnect.c ag_asset.c \
++		ag_redisclient.c db_util.c
++REDIS_TEST_OBJS = $(REDIS_TEST_SRC:.c=.o)
++redis_test: $(REDIS_TEST_OBJS)
++	$(CC) $(CFLAGS) -o $@ $(REDIS_TEST_OBJS) -lpq -lhiredis
++
+ .PHONY: clean
+ clean:
+-	rm -f *.o db_test
++	rm -f *.o db_test redis_test
+ 
+ .PHONY: get-deps
+ get-deps:
+diff --git a/ag_asset.h b/ag_asset.h
+index 6ffa8e6..ec44742 100644
+--- a/ag_asset.h
++++ b/ag_asset.h
+@@ -19,6 +19,4 @@ struct AGAssetList *AGGetAssets(void);
+ int AGAssetsFree(struct AGAssetList *);
+ void AGAssetsPrint(const struct AGAssetList *);
+ 
+-union AGFactList *AGAssetGetFacts(const struct AGAsset *);
+-
+ #endif //C_AG_ASSET_H
+diff --git a/ag_facts.h b/ag_facts.h
+index 06c9546..e680071 100644
+--- a/ag_facts.h
++++ b/ag_facts.h
+@@ -1,7 +1,3 @@
+-//
+-// Created by Kyle Cook on 5/27/16.
+-//
+-
+ #ifndef C_AG_FACTS_H
+ #define C_AG_FACTS_H
+ 
+diff --git a/ag_network.h b/ag_network.h
+index 0540056..cf6b068 100644
+--- a/ag_network.h
++++ b/ag_network.h
+@@ -1,7 +1,3 @@
+-//
+-// Created by Kyle Cook on 5/26/16.
+-//
+-
+ #ifndef C_AG_NETWORK_H
+ #define C_AG_NETWORK_H
+ 
+diff --git a/ag_redisclient.c b/ag_redisclient.c
+index f015f60..34bf8db 100644
+--- a/ag_redisclient.c
++++ b/ag_redisclient.c
+@@ -5,11 +5,13 @@
+ #include <hiredis/hiredis.h>
+ 
+ #include "ag_asset.h"
+-
+ #include "ag_redisclient.h"
+ 
+ #define MAXSTRLEN 128
+ 
++char *assetlistkey;
++redisContext *c;
++
+ int RedisSetContext(redisContext *context)
+ {
+ 	c = context;
+@@ -23,20 +25,16 @@ int RedisSetListName(char* name)
+ 	return 0;
+ }
+ 
+-char* RedisPing()
++void RedisPing()
+ {
+-	char* pong = malloc(sizeof(char)*MAXSTRLEN);
+ 	reply = redisCommand(c,"PING");
+-	strncpy(pong,reply->str,reply->len);
++	printf("PING %s\n", reply->str);
+ 	freeReplyObject(reply);
+-	return pong;
+ }
+ 
+ int RedisEnqueueAsset(struct AGAsset *asset)
+ {
+-
+ 	reply = redisCommand(c, "LPUSH %s %d %s %d", assetlistkey, asset->id, asset->name, asset->network_id);
+-
+ 	freeReplyObject(reply);
+ 	return 0;
+ }
+@@ -46,7 +44,7 @@ struct AGAsset* RedisDequeueAsset()
+ 	//int i = 0, j = 0;
+ 	char* assetstr = malloc(sizeof(char)*MAXSTRLEN);
+ 	struct AGAsset* asset = malloc(sizeof(struct AGAsset));
+-	
++
+ 	reply = redisCommand(c, "RPOP %s", assetlistkey);
+ 	assetstr = reply->str;
+ 	freeReplyObject(reply);
+diff --git a/ag_redisclient.h b/ag_redisclient.h
+index 665ef67..44caa86 100644
+--- a/ag_redisclient.h
++++ b/ag_redisclient.h
+@@ -1,10 +1,18 @@
+-char* assetlistkey; //name of list in redis
+-redisContext *c; //context of the redis server so the rest of the program doesn't need it
+-redisReply *reply; 
+-
+-int RedisSetContext(redisContext *context);
+-int RedisSetListName(char* name);
+-char* RedisPing();
+-int RedisEnqueueAsset(struct AGAsset *asset);
+-struct AGAsset* RedisDequeueAsset();
+-int RedisQueueLength();
+\ No newline at end of file
++#ifndef C_AG_REDISCLIENT_H
++#define C_AG_REDISCLIENT_H
++
++#include <hiredis/hiredis.h>
++#include "ag_asset.h"
++
++// char *assetlistkey; //name of list in redis
++// redisContext *c; //context of the redis server so the rest of the program doesn't need it
++// redisReply *reply;
++
++int RedisSetContext(redisContext *);
++int RedisSetListName(char*);
++void RedisPing(void);
++int RedisEnqueueAsset(struct AGAsset *);
++struct AGAsset *RedisDequeueAsset(void);
++int RedisQueueLength(void);
++
++#endif //C_AG_REDISCLIENT_H
+diff --git a/ag_redisconnect.h b/ag_redisconnect.h
+index 5fc71fa..fe621da 100644
+--- a/ag_redisconnect.h
++++ b/ag_redisconnect.h
+@@ -1,4 +1,9 @@
+-//
++#ifndef C_AG_REDISCONNECT_H
++#define C_AG_REDISCONNECT_H
+ 
+-struct redisContext* RedisConnect(redisContext *c);
+-int RedisFree(redisContext *c);
+\ No newline at end of file
++#include <hiredis/hiredis.h>
++
++struct redisContext *RedisConnect(redisContext *c);
++int RedisFree(redisContext *c);
++
++#endif //C_AG_REDISCONNECT_H
+diff --git a/db_test.c b/db_test.c
+index a2280cb..b150622 100644
+--- a/db_test.c
++++ b/db_test.c
+@@ -1,7 +1,6 @@
+ #include "ag_network.h"
+ #include "ag_asset.h"
+ #include "db_util.h"
+-#include "redis_test.h"
+ 
+ // Database connection information
+ #define CONNINFO "postgresql://localhost:5432/ag_gen"
+diff --git a/db_util.h b/db_util.h
+index 6385385..fd199d2 100644
+--- a/db_util.h
++++ b/db_util.h
+@@ -1,7 +1,3 @@
+-//
+-// Created by Kyle Cook on 5/26/16.
+-//
+-
+ #ifndef C_DB_UTIL_H
+ #define C_DB_UTIL_H
+ 
+diff --git a/redis_test.c b/redis_test.c
+index c91e4c3..fdb669e 100644
+--- a/redis_test.c
++++ b/redis_test.c
+@@ -5,22 +5,18 @@
+ #include <hiredis/hiredis.h>
+ 
+ #include "ag_redisconnect.h"
+-#include "ag_asset.h"
+ #include "ag_redisclient.h"
+ 
+-
+ int main()
+ {
+ 	redisContext *c;
+ 
+-	c = malloc(sizeof(int*));
++	c = malloc(sizeof(redisContext*));
+ 	c = RedisConnect(c);
+ 
+ 	RedisSetContext(c);
+-
+-	printf("Ping %s\n", RedisPing());
+-
++	RedisPing();
+ 	RedisFree(c);
+ 
+ 	return 0;
+-}
+\ No newline at end of file
++}
+diff --git a/util.h b/util.h
+index 506bc12..65a0366 100644
+--- a/util.h
++++ b/util.h
+@@ -1,7 +1,3 @@
+-//
+-// Created by Kyle Cook on 5/26/16.
+-//
+-
+ #ifndef C_UTIL_H
+ #define C_UTIL_H
+ 

@@ -1,7 +1,3 @@
-//
-// Created by Kyle Cook on 5/26/16.
-//
-
 #ifndef C_DB_UTIL_H
 #define C_DB_UTIL_H
 

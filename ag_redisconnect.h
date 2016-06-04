@@ -1,4 +1,9 @@
-//
+#ifndef C_AG_REDISCONNECT_H
+#define C_AG_REDISCONNECT_H
 
-struct redisContext* RedisConnect(redisContext *c);
+#include <hiredis/hiredis.h>
+
+struct redisContext *RedisConnect(redisContext *c);
 int RedisFree(redisContext *c);
+
+#endif //C_AG_REDISCONNECT_H

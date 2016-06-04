@@ -1,10 +1,18 @@
-char* assetlistkey; //name of list in redis
-redisContext *c; //context of the redis server so the rest of the program doesn't need it
-redisReply *reply; 
+#ifndef C_AG_REDISCLIENT_H
+#define C_AG_REDISCLIENT_H
 
-int RedisSetContext(redisContext *context);
-int RedisSetListName(char* name);
-char* RedisPing();
-int RedisEnqueueAsset(struct AGAsset *asset);
-struct AGAsset* RedisDequeueAsset();
-int RedisQueueLength();
+#include <hiredis/hiredis.h>
+#include "ag_asset.h"
+
+// char *assetlistkey; //name of list in redis
+// redisContext *c; //context of the redis server so the rest of the program doesn't need it
+// redisReply *reply;
+
+int RedisSetContext(redisContext *);
+int RedisSetListName(char*);
+void RedisPing(void);
+int RedisEnqueueAsset(struct AGAsset *);
+struct AGAsset *RedisDequeueAsset(void);
+int RedisQueueLength(void);
+
+#endif //C_AG_REDISCLIENT_H

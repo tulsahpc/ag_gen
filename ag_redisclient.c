@@ -5,10 +5,12 @@
 #include <hiredis/hiredis.h>
 
 #include "ag_asset.h"
-
 #include "ag_redisclient.h"
 
 #define MAXSTRLEN 128
+
+char *assetlistkey;
+redisContext *c;
 
 int RedisSetContext(redisContext *context)
 {
@@ -23,20 +25,16 @@ int RedisSetListName(char* name)
 	return 0;
 }
 
-char* RedisPing()
+void RedisPing()
 {
-	char* pong = malloc(sizeof(char)*MAXSTRLEN);
 	reply = redisCommand(c,"PING");
-	strncpy(pong,reply->str,reply->len);
+	printf("PING %s\n", reply->str);
 	freeReplyObject(reply);
-	return pong;
 }
 
 int RedisEnqueueAsset(struct AGAsset *asset)
 {
-
 	reply = redisCommand(c, "LPUSH %s %d %s %d", assetlistkey, asset->id, asset->name, asset->network_id);
-
 	freeReplyObject(reply);
 	return 0;
 }
@@ -46,7 +44,7 @@ struct AGAsset* RedisDequeueAsset()
 	//int i = 0, j = 0;
 	char* assetstr = malloc(sizeof(char)*MAXSTRLEN);
 	struct AGAsset* asset = malloc(sizeof(struct AGAsset));
-	
+
 	reply = redisCommand(c, "RPOP %s", assetlistkey);
 	assetstr = reply->str;
 	freeReplyObject(reply);
