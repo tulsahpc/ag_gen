@@ -27,14 +27,14 @@ int RedisSetListName(char* name)
 
 void RedisPing()
 {
-	reply = redisCommand(c,"PING");
+	redisReply *reply = redisCommand(c,"PING");
 	printf("PING %s\n", reply->str);
 	freeReplyObject(reply);
 }
 
 int RedisEnqueueAsset(struct AGAsset *asset)
 {
-	reply = redisCommand(c, "LPUSH %s %d %s %d", assetlistkey, asset->id, asset->name, asset->network_id);
+	redisReply *reply = redisCommand(c, "LPUSH %s %d %s %d", assetlistkey, asset->id, asset->name, asset->network_id);
 	freeReplyObject(reply);
 	return 0;
 }
@@ -45,12 +45,11 @@ struct AGAsset* RedisDequeueAsset()
 	char* assetstr = malloc(sizeof(char)*MAXSTRLEN);
 	struct AGAsset* asset = malloc(sizeof(struct AGAsset));
 
-	reply = redisCommand(c, "RPOP %s", assetlistkey);
+	redisReply *reply = redisCommand(c, "RPOP %s", assetlistkey);
 	assetstr = reply->str;
 	freeReplyObject(reply);
 
 	asset->name = assetstr;//temp
-
 
 	return asset;
 }
@@ -58,7 +57,7 @@ struct AGAsset* RedisDequeueAsset()
 int RedisQueueLength()
 {
 	int len = 0;
-	reply = redisCommand(c, "LLEN %s", assetlistkey);
+	redisReply *reply = redisCommand(c, "LLEN %s", assetlistkey);
 	len = atoi(reply->str);
 	freeReplyObject(reply);
 	return len;
