@@ -1,27 +1,20 @@
 INSERT INTO network VALUES
-  (DEFAULT, 'Example1');
+  (DEFAULT, 'Home');
 
 INSERT INTO asset VALUES
-  (DEFAULT, 'host1', (SELECT id FROM network WHERE name = 'Example1')),
-  (DEFAULT, 'host2', (SELECT id FROM network WHERE name = 'Example1')),
-  (DEFAULT, 'host3', (SELECT id FROM network WHERE name = 'Example1')),
-  (DEFAULT, 'host4', (SELECT id FROM network WHERE name = 'Example1')),
-  (DEFAULT, 'host5', (SELECT id FROM network WHERE name = 'Example1')),
-  (DEFAULT, 'host6', (SELECT id FROM network WHERE name = 'Example1'));
+  (DEFAULT, 'router', (SELECT id FROM network WHERE name = 'Home')),
+  (DEFAULT, 'laptop', (SELECT id FROM network WHERE name = 'Home')),
+  (DEFAULT, 'attacker', (SELECT id FROM network WHERE name = 'Home'));
 
 INSERT INTO quality VALUES
-  (1, 'OS', 'WinXP'),
-  (2, 'OS', 'MacOSX'),
-  (3, 'OS', 'Unix'),
-  (4, 'OS', 'OS2'),
-  (5, 'OS', 'OS2'),
-  (6, 'OS', 'OS2');
+  (1, 'version', '1.6');
 
 INSERT INTO topology VALUES
-  (1, 2, TRUE, TRUE),
-  (1, 3, TRUE, TRUE),
-  (1, 4, TRUE, TRUE),
-  (1, 6, TRUE, TRUE),
-  (2, 3, TRUE, FALSE),
-  (3, 4, TRUE, FALSE),
-  (6, 4, TRUE, FALSE);
+  (3, 1, 'connected_web'),
+  (2, 1, 'connected');
+
+INSERT INTO exploit VALUES
+  (DEFAULT, 'router_vuln', 3);
+
+INSERT INTO exploit_precondition VALUES
+  (1, )

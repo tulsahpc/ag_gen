@@ -1,7 +1,3 @@
-//
-// Created by Kyle Cook on 5/26/16.
-//
-
 #ifndef C_AG_ASSET_H
 #define C_AG_ASSET_H
 
