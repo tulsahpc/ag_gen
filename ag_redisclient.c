@@ -42,8 +42,8 @@ int RedisEnqueueAsset(struct AGAsset *asset)
 struct AGAsset* RedisDequeueAsset()
 {
 	//int i = 0, j = 0;
-	char* assetstr = malloc(sizeof(char)*MAXSTRLEN);
-	struct AGAsset* asset = malloc(sizeof(struct AGAsset));
+	char *assetstr = malloc(sizeof(char)*MAXSTRLEN);
+	struct AGAsset *asset = malloc(sizeof(struct AGAsset));
 
 	redisReply *reply = redisCommand(c, "RPOP %s", assetlistkey);
 	assetstr = reply->str;

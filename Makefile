@@ -28,6 +28,7 @@ clean:
 
 .PHONY: get-deps
 get-deps:
+	sudo apt-get install postgresql postgresql-contrib libpq5 libpq-dev redis-server libhiredis0.13 libhiredis-dev
 
 .PHONY: test
 test:
