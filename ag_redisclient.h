@@ -4,10 +4,6 @@
 #include <hiredis/hiredis.h>
 #include "ag_asset.h"
 
-// char *assetlistkey; //name of list in redis
-// redisContext *c; //context of the redis server so the rest of the program doesn't need it
-// redisReply *reply;
-
 int RedisSetContext(redisContext *);
 int RedisSetListName(char*);
 void RedisPing(void);

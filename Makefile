@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 CC = clang
-CFLAGS = -g -Wall -Wpedantic --std=c99
+CFLAGS = -g -Wall -Wpedantic --std=c99 ${C_INC}
 
 LIBS = -lpq
 
