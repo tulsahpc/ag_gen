@@ -63,6 +63,17 @@ int AGAssetsFree(struct AGAssetList *assetList)
 	return 0;
 }
 
+int AGAssetFree(struct AGAsset *asset)
+{
+	if(asset == NULL) {
+		return 1;
+	}
+
+	free(asset->name);
+	free(asset);
+	return 0;
+}
+
 void AGAssetsPrint(const struct AGAssetList *assetList)
 {
 	int len = assetList->len;
