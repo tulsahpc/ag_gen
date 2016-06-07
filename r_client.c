@@ -11,6 +11,7 @@
 #define HOSTNAME "127.0.0.1"
 #define PORT 6379
 
+
 int RedisConnect(redisContext *c)
 {
 	//uses default hostname and port instead of being taken from argc

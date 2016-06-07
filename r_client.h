@@ -6,12 +6,12 @@
 struct RList {
 	redisContext *c;
 	char *key;
-}
+};
 
 int RedisConnect(redisContext *c);
 int RedisContextFree(redisContext *c);
 void RedisPing(redisContext *c);
-int RedisEnqueueValue(redisContext *c, char *, char *)
+int RedisEnqueueValue(redisContext *c, char *, char *);
 char *RedisDequeueValue(redisContext *c, char *);
 int RedisListLength(redisContext *c, char *);
 
