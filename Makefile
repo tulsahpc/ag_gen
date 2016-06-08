@@ -16,8 +16,8 @@ all: db_test redis_test
 db_test: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
-REDIS_TEST_SRC = redis_test.c ag_redisconnect.c ag_asset.c \
-		ag_redisclient.c db_util.c
+REDIS_TEST_SRC = redis_test.c ag_redisasset.c ag_asset.c r_client.c\
+		ag_redisasset.c db_util.c
 REDIS_TEST_OBJS = $(REDIS_TEST_SRC:.c=.o)
 redis_test: $(REDIS_TEST_OBJS)
 	$(CC) $(CFLAGS) -o $@ $(REDIS_TEST_OBJS) -lpq -lhiredis

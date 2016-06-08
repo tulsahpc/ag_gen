@@ -3,7 +3,7 @@
 
 #include <hiredis/hiredis.h>
 
-struct RList {
+struct RCList {
 	redisContext *c;
 	char *key;
 };

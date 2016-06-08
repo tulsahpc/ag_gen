@@ -10,12 +10,12 @@
 
 int main()
 {
-	struct RList *rlist;
+	struct RCList *rclist = NULL;
 	struct AGAsset *asset = malloc(sizeof(struct AGAsset));
 	struct AGAsset *newasset = malloc(sizeof(struct AGAsset));
 
-	RedisConnect(rlist->c);
-	rlist->key = "assetList";
+	RedisConnect(rclist->c);
+	rclist->key = "assetList";
 
 	asset->id = 1234;
 	asset->name = "Sheard Dumisani";
@@ -25,14 +25,14 @@ int main()
 	printf("Asset details : ID %d : NAME %s : NETWORK_ID %d\n", asset->id, asset->name, asset->network_id);
 
 
-	AddRedisAsset(asset,rlist);
+	AddRedisAsset(asset,rclist);
 	printf("Asset enqueued\n");
 
-	newasset = GetRedisAsset(rlist);
+	newasset = GetRedisAsset(rclist);
 	printf("Asset dequeued\n");
 	printf("Asset details after dequeue : ID %d : NAME %s : NETWORK_ID %d\n", newasset->id, newasset->name, newasset->network_id);
 
-	AGAssetsFree(asset);
-	AGAssetsFree(newasset);
+	AGAssetFree(asset);
+	AGAssetFree(newasset);
 	return 0;
 }

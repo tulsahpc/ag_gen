@@ -11,6 +11,10 @@
 #define HOSTNAME "127.0.0.1"
 #define PORT 6379
 
+int RCListGet(struct RCList *list)
+{
+
+}
 
 int RedisConnect(redisContext *c)
 {
@@ -58,7 +62,7 @@ char * RedisDequeueValue(redisContext *c, char *key)
 {
 	char *value = malloc(sizeof(char)*MAXSTRLEN);
 	redisReply *reply = redisCommand(c, "RPOP %s", key);
-	value = reply->str;
+	strcpy(value,reply->str);
 	freeReplyObject(reply);
 	return value;
 }
