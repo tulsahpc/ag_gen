@@ -7,6 +7,8 @@
 #include "redis_util.h"
 #include "ag_redisasset.h"
 #include "ag_asset.h"
+#include "ag_redisexploit.h"
+#include "ag_exploit.h"
 #include "util.h"
 
 redisContext *cxt;
@@ -32,5 +34,20 @@ int main()
 
 	AGAssetFree(asset);
 	AGAssetFree(newAsset);
+
+	struct AGExploit *exploit = malloc(sizeof(struct AGExploit));
+	exploit->id = 143222;
+	printf("exploit value is :%d\n",exploit->id);
+
+	RedisExploitAdd("exploit", exploit);
+	DEBUG_PRINT("Exploit Enqueued\n",0);
+
+	struct AGExploit *ex2 = RedisExploitGet("exploit");
+	DEBUG_PRINT("Exploit Dequeued\n",0);
+
+	printf("exploit value is :%d\n",ex2->id);
+	free(exploit);
+	free(ex2);
+
 	return 0;
 }
