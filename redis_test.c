@@ -4,7 +4,7 @@
 
 #include <hiredis/hiredis.h>
 
-#include "r_client.h"
+#include "redis_util.h"
 #include "ag_redisasset.h"
 #include "ag_asset.h"
 
