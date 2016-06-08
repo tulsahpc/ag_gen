@@ -10,7 +10,7 @@
 
 int main()
 {
-	struct RCList *rclist = NULL;
+	struct RCList *rclist = malloc(sizeof(struct RCList));
 	struct AGAsset *asset = malloc(sizeof(struct AGAsset));
 	struct AGAsset *newasset = malloc(sizeof(struct AGAsset));
 

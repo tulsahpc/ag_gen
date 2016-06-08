@@ -10,8 +10,8 @@ struct RedisAsset {
 };
 
 void AddRedisAsset(struct AGAsset *, struct RCList *);
-void AddRedisAssets(struct AGAssetList *, struct RCList *);
+//void AddRedisAssets(struct AGAssetList *, struct RCList *);
 struct AGAsset * GetRedisAsset(struct RCList *);
-struct AGAssetList * GetRedisAssetList(struct RCList *);
+//struct AGAssetList * GetRedisAssetList(struct RCList *);
 
 #endif //C_AG_REDISASSET_H
