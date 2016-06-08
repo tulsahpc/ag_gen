@@ -4,35 +4,33 @@
 
 #include <hiredis/hiredis.h>
 
-#include "r_client.h"
+#include "redis_util.h"
 #include "ag_redisasset.h"
 #include "ag_asset.h"
+#include "util.h"
+
+redisContext *cxt;
 
 int main()
 {
-	struct RCList *rclist = malloc(sizeof(struct RCList));
 	struct AGAsset *asset = malloc(sizeof(struct AGAsset));
-	struct AGAsset *newasset = malloc(sizeof(struct AGAsset));
-
-	RedisConnect(rclist->c);
-	rclist->key = "assetList";
 
 	asset->id = 1234;
 	asset->name = "Sheard Dumisani";
 	asset->network_id = 19122232;
 
-	printf("Asset set\n");
-	printf("Asset details : ID %d : NAME %s : NETWORK_ID %d\n", asset->id, asset->name, asset->network_id);
+	int con = RedisConnect();
+	if(con != 0) {
+		exit(1);
+	}
 
+	RedisAssetAdd("asset1", asset);
+	DEBUG_PRINT("Asset Enqueued\n",0);
 
-	AddRedisAsset(asset,rclist);
-	printf("Asset enqueued\n");
-
-	newasset = GetRedisAsset(rclist);
-	printf("Asset dequeued\n");
-	printf("Asset details after dequeue : ID %d : NAME %s : NETWORK_ID %d\n", newasset->id, newasset->name, newasset->network_id);
+	struct AGAsset *newAsset = RedisAssetGet("asset1");
+	DEBUG_PRINT("Asset Dequeued\n",0);
 
 	AGAssetFree(asset);
-	AGAssetFree(newasset);
+	AGAssetFree(newAsset);
 	return 0;
 }
