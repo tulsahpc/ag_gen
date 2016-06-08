@@ -55,7 +55,6 @@ int AGAssetsFree(struct AGAssetList *assetList)
 	struct AGAsset **assets = assetList->assets;
 
 	for(int i=0; i<len; i++) {
-		free(assets[i]->name);
 		free(assets[i]);
 	}
 
@@ -69,7 +68,6 @@ int AGAssetFree(struct AGAsset *asset)
 		return 1;
 	}
 
-	free(asset->name);
 	free(asset);
 	return 0;
 }
