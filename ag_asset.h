@@ -15,7 +15,7 @@ struct AGAsset {
 	//struct AGNetwork* network;
 };
 
-struct AGAssetList *AGGetAssets(void);
+struct AGAssetList *AGGetAssets(const char *);
 int AGAssetsFree(struct AGAssetList *);
 int AGAssetFree(struct AGAsset *);
 void AGAssetsPrint(const struct AGAssetList *);

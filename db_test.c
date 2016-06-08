@@ -19,7 +19,7 @@ int main()
 
     first = networkList->networks[0];
 
-    assetList = AGGetAssets();
+    assetList = AGGetAssets("home");
     AGAssetsPrint(assetList);
     AGAssetsFree(assetList);
 

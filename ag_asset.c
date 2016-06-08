@@ -5,7 +5,9 @@
 #include "ag_asset.h"
 #include "db_util.h"
 
-struct AGAssetList *AGGetAssets()
+#define STRBUF 128
+
+struct AGAssetList *AGGetAssets(const char *network)
 {
 	PGresult *res;
 	int numRows;
@@ -14,7 +16,15 @@ struct AGAssetList *AGGetAssets()
 
 	AGDbBeginTransaction();
 
-	res = PQexec(conn, "SELECT * FROM asset");
+	char sql[STRBUF+1] = {0};
+	int wr = snprintf(sql, STRBUF, "SELECT * FROM asset WHERE network_id = (SELECT id FROM network WHERE name = '%s');\n", network);
+	if(wr < STRBUF) {
+		sql[wr] = '\0';
+	} else {
+		sql[STRBUF] = '\0';
+	}
+
+	res = PQexec(conn, sql);
 	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
 		fprintf(stderr, "SELECT command failed: %s",
 			PQerrorMessage(conn));

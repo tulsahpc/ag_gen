@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 CC = clang
-CFLAGS = -g -Wall -Wpedantic --std=c99
+CFLAGS = -g -Wall -Wpedantic --std=c99 -DDEBUG
 LIBS = -lpq -lhiredis
 TARGETS = ag_gen db_test redis_test
 
