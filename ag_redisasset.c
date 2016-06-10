@@ -7,27 +7,18 @@
 #include "redis_util.h"
 #include "util.h"
 
-#define MAXSTRLEN 128
-#define DELIMITER ":"
-
 int RedisAssetAdd(const char *key, struct AGAsset *asset)
 {
 	char *str;
-	int written;
 
-	if(asset == NULL) {
-		printf("Asset cannot be null.");
+	if(key == NULL)
 		return 1;
-	}
 
-	str = malloc(sizeof(char)*(MAXSTRLEN+1));
-	written = snprintf(str, MAXSTRLEN, "%d:%s:%d", asset->id, asset->name, asset->network_id);
+	if(asset == NULL)
+		return 1;
 
-	if(written < MAXSTRLEN) {
-		str[written] = '\0';
-	} else {
-		str[MAXSTRLEN] = '\0';
-	}
+	str = malloc(sizeof(char)*MAXSTRLEN);
+	snprintf(str, MAXSTRLEN, "%d:%s:%d", asset->id, asset->name, asset->network_id);
 
 	RedisEnqueueValue(key, str);
 	free(str);
@@ -50,7 +41,9 @@ struct AGAsset *RedisAssetGet(const char *key)
 
 		asset = malloc(sizeof(struct AGAsset));
 		asset->id = atoi(strtok_r(str, DELIMITER, &saveptr));
-		asset->name = strtok_r(NULL, DELIMITER, &saveptr);
+
+		char *assetName = strtok_r(NULL, DELIMITER, &saveptr);
+		asset->name = dynstr(assetName);
 		asset->network_id = atoi(strtok_r(NULL, DELIMITER, &saveptr));
 
 		free(str);

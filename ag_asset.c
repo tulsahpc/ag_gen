@@ -4,6 +4,7 @@
 
 #include "ag_asset.h"
 #include "db_util.h"
+#include "util.h"
 
 struct AGAssetList *AGGetAssets()
 {
@@ -29,9 +30,10 @@ struct AGAssetList *AGGetAssets()
 		char *idValue = PQgetvalue(res, i, 0);
 		char *nameValue = PQgetvalue(res, i, 1);
 		char *networkIdValue = PQgetvalue(res, i, 2);
+
 		size_t nameLen = strlen(nameValue);
-		char *name = calloc(nameLen + 1, sizeof(char));
-		strncpy(name, nameValue, nameLen);
+		char *name = calloc(nameLen, sizeof(char));
+		sstrcpy(name, nameValue, nameLen);
 
 		assets[i] = malloc(sizeof(struct AGAsset));
 		assets[i]->id = atoi(idValue);
@@ -49,24 +51,23 @@ struct AGAssetList *AGGetAssets()
 	return assetList;
 }
 
-int AGAssetsFree(struct AGAssetList *assetList)
+struct AGAsset *AGAssetNew(int id, char *name)
 {
-	int len = assetList->len;
-	struct AGAsset **assets = assetList->assets;
+	struct AGAsset *newAsset = malloc(sizeof(struct AGAsset));
+	newAsset->id = id;
+	sstrcpy(newAsset->name, name, strlen(name));
 
-	for(int i=0; i<len; i++) {
-		free(assets[i]);
-	}
-
-	free(assets);
-	return 0;
+	return newAsset;
 }
 
 int AGAssetFree(struct AGAsset *asset)
 {
-	if(asset == NULL) {
+	DEBUG_PRINT("asset #%d: %s\n", asset->id, asset->name);
+	if(asset == NULL)
 		return 1;
-	}
+
+	if(asset->name != NULL)
+		free(asset->name);
 
 	free(asset);
 	return 0;

@@ -15,10 +15,13 @@ redisContext *cxt;
 
 int main()
 {
+	int res;
 	struct AGAsset *asset = malloc(sizeof(struct AGAsset));
 
+	char *name = dynstr("Sheard Dumisani");
+
 	asset->id = 1234;
-	asset->name = "Sheard Dumisani";
+	asset->name = name;
 	asset->network_id = 19122232;
 
 	int con = RedisConnect();
@@ -32,22 +35,33 @@ int main()
 	struct AGAsset *newAsset = RedisAssetGet("asset1");
 	DEBUG_PRINT("Asset Dequeued\n",0);
 
-	AGAssetFree(asset);
-	AGAssetFree(newAsset);
+	res = AGAssetFree(asset);
+	if(res != 0) {
+		printf("There was a problem.");
+		exit(1);
+	}
 
-	struct AGExploit *exploit = malloc(sizeof(struct AGExploit));
-	exploit->id = 143222;
-	printf("exploit value is :%d\n",exploit->id);
+	res = AGAssetFree(newAsset);
+	if(res != 0) {
+		printf("There was a problem.");
+		exit(1);
+	}
 
-	RedisExploitAdd("exploit", exploit);
-	DEBUG_PRINT("Exploit Enqueued\n",0);
+	// struct AGExploit *exploit = malloc(sizeof(struct AGExploit));
+	// exploit->id = 143222;
+	// exploit->name = "exploit1";
+	// ExploitPrint(exploit);
 
-	struct AGExploit *ex2 = RedisExploitGet("exploit");
-	DEBUG_PRINT("Exploit Dequeued\n",0);
+	// RedisExploitAdd("exploit", exploit);
+	// DEBUG_PRINT("Exploit Enqueued\n",0);
 
-	printf("exploit value is :%d\n",ex2->id);
-	free(exploit);
-	free(ex2);
+	// struct AGExploit *ex2 = RedisExploitGet("exploit");
+	// DEBUG_PRINT("Exploit Dequeued\n",0);
+
+	// ExploitPrint(ex2);
+
+	// free(exploit);
+	// free(ex2);
 
 	return 0;
 }

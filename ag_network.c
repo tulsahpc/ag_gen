@@ -6,8 +6,6 @@
 #include "ag_network.h"
 #include "db_util.h"
 
-#define BUFSIZE 32
-
 struct AGNetworkList *AGGetNetworks()
 {
 	PGresult *res;

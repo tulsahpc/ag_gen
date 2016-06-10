@@ -7,8 +7,6 @@
 #include "redis_util.h"
 #include "util.h"
 
-#define MAXSTRLEN 128
-
 #define HOSTNAME "127.0.0.1"
 #define PORT 6379
 
@@ -74,6 +72,7 @@ char *RedisDequeueValue(const char *key)
 	redisReply *reply = redisCommand(ctx, "RPOP %s", key);
 
 	if(reply == NULL) {
+		free(value);
 		RedisReplyError(reply);
 		return NULL;
 	}
@@ -81,6 +80,8 @@ char *RedisDequeueValue(const char *key)
 	DEBUG_PRINT("reply type: %d\n", reply->type);
 	if(reply->type == REDIS_REPLY_NIL) {
 		printf("%s does not exist.\n", key);
+		free(value);
+		RedisReplyError(reply);
 		return NULL;
 	}
 
