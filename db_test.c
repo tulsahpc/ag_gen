@@ -1,4 +1,4 @@
-/**
+/**  \file
  * Tests the postgresql database.
  *
  *

@@ -1,4 +1,4 @@
-/**
+/** \file
  * Handles the redis server.
  *
  * Has all of the necessary helper functions for setting up a server context,
@@ -17,6 +17,9 @@
 #include "redis_util.h"
 #include "util.h"
 
+/*!
+ * Maxlength of the strings that can be inputed/outputed
+ */
 #define MAXSTRLEN 128
 
 /**

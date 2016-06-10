@@ -1,4 +1,4 @@
-/**
+/**  \file
  * Handles the asset to redis server interchange.
  *
  * Takes an assets and turns it into a string that can be put into the redis server.
@@ -14,6 +14,9 @@
 #include "redis_util.h"
 #include "util.h"
 
+/*!
+ * Maxlength of the strings that can be inputed/outputed
+ */
 #define MAXSTRLEN 128
 #define DELIMITER ":"
 

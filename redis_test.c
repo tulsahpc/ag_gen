@@ -1,4 +1,4 @@
-/**
+/**  \file
  * Redis_test determines if there is a usable redis server.
  *
  * When run this executable validates whether a connection can be established to the redis server
