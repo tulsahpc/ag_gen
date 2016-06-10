@@ -1,3 +1,11 @@
+/**
+ * Redis_test determines if there is a usable redis server.
+ *
+ * When run this executable validates whether a connection can be established to the redis server
+ * and if an asset that is put into the redis server can be retrieved with all of its data intact.
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +17,9 @@
 #include "ag_asset.h"
 #include "util.h"
 
+/**
+ * Global redis server context. For testing purposes only.
+ */
 redisContext *cxt;
 
 int main()

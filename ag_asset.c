@@ -1,3 +1,9 @@
+/**
+ *
+ *
+ *
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include <libpq-fe.h>
@@ -5,6 +11,11 @@
 #include "ag_asset.h"
 #include "db_util.h"
 
+/**
+ *
+ *
+ *
+ */
 struct AGAssetList *AGGetAssets()
 {
 	PGresult *res;
@@ -49,6 +60,11 @@ struct AGAssetList *AGGetAssets()
 	return assetList;
 }
 
+/**
+ *
+ *
+ *
+ */
 int AGAssetsFree(struct AGAssetList *assetList)
 {
 	int len = assetList->len;
@@ -62,6 +78,11 @@ int AGAssetsFree(struct AGAssetList *assetList)
 	return 0;
 }
 
+/**
+ *
+ *
+ *
+ */
 int AGAssetFree(struct AGAsset *asset)
 {
 	if(asset == NULL) {
@@ -72,6 +93,11 @@ int AGAssetFree(struct AGAsset *asset)
 	return 0;
 }
 
+/**
+ *
+ *
+ *
+ */
 void AGAssetsPrint(const struct AGAssetList *assetList)
 {
 	int len = assetList->len;

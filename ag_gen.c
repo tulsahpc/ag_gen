@@ -1,3 +1,8 @@
+/**
+ *
+ *
+ *
+ */
 #include <stdlib.h>
 #include "db_util.h"
 
@@ -16,6 +21,11 @@ int main(int argc, char *argv[])
 	AGDbDisconnect();
 }
 
+/**
+ * Prints to the console the name and version of the attack graph generator
+ *
+ *
+ */
 void printUsage()
 {
 	printf("------------------------------------\n");
