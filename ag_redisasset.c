@@ -18,7 +18,7 @@ int RedisAssetAdd(const char *key, struct AGAsset *asset)
 		return 1;
 
 	str = malloc(sizeof(char)*MAXSTRLEN);
-	snprintf(str, MAXSTRLEN, "%d:%s:%d", asset->id, asset->name, asset->network_id);
+	snprintf(str, MAXSTRLEN, "%d:%s:%d:%s:%s", asset->id, asset->name, asset->network_id, asset->qualities, asset->topologies);
 
 	RedisEnqueueValue(key, str);
 	free(str);
@@ -45,6 +45,11 @@ struct AGAsset *RedisAssetGet(const char *key)
 		char *assetName = strtok_r(NULL, DELIMITER, &saveptr);
 		asset->name = dynstr(assetName);
 		asset->network_id = atoi(strtok_r(NULL, DELIMITER, &saveptr));
+
+		char *qualitiesKey = strtok_r(NULL, DELIMITER, &saveptr);
+		char *topologiesKey = strtok_r(NULL, DELIMITER, &saveptr);
+		asset->qualities = dynstr(qualitiesKey);
+		asset->topologies = dynstr(topologiesKey);
 
 		free(str);
 	}

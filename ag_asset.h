@@ -12,6 +12,8 @@ struct AGAsset {
 	int id;
 	char *name;
 	int network_id;
+	char *qualities;
+	char *topologies;
 	//struct AGNetwork* network;
 };
 

@@ -69,6 +69,12 @@ int AGAssetFree(struct AGAsset *asset)
 	if(asset->name != NULL)
 		free(asset->name);
 
+	if(asset->qualities != NULL)
+		free(asset->qualities);
+
+	if(asset->topologies != NULL)
+		free(asset->qualities);
+
 	free(asset);
 	return 0;
 }
