@@ -3,16 +3,17 @@
 CC = clang
 CFLAGS = -g -Wall -Wpedantic --std=c99 -DDEBUG
 LIBS = -lpq -lhiredis
-TARGETS = ag_gen db_test redis_test
+TARGETS = ag_gen db_test redis_test string_test
 
 AG_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(TARGETS)),$(wildcard ag_*.c)))
 DB_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(TARGETS)),$(wildcard db_*.c)))
 REDIS_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(TARGETS)),$(wildcard redis_*.c)))
+OTHER_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(TARGETS)),$(wildcard util*.c)))
 
 .PHONY: all
-all: ag_gen db_test redis_test
+all: $(TARGETS)
 
-$(TARGETS):%:%.o $(AG_HELPERS) $(DB_HELPERS) $(REDIS_HELPERS)
+$(TARGETS):%:%.o $(AG_HELPERS) $(DB_HELPERS) $(REDIS_HELPERS) $(OTHER_HELPERS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
 .PHONY: clean
@@ -25,3 +26,7 @@ get-deps:
 
 .PHONY: test
 test: db_test redis_test
+
+.PHONY: check
+check:
+	@cppcheck --std=c99 *.{c,h}

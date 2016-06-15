@@ -4,6 +4,7 @@
 
 #include "ag_asset.h"
 #include "db_util.h"
+#include "util.h"
 
 #define STRBUF 128
 
@@ -36,17 +37,14 @@ struct AGAssetList *AGGetAssets(const char *network)
 	assets = malloc(sizeof(struct AGAsset*) * numRows);
 
 	for (int i=0; i<numRows; i++) {
-		char *idValue = PQgetvalue(res, i, 0);
-		char *nameValue = PQgetvalue(res, i, 1);
-		char *networkIdValue = PQgetvalue(res, i, 2);
-		size_t nameLen = strlen(nameValue);
-		char *name = calloc(nameLen + 1, sizeof(char));
-		strncpy(name, nameValue, nameLen);
+		int id = atoi(PQgetvalue(res, i, 0));
+		char *name = dynstr(PQgetvalue(res, i, 1));
+		int network_id = atoi(PQgetvalue(res, i, 2));
 
-		assets[i] = malloc(sizeof(struct AGAsset));
-		assets[i]->id = atoi(idValue);
+		assets[i] = calloc(1, sizeof(struct AGAsset));
+		assets[i]->id = id;
 		assets[i]->name = name;
-		assets[i]->network_id = atoi(networkIdValue);
+		assets[i]->network_id = network_id;
 	}
 
 	AGDbEndTransaction();
@@ -59,24 +57,29 @@ struct AGAssetList *AGGetAssets(const char *network)
 	return assetList;
 }
 
-int AGAssetsFree(struct AGAssetList *assetList)
+struct AGAsset *AGAssetNew(int id, char *name)
 {
-	int len = assetList->len;
-	struct AGAsset **assets = assetList->assets;
+	struct AGAsset *newAsset = calloc(1, sizeof(struct AGAsset));
+	newAsset->id = id;
+	newAsset->name = dynstr(name);
 
-	for(int i=0; i<len; i++) {
-		free(assets[i]);
-	}
-
-	free(assets);
-	return 0;
+	return newAsset;
 }
 
 int AGAssetFree(struct AGAsset *asset)
 {
-	if(asset == NULL) {
+	DEBUG_PRINT("asset #%d: %s\n", asset->id, asset->name);
+	if(asset == NULL)
 		return 1;
-	}
+
+	if(asset->name != NULL)
+		free(asset->name);
+
+	if(asset->qualities != NULL)
+		free(asset->qualities);
+
+	if(asset->topologies != NULL)
+		free(asset->topologies);
 
 	free(asset);
 	return 0;

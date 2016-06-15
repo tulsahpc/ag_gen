@@ -3,6 +3,8 @@
 
 #include <hiredis/hiredis.h>
 
+#define DELIMITER ":"
+
 int RedisConnect(void);
 int RedisDisconnect(void);
 int RedisPing(void);

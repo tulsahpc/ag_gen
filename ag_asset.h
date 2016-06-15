@@ -12,11 +12,14 @@ struct AGAsset {
 	int id;
 	char *name;
 	int network_id;
+	char *qualities;
+	char *topologies;
 	//struct AGNetwork* network;
 };
 
-struct AGAssetList *AGGetAssets(const char *);
-int AGAssetsFree(struct AGAssetList *);
+
+struct AGAssetList *AGGetAssets(void);
+struct AGAsset *AGAssetNew(int, char *);
 int AGAssetFree(struct AGAsset *);
 void AGAssetsPrint(const struct AGAssetList *);
 

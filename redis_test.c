@@ -7,16 +7,19 @@
 #include "redis_util.h"
 #include "ag_redisasset.h"
 #include "ag_asset.h"
+#include "ag_redisexploit.h"
+#include "ag_exploit.h"
 #include "util.h"
 
 redisContext *cxt;
 
 int main()
 {
-	struct AGAsset *asset = malloc(sizeof(struct AGAsset));
+	int res;
+	struct AGAsset *asset = calloc(1, sizeof(struct AGAsset));
 
 	asset->id = 1234;
-	asset->name = "Sheard Dumisani";
+	asset->name = dynstr("Sheard Dumisani");;
 	asset->network_id = 19122232;
 
 	int con = RedisConnect();
@@ -30,7 +33,33 @@ int main()
 	struct AGAsset *newAsset = RedisAssetGet("asset1");
 	DEBUG_PRINT("Asset Dequeued\n",0);
 
-	AGAssetFree(asset);
-	AGAssetFree(newAsset);
+	res = AGAssetFree(asset);
+	if(res != 0) {
+		printf("There was a problem.");
+		exit(1);
+	}
+
+	res = AGAssetFree(newAsset);
+	if(res != 0) {
+		printf("There was a problem.");
+		exit(1);
+	}
+
+	// struct AGExploit *exploit = malloc(sizeof(struct AGExploit));
+	// exploit->id = 143222;
+	// exploit->name = "exploit1";
+	// ExploitPrint(exploit);
+
+	// RedisExploitAdd("exploit", exploit);
+	// DEBUG_PRINT("Exploit Enqueued\n",0);
+
+	// struct AGExploit *ex2 = RedisExploitGet("exploit");
+	// DEBUG_PRINT("Exploit Dequeued\n",0);
+
+	// ExploitPrint(ex2);
+
+	// free(exploit);
+	// free(ex2);
+
 	return 0;
 }

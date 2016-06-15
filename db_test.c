@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "ag_network.h"
 #include "ag_asset.h"
 #include "db_util.h"
@@ -21,7 +23,10 @@ int main()
 
     assetList = AGGetAssets("home");
     AGAssetsPrint(assetList);
-    AGAssetsFree(assetList);
+    for(int i=0; i<assetList->len; i++) {
+    	AGAssetFree(assetList->assets[i]);
+    }
+    free(assetList);
 
     AGDbDisconnect();
 }
