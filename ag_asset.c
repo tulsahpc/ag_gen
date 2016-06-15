@@ -27,18 +27,14 @@ struct AGAssetList *AGGetAssets()
 	assets = malloc(sizeof(struct AGAsset*) * numRows);
 
 	for (int i=0; i<numRows; i++) {
-		char *idValue = PQgetvalue(res, i, 0);
-		char *nameValue = PQgetvalue(res, i, 1);
-		char *networkIdValue = PQgetvalue(res, i, 2);
+		int id = atoi(PQgetvalue(res, i, 0));
+		char *name = dynstr(PQgetvalue(res, i, 1));
+		int network_id = atoi(PQgetvalue(res, i, 2));
 
-		size_t nameLen = strlen(nameValue);
-		char *name = calloc(nameLen, sizeof(char));
-		sstrcpy(name, nameValue, nameLen);
-
-		assets[i] = malloc(sizeof(struct AGAsset));
-		assets[i]->id = atoi(idValue);
+		assets[i] = calloc(1, sizeof(struct AGAsset));
+		assets[i]->id = id;
 		assets[i]->name = name;
-		assets[i]->network_id = atoi(networkIdValue);
+		assets[i]->network_id = network_id;
 	}
 
 	AGDbEndTransaction();
@@ -53,9 +49,9 @@ struct AGAssetList *AGGetAssets()
 
 struct AGAsset *AGAssetNew(int id, char *name)
 {
-	struct AGAsset *newAsset = malloc(sizeof(struct AGAsset));
+	struct AGAsset *newAsset = calloc(1, sizeof(struct AGAsset));
 	newAsset->id = id;
-	sstrcpy(newAsset->name, name, strlen(name));
+	newAsset->name = dynstr(name);
 
 	return newAsset;
 }
@@ -73,7 +69,7 @@ int AGAssetFree(struct AGAsset *asset)
 		free(asset->qualities);
 
 	if(asset->topologies != NULL)
-		free(asset->qualities);
+		free(asset->topologies);
 
 	free(asset);
 	return 0;

@@ -68,33 +68,26 @@ int RedisEnqueueValue(const char *key, const char* value)
 
 char *RedisDequeueValue(const char *key)
 {
-	char *value = malloc(sizeof(char)*(MAXSTRLEN+1));
-	redisReply *reply = redisCommand(ctx, "RPOP %s", key);
+	if(key == NULL)
+		return NULL;
 
+	redisReply *reply = redisCommand(ctx, "RPOP %s", key);
 	if(reply == NULL) {
-		free(value);
 		RedisReplyError(reply);
+		freeReplyObject(reply);
 		return NULL;
 	}
 
 	DEBUG_PRINT("reply type: %d\n", reply->type);
 	if(reply->type == REDIS_REPLY_NIL) {
-		printf("%s does not exist.\n", key);
-		free(value);
 		RedisReplyError(reply);
+		freeReplyObject(reply);
 		return NULL;
 	}
 
-	int len = reply->len;
-	strncpy(value, reply->str, len);
-
-	if(len < MAXSTRLEN) {
-		value[len] = '\0';
-	} else {
-		value[MAXSTRLEN] = '\0';
-	}
-
+	char *value = dynstr(reply->str);
 	freeReplyObject(reply);
+
 	return value;
 }
 
@@ -105,11 +98,13 @@ int RedisListLength(const char *key)
 
 	if(reply == NULL) {
 		RedisReplyError(reply);
+		freeReplyObject(reply);
 		return -1;
 	}
 
 	len = atoi(reply->str);
 	freeReplyObject(reply);
+
 	return len;
 }
 

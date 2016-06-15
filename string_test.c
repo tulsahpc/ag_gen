@@ -8,9 +8,11 @@ int main()
   int textLen = strlen(text);
   DEBUG_PRINT("text length: %d\n", textLen);
 
-  char *textCopy = malloc(sizeof(char)*textLen);
-  sstrcpy(textCopy, text, textLen);
+  // Must be freed!
+  char *textCopy = dynstr(text);
 
   printf("%s\n", text);
   printf("%s\n", textCopy);
+
+  free(textCopy);
 }

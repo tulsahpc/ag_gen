@@ -19,10 +19,14 @@ int sstrcpy(char *dst, const char *src, int len)
 
 char *dynstr(const char *str)
 {
+	if(str == NULL)
+		return NULL;
+
 	int strLen = strlen(str);
-	char *newStr = malloc(sizeof(char)*strLen);
+	char *newStr = malloc(sizeof(char)*(strLen+1));
 	if(newStr == NULL)
 		return NULL;
+
 	sstrcpy(newStr, str, strLen);
 	return newStr;
 }

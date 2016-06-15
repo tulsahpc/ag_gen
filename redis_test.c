@@ -16,12 +16,10 @@ redisContext *cxt;
 int main()
 {
 	int res;
-	struct AGAsset *asset = malloc(sizeof(struct AGAsset));
-
-	char *name = dynstr("Sheard Dumisani");
+	struct AGAsset *asset = calloc(1, sizeof(struct AGAsset));
 
 	asset->id = 1234;
-	asset->name = name;
+	asset->name = dynstr("Sheard Dumisani");;
 	asset->network_id = 19122232;
 
 	int con = RedisConnect();

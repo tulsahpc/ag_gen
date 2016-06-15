@@ -17,7 +17,7 @@ int RedisAssetAdd(const char *key, struct AGAsset *asset)
 	if(asset == NULL)
 		return 1;
 
-	str = malloc(sizeof(char)*MAXSTRLEN);
+	str = malloc(sizeof(char)*(MAXSTRLEN+1));
 	snprintf(str, MAXSTRLEN, "%d:%s:%d:%s:%s", asset->id, asset->name, asset->network_id, asset->qualities, asset->topologies);
 
 	RedisEnqueueValue(key, str);
@@ -32,10 +32,11 @@ struct AGAsset *RedisAssetGet(const char *key)
 	char *saveptr;
 	struct AGAsset *asset = {0};
 
+	if(key == NULL)
+		return NULL;
+
 	str = RedisDequeueValue(key);
-
 	DEBUG_PRINT("key: %s\n", key);
-
 	if(str != NULL){
 		DEBUG_PRINT("DEQUEUE Reply string is: %s\n", str);
 

@@ -5,6 +5,7 @@
 
 #include "ag_network.h"
 #include "db_util.h"
+#include "util.h"
 
 struct AGNetworkList *AGGetNetworks()
 {
@@ -26,14 +27,11 @@ struct AGNetworkList *AGGetNetworks()
 	networks = malloc(sizeof(struct AGNetwork*) * numRows);
 
 	for(int i=0; i<numRows; i++) {
-		char *idValue = PQgetvalue(res, i, 0);
-		char *nameValue = PQgetvalue(res, i, 1);
-		size_t nameLen = strlen(nameValue);
-		char *name = calloc(nameLen+1, sizeof(char));
-		strncpy(name, nameValue, nameLen);
+		int id = atoi(PQgetvalue(res, i, 0));
+		char *name = dynstr(PQgetvalue(res, i, 1));
 
 		networks[i] = malloc(sizeof(struct AGNetwork));
-		networks[i]->id = atoi(idValue);
+		networks[i]->id = id;
 		networks[i]->name = name;
 	}
 
