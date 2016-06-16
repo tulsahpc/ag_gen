@@ -11,22 +11,16 @@ int main()
 {
     struct AGNetworkList *networkList;
     struct AGAssetList *assetList;
-    struct AGNetwork *first;
 
     AGDbConnect(CONNINFO);
 
     networkList = AGGetNetworks();
-    AGNetworksPrint(networkList);
-    AGNetworksFree(networkList);
-
-    first = networkList->networks[0];
+    AGNetworkListPrint(networkList);
+    AGNetworkListFree(networkList);
 
     assetList = AGGetAssets("home");
     AGAssetsPrint(assetList);
-    for(int i=0; i<assetList->len; i++) {
-    	AGAssetFree(assetList->assets[i]);
-    }
-    free(assetList);
+    AGAssetListFree(assetList);
 
     AGDbDisconnect();
 }

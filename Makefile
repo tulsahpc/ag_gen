@@ -29,4 +29,5 @@ test: db_test redis_test
 
 .PHONY: check
 check:
-	@cppcheck --std=c99 *.{c,h}
+	@cppcheck --std=c99 *.c
+	@cppcheck --std=c99 *.h

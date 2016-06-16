@@ -45,27 +45,52 @@ struct AGNetworkList *AGGetNetworks()
 	return networkList;
 }
 
-int AGNetworksFree(struct AGNetworkList *networkList)
+int AGNetworkFree(struct AGNetwork *network)
 {
-	int len = networkList->len;
-	struct AGNetwork **networks = networkList->networks;
+	if(network == NULL)
+		return 1;
 
-	for(int i=0; i<len; i++) {
-		free(networks[i]->name);
-		free(networks[i]);
-	}
+	if(network->name != NULL)
+		free(network->name);
 
-	free(networks);
+	free(network);
 	return 0;
 }
 
-void AGNetworksPrint(const struct AGNetworkList *networkList)
+int AGNetworkListFree(struct AGNetworkList *networkList)
 {
+	struct AGNetwork **networks;
+	if(networkList == NULL)
+		return 1;
+
+	int len = networkList->len;
+	if(networkList->networks != NULL) {
+		networks = networkList->networks;
+		for(int i=0; i<len; i++) {
+			AGNetworkFree(networks[i]);
+		}
+
+		free(networks);
+	}
+
+	free(networkList);
+	return 0;
+}
+
+int AGNetworkListPrint(const struct AGNetworkList *networkList)
+{
+	if(networkList == NULL)
+		return 1;
+
 	int len = networkList->len;
 	struct AGNetwork **networks = networkList->networks;
-
-	for(int i=0; i<len; i++) {
-		const struct AGNetwork *network = networks[i];
-		printf("Network %d: %s\n", network->id, network->name);
+	if(networks != NULL) {
+		for(int i=0; i<len; i++) {
+			const struct AGNetwork *network = networks[i];
+			if(network != NULL)
+				printf("Network %d: %s\n", network->id, network->name);
+		}
 	}
+
+	return 0;
 }

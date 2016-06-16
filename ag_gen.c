@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <unistd.h>
+#include <getopt.h>
 
 #include "ag_asset.h"
 #include "db_util.h"
@@ -21,16 +21,16 @@ int main(int argc, char *argv[])
 
 	while((c = getopt(argc, argv, "n:")) != -1) {
 		switch(c) {
-			case 'n':
+		case 'n':
 			network = optarg;
 			break;
-			case '?':
+		case '?':
 			if(optopt == 'c') {
 				fprintf(stderr, "Option -%c requires an argument.\n", optopt);
 				printUsage();
 			}
 			return 1;
-			default:
+		default:
 			abort();
 		}
 	}
@@ -40,19 +40,16 @@ int main(int argc, char *argv[])
 	struct AGAssetList *list = AGGetAssets(network);
 	DEBUG_PRINT("length: %d\n", list->len);
 
-	if(list == NULL) {
-		printf("Error.\n");
-		AGAssetsFree(list);
+	if(list == NULL)
 		return 1;
-	}
 
 	if(list->len == 0) {
 		printf("Network does not exist or is empty.\n");
-		AGAssetsFree(list);
+
 		return 0;
 	}
 
-	AGAssetsFree(list);
+	AGAssetListFree(list);
 	AGDbDisconnect();
 }
 

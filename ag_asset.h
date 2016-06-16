@@ -18,9 +18,10 @@ struct AGAsset {
 };
 
 
-struct AGAssetList *AGGetAssets(void);
+struct AGAssetList *AGGetAssets(const char *);
 struct AGAsset *AGAssetNew(int, char *);
 int AGAssetFree(struct AGAsset *);
+int AGAssetListFree(struct AGAssetList *);
 void AGAssetsPrint(const struct AGAssetList *);
 
 #endif //C_AG_ASSET_H

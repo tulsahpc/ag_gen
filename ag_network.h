@@ -12,7 +12,8 @@ struct AGNetwork {
 };
 
 struct AGNetworkList *AGGetNetworks(void);
-int AGNetworksFree(struct AGNetworkList *);
-void AGNetworksPrint(const struct AGNetworkList *);
+int AGNetworkFree(struct AGNetwork *);
+int AGNetworkListFree(struct AGNetworkList *);
+int AGNetworkListPrint(const struct AGNetworkList *);
 
 #endif //C_AG_NETWORK_H

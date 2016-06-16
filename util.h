@@ -16,6 +16,11 @@
 
 #define MAXSTRLEN 128
 
+/* Added because this is a non-standard C function.
+   Windows equivalent is strtok_s.
+*/
+extern char *strtok_r(char *, const char *, char **);
+
 int sstrcpy(char *dst, const char *src, int len);
 char *dynstr(const char *);
 
