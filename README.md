@@ -2,45 +2,54 @@
 
 ## Installation
 
-- Build system: clang/gcc, make/cmake
-- Dependencies: PostgreSQL, Redis
-- Tools: editorconfig, cppcheck
+Build system: clang/gcc, make/cmake
+Dependencies: PostgreSQL, Redis
+Tools: editorconfig, cppcheck
 
-### Ubuntu
+### Dependencies
 
-    sudo apt update && sudo apt install -y build-essential \
-        postgresql postgresql-contrib libpq5 \
-        libpq-dev redis-server redis-tools libhiredis0.13 libhiredis-dev
+Run the `deps.sh` command to install necessary dependencies. This script supports debian based systems and Mac OSX (with homebrew)
 
-### Mac OSX
+## Contributing
 
-    xcode-select --install # only if Xcode is not already installed
-    brew install postgresql redis
+### Editorconfig
 
-## Coding Style
+When contributing code, please install the "editorconfig" plugin for your text editor.
+    - Adds extra newline to end of file if not already there.
+    - Removes whitespace at of lines
+    - Automatically sets indentation to tabs set to 8 spaces
+
+### Coding Style
 
 - Use tabs with a width 8.
 - Functions have bracket on new line.
 - All other uses of bracket are on the same line.
 - Constants are all UPPERCASE.
-- Variables are snake case, NOT camelcase.
+- Variables are snake_case.
+- Structs, enums, and unions are CamelCase.
 - Variables are declared at the top of the block it is in.
-- The star in a pointer is always aligned with the variable/function name.
 - NEVER typedef structs, unions, or enums.
+- The star in a pointer is always aligned with the variable/function name.
 
-### Example
+#### Example
 
-    #define CONSTANT 500
+```C
+#define CONSTANT 500
 
-    int main(int argc, char *argv[])
-    {
+struct ExampleStruct {
+    int id;
+    char *string;
+}
+
+int main(int argc, char *argv[])
+{                                           // brackets on new line for functinons
+        int snake_case;                     // 8 spaces for a tab
+        char *string;                       // pointer star aligned next to variable name
+        struct ExampleStruct my_example;
+}
+
+for(int i=0; i<5; i++) {                    // brackets on same line for everything else
         ...
-    }
-
-    for(int i=0; i<5; i++) {
-        ...
-    }
-
-    int tmp;
-    char *my_string;
+}
+```
 
