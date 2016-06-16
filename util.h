@@ -20,6 +20,11 @@
 	if (DEBUG_TEST) fprintf(stderr, "DEBUG: %s:%d %s(): " fmt, __FILE__,	\
 		__LINE__, __FUNCTION__, __VA_ARGS__); } while (0)
 
+// Test Helper
+#define TEST_PRINT(name, status) do {						\
+	fprintf(stderr, "%s: %s\n", name, status?"Failure":"Success");		\
+		} while (0)
+
 #define MAXSTRLEN 128
 
 /* Added because this is a non-standard C function.

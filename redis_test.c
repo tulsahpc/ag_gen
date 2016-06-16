@@ -23,53 +23,103 @@
 #include "ag_exploit.h"
 #include "util.h"
 
+int RedisAsset_Test(void);
+int RedisExploit_Test(void);
+
 int main()
 {
 	int res;
-	struct AGAsset *asset = calloc(1, sizeof(struct AGAsset));
+	int state = 0;
+	int error = 0;
+
+	res = RedisConnect();
+	if(res != 0) {
+		DEBUG_PRINT("Error connecting to redis.\n",0);
+		exit(1);
+	}
+
+	res = RedisAsset_Test();
+	if(res) {
+		state = 1;
+		error = 1;
+	}
+	TEST_PRINT("RedisAsset_Test", state);
+	state = 0;
+
+	res = RedisExploit_Test();
+	if(res) {
+		state = 1;
+		error = 1;
+	}
+	TEST_PRINT("RedisExploit_Test", state);
+	state = 0;
+
+	return error;
+}
+
+int RedisAsset_Test()
+{
+	int res;
+	struct AGAsset *asset;
+	struct AGAsset *new_asset;
+
+	asset = calloc(1, sizeof(struct AGAsset));
+	if(asset == NULL) {
+		DEBUG_PRINT("Memory allocation error.\n",0);
+		exit(1);
+	}
 
 	asset->id = 1234;
 	asset->name = dynstr("Sheard Dumisani");;
 	asset->network_id = 19122232;
 
-	int con = RedisConnect();
-	if(con != 0) {
-		exit(1);
-	}
-
 	RedisAssetAdd("asset1", asset);
-	DEBUG_PRINT("Asset Enqueued\n",0);
-
-	struct AGAsset *newAsset = RedisAssetGet("asset1");
-	DEBUG_PRINT("Asset Dequeued\n",0);
+	new_asset = RedisAssetGet("asset1");
 
 	res = AGAssetFree(asset);
-	if(res != 0) {
-		printf("There was a problem.");
+	if(res) {
+		DEBUG_PRINT("Memory free error.\n",0);
 		exit(1);
 	}
 
-	res = AGAssetFree(newAsset);
-	if(res != 0) {
-		printf("There was a problem.");
+	res = AGAssetFree(new_asset);
+	if(res) {
+		DEBUG_PRINT("There was a problem.\n",0);
 		exit(1);
 	}
 
-	// struct AGExploit *exploit = malloc(sizeof(struct AGExploit));
-	// exploit->id = 143222;
-	// exploit->name = "exploit1";
-	// ExploitPrint(exploit);
+	return 0;
+}
 
-	// RedisExploitAdd("exploit", exploit);
-	// DEBUG_PRINT("Exploit Enqueued\n",0);
+int RedisExploit_Test()
+{
+	int res;
+	struct AGExploit *exploit;
+	struct AGExploit *new_exploit;
 
-	// struct AGExploit *ex2 = RedisExploitGet("exploit");
-	// DEBUG_PRINT("Exploit Dequeued\n",0);
+	exploit = calloc(1, sizeof(struct AGExploit));
+	if(!exploit) {
+		DEBUG_PRINT("Memory allocation error.\n",0);
+		exit(1);
+	}
 
-	// ExploitPrint(ex2);
+	exploit->id = 143222;
+	exploit->name = dynstr("exploit1");
 
-	// free(exploit);
-	// free(ex2);
+	RedisExploitAdd("exploit", exploit);
+	new_exploit = RedisExploitGet("exploit");
+
+	res = AGExploitFree(exploit);
+	if(res) {
+		DEBUG_PRINT("Memory free error.",0);
+		exit(1);
+	}
+
+	res = AGExploitFree(new_exploit);
+	if(res) {
+		DEBUG_PRINT("Memory free error.",0);
+		exit(1);
+	}
 
 	return 0;
 }

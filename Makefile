@@ -1,19 +1,27 @@
 #!/usr/bin/make -f
 
 CC = clang
-CFLAGS = -g -Wall -Wpedantic --std=c99 -DDEBUG
+CFLAGS := -Wall -Wpedantic --std=c99
 LIBS = -lpq -lhiredis
-TARGETS = ag_gen db_test redis_test string_test
 
-AG_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(TARGETS)),$(wildcard ag_*.c)))
-DB_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(TARGETS)),$(wildcard db_*.c)))
-REDIS_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(TARGETS)),$(wildcard redis_*.c)))
-OTHER_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(TARGETS)),$(wildcard util*.c)))
+TARGETS = ag_gen
+TESTS = db_test redis_test string_test
+
+# Union of executables
+EXECS = $(sort $(TARGETS) $(TESTS))
+
+AG_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(EXECS)),$(wildcard ag_*.c)))
+DB_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(EXECS)),$(wildcard db_*.c)))
+REDIS_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(EXECS)),$(wildcard redis_*.c)))
+OTHER_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(EXECS)),$(wildcard util*.c)))
 
 .PHONY: all
 all: $(TARGETS)
 
-$(TARGETS):%:%.o $(AG_HELPERS) $(DB_HELPERS) $(REDIS_HELPERS) $(OTHER_HELPERS)
+debug: CFLAGS += -DDEBUG -g
+debug: $(TARGETS)
+
+$(EXECS):%:%.o $(AG_HELPERS) $(DB_HELPERS) $(REDIS_HELPERS) $(OTHER_HELPERS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
 .PHONY: clean
@@ -21,8 +29,8 @@ clean:
 	rm -rf *.o *_test ag_gen *.dSYM
 
 .PHONY: test
-test: db_test redis_test string_test
-	@echo "***** Database Tests"
+test: $(TESTS)
+	@echo "\n***** Database Tests"
 	@./db_test
 	@echo "\n***** Redis Tests"
 	@./redis_test
