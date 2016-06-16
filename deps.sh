@@ -6,6 +6,7 @@ if [[ $OS = 'darwin' ]]; then
     if [[ ! `type "brew"` > /dev/null ]]; then
         echo "Please install homebrew first."
     else
+        xcode-select --install > /dev/null
         brew install postgresql redis hiredis cppcheck doxygen valgrind graphviz
     fi
 elif [[ $OS = 'linux' ]]; then
