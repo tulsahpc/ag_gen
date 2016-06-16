@@ -1,4 +1,8 @@
-/**  \file
+/** \file redis_test.c
+ * \author Kyle Cook <kylecook80@gmail.com>
+ * \date June 2016
+ * \copyright Copyright (C) The University of Tulsa - All Rights Reserved. Unauthorized copying or distribution of this file is strictly prohibited.
+ *
  * Redis_test determines if there is a usable redis server.
  *
  * When run this executable validates whether a connection can be established to the redis server

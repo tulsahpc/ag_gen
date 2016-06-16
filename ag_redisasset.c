@@ -1,4 +1,8 @@
-/**  \file
+/** \file ag_redisasset.c
+ * \author Kyle Cook <kylecook80@gmail.com>
+ * \date June 2016
+ * \copyright Copyright (C) The University of Tulsa - All Rights Reserved. Unauthorized copying or distribution of this file is strictly prohibited.
+ *
  * Handles the asset to redis server interchange.
  *
  * Takes an assets and turns it into a string that can be put into the redis server.
