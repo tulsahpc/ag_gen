@@ -1,6 +1,10 @@
 ag_gen
 db_test
 redis_test
+string_test
+
+# Mac files
+.DS_Store
 
 # Object files
 *.o
