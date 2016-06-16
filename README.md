@@ -15,9 +15,10 @@ Run the `deps.sh` command to install necessary dependencies. This script support
 ### Editorconfig
 
 When contributing code, please install the "editorconfig" plugin for your text editor.
-    - Adds extra newline to end of file if not already there.
-    - Removes whitespace at of lines
-    - Automatically sets indentation to tabs set to 8 spaces
+
+- Adds extra newline to end of file if not already there.
+- Removes whitespace at of lines
+- Automatically sets indentation to tabs set to 8 spaces
 
 ### Coding Style
 
