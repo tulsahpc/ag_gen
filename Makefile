@@ -20,12 +20,14 @@ $(TARGETS):%:%.o $(AG_HELPERS) $(DB_HELPERS) $(REDIS_HELPERS) $(OTHER_HELPERS)
 clean:
 	rm -rf *.o *_test ag_gen *.dSYM
 
-.PHONY: get-deps
-get-deps:
-	sudo apt-get install postgresql postgresql-contrib libpq5 libpq-dev redis-server libhiredis0.13 libhiredis-dev
-
 .PHONY: test
-test: db_test redis_test
+test: db_test redis_test string_test
+	@echo "***** Database Tests"
+	@./db_test
+	@echo "\n***** Redis Tests"
+	@./redis_test
+	@echo "\n***** String Library Tests"
+	@./string_test
 
 .PHONY: check
 check:

@@ -23,11 +23,6 @@
 #include "ag_exploit.h"
 #include "util.h"
 
-/**
- * Global redis server context. For testing purposes only.
- */
-redisContext *cxt;
-
 int main()
 {
 	int res;

@@ -66,5 +66,6 @@ build
 *.idb
 *.pdb
 
+/docs
 /doxygen_docs
 /doxygen.tag
