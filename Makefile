@@ -26,7 +26,7 @@ $(EXECS):%:%.o $(AG_HELPERS) $(DB_HELPERS) $(REDIS_HELPERS) $(OTHER_HELPERS)
 
 .PHONY: clean
 clean:
-	rm -rf *.o *_test ag_gen *.dSYM
+	rm -rf *.o *_test ag_gen *.dSYM docs/
 
 .PHONY: test
 test: $(TESTS)
@@ -41,3 +41,7 @@ test: $(TESTS)
 check:
 	@cppcheck --std=c99 *.c
 	@cppcheck --std=c99 *.h
+
+.PHONY: docs
+docs:
+	@doxygen

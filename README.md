@@ -2,13 +2,51 @@
 
 ## Installation
 
-Build system: clang/gcc, make/cmake
-Dependencies: PostgreSQL, Redis
+Build system: clang/gcc, make/cmake  
+Dependencies: PostgreSQL, Redis  
 Tools: editorconfig, cppcheck
 
 ### Dependencies
 
 Run the `deps.sh` command to install necessary dependencies. This script supports debian based systems and Mac OSX (with homebrew)
+
+### PostgreSQL
+
+You must have permission to be able to access Postgres from the C application. Currently, there is no support for passwords, so you must enable full access to local users. See: https://www.postgresql.org/docs/9.5/static/auth-pg-hba-conf.html
+
+## Building
+
+Production build:
+
+    make
+
+Debug build:
+
+    make debug
+
+## Running
+
+    ./ag_gen -n home
+
+This doesn't really do anything cool yet. ./ag_gen -h for the help menu.
+
+## Tests
+
+Execute tests with
+
+    make test
+
+If you want debugging enabled for the tests, run
+
+    make debug
+
+before `make test`
+
+## Documentation
+
+The documentation for the source code can be build with
+
+    make docs
 
 ## Contributing
 
