@@ -1,3 +1,9 @@
+/** \file ag_network.c
+ * \author Kyle Cook <kylecook80@gmail.com>
+ * \date June 2016
+ * \copyright Copyright (C) The University of Tulsa - All Rights Reserved. Unauthorized copying or distribution of this file is strictly prohibited.
+ */
+
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -8,6 +14,11 @@
 
 #define BUFSIZE 32
 
+/**
+ *
+ *
+ *
+ */
 struct AGNetworkList *AGGetNetworks()
 {
 	PGresult *res;
@@ -49,6 +60,11 @@ struct AGNetworkList *AGGetNetworks()
 	return networkList;
 }
 
+/**
+ *
+ *
+ *
+ */
 int AGNetworksFree(struct AGNetworkList *networkList)
 {
 	int len = networkList->len;
@@ -63,6 +79,11 @@ int AGNetworksFree(struct AGNetworkList *networkList)
 	return 0;
 }
 
+/**
+ *
+ *
+ *
+ */
 void AGNetworksPrint(const struct AGNetworkList *networkList)
 {
 	int len = networkList->len;
