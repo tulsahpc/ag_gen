@@ -26,6 +26,7 @@ struct AGAsset {
 
 struct AGAssetList *AGGetAssets(const char *);
 struct AGAsset *AGAssetNew(int, char *);
+struct AGAsset *AGAssetAt(struct AGAssetList *, int);
 int AGAssetFree(struct AGAsset *);
 int AGAssetListFree(struct AGAssetList *);
 void AGAssetsPrint(const struct AGAssetList *);

@@ -42,9 +42,8 @@ int main(int argc, char *argv[])
 			print = 1;
 			break;
 		case '?':
-			if(optopt == 'c') {
+			if(optopt == 'c')
 				fprintf(stderr, "Option -%c requires an argument.\n", optopt);
-			}
 			abort();
 			break;
 		default:
@@ -56,12 +55,10 @@ int main(int argc, char *argv[])
 	AGDbConnect(CONNINFO);
 
 	network_list = AGGetNetworks();
-	if(!network_list)
-		return 1;
+	if(!network_list) return 1;
 
-	if(network_list->len == 0) {
+	if(network_list->len == 0)
 		printf("Network does not exist or is empty.\n");
-	}
 
 	AGNetworkListPrint(network_list);
 	if(print) {

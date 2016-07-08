@@ -2,10 +2,10 @@
 
 CC = clang
 CFLAGS := -Wall -Wpedantic --std=c99
-LIBS = -lpq -lhiredis
+LIBS = -lm -lpq -lhiredis
 
 TARGETS = ag_gen
-TESTS = db_test redis_test string_test
+TESTS = $(basename $(wildcard *_test.c))
 
 # Union of executables
 EXECS = $(sort $(TARGETS) $(TESTS))
@@ -15,11 +15,14 @@ DB_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(EXECS)),$(wildcar
 REDIS_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(EXECS)),$(wildcard redis_*.c)))
 OTHER_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(EXECS)),$(wildcard util*.c)))
 
-.PHONY: all
-all: $(TARGETS)
+.PHONY: default
+default: build
+
+.PHONY: build
+build: $(TARGETS)
 
 debug: CFLAGS += -DDEBUG -g
-debug: $(TARGETS)
+debug: $(TARGETS) $(TESTS)
 
 $(EXECS):%:%.o $(AG_HELPERS) $(DB_HELPERS) $(REDIS_HELPERS) $(OTHER_HELPERS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
@@ -30,12 +33,7 @@ clean:
 
 .PHONY: test
 test: $(TESTS)
-	@echo "\n***** Database Tests"
-	@./db_test
-	@echo "\n***** Redis Tests"
-	@./redis_test
-	@echo "\n***** String Library Tests"
-	@./string_test
+	@./tests.sh
 
 .PHONY: check
 check:

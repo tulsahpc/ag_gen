@@ -72,6 +72,11 @@ struct AGAsset *AGAssetNew(int id, char *name)
 	return newAsset;
 }
 
+struct AGAsset *AGAssetAt(struct AGAssetList *lst, int idx)
+{
+	return lst->assets[idx];
+}
+
 int AGAssetFree(struct AGAsset *asset)
 {
 	DEBUG_PRINT("asset #%d: %s\n", asset->id, asset->name);
