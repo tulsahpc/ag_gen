@@ -18,6 +18,7 @@ void printUsage(void);
 
 int main(int argc, char *argv[])
 {
+	int c;
 	int print = 0;
 	char *network = NULL;
 

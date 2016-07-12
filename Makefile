@@ -30,10 +30,10 @@ OTHER_HELPERS := $(filter-out $(patsubst $(BIN_DIR)/%,$(SRC_DIR)/%.o,$(EXECS)),$
 # $(info $(OTHER_HELPERS))
 
 .PHONY: default
-default: debug
+default: dir debug
 
 .PHONY: build
-build: $(TARGETS)
+build: dir $(TARGETS)
 
 .PHONY: dir
 dir:
