@@ -1,35 +1,50 @@
 #!/usr/bin/make -f
 
-CC = clang
-CFLAGS := -Wall -Wpedantic --std=c99
-LIBS = -lm -lpq -lhiredis
+SRC_DIR := src
+BIN_DIR := bin
+VPATH := .:$(SRC_DIR)
 
-TARGETS = ag_gen
-TESTS = $(basename $(wildcard *_test.c))
+CC := clang
+CFLAGS := -Wall -Wpedantic --std=c99 -I$(SRC_DIR)
+LIBS := -lm -lpq -lhiredis
+
+TARGETS := ag_gen
+TARGETS := $(BIN_DIR)/$(TARGETS)
+TESTS := $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%,$(wildcard $(SRC_DIR)/*_test.c))
 
 # Union of executables
-EXECS = $(sort $(TARGETS) $(TESTS))
+EXECS := $(sort $(TARGETS) $(TESTS))
 
-AG_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(EXECS)),$(wildcard ag_*.c)))
-DB_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(EXECS)),$(wildcard db_*.c)))
-REDIS_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(EXECS)),$(wildcard redis_*.c)))
-OTHER_HELPERS := $(patsubst %.c,%.o,$(filter-out $(addsuffix .c,$(EXECS)),$(wildcard util*.c)))
+AG_HELPERS := $(filter-out $(patsubst $(BIN_DIR)/%,$(SRC_DIR)/%.o,$(EXECS)),$(patsubst %.c,%.o,$(wildcard $(SRC_DIR)/ag_*.c)))
+DB_HELPERS := $(filter-out $(patsubst $(BIN_DIR)/%,$(SRC_DIR)/%.o,$(EXECS)),$(patsubst %.c,%.o,$(wildcard $(SRC_DIR)/db_*.c)))
+REDIS_HELPERS := $(filter-out $(patsubst $(BIN_DIR)/%,$(SRC_DIR)/%.o,$(EXECS)),$(patsubst %.c,%.o,$(wildcard $(SRC_DIR)/redis_*.c)))
+OTHER_HELPERS := $(filter-out $(patsubst $(BIN_DIR)/%,$(SRC_DIR)/%.o,$(EXECS)),$(patsubst %.c,%.o,$(wildcard $(SRC_DIR)/util*.c)))
+
+# $(info $(TARGETS))
+# $(info $(TESTS))
+# $(info $(EXECS))
+
+# $(info $(AG_HELPERS))
+# $(info $(DB_HELPERS))
+# $(info $(REDIS_HELPERS))
+# $(info $(OTHER_HELPERS))
 
 .PHONY: default
-default: build
+default: debug
 
 .PHONY: build
 build: $(TARGETS)
 
+.PHONY: debug
 debug: CFLAGS += -DDEBUG -g
-debug: $(TARGETS) $(TESTS)
+debug: $(EXECS)
 
-$(EXECS):%:%.o $(AG_HELPERS) $(DB_HELPERS) $(REDIS_HELPERS) $(OTHER_HELPERS)
+$(EXECS):$(BIN_DIR)/%: $(SRC_DIR)/%.o $(AG_HELPERS) $(DB_HELPERS) $(REDIS_HELPERS) $(OTHER_HELPERS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
 .PHONY: clean
 clean:
-	rm -rf *.o *_test ag_gen *.dSYM docs/
+	rm -rf $(EXECS) $(SRC_DIR)/*.o $(SRC_DIR)/*.dSYM docs/
 
 .PHONY: test
 test: $(TESTS)

@@ -35,16 +35,43 @@ int ListAppend(struct List *list, void *val)
 		list->head = node;
 		list->tail = node;
 	} else {
-		struct Node *lastNode = list->tail;
+		struct Node *last_node = list->tail;
 
-		lastNode->next = node;
-		node->prev = lastNode;
+		last_node->next = node;
+		node->prev = last_node;
 		list->tail = node;
 	}
 
 	list->size++;
-
 	return 0;
+}
+
+int ListPrepend(struct List *list, void *val)
+{
+	struct Node *node = calloc(1, sizeof(struct Node));
+	if(!node) return 1;
+	node->val = val;
+
+	if(!(list->head)) {
+		list->head = node;
+		list->tail = node;
+	} else {
+		struct Node *first_node = list->head;
+
+		list->head = node;
+		node->prev = NULL;
+		node->next = first_node;
+
+		first_node->prev = node;
+	}
+
+	list->size++;
+	return 0;
+}
+
+void *ListPop(struct List *list)
+{
+	return ListRemove(list, list->size-1);
 }
 
 void *ListRemove(struct List *list, int idx)
@@ -62,8 +89,11 @@ void *ListRemove(struct List *list, int idx)
 
 	struct Node *prevNode = curr->prev;
 	struct Node *nextNode = curr->next;
-	prevNode->next = nextNode;
-	nextNode->prev = prevNode;
+
+	if(prevNode)
+		prevNode->next = nextNode;
+	if(nextNode)
+		nextNode->prev = prevNode;
 
 	void *val = curr->val;
 	free(curr);

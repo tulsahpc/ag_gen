@@ -42,7 +42,11 @@ struct List *ListNew(void);
 void ListFree(struct List *);
 
 int ListAppend(struct List *, void *val);
+int ListPrepend(struct List *, void *val);
+
+void *ListPop(struct List *);
 void *ListRemove(struct List *, int idx);
+
 void *ListGet(struct List *, int idx);
 int ListSize(struct List *);
 
