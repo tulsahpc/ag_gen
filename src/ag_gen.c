@@ -18,12 +18,6 @@ void printUsage(void);
 
 int main(int argc, char *argv[])
 {
-	int c;
-
-	if(c == 4) {
-		printf("%s\n", c);
-	}
-
 	int print = 0;
 	char *network = NULL;
 

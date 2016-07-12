@@ -1,8 +1,4 @@
-ag_gen
-db_test
-redis_test
-string_test
-model_gen/model_gen
+bin/
 
 # Mac files
 .DS_Store

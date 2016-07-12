@@ -35,6 +35,10 @@ default: debug
 .PHONY: build
 build: $(TARGETS)
 
+.PHONY: dir
+dir:
+	@mkdir -p bin
+
 .PHONY: debug
 debug: CFLAGS += -DDEBUG -g
 debug: $(EXECS)
@@ -44,7 +48,7 @@ $(EXECS):$(BIN_DIR)/%: $(SRC_DIR)/%.o $(AG_HELPERS) $(DB_HELPERS) $(REDIS_HELPER
 
 .PHONY: clean
 clean:
-	rm -rf $(EXECS) $(SRC_DIR)/*.o $(SRC_DIR)/*.dSYM docs/
+	rm -rf bin docs $(SRC_DIR)/*.o
 
 .PHONY: test
 test: $(TESTS)
