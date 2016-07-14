@@ -51,7 +51,7 @@ clean:
 	rm -rf bin docs $(SRC_DIR)/*.o
 
 .PHONY: test
-test: $(TESTS)
+test: dir $(TESTS)
 	@./tests.sh
 
 .PHONY: check
