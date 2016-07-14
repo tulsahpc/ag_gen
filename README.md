@@ -2,8 +2,8 @@
 
 ## Installation
 
-Build system: clang/gcc, make/cmake  
-Dependencies: PostgreSQL, Redis  
+Build system: clang, make
+Dependencies: PostgreSQL, Redis
 Tools: editorconfig, cppcheck
 
 ### Dependencies
@@ -16,13 +16,13 @@ You must have permission to be able to access Postgres from the C application. C
 
 ## Building
 
-Production build:
+Build the system for debugging:
 
     make
 
-Debug build:
+Build the system for production:
 
-    make debug
+    make build
 
 ## Running
 
@@ -35,12 +35,6 @@ This doesn't really do anything cool yet. ./ag_gen -h for the help menu.
 Execute tests with
 
     make test
-
-If you want debugging enabled for the tests, run
-
-    make debug
-
-before `make test`
 
 ## Documentation
 

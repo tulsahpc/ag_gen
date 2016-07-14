@@ -14,5 +14,5 @@ elif [[ $OS = 'linux' ]]; then
         redis-server libhiredis-dev cppcheck clang valgrind \
         doxygen graphviz
 else
-    echo "Your operating system is not currently not supported."
+    echo "Your operating system is not currently supported."
 fi
