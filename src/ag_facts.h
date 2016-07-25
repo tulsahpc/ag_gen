@@ -7,82 +7,63 @@
 #ifndef C_AG_FACTS_H
 #define C_AG_FACTS_H
 
-/**
- * Enum of the different properties.
- *
- * Examples include operating system.
- */
-enum PROPERTY { OS };
+#include "ag_asset.h"
+#include "util_hash.h"
 
-/**
- * What attributes the fact has.
- * Trusted for a device it trusts.
- * Connected for a device it is connected to.
- */
-enum ATTRIBUTE { TRUSTED, CONNECTED };
+enum Property {
+	OS
+};
 
-/**
- * Struct of the list of properties.
- *
- * Has as double pointer as the list of properties and an int for the length of that list.
- */
+char *property_strings[] = {
+	"os"
+};
+
+enum Attribute {
+	TRUSTED,
+	CONNECTED
+};
+
+char *attribute_strings[] = {
+	"trusted",
+	"connected"
+};
+
 struct AGPropertyList {
-	enum PROPERTY **properties;
+	enum Property **properties;
 	int len;
 };
 
-/**
- * Struct of the list of attributes.
- *
- * Has a double point as the list of attributes and an int for the length of that list.
- */
 struct AGAttributeList {
-	enum ATTRIBUTE **attributes;
+	enum Attribute **attributes;
 	int len;
 };
 
-/**
- *
- *
- *
- */
 // Uniqueness defined by (asset_id, property)
 struct AGQuality {
 	int asset_id;
-	struct AGPropertyList *properties;
-	char *value;
+	struct HashTable *hash;
 };
 
-/**
- *
- *
- *
- */
 // Uniqueness defined by (from, to)
 struct AGTopology {
-	int from;
-	int to;
+	int asset_from;
+	int asset_to;
 	struct AGAttributeList *attributes;
 };
 
-/**
- *
- *
- *
- */
 union AGFactList {
 	union AGFact **facts;
 	int len;
 };
 
-/**
- *
- *
- *
- */
 union AGFact {
 	struct AGQuality *quality;
 	struct AGTopology *topology;
 };
+
+struct AGQuality *AGQualityNew(struct AGAsset *asset);
+
+void AGSetProperty(struct AGQuality *quality, enum Property prop, char *val);
+char *AGGetProperty(struct AGQuality *quality, enum Property prop);
 
 #endif //C_AG_FACTS_H

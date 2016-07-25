@@ -1,5 +1,6 @@
 INSERT INTO network VALUES
-  (DEFAULT, 'home');
+  (DEFAULT, 'home'),
+  (DEFAULT, 'test');
 
 INSERT INTO asset VALUES
   (DEFAULT, 'routerA', (SELECT id FROM network WHERE name = 'home')),
@@ -25,7 +26,10 @@ INSERT INTO asset VALUES
   (DEFAULT, 'printerC', (SELECT id FROM network WHERE name = 'home')),
   (DEFAULT, 'nas', (SELECT id FROM network WHERE name = 'home')),
   (DEFAULT, 'emailserver', (SELECT id FROM network WHERE name = 'home')),
-  (DEFAULT, 'internet', (SELECT id FROM network WHERE name = 'home'));
+  (DEFAULT, 'internet', (SELECT id FROM network WHERE name = 'home')),
+
+  (DEFAULT, 'test_router', (SELECT id FROM network WHERE name = 'test')),
+  (DEFAULT, 'test_workstation', (SELECT id FROM network WHERE name = 'test'));
 
 
 INSERT INTO quality VALUES

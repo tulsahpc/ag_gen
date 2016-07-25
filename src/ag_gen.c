@@ -8,19 +8,36 @@
 #include <getopt.h>
 
 #include "ag_asset.h"
+#include "ag_exploit.h"
 #include "ag_network.h"
 #include "db_util.h"
 #include "util.h"
+#include "util_odometer.h"
 
 #define CONNINFO "postgresql://localhost:5432/ag_gen"
 
 void printUsage(void);
 
+struct NetworkState {
+	int network_id;
+
+};
+
+struct AssetBinding {
+	struct AGExploit *exploit;
+
+};
+
+static void bindAssets(struct AGAssetList *assets, int *order)
+{
+
+}
+
 int main(int argc, char *argv[])
 {
 	int c;
-	int print = 0;
-	char *network = NULL;
+	int opt_print = 0;
+	char *opt_network = NULL;
 
 	struct AGNetworkList *network_list;
 
@@ -35,10 +52,10 @@ int main(int argc, char *argv[])
 			printUsage();
 			return 0;
 		case 'n':
-			network = optarg;
+			opt_network = optarg;
 			break;
 		case 'p':
-			print = 1;
+			opt_print = 1;
 			break;
 		case '?':
 			if(optopt == 'c')
@@ -59,22 +76,19 @@ int main(int argc, char *argv[])
 	if(network_list->len == 0)
 		printf("Network does not exist or is empty.\n");
 
-	AGNetworkListPrint(network_list);
-	if(print) {
-		struct AGAssetList *asset_list = AGGetAssets(network);
-		AGAssetsPrint(asset_list);
-		AGAssetListFree(asset_list);
-	}
+	struct AGAssetList *asset_list = AGGetAssets(opt_network);
+	struct Odometer *od = OdometerNew(asset_list->len, 3);
+	struct OdometerState *odst = initOdometerState(od);
 
+	int *nextPerm = nextPermutation(odst);
+	bindAssets(asset_list, nextPerm);
+
+	AGAssetListFree(asset_list);
 	AGNetworkListFree(network_list);
+
 	AGDbDisconnect();
 }
 
-/**
- * Prints to the console the name and version of the attack graph generator
- *
- *
- */
 void printUsage()
 {
 	printf("Usage: ag_gen [OPTION...]\n");

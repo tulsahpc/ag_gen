@@ -8,6 +8,7 @@
 
 #include "ag_network.h"
 #include "ag_asset.h"
+#include "ag_exploit.h"
 #include "db_util.h"
 
 // Database connection information
@@ -17,6 +18,7 @@ int main()
 {
 	struct AGNetworkList *networkList;
 	struct AGAssetList *assetList;
+	struct AGExploitList *exploitList;
 
 	AGDbConnect(CONNINFO);
 
@@ -27,6 +29,10 @@ int main()
 	assetList = AGGetAssets("home");
 	AGAssetsPrint(assetList);
 	AGAssetListFree(assetList);
+
+	exploitList = AGGetExploits();
+	AGExploitListPrint(exploitList);
+	AGExploitListFree(exploitList);
 
 	AGDbDisconnect();
 }

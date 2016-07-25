@@ -30,12 +30,12 @@ static void reset(int idx)
 	cur = 0;
 }
 
-struct Permutations *odometer(int k, int n)
+struct Odometer *OdometerNew(int k, int n)
 {
 	elts = k;
 	len = n;
 	arr = calloc(1, n * sizeof(int));
-	struct Permutations *perms = malloc(sizeof(struct Permutations));
+	struct Odometer *perms = malloc(sizeof(struct Odometer));
 	int num_perms = pow(k, n);
 	int **perm_arr = malloc(num_perms * sizeof(int*));
 
@@ -71,7 +71,7 @@ struct Permutations *odometer(int k, int n)
 	return perms;
 }
 
-void PermutationsFree(struct Permutations *perm)
+void OdometerFree(struct Odometer *perm)
 {
 	for(int i=0; i<perm->size; i++) {
 		free(perm->arr[i]);
@@ -80,7 +80,7 @@ void PermutationsFree(struct Permutations *perm)
 	free(perm);
 }
 
-void PermutationsPrint(struct Permutations *perm)
+void OdometerPrint(struct Odometer *perm)
 {
 	for(int i=0; i<perm->size; i++) {
 		for(int j=0; j<perm->n; j++) {
@@ -90,7 +90,7 @@ void PermutationsPrint(struct Permutations *perm)
 	}
 }
 
-void PermutationsPrintSet(struct Permutations *perm, char **set)
+void OdometerPrintSet(struct Odometer *perm, char **set)
 {
 	for(int i=0; i<perm->size; i++) {
 		for(int j=0; j<perm->n; j++) {
@@ -98,4 +98,24 @@ void PermutationsPrintSet(struct Permutations *perm, char **set)
 		}
 		printf("\n");
 	}
+}
+
+struct OdometerState *initOdometerState(struct Odometer *od)
+{
+	struct OdometerState *state = malloc(sizeof(struct OdometerState));
+	state->od = od;
+	state->idx = 0;
+
+	return state;
+}
+
+int *nextPermutation(struct OdometerState *state)
+{
+	int **arr = state->od->arr;
+	return arr[state->idx++];
+}
+
+void freeOdometerState(struct OdometerState *state)
+{
+	free(state);
 }

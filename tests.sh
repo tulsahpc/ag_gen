@@ -34,14 +34,6 @@ if [[ "$?" = "0" ]]; then
     printf "No Errors\n"
 else
     printf "Errors Found\n"
+    echo "~~~ Output: "
+    echo $OUTPUT
 fi
-
-echo "Output: "
-echo $OUTPUT
-
-# tester bin/db_test "Database"
-# tester bin/redis_test "Redis"
-# tester bin/string_test "String"
-# tester bin/perm_test "Permutation"
-# tester bin/list_test "List"
-# tester bin/hash_test "Hash"

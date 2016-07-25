@@ -93,7 +93,6 @@ int RedisAsset_Test()
 
 int RedisExploit_Test()
 {
-	int res;
 	struct AGExploit *exploit;
 	struct AGExploit *new_exploit;
 
@@ -109,17 +108,8 @@ int RedisExploit_Test()
 	RedisExploitAdd("exploit", exploit);
 	new_exploit = RedisExploitGet("exploit");
 
-	res = AGExploitFree(exploit);
-	if(res) {
-		DEBUG_PRINT("Memory free error.",0);
-		exit(1);
-	}
-
-	res = AGExploitFree(new_exploit);
-	if(res) {
-		DEBUG_PRINT("Memory free error.",0);
-		exit(1);
-	}
+	AGExploitFree(exploit);
+	AGExploitFree(new_exploit);
 
 	return 0;
 }

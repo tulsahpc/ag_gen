@@ -7,8 +7,6 @@
 #ifndef C_AG_ASSET_H
 #define C_AG_ASSET_H
 
-#include "ag_facts.h"
-
 struct AGAssetList {
 	struct AGAsset **assets;
 	int len;
@@ -18,11 +16,7 @@ struct AGAsset {
 	int id;
 	char *name;
 	int network_id;
-	char *qualities;
-	char *topologies;
-	//struct AGNetwork* network;
 };
-
 
 struct AGAssetList *AGGetAssets(const char *);
 struct AGAsset *AGAssetNew(int, char *);

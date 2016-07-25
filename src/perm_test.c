@@ -15,7 +15,7 @@ int main()
 
 	char *set[3] = {asset1, asset2, asset3};
 
-	struct Permutations *perms = odometer(3, 3);
-	PermutationsPrintSet(perms, (char**)set);
-	PermutationsFree(perms);
+	struct Odometer *perms = OdometerNew(3, 3);
+	OdometerPrintSet(perms, (char**)set);
+	OdometerFree(perms);
 }

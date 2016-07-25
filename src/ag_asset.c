@@ -79,18 +79,12 @@ struct AGAsset *AGAssetAt(struct AGAssetList *lst, int idx)
 
 int AGAssetFree(struct AGAsset *asset)
 {
-	DEBUG_PRINT("asset #%d: %s\n", asset->id, asset->name);
+	// DEBUG_PRINT("asset #%d: %s\n", asset->id, asset->name);
 	if(asset == NULL)
 		return 1;
 
 	if(asset->name != NULL)
 		free(asset->name);
-
-	if(asset->qualities != NULL)
-		free(asset->qualities);
-
-	if(asset->topologies != NULL)
-		free(asset->topologies);
 
 	free(asset);
 	return 0;
