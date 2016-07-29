@@ -1,14 +1,15 @@
 #!/bin/bash
 
-tester() {
+function tester {
     printf "\n***** $1 Test\n"
     printf "~~~ Output:\n"
 
-    valgrind -q --error-exitcode=1 --tool=memcheck $1
+    valgrind -q --tool=memcheck --error-exitcode=1 --leak-check=yes --show-leak-kinds=definite --errors-for-leak-kinds=definite $@
     RESULTS+=($?)
 }
 
-printer() {
+function printer {
+    # echo $2
     if [[ "$2" = "1" ]]; then
         succ="Failure"
     else
@@ -17,15 +18,19 @@ printer() {
     printf "\n***** %s\n~~~ Valgrind Results: %s\n" "$1" $succ
 }
 
-TESTS=(bin/*_test)
+TESTS=("bin/ag_gen -n home")
 RESULTS=()
 
-for test in ${TESTS[@]}; do
+if [[ "$1" = "all" ]]; then
+    TESTS+=(bin/*_test)
+fi
+
+for test in "${TESTS[@]}"; do
     tester $test
 done
 
 for idx in ${!TESTS[@]}; do
-    printer ${TESTS[$idx]} ${RESULTS[$idx]}
+    printer "${TESTS[$idx]}" "${RESULTS[$idx]}"
 done
 
 printf "\n***** Static Analysis: "

@@ -1,5 +1,8 @@
 bin/
 
+# Tag files
+tags
+
 # Mac files
 .DS_Store
 

@@ -12,6 +12,7 @@
 #include "ag_network.h"
 #include "db_util.h"
 #include "util.h"
+#include "util_list.h"
 #include "util_odometer.h"
 
 #define CONNINFO "postgresql://localhost:5432/ag_gen"
@@ -20,17 +21,17 @@ void printUsage(void);
 
 struct NetworkState {
 	int network_id;
-
+	struct NetworkState *parent;
+	struct List *children;
 };
 
-struct AssetBinding {
-	struct AGExploit *exploit;
-
-};
-
-static void bindAssets(struct AGAssetList *assets, int *order)
+static struct List *bindAssets(struct AGAssetList *assets, int *order, int len)
 {
-
+	struct List *assetBindings = ListNew();
+	for(int i=0; i<len; i++) {
+		ListAppend(assetBindings, (void*)AGAssetAt(assets, order[i]));
+	}
+	return assetBindings;
 }
 
 int main(int argc, char *argv[])
@@ -42,29 +43,33 @@ int main(int argc, char *argv[])
 	struct AGNetworkList *network_list;
 
 	if(argc < 2) {
-		printf("Not enough arguments. Use '-h' for the help menu.\n");
+		printUsage();
 		return 1;
 	}
 
 	while((c = getopt(argc, argv, "hpn:")) != -1) {
 		switch(c) {
-		case 'h':
-			printUsage();
-			return 0;
-		case 'n':
-			opt_network = optarg;
-			break;
-		case 'p':
-			opt_print = 1;
-			break;
-		case '?':
-			if(optopt == 'c')
-				fprintf(stderr, "Option -%c requires an argument.\n", optopt);
-			abort();
-			break;
-		default:
-			abort();
-			break;
+			case 'h':
+				printUsage();
+				return 0;
+			case 'n':
+				opt_network = optarg;
+				break;
+			case 'p':
+				opt_print = 1;
+				break;
+			case '?':
+				if(optopt == 'c')
+					fprintf(stderr, "Option -%c requires an argument.\n", optopt);
+				exit(1);
+				break;
+			case ':':
+				fprintf(stderr, "wtf\n");
+				break;
+			default:
+				fprintf(stderr, "Unknown option -%c. Exiting.\n", optopt);
+				exit(1);
+				break;
 		}
 	}
 
@@ -79,9 +84,21 @@ int main(int argc, char *argv[])
 	struct AGAssetList *asset_list = AGGetAssets(opt_network);
 	struct Odometer *od = OdometerNew(asset_list->len, 3);
 	struct OdometerState *odst = initOdometerState(od);
+	struct List *bindingList = ListNew();
 
-	int *nextPerm = nextPermutation(odst);
-	bindAssets(asset_list, nextPerm);
+	for(int j=0; j<od->size; j++) {
+		int *nextPerm = nextPermutation(odst);
+		struct List *boundAssets = bindAssets(asset_list, nextPerm, 3);
+		ListAppend(bindingList, boundAssets);
+	}
+
+	for(int i=0; i<ListSize(bindingList); i++) {
+		ListFree((ListGet(bindingList, i)));
+	}
+
+	ListFree(bindingList);
+	free(odst);
+	OdometerFree(od);
 
 	AGAssetListFree(asset_list);
 	AGNetworkListFree(network_list);
