@@ -1,5 +1,5 @@
-#ifndef C_UTIL_ODOMETER_H
-#define C_UTIL_ODOMETER_H
+#ifndef UTIL_ODOMETER_H
+#define UTIL_ODOMETER_H
 
 struct Odometer {
 	int size;
@@ -13,12 +13,13 @@ struct OdometerState {
 	int idx;
 };
 
-struct Odometer *OdometerNew(int k, int n);
-void OdometerFree(struct Odometer *);
-void OdometerPrint(struct Odometer *);
-void OdometerPrintSet(struct Odometer *, char **set);
+struct Odometer *odometer_new(int k, int n);
+void odometer_free(struct Odometer *);
+void odometer_print(struct Odometer *);
+void odometer_printset(struct Odometer *, char **set);
 
-struct OdometerState *initOdometerState(struct Odometer *od);
-int *nextPermutation(struct OdometerState *state);
+struct OdometerState *ostate_new(struct Odometer *od);
+int *ostate_next(struct OdometerState *state);
+void ostate_free(struct OdometerState *state);
 
-#endif //C_UTIL_ODOMETER_H
+#endif //UTIL_ODOMETER_H

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include "util.h"
+#include "util_common.h"
 
 int main()
 {

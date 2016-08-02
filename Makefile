@@ -10,24 +10,18 @@ LIBS := -lm -lpq -lhiredis
 
 TARGETS := ag_gen
 TARGETS := $(BIN_DIR)/$(TARGETS)
-TESTS := $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%,$(wildcard $(SRC_DIR)/*_test.c))
+TESTS := $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%,$(wildcard $(SRC_DIR)/test_*.c))
 
 # Union of executables
 EXECS := $(sort $(TARGETS) $(TESTS))
-
-AG_HELPERS := $(filter-out $(patsubst $(BIN_DIR)/%,$(SRC_DIR)/%.o,$(EXECS)),$(patsubst %.c,%.o,$(wildcard $(SRC_DIR)/ag_*.c)))
-DB_HELPERS := $(filter-out $(patsubst $(BIN_DIR)/%,$(SRC_DIR)/%.o,$(EXECS)),$(patsubst %.c,%.o,$(wildcard $(SRC_DIR)/db_*.c)))
-REDIS_HELPERS := $(filter-out $(patsubst $(BIN_DIR)/%,$(SRC_DIR)/%.o,$(EXECS)),$(patsubst %.c,%.o,$(wildcard $(SRC_DIR)/redis_*.c)))
-OTHER_HELPERS := $(filter-out $(patsubst $(BIN_DIR)/%,$(SRC_DIR)/%.o,$(EXECS)),$(patsubst %.c,%.o,$(wildcard $(SRC_DIR)/util*.c)))
+SRCS := $(filter-out $(patsubst $(BIN_DIR)/%,$(SRC_DIR)/%.c,$(EXECS)),$(wildcard $(SRC_DIR)/*.c))
+OBJS := $(patsubst $(SRC_DIR)/%.c,$(SRC_DIR)/%.o,$(SRCS))
 
 # $(info $(TARGETS))
 # $(info $(TESTS))
 # $(info $(EXECS))
-
-# $(info $(AG_HELPERS))
-# $(info $(DB_HELPERS))
-# $(info $(REDIS_HELPERS))
-# $(info $(OTHER_HELPERS))
+# $(info $(SRCS))
+# $(info $(OBJS))
 
 .PHONY: default
 default: dir debug
@@ -41,9 +35,9 @@ dir:
 
 .PHONY: debug
 debug: CFLAGS += -DDEBUG -g
-debug: $(EXECS)
+debug: $(TARGETS)
 
-$(EXECS):$(BIN_DIR)/%: $(SRC_DIR)/%.o $(AG_HELPERS) $(DB_HELPERS) $(REDIS_HELPERS) $(OTHER_HELPERS)
+$(EXECS):$(BIN_DIR)/%: $(SRC_DIR)/%.o $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
 .PHONY: clean
@@ -51,17 +45,12 @@ clean:
 	rm -rf bin docs $(SRC_DIR)/*.o
 
 .PHONY: test
-test: dir $(EXECS)
+test: dir debug
 	@./tests.sh
 
 .PHONY: fulltest
-fulltest: dir $(EXECS)
+fulltest: dir debug $(EXECS)
 	@./tests.sh all
-
-.PHONY: check
-check:
-	@cppcheck --std=c99 *.c
-	@cppcheck --std=c99 *.h
 
 .PHONY: docs
 docs:

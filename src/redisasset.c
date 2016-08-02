@@ -13,10 +13,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "ag_redisasset.h"
-#include "ag_asset.h"
-#include "redis_util.h"
-#include "util.h"
+#include "asset.h"
+#include "redisasset.h"
+#include "util_redis.h"
+#include "util_common.h"
 
 /*!
  * Maxlength of the strings that can be inputed/outputed
@@ -29,7 +29,7 @@
  *
  * Will print to the console and return 1 if the asset is null.
  */
-int RedisAssetAdd(const char *key, struct AGAsset *asset)
+int rasset_set(const char *key, struct Asset *asset)
 {
 	char *str;
 
@@ -42,7 +42,7 @@ int RedisAssetAdd(const char *key, struct AGAsset *asset)
 	str = malloc(sizeof(char)*(MAXSTRLEN+1));
 	snprintf(str, MAXSTRLEN, "%d:%s:%d", asset->id, asset->name, asset->network_id);
 
-	RedisEnqueueValue(key, str);
+	redis_enqueue(key, str);
 	free(str);
 
 	return 0;
@@ -53,21 +53,21 @@ int RedisAssetAdd(const char *key, struct AGAsset *asset)
  *
  * If the list given by key is empty then then it will return a null asset
  */
-struct AGAsset *RedisAssetGet(const char *key)
+struct Asset *rasset_get(const char *key)
 {
 	char *str;
 	char *saveptr;
-	struct AGAsset *asset = {0};
+	struct Asset *asset = {0};
 
 	if(key == NULL)
 		return NULL;
 
-	str = RedisDequeueValue(key);
+	str = redis_dequeue(key);
 	DEBUG_PRINT("key: %s\n", key);
 	if(str != NULL){
 		DEBUG_PRINT("DEQUEUE Reply string is: %s\n", str);
 
-		asset = malloc(sizeof(struct AGAsset));
+		asset = malloc(sizeof(struct Asset));
 		asset->id = atoi(strtok_r(str, DELIMITER, &saveptr));
 
 		char *assetName = strtok_r(NULL, DELIMITER, &saveptr);

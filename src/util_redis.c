@@ -18,22 +18,8 @@
 
 #include <hiredis/hiredis.h>
 
-#include "redis_util.h"
-#include "util.h"
-
-/*!
- * Maxlength of the strings that can be inputed/outputed
- */
-#define MAXSTRLEN 128
-
-/**
- * Default hostname and port of a redis server.
- *
- * To be changed later to allow for editable hostname and port numbers.
- */
-#define HOSTNAME "127.0.0.1"
-#define PORT 6379
-
+#include "util_common.h"
+#include "util_redis.h"
 
 /**
  * Global redis server context.
@@ -51,14 +37,14 @@ redisContext *ctx;
  *
  * If a connection cannot be made this functions prints to the console and returns 1.
  */
-int RedisConnect()
+int redis_connect(char *hostname, int port)
 {
 	//uses default hostname and port instead of being taken from argc
 	//const char *hostname = (argc > 1) ? argv[1] : "127.0.0.1";
 	//int port = (argc > 2) ? atoi(argv[2]) : 6379;
 	struct timeval timeout = { 1, 500000 }; // 1.5 seconds
 
-	ctx = redisConnectWithTimeout(HOSTNAME, PORT, timeout);
+	ctx = redisConnectWithTimeout(hostname, port, timeout);
 	if (ctx == NULL || ctx->err) {
 		if (ctx) {
 			printf("Connection error: %s\n", ctx->errstr);
@@ -77,7 +63,7 @@ int RedisConnect()
  *
  *
  */
-int RedisDisconnect()
+int redis_disconnect()
 {
 	redisFree(ctx);
 	return 0;
@@ -87,14 +73,14 @@ int RedisDisconnect()
  * Pings the redis server.
  *
  * It prints the pong to the console.
- * If the ping fails it will call RedisReplyError and return a 1.
+ * If the ping fails it will call rreply_error and return a 1.
  */
-int RedisPing()
+int redis_ping()
 {
 	redisReply *reply = redisCommand(ctx, "PING");
 
 	if(reply == NULL) {
-		RedisReplyError(reply);
+		rreply_error(reply);
 		return 1;
 	}
 
@@ -108,13 +94,13 @@ int RedisPing()
  * Enqueues the given value to a redis list given by key.
  *
  * Pushes the given value to a redis list given by the key.
- * If it fails it calls RedisReplyError and returns 1.
+ * If it fails it calls rreply_error and returns 1.
  */
-int RedisEnqueueValue(const char *key, const char* value)
+int redis_enqueue(const char *key, const char* value)
 {
 	redisReply *reply = redisCommand(ctx, "LPUSH %s %s", key, value);
 	if(reply == NULL) {
-		RedisReplyError(reply);
+		rreply_error(reply);
 		return 1;
 	}
 	freeReplyObject(reply);
@@ -127,21 +113,21 @@ int RedisEnqueueValue(const char *key, const char* value)
  * If the key refers to a null list then it is printed to the console and returns null.
  *
  */
-char *RedisDequeueValue(const char *key)
+char *redis_dequeue(const char *key)
 {
 	if(key == NULL)
 		return NULL;
 
 	redisReply *reply = redisCommand(ctx, "RPOP %s", key);
 	if(reply == NULL) {
-		RedisReplyError(reply);
+		rreply_error(reply);
 		freeReplyObject(reply);
 		return NULL;
 	}
 
 	DEBUG_PRINT("reply type: %d\n", reply->type);
 	if(reply->type == REDIS_REPLY_NIL) {
-		RedisReplyError(reply);
+		rreply_error(reply);
 		freeReplyObject(reply);
 		return NULL;
 	}
@@ -155,15 +141,15 @@ char *RedisDequeueValue(const char *key)
 /**
  * Gets the length of a list given by key.
  *
- * If key returns a null list then it calls RedisReplyError and returns -1.
+ * If key returns a null list then it calls rreply_error and returns -1.
  */
-int RedisListLength(const char *key)
+int rlist_length(const char *key)
 {
 	int len = 0;
 	redisReply *reply = redisCommand(ctx, "LLEN %s", key);
 
 	if(reply == NULL) {
-		RedisReplyError(reply);
+		rreply_error(reply);
 		freeReplyObject(reply);
 		return -1;
 	}
@@ -181,7 +167,7 @@ int RedisListLength(const char *key)
  * Will cause the program to no longer funtion if this is called.
  *
  */
-void RedisReplyError(redisReply *reply)
+void rreply_error(redisReply *reply)
 {
 	printf("Redis error: %s\n", ctx->errstr);
 	freeReplyObject(reply);

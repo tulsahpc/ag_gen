@@ -3,10 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "util.h"
+#include "util_common.h"
 #include "util_list.h"
 #include "util_hash.h"
-#include "util_stack.h"
 
 #define HASH_PRIME 101
 
@@ -33,29 +32,28 @@ static unsigned int base_convert_string(char *data, int base)
 
 static char *base_convert_int(int num, int base)
 {
-	struct Stack *st = StackNew();
+	struct List st;
 	while(num > 0) {
-		StackPush(st, (void *)(unsigned long)(num % base));
+		list_push(&st, (void *)(unsigned long)(num % base));
 		num = num / base;
 	}
 
-	int size = StackSize(st);
+	int size = list_size(&st);
 	char *converted = malloc(size * sizeof(char) + 1);
 	for(int i=0; i<size; i++) {
-		converted[i] = alphabet[(int)StackPop(st)];
+		converted[i] = alphabet[(int)list_pop(&st)];
 	}
 	converted[size] = '\0';
 
-	StackFree(st);
 	return converted;
 }
 
-char *base_convert(char *num, int from, int to)
+static char *base_convert(char *num, int from, int to)
 {
 	return base_convert_int(base_convert_string(num, from), to);
 }
 
-uint64_t radix128(char *data)
+static uint64_t radix128(char *data)
 {
 	int len = strlen(data);
 	int total = 0;
@@ -65,13 +63,13 @@ uint64_t radix128(char *data)
 	return total;
 }
 
-unsigned int hash(char *key)
+static unsigned int hash(char *key)
 {
 	uint64_t val = radix128(key) % HASH_PRIME;
 	return val;
 }
 
-struct HashTable *HashTableNew()
+struct HashTable *hashtable_new()
 {
 	struct HashTable *new_table = malloc(sizeof(struct HashTable));
 	new_table->size = HASH_PRIME;
@@ -79,7 +77,26 @@ struct HashTable *HashTableNew()
 	return new_table;
 }
 
-void HashTableAdd(struct HashTable *table, char *key, void *val)
+void *hashtable_get(struct HashTable *table, char *key)
+{
+	int hashed_key = hash(key);
+	struct HashNode *cur = table->arr[hashed_key];
+	int status = 1;
+	while(cur) {
+		if(strcmp(key, cur->key) == 0) {
+			status = 0;
+			break;
+		}
+		cur = cur->next;
+	}
+
+	if(status == 1)
+		return NULL;
+
+	return cur->val;
+}
+
+void hashtable_set(struct HashTable *table, char *key, void *val)
 {
 	int hashed_key = hash(key);
 	struct HashNode *cur = table->arr[hashed_key];
@@ -102,31 +119,7 @@ void HashTableAdd(struct HashTable *table, char *key, void *val)
 	}
 }
 
-void HashTableRemove(struct HashTable *table, char *key)
-{
-
-}
-
-void *HashTableFind(struct HashTable *table, char *key)
-{
-	int hashed_key = hash(key);
-	struct HashNode *cur = table->arr[hashed_key];
-	int status = 1;
-	while(cur) {
-		if(strcmp(key, cur->key) == 0) {
-			status = 0;
-			break;
-		}
-		cur = cur->next;
-	}
-
-	if(status == 1)
-		return NULL;
-
-	return cur->val;
-}
-
-void HashTableFree(struct HashTable *table)
+void hashtable_free(struct HashTable *table)
 {
 	for(int i=0; i<table->size; i++) {
 		struct HashNode *cur = table->arr[i];

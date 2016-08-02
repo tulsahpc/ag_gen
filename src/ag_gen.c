@@ -6,12 +6,13 @@
 
 #include <stdlib.h>
 #include <getopt.h>
+#include <errno.h>
 
-#include "ag_asset.h"
-#include "ag_exploit.h"
-#include "ag_network.h"
-#include "db_util.h"
-#include "util.h"
+#include "asset.h"
+#include "exploit.h"
+#include "network.h"
+#include "util_common.h"
+#include "util_db.h"
 #include "util_list.h"
 #include "util_odometer.h"
 
@@ -23,15 +24,16 @@ struct NetworkState {
 	int network_id;
 	struct NetworkState *parent;
 	struct List *children;
+	struct List *assets;
 };
 
-static struct List *bindAssets(struct AGAssetList *assets, int *order, int len)
+static struct AGAsset **bind_assets(struct List *assets, int *order, int len)
 {
-	struct List *assetBindings = ListNew();
+	struct AGAsset **list = malloc(sizeof(struct AGAsset *) * len);
 	for(int i=0; i<len; i++) {
-		ListAppend(assetBindings, (void*)AGAssetAt(assets, order[i]));
+		list[i] = list_at(assets, order[i]);
 	}
-	return assetBindings;
+	return list;
 }
 
 int main(int argc, char *argv[])
@@ -39,8 +41,6 @@ int main(int argc, char *argv[])
 	int c;
 	int opt_print = 0;
 	char *opt_network = NULL;
-
-	struct AGNetworkList *network_list;
 
 	if(argc < 2) {
 		printUsage();
@@ -73,37 +73,66 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	AGDbConnect(CONNINFO);
+	dbconnect(CONNINFO);
 
-	network_list = AGGetNetworks();
-	if(!network_list) return 1;
-
-	if(network_list->len == 0)
-		printf("Network does not exist or is empty.\n");
-
-	struct AGAssetList *asset_list = AGGetAssets(opt_network);
-	struct Odometer *od = OdometerNew(asset_list->len, 3);
-	struct OdometerState *odst = initOdometerState(od);
-	struct List *bindingList = ListNew();
-
-	for(int j=0; j<od->size; j++) {
-		int *nextPerm = nextPermutation(odst);
-		struct List *boundAssets = bindAssets(asset_list, nextPerm, 3);
-		ListAppend(bindingList, boundAssets);
+	struct List *network_list = networks_fetch();
+	if(!network_list) {
+		fprintf(stderr, "An error occurred retrieving the networks.\n");
+		exit(1);
 	}
 
-	for(int i=0; i<ListSize(bindingList); i++) {
-		ListFree((ListGet(bindingList, i)));
+	if(network_list->size == 0) {
+		fprintf(stderr,"There are no networks in the system.\n");
+		exit(1);
 	}
 
-	ListFree(bindingList);
-	free(odst);
-	OdometerFree(od);
+	struct List *asset_list = assets_fetch(opt_network);
+	if(asset_list->size == 0) {
+		fprintf(stderr, "The network %s does not exist.\n", opt_network);
+		exit(1);
+	}
 
-	AGAssetListFree(asset_list);
-	AGNetworkListFree(network_list);
+	int exploit_params = 3;
+	struct Odometer *od = odometer_new(asset_list->size, exploit_params);
+	struct OdometerState *odst = ostate_new(od);
+	struct List *binding_list = list_new();
 
-	AGDbDisconnect();
+	// Generate asset bindings
+	for(int i=0; i<od->size; i++) {
+		int *nextPerm = ostate_next(odst);
+		struct AGAsset **bound_assets = bind_assets(asset_list, nextPerm, exploit_params);
+		list_push(binding_list, bound_assets);
+	}
+
+	// Check exploits
+
+	// Print bindings
+	// for(int i=0; i<ListSize(binding_list); i++) {
+	// 	struct AGAsset **bound_assets = ListGet(binding_list, i);
+	// 	for(int j=0; j<exploit_params; j++) {
+	// 		printf("%s ", bound_assets[j]->name);
+	// 	}
+	// 	printf("\n");
+	// }
+
+	// Cleanup
+	for(int i=0; i<list_size(binding_list); i++)
+		free(list_at(binding_list, i));
+
+	list_free(binding_list);
+
+	for(int i=0; i<list_size(asset_list); i++)
+		asset_free(list_at(asset_list, i));
+	list_free(asset_list);
+
+	for(int i=0; i<list_size(network_list); i++)
+		network_free(list_at(network_list, i));
+	list_free(network_list);
+
+	ostate_free(odst);
+	odometer_free(od);
+
+	dbclose();
 }
 
 void printUsage()

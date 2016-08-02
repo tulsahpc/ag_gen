@@ -4,20 +4,18 @@
  * \copyright Copyright (C) The University of Tulsa - All Rights Reserved. Unauthorized copying or distribution of this file is strictly prohibited.
  */
 
-#ifndef C_DB_UTIL_H
-#define C_DB_UTIL_H
+#ifndef UTIL_DB_H
+#define UTIL_DB_H
 
 #include <libpq-fe.h>
 
 extern PGconn *conn;
 
-void AGDbConnect(const char *);
-void AGDbDisconnect(void);
-void AGDbBeginTransaction(void);
-void AGDbEndTransaction(void);
-
+void dbconnect(const char *);
+void dbclose(void);
+void dbtrans_begin(void);
+void dbtrans_end(void);
+void exit_nicely(void);
 void printResult(const PGresult*);
 
-void exit_nicely(void);
-
-#endif //C_DB_UTIL_H
+#endif //UTIL_DB_H

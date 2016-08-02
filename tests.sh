@@ -1,32 +1,32 @@
 #!/bin/bash
 
 function tester {
-    printf "\n***** $1 Test\n"
+    printf "\n***** Test: '$1'\n"
     printf "~~~ Output:\n"
 
     valgrind -q --tool=memcheck --error-exitcode=1 --leak-check=yes --show-leak-kinds=definite --errors-for-leak-kinds=definite $@
-    RESULTS+=($?)
+    ERR=$?
+    RESULTS+=($ERR)
 }
 
 function printer {
-    # echo $2
-    if [[ "$2" = "1" ]]; then
-        succ="Failure"
-    else
+    if [[ "$2" = "0" ]]; then
         succ="Success"
+    else
+        succ="Failure"
     fi
-    printf "\n***** %s\n~~~ Valgrind Results: %s\n" "$1" $succ
+    printf "\n***** Result: '%s'\n~~~ Valgrind: %s\n" "$1" $succ
 }
 
 TESTS=("bin/ag_gen -n home")
 RESULTS=()
 
 if [[ "$1" = "all" ]]; then
-    TESTS+=(bin/*_test)
+    TESTS+=(bin/test_*)
 fi
 
 for test in "${TESTS[@]}"; do
-    tester $test
+    tester "$test"
 done
 
 for idx in ${!TESTS[@]}; do

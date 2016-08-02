@@ -4,8 +4,8 @@
  * \copyright Copyright (C) The University of Tulsa - All Rights Reserved. Unauthorized copying or distribution of this file is strictly prohibited.
  */
 
-#ifndef C_UTIL_H
-#define C_UTIL_H
+#ifndef UTIL_COMMON_H
+#define UTIL_COMMON_H
 
 #ifdef DEBUG
 #define DEBUG_TEST 1
@@ -14,7 +14,8 @@
 #endif
 
 #include <stdio.h>
-#include "ag_asset.h"
+
+#include "asset.h"
 
 #define DEBUG_PRINT(fmt, ...) do {						\
 	if (DEBUG_TEST) fprintf(stderr, "DEBUG: %s:%d %s(): " fmt, __FILE__,	\
@@ -34,18 +35,4 @@ extern char *strtok_r(char *, const char *, char **);
 int sstrcpy(char *dst, const char *src, int len);
 char *dynstr(const char *);
 
-struct AGBinding {
-	int size;
-	int *elts;
-};
-
-struct AGBindingList {
-	int size;
-	int **list;
-};
-
-struct AGBindingList *permute_r(struct AGAssetList *assets, int num_params);
-void AGBindingFree(struct AGBindingList *);
-void AGBindingsPrint(struct AGBinding *bindings);
-
-#endif //C_UTIL_H
+#endif //UTIL_COMMON_H

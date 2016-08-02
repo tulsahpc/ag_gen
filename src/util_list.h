@@ -9,8 +9,8 @@
    to.
  */
 
-#ifndef C_UTIL_LIST_H
-#define C_UTIL_LIST_H
+#ifndef UTIL_LIST_H
+#define UTIL_LIST_H
 
 #include <stdio.h>
 
@@ -31,26 +31,27 @@ struct ListArray {
 	void **val;
 };
 
-#define ListPrint(LIST, TYPE, fmt) {		\
+#define list_print(LIST, TYPE, fmt) {		\
 	struct Node *curr = LIST->head;		\
 	while(curr) {				\
 		printf(fmt, (TYPE)curr->val);	\
 		curr = curr->next; }		\
 	printf("\n"); }
 
-struct List *ListNew(void);
-void ListFree(struct List *);
+struct List *list_new(void);
+void list_free(struct List *);
 
-int ListAppend(struct List *, void *val);
-int ListPrepend(struct List *, void *val);
+int list_push(struct List *, void *val);
+int list_rpush(struct List *, void *val);
 
-void *ListPop(struct List *);
-void *ListRemove(struct List *, int idx);
+void *list_pop(struct List *);
+void *list_rpop(struct List *);
+void *list_del(struct List *, int idx);
 
-void *ListGet(struct List *, int idx);
-int ListSize(struct List *);
+void *list_at(struct List *, int idx);
+int list_size(struct List *);
 
-struct ListArray *ListAsArray(struct List *);
-void ListArrayFree(struct ListArray *);
+struct ListArray *list_to_array(struct List *);
+void listarray_free(struct ListArray *);
 
-#endif //C_UTIL_LIST_H
+#endif //UTIL_LIST_H

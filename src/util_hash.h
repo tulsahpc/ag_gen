@@ -1,5 +1,5 @@
-#ifndef C_UTIL_HASH_H
-#define C_UTIL_HASH_H
+#ifndef UTIL_HASH_H
+#define UTIL_HASH_H
 
 #include <stdint.h>
 
@@ -27,16 +27,9 @@ static char alphabet[35] = {
 	'x', 'u', 'z'
 };
 
-struct HashTable *HashTableNew(void);
-void HashTableAdd(struct HashTable *table, char *key, void *val);
-void HashTableRemove(struct HashTable *table, char *key);
-void *HashTableFind(struct HashTable *table, char *key);
-void HashTableFree(struct HashTable *table);
+struct HashTable *hashtable_new(void);
+void *hashtable_get(struct HashTable *table, char *key);
+void hashtable_set(struct HashTable *table, char *key, void *val);
+void hashtable_free(struct HashTable *table);
 
-// unsigned int base_convert_string(char *, int);
-// char *base_convert_int(int, int);
-char *base_convert(char *num, int from, int to);
-uint64_t radix128(char *data);
-unsigned int hash(char *key);
-
-#endif //C_UTIL_HASH_H
+#endif //UTIL_HASH_H

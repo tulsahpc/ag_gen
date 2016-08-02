@@ -8,11 +8,11 @@
 #include <string.h>
 #include <libpq-fe.h>
 
-#include "util.h"
-#include "db_util.h"
+#include "util_common.h"
+#include "util_db.h"
 
 PGconn *conn;
-void AGDbConnect(const char *conninfo)
+void dbconnect(const char *conninfo)
 {
 	// Create database connection
 	conn = PQconnectdb(conninfo);
@@ -22,13 +22,13 @@ void AGDbConnect(const char *conninfo)
 	}
 }
 
-void AGDbDisconnect()
+void dbclose()
 {
 	// Close connection before exiting
 	PQfinish(conn);
 }
 
-void AGDbBeginTransaction()
+void dbtrans_begin()
 {
 	PGresult *res;
 
@@ -42,7 +42,7 @@ void AGDbBeginTransaction()
 	PQclear(res);
 }
 
-void AGDbEndTransaction()
+void dbtrans_end()
 {
 	PGresult *res;
 

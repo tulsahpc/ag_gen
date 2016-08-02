@@ -8,13 +8,13 @@
 #include <stdio.h>
 #include "util_list.h"
 
-struct List *ListNew(void)
+struct List *list_new(void)
 {
 	struct List *list = calloc(1, sizeof(struct List));
 	return list;
 }
 
-void ListFree(struct List *list)
+void list_free(struct List *list)
 {
 	struct Node *curr = list->head;
 	while(curr != NULL) {
@@ -25,7 +25,7 @@ void ListFree(struct List *list)
 	free(list);
 }
 
-int ListAppend(struct List *list, void *val)
+int list_push(struct List *list, void *val)
 {
 	struct Node *node = calloc(1, sizeof(struct Node));
 	if(!node) return 1;
@@ -46,7 +46,7 @@ int ListAppend(struct List *list, void *val)
 	return 0;
 }
 
-int ListPrepend(struct List *list, void *val)
+int list_rpush(struct List *list, void *val)
 {
 	struct Node *node = calloc(1, sizeof(struct Node));
 	if(!node) return 1;
@@ -69,12 +69,12 @@ int ListPrepend(struct List *list, void *val)
 	return 0;
 }
 
-void *ListPop(struct List *list)
+void *list_pop(struct List *list)
 {
-	return ListRemove(list, list->size-1);
+	return list_del(list, list->size-1);
 }
 
-void *ListRemove(struct List *list, int idx)
+void *list_del(struct List *list, int idx)
 {
 	struct Node *curr = list->head;
 	int i = 0;
@@ -103,7 +103,7 @@ void *ListRemove(struct List *list, int idx)
 	return val;
 }
 
-void *ListGet(struct List *list, int idx)
+void *list_at(struct List *list, int idx)
 {
 	struct Node *curr = list->head;
 	int i = 0;
@@ -119,12 +119,12 @@ void *ListGet(struct List *list, int idx)
 	return val;
 }
 
-int ListSize(struct List *list)
+int list_size(struct List *list)
 {
 	return list->size;
 }
 
-struct ListArray *ListAsArray(struct List *list)
+struct ListArray *list_to_array(struct List *list)
 {
 	struct Node *cur = list->head;
 	int len = list->size;
@@ -142,7 +142,7 @@ struct ListArray *ListAsArray(struct List *list)
 	return list_array;
 }
 
-void ListArrayFree(struct ListArray *list)
+void listarray_free(struct ListArray *list)
 {
 	free(list->val);
 	free(list);

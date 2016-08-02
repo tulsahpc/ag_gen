@@ -4,8 +4,8 @@
  * \copyright Copyright (C) The University of Tulsa - All Rights Reserved. Unauthorized copying or distribution of this file is strictly prohibited.
  */
 
+#include "util_common.h"
 #include "util_odometer.h"
-#include "util.h"
 
 int main()
 {
@@ -15,7 +15,7 @@ int main()
 
 	char *set[3] = {asset1, asset2, asset3};
 
-	struct Odometer *perms = OdometerNew(3, 3);
-	OdometerPrintSet(perms, (char**)set);
-	OdometerFree(perms);
+	struct Odometer *perms = odometer_new(3, 3);
+	odometer_printset(perms, (char**)set);
+	odometer_free(perms);
 }

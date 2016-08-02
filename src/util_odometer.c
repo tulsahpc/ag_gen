@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "util.h"
+#include "util_common.h"
 #include "util_odometer.h"
 
 static int elts;
@@ -30,7 +30,7 @@ static void reset(int idx)
 	cur = 0;
 }
 
-struct Odometer *OdometerNew(int k, int n)
+struct Odometer *odometer_new(int k, int n)
 {
 	elts = k;
 	len = n;
@@ -71,7 +71,7 @@ struct Odometer *OdometerNew(int k, int n)
 	return perms;
 }
 
-void OdometerFree(struct Odometer *perm)
+void odometer_free(struct Odometer *perm)
 {
 	for(int i=0; i<perm->size; i++) {
 		free(perm->arr[i]);
@@ -80,7 +80,7 @@ void OdometerFree(struct Odometer *perm)
 	free(perm);
 }
 
-void OdometerPrint(struct Odometer *perm)
+void odometer_print(struct Odometer *perm)
 {
 	for(int i=0; i<perm->size; i++) {
 		for(int j=0; j<perm->n; j++) {
@@ -90,7 +90,7 @@ void OdometerPrint(struct Odometer *perm)
 	}
 }
 
-void OdometerPrintSet(struct Odometer *perm, char **set)
+void odometer_printset(struct Odometer *perm, char **set)
 {
 	for(int i=0; i<perm->size; i++) {
 		for(int j=0; j<perm->n; j++) {
@@ -100,7 +100,7 @@ void OdometerPrintSet(struct Odometer *perm, char **set)
 	}
 }
 
-struct OdometerState *initOdometerState(struct Odometer *od)
+struct OdometerState *ostate_new(struct Odometer *od)
 {
 	struct OdometerState *state = malloc(sizeof(struct OdometerState));
 	state->od = od;
@@ -109,13 +109,13 @@ struct OdometerState *initOdometerState(struct Odometer *od)
 	return state;
 }
 
-int *nextPermutation(struct OdometerState *state)
+int *ostate_next(struct OdometerState *state)
 {
 	int **arr = state->od->arr;
 	return arr[state->idx++];
 }
 
-void freeOdometerState(struct OdometerState *state)
+void ostate_free(struct OdometerState *state)
 {
 	free(state);
 }
