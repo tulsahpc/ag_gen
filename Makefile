@@ -37,6 +37,10 @@ dir:
 debug: CFLAGS += -DDEBUG -g
 debug: $(TARGETS)
 
+.PHONY: debugall
+debugall: CFLAGS += -DDEBUG -g
+debugall: $(EXECS)
+
 $(EXECS):$(BIN_DIR)/%: $(SRC_DIR)/%.o $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
@@ -49,7 +53,7 @@ test: dir debug
 	@./tests.sh
 
 .PHONY: fulltest
-fulltest: dir debug $(EXECS)
+fulltest: dir debugall $(EXECS)
 	@./tests.sh all
 
 .PHONY: docs

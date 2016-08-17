@@ -13,34 +13,27 @@
 #include "util_list.h"
 
 // Database connection information
-#define CONNINFO "postgresql://localhost:5432/ag_gen"
+#define CONNINFO "postgresql://localhost:5432/ag_gen_test"
 
 int main()
 {
-	struct List *network_list;
-	struct List *asset_list;
-	struct List *exploit_list;
+	struct List *network_list = list_new();
+	struct List *asset_list = list_new();
+	struct List *exploit_list = list_new();
 
 	dbconnect(CONNINFO);
 
-	network_list = networks_fetch();
-	asset_list = assets_fetch("home");
-	exploit_list = exploits_fetch();
+	int num_assets = assets_fetch(asset_list, "home");
+	int num_exploits = exploits_fetch(exploit_list);
+	int num_networks = networks_fetch(network_list);
 
-	for(int i=0; i<asset_list->size; i++) {
-		asset_free(list_at(asset_list, i));
-	}
-	list_free(asset_list);
+	list_iterate(network_list, network_free);
+	list_iterate(asset_list, asset_free);
+	list_iterate(exploit_list, exploit_free);
 
-	for(int i=0; i<exploit_list->size; i++) {
-		exploit_free(list_at(exploit_list, i));
-	}
-	list_free(exploit_list);
-
-	for(int i=0; i<network_list->size; i++) {
-		network_free(list_at(network_list, i));
-	}
 	list_free(network_list);
+	list_free(asset_list);
+	list_free(exploit_list);
 
 	dbclose();
 }

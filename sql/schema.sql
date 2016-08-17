@@ -31,16 +31,18 @@ CREATE TABLE exploit (
 
 CREATE TABLE exploit_precondition (
   exploit_id INTEGER REFERENCES exploit(id),
+  param INTEGER,
   property TEXT,
   value TEXT,
-  PRIMARY KEY (exploit_id, property)
+  PRIMARY KEY (exploit_id, param, property)
 );
 
 CREATE TABLE exploit_postcondition (
   exploit_id INTEGER REFERENCES exploit(id),
+  param INTEGER,
   property TEXT,
   value TEXT,
-  PRIMARY KEY (exploit_id, property)
+  PRIMARY KEY (exploit_id, param, property)
 );
 
 CREATE TABLE exploit_topology(

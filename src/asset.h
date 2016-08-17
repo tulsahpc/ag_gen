@@ -7,6 +7,8 @@
 #ifndef ASSET_H
 #define ASSET_H
 
+#include "util_list.h"
+
 struct Asset {
 	int id;
 	char *name;
@@ -14,8 +16,14 @@ struct Asset {
 	struct HashTable *facts;
 };
 
-struct List *assets_fetch(const char *);
+struct AssetBinding {
+	int len;
+	struct Asset *assets;
+};
+
+int assets_fetch(struct List *, const char *);
 struct Asset *asset_new(int, char *);
-int asset_free(struct Asset *);
+void asset_print(struct Asset *);
+void asset_free(struct Asset *);
 
 #endif //ASSET_H

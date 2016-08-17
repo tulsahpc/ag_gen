@@ -5,52 +5,89 @@
  */
 
 #include <stdlib.h>
+#include <math.h>
 #include <getopt.h>
 #include <errno.h>
+#include <stdbool.h>
 
 #include "asset.h"
 #include "exploit.h"
 #include "network.h"
+#include "network_state.h"
 #include "util_common.h"
 #include "util_db.h"
 #include "util_list.h"
 #include "util_odometer.h"
 
-#define CONNINFO "postgresql://localhost:5432/ag_gen"
+#define CONNINFO "postgresql://localhost:5432/ag_gen_test"
 
-void printUsage(void);
+static int num_assets;
+static struct List *network_state_queue;
+static struct List *network_state_finished;
 
-struct NetworkState {
-	int network_id;
-	struct NetworkState *parent;
-	struct List *children;
-	struct List *assets;
-};
-
-static struct AGAsset **bind_assets(struct List *assets, int *order, int len)
+static void print_usage()
 {
-	struct AGAsset **list = malloc(sizeof(struct AGAsset *) * len);
-	for(int i=0; i<len; i++) {
-		list[i] = list_at(assets, order[i]);
+	printf("Usage: ag_gen [OPTION...]\n");
+	printf("\n");
+	printf("Flags:\n");
+	printf("\t-n\tNetwork model name to generate attack graph on.\n");
+	printf("\t-p\tPrint information about the network specified by -n.\n");
+	printf("\t-h\tThis help menu.\n");
+}
+
+static int getbindings(struct List *bl, struct NetworkState *state, struct Exploit *sploit)
+{
+	struct Odometer *od = odometer_new(num_assets, sploit->num_params);
+	struct OdometerState *st = ostate_new(od);
+	int num_bindings = od->size;
+
+	for(int i=0; i<num_bindings; i++) {
+		struct Asset *binding = malloc(sizeof(struct AssetBinding) * sploit->num_params);
+		list_push(bl, binding);
 	}
-	return list;
+
+	ostate_free(st);
+	odometer_free(od);
+
+	return 0;
+}
+
+static struct NetworkState *check(struct Exploit *sploit, struct AssetBinding *binding)
+{
+	// struct ExploitPreconds *props = sploit->properties;
+
+	return NULL;
+}
+
+static struct List *match(struct Exploit *sploit, struct List *bindings)
+{
+	struct List *new_states_list = list_new();
+
+	for(int i=0; i<list_size(bindings); i++) {
+		struct NetworkState *new_state = check(sploit, list_at(bindings, i));
+		if(new_state != NULL) {
+			list_rpush(new_states_list, new_state);
+		}
+	}
+
+	return new_states_list;
 }
 
 int main(int argc, char *argv[])
 {
-	int c;
-	int opt_print = 0;
-	char *opt_network = NULL;
-
 	if(argc < 2) {
-		printUsage();
+		print_usage();
 		return 1;
 	}
 
+	int opt_print = 0;
+	char *opt_network = NULL;
+
+	int c;
 	while((c = getopt(argc, argv, "hpn:")) != -1) {
 		switch(c) {
 			case 'h':
-				printUsage();
+				print_usage();
 				return 0;
 			case 'n':
 				opt_network = optarg;
@@ -61,54 +98,91 @@ int main(int argc, char *argv[])
 			case '?':
 				if(optopt == 'c')
 					fprintf(stderr, "Option -%c requires an argument.\n", optopt);
-				exit(1);
+				return EXIT_FAILURE;
 				break;
 			case ':':
 				fprintf(stderr, "wtf\n");
+				return EXIT_FAILURE;
 				break;
 			default:
 				fprintf(stderr, "Unknown option -%c. Exiting.\n", optopt);
-				exit(1);
+				return EXIT_FAILURE;
 				break;
 		}
 	}
 
 	dbconnect(CONNINFO);
 
-	struct List *network_list = networks_fetch();
-	if(!network_list) {
+	// Fetch Networks
+	struct List *network_list = list_new();
+	int res = networks_fetch(network_list);
+	int num_networks = res;
+
+	if(res == -1) {
 		fprintf(stderr, "An error occurred retrieving the networks.\n");
-		exit(1);
+		return EXIT_FAILURE;
 	}
 
-	if(network_list->size == 0) {
+	if(num_networks == 0) {
 		fprintf(stderr,"There are no networks in the system.\n");
-		exit(1);
+		return EXIT_SUCCESS;
 	}
 
-	struct List *asset_list = assets_fetch(opt_network);
-	if(asset_list->size == 0) {
-		fprintf(stderr, "The network %s does not exist.\n", opt_network);
-		exit(1);
+	// Fetch Assets
+	struct List *asset_list = list_new();
+	res = assets_fetch(asset_list, opt_network);
+	num_assets = res;
+
+	if(num_assets == 0) {
+		fprintf(stderr, "The network %s does not have any assets.\n", opt_network);
+		return EXIT_SUCCESS;
 	}
 
-	int exploit_params = 3;
-	struct Odometer *od = odometer_new(asset_list->size, exploit_params);
-	struct OdometerState *odst = ostate_new(od);
-	struct List *binding_list = list_new();
+	// Fetch Exploits
+	struct List *exploit_list = list_new();
+	res = exploits_fetch(exploit_list);
+	int num_exploits = res;
 
-	// Generate asset bindings
-	for(int i=0; i<od->size; i++) {
-		int *nextPerm = ostate_next(odst);
-		struct AGAsset **bound_assets = bind_assets(asset_list, nextPerm, exploit_params);
-		list_push(binding_list, bound_assets);
+	if(res == 0) {
+		fprintf(stderr, "No exploits in database.\n");
+		return EXIT_SUCCESS;
 	}
 
-	// Check exploits
+	network_state_queue = list_new();
+	network_state_finished = list_new();
+
+	struct NetworkState *initial_ns = ns_new(1, NULL);
+	list_rpush(network_state_queue, initial_ns);
+
+	// Main Attack Graph Loop
+	while(!list_empty(network_state_queue)) {
+		struct NetworkState *next_state = list_pop(network_state_queue);
+
+		for(int i=0; i<num_exploits; i++) {
+			struct Exploit *sploit = list_at(asset_list, i);
+			struct List *bindings = list_new();
+
+			// XXX: BAD, can be pulled out of the loop later.
+			getbindings(bindings, next_state, sploit);
+			struct List *new_states = match(sploit, bindings);
+
+			// Merge new_states into queue
+			for(int i=0; i<list_size(new_states); i++) {
+				list_push(network_state_queue, list_at(new_states, i));
+			}
+			list_free(new_states);
+
+			// Cleanup
+			list_iterate(bindings, free);
+			list_free(bindings);
+
+			list_rpush(network_state_finished, next_state);
+		}
+	}
 
 	// Print bindings
-	// for(int i=0; i<ListSize(binding_list); i++) {
-	// 	struct AGAsset **bound_assets = ListGet(binding_list, i);
+	// for(int i=0; i<list_size(binding_list); i++) {
+	// 	struct Asset **bound_assets = list_at(binding_list, i);
 	// 	for(int j=0; j<exploit_params; j++) {
 	// 		printf("%s ", bound_assets[j]->name);
 	// 	}
@@ -116,31 +190,13 @@ int main(int argc, char *argv[])
 	// }
 
 	// Cleanup
-	for(int i=0; i<list_size(binding_list); i++)
-		free(list_at(binding_list, i));
+	list_iterate(network_list, network_free);
+	list_iterate(asset_list, asset_free);
+	list_iterate(exploit_list, exploit_free);
 
-	list_free(binding_list);
-
-	for(int i=0; i<list_size(asset_list); i++)
-		asset_free(list_at(asset_list, i));
-	list_free(asset_list);
-
-	for(int i=0; i<list_size(network_list); i++)
-		network_free(list_at(network_list, i));
 	list_free(network_list);
-
-	ostate_free(odst);
-	odometer_free(od);
+	list_free(asset_list);
+	list_free(exploit_list);
 
 	dbclose();
-}
-
-void printUsage()
-{
-	printf("Usage: ag_gen [OPTION...]\n");
-	printf("\n");
-	printf("Flags:\n");
-	printf("\t-n\tNetwork model name to generate attack graph on.\n");
-	printf("\t-p\tPrint information about the network specified by -n.\n");
-	printf("\t-h\tThis help menu.\n");
 }

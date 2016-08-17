@@ -12,23 +12,27 @@
 #include "util_db.h"
 
 PGconn *conn;
-void dbconnect(const char *conninfo)
+// Returns 0 on success, any other number on error.
+int dbconnect(const char *conninfo)
 {
 	// Create database connection
 	conn = PQconnectdb(conninfo);
 	if(PQstatus(conn) != CONNECTION_OK) {
 		fprintf(stderr, "Connection failed: %s", PQerrorMessage(conn));
-		exit_nicely();
+		goto fatal;
 	}
+fatal:
+	//dbclose();
+	return -1;
 }
 
 void dbclose()
 {
 	// Close connection before exiting
-	PQfinish(conn);
+	if(conn) PQfinish(conn);
 }
 
-void dbtrans_begin()
+int dbtrans_begin()
 {
 	PGresult *res;
 
@@ -36,13 +40,16 @@ void dbtrans_begin()
 	res = PQexec(conn, "BEGIN");
 	if(PQresultStatus(res) != PGRES_COMMAND_OK) {
 		fprintf(stderr, "BEGIN command failed: %s", PQerrorMessage(conn));
-		PQclear(res);
-		exit_nicely();
+		goto fatal;
 	}
 	PQclear(res);
+	return 0;
+fatal:
+	PQclear(res);
+	return -1;
 }
 
-void dbtrans_end()
+int dbtrans_end()
 {
 	PGresult *res;
 
@@ -50,17 +57,14 @@ void dbtrans_end()
 	res = PQexec(conn, "COMMIT");
 	if(PQresultStatus(res) != PGRES_COMMAND_OK) {
 		fprintf(stderr, "COMMIT failed: %s", PQerrorMessage(conn));
-		PQclear(res);
-		exit_nicely();
+		goto fatal;
 	}
 
 	PQclear(res);
-}
-
-void exit_nicely(void)
-{
-	PQfinish(conn);
-	exit(1);
+	return 0;
+fatal:
+	PQclear(res);
+	return -1;
 }
 
 void printResult(const PGresult *res)

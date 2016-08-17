@@ -6,7 +6,25 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "util_list.h"
+
+static void list_iter_init(struct ListIterator *it, struct List *lst)
+{
+	it->list = lst;
+	it->idx = 0;
+}
+
+static void *list_iter(struct ListIterator *it)
+{
+	void *val;
+	if((val = list_at(it->list, it->idx)) != NULL) {
+		it->idx++;
+		return val;
+	} else {
+		return NULL;
+	}
+}
 
 struct List *list_new(void)
 {
@@ -28,10 +46,10 @@ void list_free(struct List *list)
 int list_push(struct List *list, void *val)
 {
 	struct Node *node = calloc(1, sizeof(struct Node));
-	if(!node) return 1;
+	if(!node) return -1;
 	node->val = val;
 
-	if(!(list->head)) {
+	if(list->head == NULL) {
 		list->head = node;
 		list->tail = node;
 	} else {
@@ -49,7 +67,7 @@ int list_push(struct List *list, void *val)
 int list_rpush(struct List *list, void *val)
 {
 	struct Node *node = calloc(1, sizeof(struct Node));
-	if(!node) return 1;
+	if(!node) return -1;
 	node->val = val;
 
 	if(!(list->head)) {
@@ -79,14 +97,21 @@ void *list_del(struct List *list, int idx)
 	struct Node *curr = list->head;
 	int i = 0;
 
+	// Traverse the list until the requested index is reached.
 	while(curr && i < idx) {
 		curr = curr->next;
 		i++;
 	}
 
+	// Return if the requested index is larger than the size
+	// or if the current node is NULL.
+	if(i < idx)
+		return NULL;
+
 	if(!curr)
 		return NULL;
 
+	// Get links to the appropriate nodes to switch them around
 	struct Node *prevNode = curr->prev;
 	struct Node *nextNode = curr->next;
 
@@ -95,10 +120,20 @@ void *list_del(struct List *list, int idx)
 	if(nextNode)
 		nextNode->prev = prevNode;
 
-	void *val = curr->val;
-	free(curr);
+	// head/tail should only be NULL if the list is empty
+	if(list->head == curr && nextNode == NULL) {
+		list->head = NULL;
+	}
+
+	if(list->tail == curr && prevNode == NULL) {
+		list->tail = NULL;
+	}
 
 	list->size--;
+
+	// Now remove the node
+	void *val = curr->val;
+	free(curr);
 
 	return val;
 }
@@ -122,6 +157,29 @@ void *list_at(struct List *list, int idx)
 int list_size(struct List *list)
 {
 	return list->size;
+}
+
+int list_empty(struct List *list)
+{
+	if(list->size == 0) return true;
+	else return false;
+}
+
+struct ListIterator *list_new_iterator(struct List *lst)
+{
+	struct ListIterator *lstit = malloc(sizeof(struct ListIterator));
+	list_iter_init(lstit, lst);
+	return lstit;
+}
+
+void list_iterate(struct List *list, void (*callback)(void *))
+{
+	struct ListIterator it;
+	list_iter_init(&it, list);
+	void *val;
+	while((val = list_iter(&it)) != NULL) {
+		callback(val);
+	}
 }
 
 struct ListArray *list_to_array(struct List *list)

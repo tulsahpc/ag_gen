@@ -15,29 +15,21 @@
 
 #define STRBUF 128
 
-struct List *assets_fetch(const char *network)
+int assets_fetch(struct List *asset_list, const char *network)
 {
 	PGresult *res;
 	int num_rows;
-	struct List *asset_list = list_new();
 
 	dbtrans_begin();
 
 	char sql[STRBUF+1] = {0};
-	// int wr =
 	snprintf(sql, STRBUF, "SELECT * FROM asset WHERE network_id = (SELECT id FROM network WHERE name = '%s');\n", network);
-	// if(wr < STRBUF) {
-	// 	sql[wr] = '\0';
-	// } else {
-	// 	sql[STRBUF] = '\0';
-	// }
 
 	res = PQexec(conn, sql);
 	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
 		fprintf(stderr, "SELECT command failed: %s",
 			PQerrorMessage(conn));
-		PQclear(res);
-		exit_nicely();
+		goto fatal;
 	}
 
 	num_rows = PQntuples(res);
@@ -56,8 +48,12 @@ struct List *assets_fetch(const char *network)
 
 	dbtrans_end();
 	PQclear(res);
-
-	return asset_list;
+	return list_size(asset_list);
+fatal:
+	PQclear(res);
+	for(int i=0; i<list_size(asset_list); i++)
+		asset_free(list_at(asset_list, i));
+	return -1;
 }
 
 struct Asset *asset_new(int id, char *name)
@@ -69,15 +65,14 @@ struct Asset *asset_new(int id, char *name)
 	return new_asset;
 }
 
-int asset_free(struct Asset *asset)
+void asset_print(struct Asset *asset)
+{
+	printf("%s\n", asset->name);
+}
+
+void asset_free(struct Asset *asset)
 {
 	// DEBUG_PRINT("asset #%d: %s\n", asset->id, asset->name);
-	if(asset == NULL)
-		return 1;
-
-	if(asset->name != NULL)
-		free(asset->name);
-
+	free(asset->name);
 	free(asset);
-	return 0;
 }

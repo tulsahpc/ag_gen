@@ -25,7 +25,6 @@
 
 static int rasset_test()
 {
-	int res;
 	struct Asset *asset;
 	struct Asset *new_asset;
 
@@ -42,17 +41,8 @@ static int rasset_test()
 	rasset_set("asset1", asset);
 	new_asset = rasset_get("asset1");
 
-	res = asset_free(asset);
-	if(res) {
-		DEBUG_PRINT("Memory free error.\n",0);
-		exit(1);
-	}
-
-	res = asset_free(new_asset);
-	if(res) {
-		DEBUG_PRINT("There was a problem.\n",0);
-		exit(1);
-	}
+	asset_free(asset);
+	asset_free(new_asset);
 
 	return 0;
 }
@@ -65,7 +55,7 @@ static int rexploit_test()
 	exploit = calloc(1, sizeof(struct Exploit));
 	if(!exploit) {
 		DEBUG_PRINT("Memory allocation error.\n",0);
-		exit(1);
+		return EXIT_FAILURE;
 	}
 
 	exploit->id = 143222;

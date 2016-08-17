@@ -11,11 +11,10 @@
 
 extern PGconn *conn;
 
-void dbconnect(const char *);
+int dbconnect(const char *);
 void dbclose(void);
-void dbtrans_begin(void);
-void dbtrans_end(void);
-void exit_nicely(void);
+int dbtrans_begin(void);
+int dbtrans_end(void);
 void printResult(const PGresult*);
 
 #endif //UTIL_DB_H

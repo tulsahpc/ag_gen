@@ -1,5 +1,8 @@
 bin/
 
+# vim ycm file
+.ycm*
+
 # Tag files
 tags
 

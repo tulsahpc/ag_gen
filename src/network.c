@@ -14,24 +14,23 @@
 #include "util_db.h"
 #include "util_list.h"
 
-struct List *networks_fetch()
+// Returns
+//	int >= 0: number of elements in the list
+//	int < 0: error occurred
+int networks_fetch(struct List *network_list)
 {
 	PGresult *res;
 	int numRows;
-	struct List *network_list;
 
 	dbtrans_begin();
 
 	res = PQexec(conn, "SELECT * FROM network");
 	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
 		fprintf(stderr, "SELECT command failed: %s", PQerrorMessage(conn));
-		PQclear(res);
-		exit_nicely();
+		goto fatal;
 	}
 
 	numRows = PQntuples(res);
-	network_list = list_new();
-
 	for(int i=0; i<numRows; i++) {
 		int id = atoi(PQgetvalue(res, i, 0));
 		char *name = dynstr(PQgetvalue(res, i, 1));
@@ -40,23 +39,22 @@ struct List *networks_fetch()
 		new_network->id = id;
 		new_network->name = name;
 
-		list_push(network_list, new_network);
+		int res = list_push(network_list, new_network);
+		if(res != 0)
+			fprintf(stderr, "Error occurred adding network to list.");
 	}
 
 	dbtrans_end();
 	PQclear(res);
-
-	return network_list;
+	return list_size(network_list);
+fatal:
+	PQclear(res);
+	return -1;
 }
 
-int network_free(struct Network *network)
+void network_free(struct Network *network)
 {
-	if(network == NULL)
-		return -1;
-
-	if(network->name != NULL)
-		free(network->name);
-
+	if(network == NULL) return;
+	free(network->name);
 	free(network);
-	return 0;
 }

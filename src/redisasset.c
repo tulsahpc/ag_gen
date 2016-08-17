@@ -21,7 +21,6 @@
 /*!
  * Maxlength of the strings that can be inputed/outputed
  */
-#define MAXSTRLEN 128
 #define DELIMITER ":"
 
 /**

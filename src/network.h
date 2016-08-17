@@ -7,12 +7,14 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
+#include "util_list.h"
+
 struct Network {
 	int id;
 	char *name;
 };
 
-struct List *networks_fetch(void);
-int network_free(struct Network *);
+int networks_fetch(struct List *);
+void network_free(struct Network *);
 
 #endif //C_AG_NETWORK_H
