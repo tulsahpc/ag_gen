@@ -38,6 +38,7 @@ struct Odometer *odometer_new(int k, int n)
 	struct Odometer *perms = malloc(sizeof(struct Odometer));
 	int num_perms = pow(k, n);
 	int **perm_arr = malloc(num_perms * sizeof(int*));
+	printf("k: %d\nn: %d\n", k, n);
 
 	int curr_perm = 0;
 	while(cur < len) {

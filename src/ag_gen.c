@@ -9,6 +9,7 @@
 #include <getopt.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "asset.h"
 #include "exploit.h"
@@ -35,15 +36,21 @@ static void print_usage()
 	printf("\t-h\tThis help menu.\n");
 }
 
-static int getbindings(struct List *bl, struct NetworkState *state, struct Exploit *sploit)
+static int getbindings(struct List *bl, struct List *assets, struct NetworkState *state, struct Exploit *sploit)
 {
 	struct Odometer *od = odometer_new(num_assets, sploit->num_params);
 	struct OdometerState *st = ostate_new(od);
 	int num_bindings = od->size;
 
 	for(int i=0; i<num_bindings; i++) {
-		struct Asset *binding = malloc(sizeof(struct AssetBinding) * sploit->num_params);
-		list_push(bl, binding);
+		int *binding = ostate_next(st);
+		struct Asset **new_binding = malloc(sizeof(struct Asset *) * sploit->num_params);
+
+		for(int j=0; j<sploit->num_params; j++) {
+			new_binding[j] = list_at(assets, binding[j]);
+		}
+
+		list_push(bl, new_binding);
 	}
 
 	ostate_free(st);
@@ -159,11 +166,11 @@ int main(int argc, char *argv[])
 		struct NetworkState *next_state = list_pop(network_state_queue);
 
 		for(int i=0; i<num_exploits; i++) {
-			struct Exploit *sploit = list_at(asset_list, i);
+			struct Exploit *sploit = list_at(exploit_list, i);
 			struct List *bindings = list_new();
 
 			// XXX: BAD, can be pulled out of the loop later.
-			getbindings(bindings, next_state, sploit);
+			getbindings(bindings, asset_list, next_state, sploit);
 			struct List *new_states = match(sploit, bindings);
 
 			// Merge new_states into queue
@@ -172,6 +179,23 @@ int main(int argc, char *argv[])
 			}
 			list_free(new_states);
 
+			for(int j=0; j<list_size(bindings); j++) {
+				struct Asset **next_binding = list_at(bindings, j);
+				for(int k=0; k<sploit->num_params; k++) {
+					printf("%s ", next_binding[k]->name);
+				}
+				printf("\n");
+			}
+
+			// Print bindings
+			// for(int i=0; i<list_size(bindings); i++) {
+			// 	int *binding = (int *)list_at(bindings, i);
+			// 	for(int j=0; j<sploit->num_params; j++) {
+			// 		printf("%s ", ((struct Asset *)list_at(asset_list, binding[j]))->name);
+			// 	}
+			// 	printf("\n");
+			// }
+
 			// Cleanup
 			list_iterate(bindings, free);
 			list_free(bindings);
@@ -179,15 +203,6 @@ int main(int argc, char *argv[])
 			list_rpush(network_state_finished, next_state);
 		}
 	}
-
-	// Print bindings
-	// for(int i=0; i<list_size(binding_list); i++) {
-	// 	struct Asset **bound_assets = list_at(binding_list, i);
-	// 	for(int j=0; j<exploit_params; j++) {
-	// 		printf("%s ", bound_assets[j]->name);
-	// 	}
-	// 	printf("\n");
-	// }
 
 	// Cleanup
 	list_iterate(network_list, network_free);

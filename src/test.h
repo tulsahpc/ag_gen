@@ -26,8 +26,7 @@ enum TestTypes {
  		case CHAR_P: \
  			fprintf(stderr, "\n\t" #NAME " != " #VAL ": Failure @ %s:%d\n", __FILE__, __LINE__); \
  			break; } \
- 		return FAIL; } \
- 	return PASS;
+ 		return FAIL; }
 
 #define FAILIFEQ(TYPE, NAME, VAL) \
  	if((NAME) == (VAL)) { \
@@ -38,7 +37,6 @@ enum TestTypes {
  		case CHAR_P: \
  			fprintf(stderr, "\n\t" #NAME " == " #VAL ": Failure @ %s:%d\n", __FILE__, __LINE__); \
  			break; } \
- 		return FAIL; } \
- 	return PASS;
+ 		return FAIL; }
 
 #endif //TEST_H

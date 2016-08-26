@@ -29,7 +29,7 @@ int push_pop_list()
 
 	int val;
 	val = (int)list_pop(list);
-	FAILIFEQ(INT, val, 3);
+	FAILIFNEQ(INT, val, 3);
 
 	val = (int)list_pop(list);
 	FAILIFNEQ(INT, val, 2);
