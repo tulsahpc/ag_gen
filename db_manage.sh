@@ -36,17 +36,27 @@ function init() {
     echo "Created new $DB"
 
     psql $DB < sql/schema.sql 2>&1 > /dev/null
-    psql $DB < sql/$DB_SQL.sql 2>&1 > /dev/null
+    psql $DB < $DB_SQL 2>&1 > /dev/null
 
     echo "Database Populated"
 }
 
 function usage() {
-    echo "Usage: ./db_manage.sh ACTION [OPTIONS]"
+    echo "Usage: ./db_manage.sh ACTION DATABASE FILE"
     echo ""
     echo "  Actions:"
     echo "      init - initialize database"
+    echo ""
+    echo "  Options:"
+    echo "       database - which db to initialize"
+    echo "       file - the data to initialize the db with"
+    echo ""
 }
+
+if [[ $# != 3 ]]; then
+    usage
+    exit 1
+fi
 
 if [[ -z "$1" ]]; then
     usage

@@ -9,6 +9,12 @@
 
 #include "util_list.h"
 
+struct Quality {
+	int asset_id;
+	char *property;
+	char *value;
+};
+
 struct Asset {
 	int id;
 	char *name;
@@ -25,5 +31,7 @@ int assets_fetch(struct List *, const char *);
 struct Asset *asset_new(int, char *);
 void asset_print(struct Asset *);
 void asset_free(struct Asset *);
+
+void quality_free(struct Quality *);
 
 #endif //ASSET_H

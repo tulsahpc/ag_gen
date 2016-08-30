@@ -80,6 +80,7 @@ struct HashTable *hashtable_new()
 void *hashtable_get(struct HashTable *table, char *key)
 {
 	int hashed_key = hash(key);
+
 	struct HashNode *cur = table->arr[hashed_key];
 	int status = 1;
 	while(cur) {
@@ -127,6 +128,8 @@ void hashtable_free(struct HashTable *table)
 		while(cur) {
 			del = cur;
 			cur = cur->next;
+			free(del->key);
+			free(del->val);
 			free(del);
 		}
 	}

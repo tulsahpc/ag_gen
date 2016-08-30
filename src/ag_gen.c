@@ -17,6 +17,7 @@
 #include "network_state.h"
 #include "util_common.h"
 #include "util_db.h"
+#include "util_hash.h"
 #include "util_list.h"
 #include "util_odometer.h"
 
@@ -59,9 +60,35 @@ static int getbindings(struct List *bl, struct List *assets, struct NetworkState
 	return 0;
 }
 
-static struct NetworkState *check(struct Exploit *sploit, struct AssetBinding *binding)
+static struct NetworkState *check(struct Exploit *sploit, struct Asset **binding)
 {
-	// struct ExploitPreconds *props = sploit->properties;
+	struct List *props = sploit->properties;
+	for(int i=0; i<sploit->num_params; i++) {
+		struct Asset *next_asset = binding[i];
+
+		for(int j=0; j<list_size(props); j++) {
+			struct ExploitPrecond *next_prop = list_at(props, j);
+
+			int sploit_param = next_prop->param;
+			char *sploit_property = next_prop->property;
+			char *sploit_value = next_prop->value;
+
+			char *asset_value = hashtable_get(next_asset->facts, sploit_property);
+			// printf("sploit property: %s\n", sploit_property);
+			// printf("asset value: %s\n", asset_value);
+
+			if(!asset_value) {
+				// printf("%s does not exist in %s\n", sploit_property, next_asset->name);
+				continue;
+			}
+
+			if(strcmp(sploit_value, asset_value) == 0) {
+				// printf("%s vulnerable to %s\n", next_asset->name, sploit->name);
+			}
+		}
+
+		// printf("\t%d %s %s\n", sploit_param, sploit_property, sploit_value);
+	}
 
 	return NULL;
 }
@@ -179,19 +206,11 @@ int main(int argc, char *argv[])
 			}
 			list_free(new_states);
 
-			for(int j=0; j<list_size(bindings); j++) {
-				struct Asset **next_binding = list_at(bindings, j);
-				for(int k=0; k<sploit->num_params; k++) {
-					printf("%s ", next_binding[k]->name);
-				}
-				printf("\n");
-			}
-
 			// Print bindings
-			// for(int i=0; i<list_size(bindings); i++) {
-			// 	int *binding = (int *)list_at(bindings, i);
-			// 	for(int j=0; j<sploit->num_params; j++) {
-			// 		printf("%s ", ((struct Asset *)list_at(asset_list, binding[j]))->name);
+			// for(int j=0; j<list_size(bindings); j++) {
+			// 	struct Asset **next_binding = list_at(bindings, j);
+			// 	for(int k=0; k<sploit->num_params; k++) {
+			// 		printf("%s ", next_binding[k]->name);
 			// 	}
 			// 	printf("\n");
 			// }

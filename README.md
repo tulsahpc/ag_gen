@@ -16,13 +16,9 @@ You must have permission to be able to access Postgres from the C application. C
 
 ## Building
 
-Build the system for debugging:
+Build the application:
 
     make
-
-Build the system for production:
-
-    make build
 
 ## Running
 
@@ -32,9 +28,13 @@ This doesn't really do anything cool yet. ./ag_gen -h for the help menu.
 
 ## Tests
 
-Execute tests with
+Run tests on main application:
 
     make test
+
+Run tests for each component of the application:
+
+    make fulltest
 
 ## Documentation
 

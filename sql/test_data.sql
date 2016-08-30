@@ -7,6 +7,7 @@ INSERT INTO asset VALUES
   (DEFAULT, 'attacker', (SELECT id FROM network WHERE name = 'home'));
 
 INSERT INTO quality VALUES
+  (1, 'type', 'router'),
   (1, 'version', '1.6');
 
 INSERT INTO topology VALUES
