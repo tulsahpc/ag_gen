@@ -7,6 +7,10 @@
 #ifndef UTIL_REDIS_H
 #define UTIL_REDIS_H
 
+#ifdef __c_plus_plus
+extern "C" {
+#endif
+
 #include <hiredis/hiredis.h>
 
 #define DELIMITER ":"
@@ -18,5 +22,9 @@ int redis_enqueue(const char *key, const char *value);
 char *redis_dequeue(const char *key);
 int rlist_length(const char *key);
 void rreply_error(redisReply *);
+
+#ifdef __c_plus_plus
+}
+#endif
 
 #endif //UTIL_REDIS_H

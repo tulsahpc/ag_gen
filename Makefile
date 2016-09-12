@@ -5,57 +5,42 @@ BIN_DIR := bin
 VPATH := .:$(SRC_DIR)
 
 CC := clang
+CXX := clang++
+
 CFLAGS := -Wall -Wpedantic --std=c99 -I$(SRC_DIR)
+CXXFLAGS := -Wall -Wpedantic --std=c++14 -I$(SRC_DIR)
+
 LIBS := -lm -lpq -lhiredis
 
-TARGETS := ag_gen
-TARGETS := $(BIN_DIR)/$(TARGETS)
-TESTS := $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%,$(wildcard $(SRC_DIR)/test_*.c))
+BIN := ag_gen
+BIN := $(patsubst %,$(BIN_DIR)/%,$(BIN))
 
-# Union of executables
-EXECS := $(sort $(TARGETS) $(TESTS))
-SRCS := $(filter-out $(patsubst $(BIN_DIR)/%,$(SRC_DIR)/%.c,$(EXECS)),$(wildcard $(SRC_DIR)/*.c))
-OBJS := $(patsubst $(SRC_DIR)/%.c,$(SRC_DIR)/%.o,$(SRCS))
+BIN_S := $(SRC_DIR)/util_db.c $(SRC_DIR)/util_odometer.c
+# BIN_S := $(wildcard $(SRC_DIR)/*.c)
+BIN_S := $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%.a,$(BIN_S))
 
-# $(info $(TARGETS))
-# $(info $(TESTS))
-# $(info $(EXECS))
-# $(info $(SRCS))
-# $(info $(OBJS))
+SRCS := $(wildcard $(SRC_DIR)/*.cpp)
+OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(SRC_DIR)/%.o,$(SRCS))
 
-.PHONY: default
-default: dir debug
+C_SRC := $(wildcard $(SRC_DIR)/*.c)
+C_OBJS := $(patsubst $(SRC_DIR)/%.c,$(SRC_DIR)/%.o,$(C_SRCS))
 
-.PHONY: build
-build: dir $(TARGETS)
+default: dir $(BIN_S) $(BIN)
 
-.PHONY: dir
 dir:
 	@mkdir -p bin
 
-.PHONY: debug
-debug: CFLAGS += -DDEBUG -g
-debug: $(TARGETS)
+$(BIN): $(BIN_DIR)/% : $(SRC_DIR)/%.o $(OBJS) $(BIN_S)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
-.PHONY: debugall
-debugall: CFLAGS += -DDEBUG -g
-debugall: $(EXECS)
+$(OBJS): $(SRC_DIR)/%.o : $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-$(EXECS):$(BIN_DIR)/%: $(SRC_DIR)/%.o $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+$(BIN_S): $(BIN_DIR)/%.a : $(SRC_DIR)/%.o
+	ar rcs $@ $^
 
-.PHONY: clean
+$(C_OBJS): $(SRC_DIR)/%.o : $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -c -o $@ $^
+
 clean:
-	rm -rf bin docs $(SRC_DIR)/*.o
-
-.PHONY: test
-test: dir debug
-	@./tests.sh
-
-.PHONY: fulltest
-fulltest: dir debugall $(EXECS)
-	@./tests.sh all
-
-.PHONY: docs
-docs:
-	@doxygen
+	@rm -rf bin docs $(SRC_DIR)/*.o

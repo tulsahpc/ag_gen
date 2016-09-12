@@ -1,6 +1,10 @@
 #ifndef UTIL_ODOMETER_H
 #define UTIL_ODOMETER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct Odometer {
 	int size;
 	int k;
@@ -21,5 +25,9 @@ void odometer_printset(struct Odometer *, char **set);
 struct OdometerState *ostate_new(struct Odometer *od);
 int *ostate_next(struct OdometerState *state);
 void ostate_free(struct OdometerState *state);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //UTIL_ODOMETER_H

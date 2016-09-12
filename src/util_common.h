@@ -7,6 +7,10 @@
 #ifndef UTIL_COMMON_H
 #define UTIL_COMMON_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef DEBUG
 #define DEBUG_TEST 1
 #else
@@ -46,5 +50,9 @@ extern char *strtok_r(char *, const char *, char **);
 
 int sstrcpy(char *dst, const char *src, int len);
 char *dynstr(const char *);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //UTIL_COMMON_H

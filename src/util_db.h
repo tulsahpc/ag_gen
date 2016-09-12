@@ -7,6 +7,10 @@
 #ifndef UTIL_DB_H
 #define UTIL_DB_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <libpq-fe.h>
 
 extern PGconn *conn;
@@ -16,5 +20,9 @@ void dbclose(void);
 int dbtrans_begin(void);
 int dbtrans_end(void);
 void printResult(const PGresult*);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //UTIL_DB_H
