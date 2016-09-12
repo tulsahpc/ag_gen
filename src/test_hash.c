@@ -6,9 +6,9 @@ int main()
 {
 	struct HashTable *table = hashtable_new();
 
-	hashtable_set(table, "hello", (void *)12345);
-	int value = (int)hashtable_get(table, "hello");
-	printf("%d\n", value);
+	hashtable_set(table, "hello", "12345");
+	char *value = hashtable_get(table, "hello");
+	printf("%d\n", atoi(value));
 
 	hashtable_set(table, "goodbye", "Thing");
 	char *str = hashtable_get(table, "goodbye");

@@ -27,6 +27,18 @@
 
 #define MAXSTRLEN 128
 
+char alphabet[35] = {
+	'0', '1', '2', '3',
+	'4', '5', '6', '7',
+	'8', '9', 'a', 'b',
+	'c', 'd', 'e', 'f',
+	'g', 'h', 'i', 'j',
+	'k', 'l', 'm', 'o',
+	'p', 'q', 'r', 's',
+	't', 'u', 'v', 'w',
+	'x', 'u', 'z'
+};
+
 /* Added because this is a non-standard C function.
    Windows equivalent is strtok_s.
 */

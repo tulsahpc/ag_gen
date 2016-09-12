@@ -66,6 +66,8 @@ static struct NetworkState *check(struct Exploit *sploit, struct Asset **binding
 	for(int i=0; i<sploit->num_params; i++) {
 		struct Asset *next_asset = binding[i];
 
+		// XXX: We are repeatedly checking every asset with the exploit. Can't
+		// we cache this and only check for topologies associated with the exploit?
 		for(int j=0; j<list_size(props); j++) {
 			struct ExploitPrecond *next_prop = list_at(props, j);
 
@@ -78,12 +80,12 @@ static struct NetworkState *check(struct Exploit *sploit, struct Asset **binding
 			// printf("asset value: %s\n", asset_value);
 
 			if(!asset_value) {
-				// printf("%s does not exist in %s\n", sploit_property, next_asset->name);
+				printf("%s does not exist in %s\n", sploit_property, next_asset->name);
 				continue;
 			}
 
 			if(strcmp(sploit_value, asset_value) == 0) {
-				// printf("%s vulnerable to %s\n", next_asset->name, sploit->name);
+				printf("%s vulnerable to %s\n", next_asset->name, sploit->name);
 			}
 		}
 

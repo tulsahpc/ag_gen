@@ -1,0 +1,7 @@
+We are doing a breadth-first search on the network states
+
+Optimizations
+    - Create bindings at the beginning and cache them
+    - In check, we repeatedly compare each exploit precond
+        with each asset. This information could be cached
+        and reused.

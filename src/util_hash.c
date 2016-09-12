@@ -9,50 +9,6 @@
 
 #define HASH_PRIME 101
 
-static unsigned int base_convert_string(char *data, int base)
-{
-	int len = strlen(data);
-	int total = 0;
-	for(int i=0; i<len; i++) {
-		unsigned int next_num = 0;
-		if(data[i] <= 'z' && data[i] >= 'a') {
-			next_num = data[i] - 87;
-		} else if(data[i] <= 'Z' && data[i] >= 'A') {
-			next_num = data[i] - 55;
-		} else if(data[i] <= '9' && data[i] >= '0') {
-			next_num = data[i] - '0';
-		} else {
-			printf("Malformed Input\n");
-			exit(1);
-		}
-		total = total * base + next_num;
-	}
-	return total;
-}
-
-static char *base_convert_int(int num, int base)
-{
-	struct List st;
-	while(num > 0) {
-		list_push(&st, (void *)(unsigned long)(num % base));
-		num = num / base;
-	}
-
-	int size = list_size(&st);
-	char *converted = malloc(size * sizeof(char) + 1);
-	for(int i=0; i<size; i++) {
-		converted[i] = alphabet[(int)list_pop(&st)];
-	}
-	converted[size] = '\0';
-
-	return converted;
-}
-
-static char *base_convert(char *num, int from, int to)
-{
-	return base_convert_int(base_convert_string(num, from), to);
-}
-
 static uint64_t radix128(char *data)
 {
 	int len = strlen(data);
@@ -63,23 +19,29 @@ static uint64_t radix128(char *data)
 	return total;
 }
 
-static unsigned int hash(char *key)
+unsigned int radix_hash(char *key)
 {
 	uint64_t val = radix128(key) % HASH_PRIME;
 	return val;
 }
 
-struct HashTable *hashtable_new()
+struct HashTable *hashtable_new(unsigned int (*func)(char *key))
 {
-	struct HashTable *new_table = malloc(sizeof(struct HashTable));
+	struct HashTable *new_table = calloc(1, sizeof(struct HashTable));
 	new_table->size = HASH_PRIME;
 	new_table->arr = calloc(1, new_table->size * sizeof(struct HashNode *));
+	new_table->hash_func = func;
 	return new_table;
+}
+
+struct HashTable *hashtable_new_full(unsigned int (*func)(char *key), void (*key_destroy)(void *), void (*val_destroy)(void*))
+{
+
 }
 
 void *hashtable_get(struct HashTable *table, char *key)
 {
-	int hashed_key = hash(key);
+	int hashed_key = table->hash_func(key);
 
 	struct HashNode *cur = table->arr[hashed_key];
 	int status = 1;
@@ -99,7 +61,7 @@ void *hashtable_get(struct HashTable *table, char *key)
 
 void hashtable_set(struct HashTable *table, char *key, void *val)
 {
-	int hashed_key = hash(key);
+	int hashed_key = table->hash_func(key);
 	struct HashNode *cur = table->arr[hashed_key];
 	struct HashNode *new = calloc(1, sizeof(struct HashNode));
 
@@ -128,8 +90,6 @@ void hashtable_free(struct HashTable *table)
 		while(cur) {
 			del = cur;
 			cur = cur->next;
-			free(del->key);
-			free(del->val);
 			free(del);
 		}
 	}

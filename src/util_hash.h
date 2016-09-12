@@ -13,21 +13,13 @@ struct HashNode {
 struct HashTable {
 	int size;
 	struct HashNode **arr;
+	unsigned int (*hash_func)(char *key);
+	void (*key_destroy)(void *);
+	void (*val_destroy)(void *);
 };
 
-static char alphabet[35] = {
-	'0', '1', '2', '3',
-	'4', '5', '6', '7',
-	'8', '9', 'a', 'b',
-	'c', 'd', 'e', 'f',
-	'g', 'h', 'i', 'j',
-	'k', 'l', 'm', 'o',
-	'p', 'q', 'r', 's',
-	't', 'u', 'v', 'w',
-	'x', 'u', 'z'
-};
-
-struct HashTable *hashtable_new(void);
+struct HashTable *hashtable_new(unsigned int (*func)(char *key));
+struct HashTable *hashtable_new_full(unsigned int (*func)(char *key), void (*key_destroy)(void *), void (*val_destroy)(void *));
 void *hashtable_get(struct HashTable *table, char *key);
 void hashtable_set(struct HashTable *table, char *key, void *val);
 void hashtable_free(struct HashTable *table);
