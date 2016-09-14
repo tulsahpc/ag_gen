@@ -8,7 +8,7 @@
 #include "exploit.h"
 #include "util_db.h"
 
-using namespace std; //no
+using namespace std;
 
 #define CONNINFO "postgresql://localhost:5432/ag_gen_test"
 
