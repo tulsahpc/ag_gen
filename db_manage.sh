@@ -5,13 +5,15 @@ function init() {
     if [[ ! -z "${OPTIONS[0]}" ]]; then
         DB=${OPTIONS[0]}
     else
-        DB=ag_gen
+        echo "Please supply a database with -d"
+        exit 1
     fi
 
     if [[ ! -z "${OPTIONS[1]}" ]]; then
         DB_SQL=${OPTIONS[1]}
     else
-        DB_SQL=example_data
+        echo "Please supply a data file with -f"
+        exit 1
     fi
 
     echo "Database: $DB"
@@ -53,24 +55,41 @@ function usage() {
     echo ""
 }
 
-if [[ $# != 3 ]]; then
-    usage
-    exit 1
-fi
+while getopts "a:d:f:" opt; do
+    case $opt in
+        a)
+            echo "Action: $OPTARG"
+            ;;
+        d)
+            echo "Database: $OPTARG"
+            ;;
+        f)
+            echo "File: $OPTARG"
+            ;;
+        :)
+            echo "Option required for $OPTARG - $OPTERR"
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
 
-if [[ -z "$1" ]]; then
-    usage
-    exit 1
-fi
 
-ACTION=$1
-OPTIONS=(${@:2})
 
-case $ACTION in
-    "init")
-        init
-        ;;
-    *)
-        usage
-        ;;
-esac
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

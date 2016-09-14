@@ -9,7 +9,7 @@
 
 #include <string>
 #include <memory>
-#include "util_list.h"
+#include <vector>
 
 struct Quality {
 	int asset_id;
