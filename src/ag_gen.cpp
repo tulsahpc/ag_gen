@@ -1,8 +1,12 @@
 #include <iostream>
 #include <getopt.h>
 #include <vector>
+#include <memory>
 
 #include "network.h"
+#include "asset.h"
+#include "exploit.h"
+
 #include "util_db.h"
 
 using namespace std;
@@ -27,7 +31,7 @@ int main(int argc, char *argv[])
 	}
 
 	int opt_print = 0;
-	char *opt_network = NULL;
+	string opt_network;
 
 	int c;
 	while((c = getopt(argc, argv, "hpn:")) != -1) {
@@ -59,11 +63,33 @@ int main(int argc, char *argv[])
 
 	dbconnect(CONNINFO);
 
-	vector<Network *> network_list;
-	networks_fetch(network_list);
+	try {
+		auto network = find_network("home");
+		cout << network->id << endl;
+	} catch (const exception &e) {
+		cout << e.what() << endl;
+	}
 
-	for(vector<Network *>::iterator it=network_list.begin(); it != network_list.end(); ++it)
-		cout << (*it)->name << endl;
+	// vector<shared_ptr<Network> > network_list;
+	// networks_fetch(network_list);
+
+	// vector<shared_ptr<Asset> > asset_list;
+	// assets_fetch(asset_list, opt_network);
+
+	// vector<shared_ptr<Exploit> > exploit_list;
+	// exploits_fetch(exploit_list);
+
+	// for(auto network : network_list) {
+	// 	cout << network->name << endl;
+	// }
+
+	// for(auto asset : asset_list) {
+	// 	cout << asset->name << endl;
+	// }
+
+	// for(auto exploit : exploit_list) {
+	// 	cout << exploit->name << endl;
+	// }
 
 	dbclose();
 }

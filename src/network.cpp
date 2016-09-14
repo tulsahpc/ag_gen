@@ -1,5 +1,7 @@
 #include <vector>
+#include <memory>
 #include <string>
+#include <stdexcept>
 
 #include <libpq-fe.h>
 #include "network.h"
@@ -7,7 +9,7 @@
 
 using namespace std;
 
-int networks_fetch(vector<Network *> &network_list)
+int networks_fetch(vector<shared_ptr<Network> > &network_list)
 {
 	PGresult *res;
 	int numRows;
@@ -25,11 +27,11 @@ int networks_fetch(vector<Network *> &network_list)
 		int id = stoi(PQgetvalue(res, i, 0));
 		string name = PQgetvalue(res, i, 1);
 
-		Network *new_network = new Network;
-		new_network->id = id;
-		new_network->name = name;
+		shared_ptr<Network> network(new Network);
+		network->id = id;
+		network->name = name;
 
-		network_list.push_back(new_network);
+		network_list.push_back(network);
 	}
 
 	dbtrans_end();
@@ -38,4 +40,37 @@ int networks_fetch(vector<Network *> &network_list)
 fatal:
 	PQclear(res);
 	return -1;
+}
+
+shared_ptr<Network> find_network(const string name)
+{
+	PGresult *res;
+	int numRows;
+	shared_ptr<Network> network(new Network);
+
+	dbtrans_begin();
+
+	res = PQexec(conn, ("SELECT * FROM network where network.name = '" + name + "';").c_str());
+	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
+		fprintf(stderr, "SELECT command failed: %s", PQerrorMessage(conn));
+		goto fatal;
+	}
+
+	numRows = PQntuples(res);
+	if(numRows < 1) {
+		throw runtime_error("Network not found.");
+	} else {
+		int id = stoi(PQgetvalue(res, 0, 0));
+		string name = PQgetvalue(res, 0, 1);
+
+		network->id = id;
+		network->name = name;
+	}
+
+	dbtrans_end();
+	PQclear(res);
+	return network;
+fatal:
+	PQclear(res);
+	return nullptr;
 }

@@ -11,9 +11,13 @@ insert_final_newline = true
 [*.md]
 trim_trailing_whitespace = false
 
-[*.{c,cpp,h,hpp}]
+[*.{c}]
 indent_style = tab
 indent_size = 8
+
+[*.{cpp,hpp,h}]
+indent_style = tab
+indent_size = 4
 
 [*.sql]
 indent_style = space

@@ -7,19 +7,20 @@
 #ifndef ASSET_H
 #define ASSET_H
 
+#include <string>
+#include <memory>
 #include "util_list.h"
 
 struct Quality {
 	int asset_id;
-	char *property;
-	char *value;
+	std::string property;
+	std::string value;
 };
 
 struct Asset {
 	int id;
-	char *name;
+	std::string name;
 	int network_id;
-	struct HashTable *facts;
 };
 
 struct AssetBinding {
@@ -27,11 +28,6 @@ struct AssetBinding {
 	struct Asset *assets;
 };
 
-int assets_fetch(struct List *, const char *);
-struct Asset *asset_new(int, char *);
-void asset_print(struct Asset *);
-void asset_free(struct Asset *);
-
-void quality_free(struct Quality *);
+int assets_fetch(std::vector<std::shared_ptr<Asset> > &, std::string const &);
 
 #endif //ASSET_H

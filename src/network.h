@@ -8,13 +8,17 @@
 #define NETWORK_H
 
 #include <string>
-using namespace std;
+#include <memory>
+#include <exception>
+#include <stdexcept>
+#include <vector>
 
 struct Network {
 	int id;
-	string name;
+	std::string name;
 };
 
-int networks_fetch(vector<Network *> &);
+int networks_fetch(std::vector<std::shared_ptr<Network> > &);
+std::shared_ptr<Network> find_network(const std::string);
 
 #endif //C_AG_NETWORK_H

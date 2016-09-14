@@ -19,8 +19,6 @@ extern "C" {
 
 #include <stdio.h>
 
-#include "asset.h"
-
 #define DEBUG_PRINT(fmt, ...) do {						\
 	if (DEBUG_TEST) fprintf(stderr, "DEBUG: %s:%d %s(): " fmt, __FILE__,	\
 		__LINE__, __FUNCTION__, __VA_ARGS__); } while (0)

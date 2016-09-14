@@ -25,10 +25,16 @@ OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(SRC_DIR)/%.o,$(SRCS))
 C_SRC := $(wildcard $(SRC_DIR)/*.c)
 C_OBJS := $(patsubst $(SRC_DIR)/%.c,$(SRC_DIR)/%.o,$(C_SRCS))
 
-default: dir $(BIN_S) $(BIN)
+default: dir debug $(BIN_S) $(BIN)
+
+.PHONY: debug
+debug: CFLAGS += -g
+debug: CXXFLAGS += -g
 
 dir:
 	@mkdir -p bin
+
+build: dir $(BIN_S) $(BIN)
 
 $(BIN): $(BIN_DIR)/% : $(SRC_DIR)/%.o $(OBJS) $(BIN_S)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
@@ -41,6 +47,10 @@ $(BIN_S): $(BIN_DIR)/%.a : $(SRC_DIR)/%.o
 
 $(C_OBJS): $(SRC_DIR)/%.o : $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c -o $@ $^
+
+.PHONY: test
+test: default
+	@./tests.sh
 
 clean:
 	@rm -rf bin docs $(SRC_DIR)/*.o
