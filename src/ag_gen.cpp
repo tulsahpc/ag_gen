@@ -77,16 +77,17 @@ int main(int argc, char *argv[])
 	vector<shared_ptr<Exploit> > exploit_list;
 	exploits_fetch(exploit_list);
 
+    cout << "Networks: " << endl;
 	for(auto network : network_list) {
-		cout << network->name << endl;
+		cout << "\t" << network->name << endl;
 	}
-
+    cout << "Assets:" << endl;
 	for(auto asset : asset_list) {
-		cout << asset->name << endl;
+		cout << "\t" <<  asset->name << endl;
 	}
-
+    cout << "Exploits:" << endl;
 	for(auto exploit : exploit_list) {
-		cout << exploit->name << endl;
+		cout << "\t" << exploit->name << endl;
 	}
 
 	dbclose();
