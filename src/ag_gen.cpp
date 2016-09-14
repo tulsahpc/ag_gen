@@ -2,6 +2,7 @@
 #include <getopt.h>
 #include <vector>
 #include <memory>
+#include <cstdlib>
 
 #include "network.h"
 #include "asset.h"
@@ -63,33 +64,33 @@ int main(int argc, char *argv[])
 
 	dbconnect(CONNINFO);
 
-	try {
-		auto network = find_network("home");
-		cout << network->id << endl;
-	} catch (const exception &e) {
-		cout << e.what() << endl;
+	// try {
+	// 	auto network = find_network("home");
+	// 	cout << network->id << endl;
+	// } catch (const exception &e) {
+	// 	cout << e.what() << endl;
+	// }
+
+	vector<shared_ptr<Network> > network_list;
+	networks_fetch(network_list);
+
+	vector<shared_ptr<Asset> > asset_list;
+	assets_fetch(asset_list, opt_network);
+
+	vector<shared_ptr<Exploit> > exploit_list;
+	exploits_fetch(exploit_list);
+
+	for(auto network : network_list) {
+		cout << network->name << endl;
 	}
 
-	// vector<shared_ptr<Network> > network_list;
-	// networks_fetch(network_list);
+	for(auto asset : asset_list) {
+		cout << asset->name << endl;
+	}
 
-	// vector<shared_ptr<Asset> > asset_list;
-	// assets_fetch(asset_list, opt_network);
-
-	// vector<shared_ptr<Exploit> > exploit_list;
-	// exploits_fetch(exploit_list);
-
-	// for(auto network : network_list) {
-	// 	cout << network->name << endl;
-	// }
-
-	// for(auto asset : asset_list) {
-	// 	cout << asset->name << endl;
-	// }
-
-	// for(auto exploit : exploit_list) {
-	// 	cout << exploit->name << endl;
-	// }
+	for(auto exploit : exploit_list) {
+		cout << exploit->name << endl;
+	}
 
 	dbclose();
 }

@@ -1,21 +1,20 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <libpq-fe.h>
 #include "asset.h"
 #include "util_db.h"
-using namespace std;
 
-#define STRBUF 128
+using namespace std;
 
 static int qualities_fetch(vector<shared_ptr<Quality> > &quality_list, int asset_id)
 {
 	PGresult *res;
 	int num_rows;
 
-	char sql[STRBUF+1] = {0};
-	snprintf(sql, STRBUF, "SELECT * FROM quality WHERE asset_id = %d;\n", asset_id);
+	string sql = "SELECT * FROM quality WHERE asset_id = '" + to_string(asset_id) + "';";
 
-	res = PQexec(conn, sql);
+	res = PQexec(conn, sql.c_str());
 	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
 		fprintf(stderr, "SELECT command failed: %s",
 			PQerrorMessage(conn));
