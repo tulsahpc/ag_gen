@@ -10,9 +10,18 @@ if [[ $OS = 'darwin' ]]; then
         brew install postgresql redis hiredis cppcheck doxygen valgrind graphviz
     fi
 elif [[ $OS = 'linux' ]]; then
-    sudo apt-get -y install postgresql postgresql-contrib libpq-dev \
-        redis-server libhiredis-dev cppcheck clang valgrind \
-        doxygen graphviz
+    type pacman &> /dev/null
+    if [[ $? ]]; then
+        sudo pacman -S postgresql redis hiredis cppcheck clang \
+            doxygen graphviz
+    fi
+
+    type apt-get &> /dev/null
+    if [[ $? ]]; then
+        sudo apt-get -y install postgresql postgresql-contrib libpq-dev \
+            redis-server libhiredis-dev cppcheck clang valgrind \
+            doxygen graphviz
+    fi
 else
     echo "Your operating system is not currently supported."
 fi
