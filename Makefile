@@ -7,17 +7,13 @@ VPATH := .:$(SRC_DIR)
 CC := clang
 CXX := clang++
 
-CFLAGS := -Wall -Wpedantic --std=c99 -I$(SRC_DIR)
-CXXFLAGS := -Wall -Wpedantic --std=c++14 -I$(SRC_DIR)
+CFLAGS := -g -Wall -Wpedantic --std=c99 -I$(SRC_DIR)
+CXXFLAGS := -g -Wall -Wpedantic --std=c++14 -I$(SRC_DIR)
 
 LIBS := -lm -lpq -lhiredis
 
-BIN := ag_gen
-BIN := $(patsubst %,$(BIN_DIR)/%,$(BIN))
-
-BIN_S := $(SRC_DIR)/util_db.c $(SRC_DIR)/util_odometer.c
-# BIN_S := $(wildcard $(SRC_DIR)/*.c)
-BIN_S := $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%.a,$(BIN_S))
+BIN := $(BIN_DIR)/ag_gen
+BIN_STATIC := $(BIN_DIR)/util_db.a $(BIN_DIR)/util_odometer.a
 
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(SRC_DIR)/%.o,$(SRCS))
@@ -25,31 +21,25 @@ OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(SRC_DIR)/%.o,$(SRCS))
 C_SRC := $(wildcard $(SRC_DIR)/*.c)
 C_OBJS := $(patsubst $(SRC_DIR)/%.c,$(SRC_DIR)/%.o,$(C_SRCS))
 
-default: dir debug $(BIN_S) $(BIN)
-
-.PHONY: debug
-debug: CFLAGS += -g
-debug: CXXFLAGS += -g
+all: dir $(BIN_STATIC) $(BIN)
 
 dir:
 	@mkdir -p bin
 
-build: dir $(BIN_S) $(BIN)
-
-$(BIN): $(BIN_DIR)/% : $(SRC_DIR)/%.o $(OBJS) $(BIN_S)
+$(BIN): $(BIN_DIR)/% : $(SRC_DIR)/%.o $(OBJS) $(BIN_STATIC)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
 $(OBJS): $(SRC_DIR)/%.o : $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-$(BIN_S): $(BIN_DIR)/%.a : $(SRC_DIR)/%.o
+$(BIN_STATIC): $(BIN_DIR)/%.a : $(SRC_DIR)/%.o
 	ar rcs $@ $^
 
 $(C_OBJS): $(SRC_DIR)/%.o : $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c -o $@ $^
 
 .PHONY: test
-test: default
+test: all
 	@./tests.sh
 
 clean:

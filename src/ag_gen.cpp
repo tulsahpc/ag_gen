@@ -3,14 +3,31 @@
 #include <memory>
 #include <cstdlib>
 
-#include "network.h"
-#include "asset.h"
-#include "exploit.h"
+#include "network.hpp"
+#include "asset.hpp"
+#include "exploit.hpp"
 #include "util_db.h"
 
 using namespace std;
 
-#define CONNINFO "postgresql://localhost:5432/ag_gen_test"
+#define CONNINFO "postgresql://kyle@localhost/ag_gen_test"
+
+class NetworkState {
+	int id;
+	int network_id;
+	int parent_id;
+	vector<Asset> assets;
+public:
+	NetworkState(Network &);
+};
+
+NetworkState::NetworkState(Network &net)
+{
+	id = net.id;
+	network_id = net.id;
+	parent_id = 0;
+	assets = net.assets;
+}
 
 static void print_usage() {
     printf( "Usage: ag_gen [OPTION...]\n" );
@@ -61,21 +78,21 @@ int main(int argc, char *argv[])
 
 	dbconnect(CONNINFO);
 
-	// try {
-	// 	auto network = find_network("home");
-	// 	cout << network->id << endl;
-	// } catch (const exception &e) {
-	// 	cout << e.what() << endl;
-	// }
+	try {
+		auto network = Network::find_network(opt_network);
+		// cout << network->id << endl;
+	} catch (const exception &e) {
+		cout << e.what() << endl;
+	}
 
 	vector<shared_ptr<Network> > network_list;
-	networks_fetch(network_list);
+	Network::networks_fetch(network_list);
 
 	vector<shared_ptr<Asset> > asset_list;
-	assets_fetch(asset_list, opt_network);
+	Asset::assets_fetch(asset_list, opt_network);
 
 	vector<shared_ptr<Exploit> > exploit_list;
-	exploits_fetch(exploit_list);
+	Exploit::exploits_fetch(exploit_list);
 
     cout << "Networks: " << endl;
 	for(auto network : network_list) {

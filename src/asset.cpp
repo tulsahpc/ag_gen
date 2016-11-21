@@ -2,12 +2,19 @@
 #include <memory>
 #include <string>
 #include <libpq-fe.h>
-#include "asset.h"
+#include "asset.hpp"
+#include "fact.hpp"
 #include "util_db.h"
 
 using namespace std;
 
-static int qualities_fetch(vector<shared_ptr<Quality> > &quality_list, int asset_id)
+Asset::Asset(int network_id, string const& asset_name) : network_id(network_id), name(asset_name) {};
+
+string Asset::getName() {
+	return name;
+}
+
+int Asset::qualities_fetch(vector<shared_ptr<Quality> > &quality_list, int asset_id)
 {
 	PGresult *res;
 	int num_rows;
@@ -27,11 +34,7 @@ static int qualities_fetch(vector<shared_ptr<Quality> > &quality_list, int asset
 		string property = PQgetvalue(res, i, 1);
 		string value = PQgetvalue(res, i, 2);
 
-		shared_ptr<Quality> qual(new Quality);
-		qual->asset_id = asset_id;
-		qual->property = property;
-		qual->value = value;
-
+		shared_ptr<Quality> qual(new Quality(asset_id, property, value));
 		quality_list.push_back(qual);
 	}
 
@@ -42,7 +45,7 @@ fatal:
 	return -1;
 }
 
-int assets_fetch(vector<shared_ptr<Asset> > &asset_list, string const &network)
+int Asset::assets_fetch(vector<shared_ptr<Asset> > &asset_list, string const &network)
 {
 	PGresult *res;
 	int num_rows;
@@ -64,13 +67,10 @@ int assets_fetch(vector<shared_ptr<Asset> > &asset_list, string const &network)
 		auto name = PQgetvalue(res, i, 1);
 		int network_id = stoi(PQgetvalue(res, i, 2));
 
-		shared_ptr<Asset> asset(new Asset);
-		asset->id = id;
-		asset->name = name;
-		asset->network_id = network_id;
+		shared_ptr<Asset> asset(new Asset(network_id, name));
 
 		vector<shared_ptr<Quality> > quality_list;
-		qualities_fetch(quality_list, id);
+		Asset::qualities_fetch(quality_list, id);
 
 		asset_list.push_back(asset);
 	}

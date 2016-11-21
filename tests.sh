@@ -34,7 +34,7 @@ for idx in ${!TESTS[@]}; do
 done
 
 printf "\n***** Static Analysis: "
-OUTPUT=`cppcheck -q --error-exitcode=1 **/*.{c,h} 2>&1`
+OUTPUT=`cppcheck -q --error-exitcode=1 **/*.{c,cpp,h} 2>&1`
 if [[ "$?" = "0" ]]; then
     printf "No Errors\n"
 else
