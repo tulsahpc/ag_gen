@@ -29,6 +29,7 @@ extern "C" {
 
 #define MAXSTRLEN 128
 
+/*
 char alphabet[35] = {
 	'0', '1', '2', '3',
 	'4', '5', '6', '7',
@@ -40,7 +41,7 @@ char alphabet[35] = {
 	't', 'u', 'v', 'w',
 	'x', 'u', 'z'
 };
-
+*/
 /* Added because this is a non-standard C function.
    Windows equivalent is strtok_s.
 */

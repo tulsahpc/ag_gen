@@ -29,7 +29,7 @@ unsigned int base_convert_string(char *data, int base)
 	}
 	return total;
 }
-
+/*
 char *base_convert_int(int num, int base)
 {
 	struct List st;
@@ -70,15 +70,15 @@ int sstrcpy(char *dst, const char *src, int len)
 	*(dst+counter) = '\0';
 	return 0;
 }
-
+*/
 // Always free the string when no longer required
 char *dynstr(const char *str)
 {
 	int str_len = strlen(str);
-	char *new_str = malloc(sizeof(char)*(str_len+1));
+	char *new_str = (char *) malloc(sizeof(char)*(str_len+1));
 	if(new_str == NULL)
 		return (char *) -1;
 
-	sstrcpy(new_str, str, str_len);
+	strncpy(new_str, str, str_len);
 	return new_str;
 }

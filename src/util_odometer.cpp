@@ -34,15 +34,15 @@ struct Odometer *odometer_new(int k, int n)
 {
 	elts = k;
 	len = n;
-	arr = calloc(1, n * sizeof(int));
-	struct Odometer *perms = malloc(sizeof(struct Odometer));
+	arr = ( int * ) calloc( 1, n * sizeof(int));
+	struct Odometer *perms = ( Odometer * ) malloc( sizeof(struct Odometer));
 	int num_perms = pow(k, n);
-	int **perm_arr = malloc(num_perms * sizeof(int*));
+	int **perm_arr = ( int ** ) malloc( num_perms * sizeof(int*));
 	// printf("k: %d\nn: %d\n", k, n);
 
 	int curr_perm = 0;
 	while(cur < len) {
-		perm_arr[curr_perm] = malloc(len * sizeof(int));
+		perm_arr[curr_perm] = ( int * ) malloc( len * sizeof(int));
 		for(int i=0; i<len; i++) {
 			perm_arr[curr_perm][i] = arr[i];
 		}
@@ -103,7 +103,7 @@ void odometer_printset(struct Odometer *perm, char **set)
 
 struct OdometerState *ostate_new(struct Odometer *od)
 {
-	struct OdometerState *state = malloc(sizeof(struct OdometerState));
+	struct OdometerState *state = ( OdometerState * ) malloc( sizeof(struct OdometerState));
 	state->od = od;
 	state->idx = 0;
 
