@@ -10,7 +10,7 @@
 
 using namespace std;
 
-#define CONNINFO "postgresql://kyle@localhost/ag_gen_test"
+#define CONNINFO "postgresql://archlord@localhost/ag_gen_test"
 
 class NetworkState {
 	int id;
@@ -30,19 +30,18 @@ NetworkState::NetworkState(Network &net)
 }
 
 static void print_usage() {
-    printf( "Usage: ag_gen [OPTION...]\n" );
-    printf( "\n" );
-    printf( "Flags:\n" );
-    printf( "\t-n\tNetwork model name to generate attack graph on.\n" );
-    printf( "\t-p\tPrint information about the network specified by -n.\n" );
-    printf( "\t-h\tThis help menu.\n" );
+    cout << "Usage: ag_gen [OPTION...]" << endl << endl;
+    cout << "Flags:" << endl;
+	cout << "\t-n\tNetwork model name to generate attack graph on." << endl;
+    cout << "\t-p\tPrint information about the network specified by -n." << endl;
+    cout << "\t-h\tThis help menu." << endl;
 }
 
 int main(int argc, char *argv[])
 {
 	if(argc < 2) {
 		print_usage();
-		return 1;
+		return 0;
 	}
 
 	int opt_print = 0;
@@ -63,15 +62,15 @@ int main(int argc, char *argv[])
 			case '?':
 				if(optopt == 'c')
 					fprintf(stderr, "Option -%c requires an argument.\n", optopt);
-				return EXIT_FAILURE;
+				exit(EXIT_FAILURE);
 				break;
 			case ':':
 				fprintf(stderr, "wtf\n");
-				return EXIT_FAILURE;
+				exit(EXIT_FAILURE);
 				break;
 			default:
 				fprintf(stderr, "Unknown option -%c. Exiting.\n", optopt);
-				return EXIT_FAILURE;
+				exit(EXIT_FAILURE);
 				break;
 		}
 	}
