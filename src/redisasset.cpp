@@ -13,9 +13,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "asset.h"
+#include "asset.hpp"
 #include "redisasset.h"
-#include "util_redis.h"
+//#include "util_redis.h"
 #include "util_common.h"
 
 /*!
@@ -28,7 +28,7 @@
  *
  * Will print to the console and return 1 if the asset is null.
  */
-int rasset_set(const char *key, struct Asset *asset)
+int rasset_set(const char *key, Asset *asset)
 {
 	char *str;
 
@@ -38,8 +38,8 @@ int rasset_set(const char *key, struct Asset *asset)
 	if(asset == NULL)
 		return 1;
 
-	str = malloc(sizeof(char)*(MAXSTRLEN+1));
-	snprintf(str, MAXSTRLEN, "%d:%s:%d", asset->id, asset->name, asset->network_id);
+	str = ( char * ) malloc( sizeof(char) * ( MAXSTRLEN + 1));
+	snprintf(str, MAXSTRLEN, "%d:%s:%d", asset->network_id, asset->name.c_str(), asset->network_id);
 
 	redis_enqueue(key, str);
 	free(str);
@@ -52,11 +52,11 @@ int rasset_set(const char *key, struct Asset *asset)
  *
  * If the list given by key is empty then then it will return a null asset
  */
-struct Asset *rasset_get(const char *key)
+Asset *rasset_get(const char *key)
 {
 	char *str;
 	char *saveptr;
-	struct Asset *asset = {0};
+	Asset *asset = {0};
 
 	if(key == NULL)
 		return NULL;
@@ -66,8 +66,8 @@ struct Asset *rasset_get(const char *key)
 	if(str != NULL){
 		DEBUG_PRINT("DEQUEUE Reply string is: %s\n", str);
 
-		asset = malloc(sizeof(struct Asset));
-		asset->id = atoi(strtok_r(str, DELIMITER, &saveptr));
+		asset = ( Asset * ) malloc( sizeof(Asset));
+		asset->network_id = atoi(strtok_r(str, DELIMITER, &saveptr));
 
 		char *assetName = strtok_r(NULL, DELIMITER, &saveptr);
 		asset->name = dynstr(assetName);
