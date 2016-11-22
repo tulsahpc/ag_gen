@@ -13,8 +13,8 @@ public:
 	std::string name;
 	std::vector<Asset> assets;
 
-	static std::shared_ptr<Network> find_network(const std::string net);
-	static int networks_fetch(std::vector<std::shared_ptr<Network> > &network_list);
+	static std::shared_ptr<Network> find(const std::string net);
+	static int fetch_all(std::vector<std::shared_ptr<Network> > &network_list);
 };
 
 #endif //NETWORK_APP

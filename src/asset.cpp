@@ -14,7 +14,7 @@ string Asset::getName() {
 	return name;
 }
 
-int Asset::qualities_fetch(vector<shared_ptr<Quality> > &quality_list, int asset_id)
+int Asset::fetch_qualities(vector<shared_ptr<Quality> > &quality_list, int asset_id)
 {
 	PGresult *res;
 	int num_rows;
@@ -45,7 +45,7 @@ fatal:
 	return -1;
 }
 
-int Asset::assets_fetch(vector<shared_ptr<Asset> > &asset_list, string const &network)
+int Asset::fetch_all(vector<shared_ptr<Asset> > &asset_list, string const &network)
 {
 	PGresult *res;
 	int num_rows;
@@ -70,7 +70,7 @@ int Asset::assets_fetch(vector<shared_ptr<Asset> > &asset_list, string const &ne
 		shared_ptr<Asset> asset(new Asset(network_id, name));
 
 		vector<shared_ptr<Quality> > quality_list;
-		Asset::qualities_fetch(quality_list, id);
+		Asset::fetch_qualities(quality_list, id);
 
 		asset_list.push_back(asset);
 	}

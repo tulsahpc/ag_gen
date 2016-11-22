@@ -10,7 +10,7 @@
 
 using namespace std;
 
-int Network::networks_fetch(vector<shared_ptr<Network> > &network_list)
+int Network::fetch_all(vector<shared_ptr<Network> > &network_list)
 {
 	PGresult *res;
 	int numRows;
@@ -43,7 +43,7 @@ fatal:
 	return -1;
 }
 
-shared_ptr<Network> Network::find_network(const string net)
+shared_ptr<Network> Network::find(const string net)
 {
 	PGresult *res;
 

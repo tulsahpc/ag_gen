@@ -79,20 +79,20 @@ int main(int argc, char *argv[])
 	dbconnect(CONNINFO);
 
 	try {
-		auto network = Network::find_network(opt_network);
+		auto network = Network::find(opt_network);
 		// cout << network->id << endl;
 	} catch (const exception &e) {
 		cout << e.what() << endl;
 	}
 
 	vector<shared_ptr<Network> > network_list;
-	Network::networks_fetch(network_list);
+	Network::fetch_all(network_list);
 
 	vector<shared_ptr<Asset> > asset_list;
-	Asset::assets_fetch(asset_list, opt_network);
+	Asset::fetch_all(asset_list, opt_network);
 
 	vector<shared_ptr<Exploit> > exploit_list;
-	Exploit::exploits_fetch(exploit_list);
+	Exploit::fetch_all(exploit_list);
 
     cout << "Networks: " << endl;
 	for(auto network : network_list) {
