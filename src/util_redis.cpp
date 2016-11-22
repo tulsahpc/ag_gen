@@ -77,7 +77,7 @@ int redis_disconnect()
  */
 int redis_ping()
 {
-	redisReply *reply = redisCommand(ctx, "PING");
+	redisReply *reply = ( redisReply * ) redisCommand( ctx, "PING");
 
 	if(reply == NULL) {
 		rreply_error(reply);
@@ -98,7 +98,7 @@ int redis_ping()
  */
 int redis_enqueue(const char *key, const char* value)
 {
-	redisReply *reply = redisCommand(ctx, "LPUSH %s %s", key, value);
+	redisReply *reply = ( redisReply * ) redisCommand( ctx, "LPUSH %s %s", key, value);
 	if(reply == NULL) {
 		rreply_error(reply);
 		return 1;
@@ -118,7 +118,7 @@ char *redis_dequeue(const char *key)
 	if(key == NULL)
 		return NULL;
 
-	redisReply *reply = redisCommand(ctx, "RPOP %s", key);
+	redisReply *reply = ( redisReply * ) redisCommand( ctx, "RPOP %s", key);
 	if(reply == NULL) {
 		rreply_error(reply);
 		freeReplyObject(reply);
@@ -146,7 +146,7 @@ char *redis_dequeue(const char *key)
 int rlist_length(const char *key)
 {
 	int len = 0;
-	redisReply *reply = redisCommand(ctx, "LLEN %s", key);
+	redisReply *reply = ( redisReply * ) redisCommand( ctx, "LLEN %s", key);
 
 	if(reply == NULL) {
 		rreply_error(reply);

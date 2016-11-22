@@ -15,7 +15,7 @@
 
 #include "asset.hpp"
 #include "redisasset.h"
-//#include "util_redis.h"
+#include "util_redis.h"
 #include "util_common.h"
 
 /*!
