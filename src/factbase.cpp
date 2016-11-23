@@ -20,6 +20,15 @@ void Factbase::add(int key, int val) {
 	db.push_back(new_keyval);
 }
 
+int Factbase::get(int key) {
+	for(auto &kv : db) {
+		if(key == kv.key) {
+			return kv.val;
+		}
+	}
+	return -1;
+}
+
 int Factbase::remove(int key) {
 	for(auto kv=db.begin(); kv!=db.end(); kv++) {
 		if(key == kv->key) {

@@ -16,6 +16,7 @@ public:
 
 	int check(int key);
 	void add(int key, int value);
+	int get(int key);
 	int remove(int key);
 };
 
