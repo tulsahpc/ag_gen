@@ -6,6 +6,7 @@
 #include "network.hpp"
 #include "asset.hpp"
 #include "exploit.hpp"
+#include "factbase.hpp"
 #include "util_db.h"
 
 using namespace std;
@@ -80,7 +81,6 @@ int main(int argc, char *argv[])
 
 	try {
 		auto network = Network::find(opt_network);
-		// cout << network->id << endl;
 	} catch (const exception &e) {
 		cout << e.what() << endl;
 	}
