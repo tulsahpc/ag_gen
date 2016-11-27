@@ -18,9 +18,29 @@ class NetworkState {
 	int id;
 	int network_id;
 	int parent_id;
-	vector<Asset> assets;
 public:
 	NetworkState(Network &);
+};
+
+union TestQuality {
+	struct {
+		int asset : 8;
+		int attr : 8;
+		int val : 16;
+	} dec;
+	int enc;
+};
+
+enum assets {
+	ROUTER, WORKSTATION, PRINTER
+};
+
+enum attributes {
+	OS, VERSION, ROOT
+};
+
+enum values {
+	WINDOWS, CISCO, HP, XP, THREE
 };
 
 NetworkState::NetworkState(Network &net)
@@ -28,7 +48,6 @@ NetworkState::NetworkState(Network &net)
 	id = net.id;
 	network_id = net.id;
 	parent_id = 0;
-	assets = net.assets;
 }
 
 static void print_usage() {
@@ -77,36 +96,17 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	dbconnect(CONNINFO);
+	vector<TestQuality> factbase;
+	TestQuality t1, t2, t3, t4, t5;
+	t1.dec = {WORKSTATION,OS,WINDOWS};
+	t2.dec = {WORKSTATION,VERSION,XP};
+	t3.dec = {ROUTER,OS,CISCO};
+	t4.dec = {ROUTER,VERSION,THREE};
+	t5.dec = {PRINTER,OS,HP};
 
-	try {
-		auto network = Network::find(opt_network);
-		// cout << network->id << endl;
-	} catch (const exception &e) {
-		cout << e.what() << endl;
-	}
-
-	vector<shared_ptr<Network> > network_list;
-	Network::fetch_all(network_list);
-
-	vector<shared_ptr<Asset> > asset_list;
-	Asset::fetch_all(asset_list, opt_network);
-
-	vector<shared_ptr<Exploit> > exploit_list;
-	Exploit::fetch_all(exploit_list);
-
-    cout << "Networks: " << endl;
-	for(auto network : network_list) {
-		cout << "\t" << network->name << endl;
-	}
-    cout << "Assets:" << endl;
-	for(auto asset : asset_list) {
-		cout << "\t" <<  asset->name << endl;
-	}
-    cout << "Exploits:" << endl;
-	for(auto exploit : exploit_list) {
-		cout << "\t" << exploit->name << endl;
-	}
-
-	dbclose();
+	printf("t1: %d\n", t1.enc);
+	printf("t2: %d\n", t2.enc);
+	printf("t3: %d\n", t3.enc);
+	printf("t4: %d\n", t4.enc);
+	printf("t5: %d\n", t5.enc);
 }
