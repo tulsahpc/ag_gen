@@ -2,6 +2,8 @@
 #include <getopt.h>
 #include <memory>
 #include <cstdlib>
+#include <stdlib.h>
+#include <libltdl/lt_system.h>
 
 #include "network.hpp"
 #include "asset.hpp"
