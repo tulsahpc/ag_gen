@@ -1,9 +1,11 @@
 #include <iostream>
-#include <getopt.h>
+#include <fstream>
+#include <sstream>
 #include <memory>
-#include <cstdlib>
-#include <stdlib.h>
-#include <libltdl/lt_system.h>
+#include <algorithm>
+
+#include <unordered_map>
+#include <getopt.h>
 
 #include "network.hpp"
 #include "asset.hpp"
@@ -14,6 +16,10 @@
 using namespace std;
 
 #define CONNINFO "postgresql://archlord@localhost/ag_gen_test"
+
+unique_ptr<vector<string> > split(string str, char delim);
+string trim(string str);
+unique_ptr<unordered_map<string, string> > read_config(void);
 
 class NetworkState {
 	int id;
@@ -57,13 +63,12 @@ NetworkState::NetworkState(Network &net)
 	parent_id = 0;
 }
 
-static void print_usage()
-{
-    cout << "Usage: ag_gen [OPTION...]" << endl << endl;
-    cout << "Flags:" << endl;
+static void print_usage() {
+	cout << "Usage: ag_gen [OPTION...]" << endl << endl;
+	cout << "Flags:" << endl;
 	cout << "\t-n\tNetwork model name to generate attack graph on." << endl;
-    cout << "\t-p\tPrint information about the network specified by -n." << endl;
-    cout << "\t-h\tThis help menu." << endl;
+	cout << "\t-p\tPrint information about the network specified by -n." << endl;
+	cout << "\t-h\tThis help menu." << endl;
 }
 
 vector<int> gen_hypo_facts(void)
@@ -99,10 +104,6 @@ vector<int> gen_hypo_facts(void)
 	}
 
 	return hypo_factbase;
-}
-
-void subsetSearch() {
-
 }
 
 int main(int argc, char *argv[])
@@ -143,29 +144,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	vector<int> factbase;
-	TestQuality t1, t2, t3, t4, t5;
-	t1.dec = {WORKSTATION,OS,WINDOWS};
-	t2.dec = {WORKSTATION,VERSION,XP};
-	t3.dec = {ROUTER,OS,CISCO};
-	t4.dec = {ROUTER,VERSION,THREE};
-	t5.dec = {PRINTER,OS,HP};
-
-	factbase.push_back(t1.enc);
-	factbase.push_back(t2.enc);
-	factbase.push_back(t3.enc);
-	factbase.push_back(t4.enc);
-	factbase.push_back(t5.enc);
-
-	cout << "Real Factbase:" << endl;
-	for(auto fact : factbase) {
-		cout << fact << endl;
-	}
-	cout << endl;
-
-	cout << "Hypothetical Facts" << endl;
-	auto hfacts = gen_hypo_facts();
-	for(auto fact : hfacts) {
-		cout << fact << endl;
+	unique_ptr<unordered_map<string,string> > config = read_config();
+	for(const auto &it : *config) {
+		cout << it.first << ": " << it.second << endl;
 	}
 }
