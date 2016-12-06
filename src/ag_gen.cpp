@@ -11,6 +11,7 @@
 #include "asset.hpp"
 #include "exploit.hpp"
 #include "util_db.h"
+#include "hashmap.h"
 
 
 using namespace std;
@@ -116,6 +117,9 @@ int main(int argc, char *argv[])
     printf("t5: %d\n", t5.enc);
 
     string conn_info = read_config();
+
+    unordered_map<string,int> assets;
+    fill_asset_table(conn_info,opt_network,assets);
 
 }
 
