@@ -15,47 +15,10 @@ using namespace std;
 
 #define CONNINFO "postgresql://archlord@localhost/ag_gen_test"
 
-class NetworkState {
-	int id;
-	int network_id;
-	int parent_id;
+class AGGen {
 public:
-	NetworkState(Network &);
+	AGGen(void);
 };
-
-union TestQuality {
-	struct {
-		int asset : 8;
-		int attr : 8;
-		int val : 16;
-	} dec;
-	int enc;
-};
-
-enum assets {
-	ROUTER, WORKSTATION, PRINTER,
-};
-
-int asset_num = 3;
-
-enum attributes {
-	OS, VERSION, ROOT,
-};
-
-int attr_num = 3;
-
-enum values {
-	WINDOWS, CISCO, HP, XP, THREE,
-};
-
-int values_num = 5;
-
-NetworkState::NetworkState(Network &net)
-{
-	id = net.id;
-	network_id = net.id;
-	parent_id = 0;
-}
 
 static void print_usage()
 {
@@ -68,15 +31,6 @@ static void print_usage()
 
 vector<int> gen_hypo_facts(void)
 {
-	vector<int> param_factbase;
-
-	TestQuality t1,t2;
-	t1.dec = {0,OS,WINDOWS};
-	t2.dec = {0,VERSION,THREE};
-
-	param_factbase.push_back(t1.enc);
-	param_factbase.push_back(t2.enc);
-
 	vector<int> hypo_factbase;
 
 	Odometer od(1, 3);
@@ -141,31 +95,5 @@ int main(int argc, char *argv[])
 				exit(EXIT_FAILURE);
 				break;
 		}
-	}
-
-	vector<int> factbase;
-	TestQuality t1, t2, t3, t4, t5;
-	t1.dec = {WORKSTATION,OS,WINDOWS};
-	t2.dec = {WORKSTATION,VERSION,XP};
-	t3.dec = {ROUTER,OS,CISCO};
-	t4.dec = {ROUTER,VERSION,THREE};
-	t5.dec = {PRINTER,OS,HP};
-
-	factbase.push_back(t1.enc);
-	factbase.push_back(t2.enc);
-	factbase.push_back(t3.enc);
-	factbase.push_back(t4.enc);
-	factbase.push_back(t5.enc);
-
-	cout << "Real Factbase:" << endl;
-	for(auto fact : factbase) {
-		cout << fact << endl;
-	}
-	cout << endl;
-
-	cout << "Hypothetical Facts" << endl;
-	auto hfacts = gen_hypo_facts();
-	for(auto fact : hfacts) {
-		cout << fact << endl;
 	}
 }

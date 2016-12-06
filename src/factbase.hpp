@@ -5,7 +5,7 @@
 #include "fact.hpp"
 
 class Factbase {
-	std::vector<int> db;
+	std::vector<int> factlist;
 public:
 	Factbase(void);
 
