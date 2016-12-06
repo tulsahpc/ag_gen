@@ -11,7 +11,7 @@
 #include "asset.hpp"
 #include "exploit.hpp"
 #include "util_db.h"
-#include "hashmap.h"
+#include "keyvalue.hpp"
 
 
 using namespace std;

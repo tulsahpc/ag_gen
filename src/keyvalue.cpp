@@ -2,7 +2,7 @@
 // Created by archlord on 12/6/16.
 //
 
-#include "hashmap.h"
+#include "keyvalue.hpp"
 
 using namespace std;
 
@@ -22,8 +22,17 @@ void fill_asset_table(std::string conn_info, std::string opt_network, std::unord
     vector<shared_ptr<Asset> > asset_list;
     Asset::fetch_all(asset_list, opt_network);
 
-    for (auto asset : asset_list)
+    int counter = 0;
+
+    for (auto asset : asset_list) {
         cout << asset->name << endl;
+        hash_table[asset->name] = counter;
+
+        counter++;
+    }
+    for( const auto& n : hash_table ) {
+        std::cout << "Key:[" << n.first << "] Value:[" << n.second << "]\n";
+    }
 
     dbclose();
 

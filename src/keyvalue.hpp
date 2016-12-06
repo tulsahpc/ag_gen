@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <vector>
 
 #include "network.hpp"
 #include "asset.hpp"
@@ -19,7 +20,18 @@
  * unsorted_map. This is just to help avoid conflicts in ag_gen
  */
 
+class Keyvalue{
+private:
+    std::unordered_map<std::string,int> hash_table;
+    std::vector<std::string>;
+public:
+    Keyvalue(std::string conn_info);
+};
+
+
 void fill_asset_table(std::string conn_info, std::string opt_network, std::unordered_map<std::string,int>& hash_table);
+
+
 
 
 #endif //AG_GEN_HASHMAP_H

@@ -18,7 +18,7 @@ public:
     Asset(int network_id, std::string const& asset_name);
     std::string getName();
 
-    static int fetch_all(std::vector<std::shared_ptr<Asset> > &asset_list, std::string const &network);
+    std::vector<std::shared_ptr<Asset>> Asset::fetch_all(std::string const &network);
     static int fetch_qualities(std::vector<std::shared_ptr<Quality> > &quality_list, int asset_id);
 };
 
