@@ -1,122 +1,86 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+#include <vector>
+#include <memory>
+#include <iostream>
+#include <cmath>
 
 #include "util_common.h"
 #include "util_odometer.h"
 
-static int elts;
-static int len;
-static int *arr;
-static int cur = 0;
+using namespace std;
 
-static int can_inc(int idx)
+Odometer::Odometer(int n_in, int k_in) : n(n_in), k(k_in) {}
+
+Odometer::~Odometer()
 {
-	if(idx < len && arr[idx] < elts-1)
-		return 1;
-	return 0;
+	for(auto perm : perms) {
+		delete [] perm;
+	}
 }
 
-static void inc(int idx)
+void Odometer::calc()
 {
-	if(idx < len)
-		arr[idx]++;
-}
+	int curr_idx = 0;
+	int perm_idx = 0;
 
-static void reset(int idx)
-{
-	for(int i=0; i<idx; i++)
-		arr[i] = 0;
-	cur = 0;
-}
+	int *orig_perm = new int[n];
+	perms.push_back(orig_perm);
+	int *last_perm = orig_perm;
 
-struct Odometer *odometer_new(int k, int n)
-{
-	elts = k;
-	len = n;
-	arr = ( int * ) calloc( 1, n * sizeof(int));
-	struct Odometer *perms = ( Odometer * ) malloc( sizeof(struct Odometer));
-	int num_perms = pow(k, n);
-	int **perm_arr = ( int ** ) malloc( num_perms * sizeof(int*));
-	// printf("k: %d\nn: %d\n", k, n);
+	for(int i=0; i<n; i++) {
+		orig_perm[i] = 0;
+	}
 
-	int curr_perm = 0;
-	while(cur < len) {
-		perm_arr[curr_perm] = ( int * ) malloc( len * sizeof(int));
-		for(int i=0; i<len; i++) {
-			perm_arr[curr_perm][i] = arr[i];
+	while(perm_idx < num_perms()) {
+		int* curr_perm = new int[n];
+		for(int i=0; i<n; i++) {
+			curr_perm[i] = last_perm[i];
 		}
-		curr_perm++;
 
-		if(can_inc(cur)) {
-			inc(cur);
-		} else {
-			while(cur < len && !can_inc(cur)) {
-				cur++;
+		perms.push_back(curr_perm);
+
+		while(curr_idx < n && !(curr_perm[curr_idx] < k-1)) {
+			curr_idx++;
+		}
+
+		perm_idx++;
+
+		if(curr_idx < n) {
+			curr_perm[curr_idx]++;
+			for(int i=0; i<curr_idx; i++) {
+				curr_perm[i] = 0;
 			}
-			if(can_inc(cur))
-				inc(cur);
-			else
-				break;
-			reset(cur);
+			curr_idx = 0;
+			last_perm = curr_perm;
+		} else {
+			break;
 		}
 	}
-
-	perms->arr = perm_arr;
-	perms->size = num_perms;
-	perms->n = n;
-	perms->k = k;
-
-	free(arr);
-
-	return perms;
 }
 
-void odometer_free(struct Odometer *perm)
+void Odometer::print(void)
 {
-	for(int i=0; i<perm->size; i++) {
-		free(perm->arr[i]);
-	}
-	free(perm->arr);
-	free(perm);
-}
-
-void odometer_print(struct Odometer *perm)
-{
-	for(int i=0; i<perm->size; i++) {
-		for(int j=0; j<perm->n; j++) {
-			printf("%d ", perm->arr[i][j]);
+	for(auto perm : perms) {
+		for(int i=n-1; i>=0; i--) {
+			cout << perm[i] << " ";
 		}
-		printf("\n");
+		cout << endl;
 	}
 }
 
-void odometer_printset(struct Odometer *perm, char **set)
+inline int Odometer::num_perms(void)
 {
-	for(int i=0; i<perm->size; i++) {
-		for(int j=0; j<perm->n; j++) {
-			printf("%s ", set[perm->arr[i][j]]);
-		}
-		printf("\n");
+	return pow(k, n);
+}
+
+int *Odometer::next(void)
+{
+	if(idx_state < num_perms()) {
+		return perms[idx_state++];
 	}
+	return nullptr;
 }
 
-struct OdometerState *ostate_new(struct Odometer *od)
+int Odometer::perm_length(void)
 {
-	struct OdometerState *state = ( OdometerState * ) malloc( sizeof(struct OdometerState));
-	state->od = od;
-	state->idx = 0;
-
-	return state;
-}
-
-int *ostate_next(struct OdometerState *state)
-{
-	int **arr = state->od->arr;
-	return arr[state->idx++];
-}
-
-void ostate_free(struct OdometerState *state)
-{
-	free(state);
+	return n;
 }

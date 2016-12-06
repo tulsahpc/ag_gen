@@ -1,30 +1,28 @@
 #ifndef UTIL_ODOMETER_H
 #define UTIL_ODOMETER_H
 
+#include <vector>
+#include <memory>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct Odometer {
-	int size;
-	int k;
+class Odometer {
 	int n;
-	int **arr;
+	int k;
+	std::vector<int*> perms;
+	int idx_state = 0;
+public:
+	Odometer(int n, int k);
+	~Odometer();
+
+	void calc(void);
+	int num_perms(void);
+	int perm_length(void);
+	void print(void);
+	int* next(void);
 };
-
-struct OdometerState {
-	struct Odometer *od;
-	int idx;
-};
-
-struct Odometer *odometer_new(int k, int n);
-void odometer_free(struct Odometer *);
-void odometer_print(struct Odometer *);
-void odometer_printset(struct Odometer *, char **set);
-
-struct OdometerState *ostate_new(struct Odometer *od);
-int *ostate_next(struct OdometerState *state);
-void ostate_free(struct OdometerState *state);
 
 #ifdef __cplusplus
 }

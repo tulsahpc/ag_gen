@@ -4,13 +4,8 @@
 #include <vector>
 #include "fact.hpp"
 
-struct KeyVal {
-	int key;
-	int val;
-};
-
 class Factbase {
-	std::vector<KeyVal> db;
+	std::vector<int> db;
 public:
 	Factbase(void);
 

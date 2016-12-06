@@ -13,13 +13,13 @@ CXXFLAGS := -g -Wall -Wpedantic --std=c++14 -I$(SRC_DIR)
 LIBS := -lm -lpq -lhiredis
 
 BIN := $(BIN_DIR)/ag_gen
-BIN_STATIC := $(BIN_DIR)/util_db.a $(BIN_DIR)/util_odometer.a
+# BIN_STATIC := $(BIN_DIR)/util_db.a $(BIN_DIR)/util_odometer.a
 
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(SRC_DIR)/%.o,$(SRCS))
 
-C_SRC := $(wildcard $(SRC_DIR)/*.c)
-C_OBJS := $(patsubst $(SRC_DIR)/%.c,$(SRC_DIR)/%.o,$(C_SRCS))
+# C_SRC := $(wildcard $(SRC_DIR)/*.c)
+# C_OBJS := $(patsubst $(SRC_DIR)/%.c,$(SRC_DIR)/%.o,$(C_SRCS))
 
 all: dir $(BIN_STATIC) $(BIN)
 
@@ -32,11 +32,11 @@ $(BIN): $(BIN_DIR)/% : $(SRC_DIR)/%.o $(OBJS) $(BIN_STATIC)
 $(OBJS): $(SRC_DIR)/%.o : $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-$(BIN_STATIC): $(BIN_DIR)/%.a : $(SRC_DIR)/%.o
-	ar rcs $@ $^
+# $(BIN_STATIC): $(BIN_DIR)/%.a : $(SRC_DIR)/%.o
+# 	ar rcs $@ $^
 
-$(C_OBJS): $(SRC_DIR)/%.o : $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c -o $@ $^
+# $(C_OBJS): $(SRC_DIR)/%.o : $(SRC_DIR)/%.c
+# 	$(CC) $(CFLAGS) -c -o $@ $^
 
 .PHONY: test
 test: all
