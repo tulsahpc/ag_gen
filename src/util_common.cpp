@@ -4,16 +4,19 @@
  * \copyright Copyright (C) The University of Tulsa - All Rights Reserved. Unauthorized copying or distribution of this file is strictly prohibited.
  */
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <vector>
+#include <string>
+#include <memory>
 
-#include "util_common.h"
+#include "util_common.hpp"
 
-unsigned int base_convert_string(char *data, int base)
+using namespace std;
+
+unsigned int base_convert_string(string data, int base)
 {
-	int len = strlen(data);
 	int total = 0;
-	for(int i=0; i<len; i++) {
+	for(int i=0; i<data.size(); i++) {
 		unsigned int next_num = 0;
 		if(data[i] <= 'z' && data[i] >= 'a') {
 			next_num = data[i] - 87;
@@ -29,56 +32,24 @@ unsigned int base_convert_string(char *data, int base)
 	}
 	return total;
 }
-/*
-char *base_convert_int(int num, int base)
+
+unique_ptr<vector<int> > base_convert_int(int num, int base)
 {
-	struct List st;
+	vector<int> str;
 	while(num > 0) {
-		list_push(&st, (void *)(unsigned long)(num % base));
+		str.push_back((unsigned long)(num % base));
 		num = num / base;
 	}
 
-	int size = list_size(&st);
-	char *converted = malloc(size * sizeof(char) + 1);
-	for(int i=0; i<size; i++) {
-		converted[i] = alphabet[(int)list_pop(&st)];
-	}
-	converted[size] = '\0';
 
-	return converted;
+	for(int i=0; i<str.size(); i++) {
+		str[i] = alphabet[str[i]];
+	}
+
+	return make_unique<vector<int> >(str);
 }
 
-char *base_convert(char *num, int from, int to)
+unique_ptr<vector<int> > base_convert(string num, int from, int to)
 {
 	return base_convert_int(base_convert_string(num, from), to);
-}
-
-// assertions
-// dst.size >= src.size
-// len <= src.size
-int sstrcpy(char *dst, const char *src, int len)
-{
-	if(dst == NULL || src == NULL)
-		return -1;
-
-	char counter = 0;
-
-	char c;
-	while((c = *(src+counter)) != '\0' && counter < len)
-		*(dst+counter++) = c;
-
-	*(dst+counter) = '\0';
-	return 0;
-}
-*/
-// Always free the string when no longer required
-char *dynstr(const char *str)
-{
-	int str_len = strlen(str);
-	char *new_str = (char *) malloc(sizeof(char)*(str_len+1));
-	if(new_str == NULL)
-		return (char *) -1;
-
-	strncpy(new_str, str, str_len);
-	return new_str;
 }

@@ -11,7 +11,7 @@
 using namespace std;
 
 unique_ptr<unordered_map<string, string> > read_config(void) {
-	ifstream config_file ("config");
+	ifstream config_file ("config.txt");
 
 	if (!config_file.is_open()) {
 		cout << "Unable to open file." << endl;

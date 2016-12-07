@@ -4,12 +4,12 @@
  * \copyright Copyright (C) The University of Tulsa - All Rights Reserved. Unauthorized copying or distribution of this file is strictly prohibited.
  */
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <libpq-fe.h>
 
-#include "util_common.h"
-#include "util_db.h"
+#include "util_common.hpp"
+#include "util_db.hpp"
 
 PGconn *conn;
 // Returns 0 on success, any other number on error.

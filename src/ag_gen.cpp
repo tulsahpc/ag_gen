@@ -10,16 +10,13 @@
 #include "network.hpp"
 #include "asset.hpp"
 #include "exploit.hpp"
-#include "util_db.h"
-#include "util_odometer.h"
+#include "util_common.hpp"
+#include "util_db.hpp"
+#include "util_odometer.hpp"
 
 using namespace std;
 
 #define CONNINFO "postgresql://archlord@localhost/ag_gen_test"
-
-unique_ptr<vector<string> > split(string str, char delim);
-string trim(string str);
-unique_ptr<unordered_map<string, string> > read_config(void);
 
 class NetworkState {
 	int id;
