@@ -4,7 +4,7 @@
 
 #include <libpq-fe.h>
 #include "fact.hpp"
-#include "util_db.h"
+#include "util_db.hpp"
 
 using namespace std;
 

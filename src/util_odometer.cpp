@@ -3,8 +3,8 @@
 #include <iostream>
 #include <cmath>
 
-#include "util_common.h"
-#include "util_odometer.h"
+#include "util_common.hpp"
+#include "util_odometer.hpp"
 
 using namespace std;
 

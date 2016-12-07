@@ -9,14 +9,14 @@
  * Retrives data from a redis server list and turns it into an asset that can be returned.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "asset.hpp"
-#include "redisasset.h"
-#include "util_redis.h"
-#include "util_common.h"
+#include "redisasset.hpp"
+#include "util_redis.hpp"
+#include "util_common.hpp"
 
 /*!
  * Maxlength of the strings that can be inputed/outputed

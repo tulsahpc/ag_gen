@@ -5,8 +5,9 @@
 #include <stdexcept>
 
 #include <libpq-fe.h>
+
 #include "network.hpp"
-#include "util_db.h"
+#include "util_db.hpp"
 
 using namespace std;
 

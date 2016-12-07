@@ -12,14 +12,14 @@
  * Is responsible for managing the context and redis replies.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include <hiredis/hiredis.h>
 
-#include "util_common.h"
-#include "util_redis.h"
+#include "util_common.hpp"
+#include "util_redis.hpp"
 
 /**
  * Global redis server context.

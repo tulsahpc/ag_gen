@@ -1,0 +1,4 @@
+db: ag_gen_test
+server: localhost
+login: archlord
+password: meow

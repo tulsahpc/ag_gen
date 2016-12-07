@@ -1,15 +1,18 @@
 #include <iostream>
-#include <getopt.h>
+#include <fstream>
+#include <sstream>
 #include <memory>
-#include <cstdlib>
-#include <stdlib.h>
-#include <libltdl/lt_system.h>
+#include <algorithm>
+
+#include <unordered_map>
+#include <getopt.h>
 
 #include "network.hpp"
 #include "asset.hpp"
 #include "exploit.hpp"
-#include "util_db.h"
-#include "util_odometer.h"
+#include "util_common.hpp"
+#include "util_db.hpp"
+#include "util_odometer.hpp"
 
 using namespace std;
 
@@ -25,8 +28,8 @@ static void print_usage()
     cout << "Usage: ag_gen [OPTION...]" << endl << endl;
     cout << "Flags:" << endl;
 	cout << "\t-n\tNetwork model name to generate attack graph on." << endl;
-    cout << "\t-p\tPrint information about the network specified by -n." << endl;
-    cout << "\t-h\tThis help menu." << endl;
+	cout << "\t-p\tPrint information about the network specified by -n." << endl;
+	cout << "\t-h\tThis help menu." << endl;
 }
 
 vector<int> gen_hypo_facts(void)
@@ -53,10 +56,6 @@ vector<int> gen_hypo_facts(void)
 	}
 
 	return hypo_factbase;
-}
-
-void subsetSearch() {
-
 }
 
 int main(int argc, char *argv[])
@@ -95,5 +94,10 @@ int main(int argc, char *argv[])
 				exit(EXIT_FAILURE);
 				break;
 		}
+	}
+
+	unique_ptr<unordered_map<string,string> > config = read_config();
+	for(const auto &it : *config) {
+		cout << it.first << ": " << it.second << endl;
 	}
 }
