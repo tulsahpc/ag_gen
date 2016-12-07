@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <sstream>
 
 #include "util_common.hpp"
 
@@ -53,3 +54,19 @@ unique_ptr<vector<int> > base_convert(string num, int from, int to)
 {
 	return base_convert_int(base_convert_string(num, from), to);
 }
+
+unique_ptr<vector<string> > split(string str, char delim) {
+	vector<string> split_string;
+	stringstream ss(str);
+	string tmp;
+	while(getline(ss, tmp, delim)) {
+		split_string.push_back(tmp);
+	}
+	return make_unique<vector<string> >(split_string);
+};
+
+string trim(string str) {
+	str.erase(str.begin(), find_if(str.begin(), str.end(), not1(ptr_fun<int, int>(isspace))));
+	return str;
+}
+

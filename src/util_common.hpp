@@ -31,6 +31,5 @@ std::unique_ptr<std::vector<int> > base_convert(std::string num, int from, int t
 
 std::unique_ptr<std::vector<std::string> > split(std::string str, char delim);
 std::string trim(std::string str);
-std::unique_ptr<std::unordered_map<std::string, std::string> > read_config(void);
 
 #endif //UTIL_COMMON_HPP

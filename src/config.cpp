@@ -11,7 +11,7 @@
 using namespace std;
 
 unique_ptr<unordered_map<string, string> > read_config(void) {
-	ifstream config_file ("config.txt");
+	ifstream config_file("config.txt");
 
 	if (!config_file.is_open()) {
 		cout << "Unable to open file." << endl;
@@ -30,19 +30,4 @@ unique_ptr<unordered_map<string, string> > read_config(void) {
 		config_file.close();
 		return make_unique<unordered_map<string, string> >(config);
 	}
-}
-
-unique_ptr<vector<string> > split(string str, char delim) {
-	vector<string> split_string;
-	stringstream ss(str);
-	string tmp;
-	while(getline(ss, tmp, delim)) {
-		split_string.push_back(tmp);
-	}
-	return make_unique<vector<string> >(split_string);
-};
-
-string trim(string str) {
-	str.erase(str.begin(), find_if(str.begin(), str.end(), not1(ptr_fun<int, int>(isspace))));
-	return str;
 }
