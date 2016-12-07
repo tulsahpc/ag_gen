@@ -7,7 +7,7 @@ VPATH := .:$(SRC_DIR)
 CC := clang
 CXX := clang++
 
-CFLAGS := -g -Wall -Wpedantic --std=c99 -I$(SRC_DIR)
+CFLAGS := -g -Wall -Wpedantic --std=c99  -I$(SRC_DIR)
 CXXFLAGS := -g -Wall -Wpedantic --std=c++14 -I$(SRC_DIR)
 
 LIBS := -lm -lpq -lhiredis

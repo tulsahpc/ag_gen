@@ -45,8 +45,10 @@ fatal:
 	return -1;
 }
 
-int Asset::fetch_all(vector<shared_ptr<Asset> > &asset_list, string const &network)
+vector<shared_ptr<Asset>> Asset::fetch_all(string const &network)
 {
+	vector<shared_ptr<Asset> > asset_list;
+
 	PGresult *res;
 	int num_rows;
 
@@ -77,8 +79,8 @@ int Asset::fetch_all(vector<shared_ptr<Asset> > &asset_list, string const &netwo
 
 	dbtrans_end();
 	PQclear(res);
-	return asset_list.size();
+	return asset_list;
 fatal:
 	PQclear(res);
-	return -1;
+	return NULL;
 }

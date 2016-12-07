@@ -26,6 +26,7 @@ set(SOURCE_FILES
     src/util_odometer.h
     src/util_redis.cpp
         src/util_redis.h
-        )
+        src/keyvalue.cpp
+        src/keyvalue.hpp)
 
 add_executable(ag_gen ${SOURCE_FILES})

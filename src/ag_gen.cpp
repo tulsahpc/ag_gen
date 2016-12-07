@@ -13,6 +13,8 @@
 #include "util_common.hpp"
 #include "util_db.hpp"
 #include "util_odometer.hpp"
+#include "keyvalue.hpp"
+
 
 using namespace std;
 
