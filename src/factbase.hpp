@@ -2,6 +2,7 @@
 #define FACTBASE_HPP
 
 #include <vector>
+
 #include "fact.hpp"
 
 class Factbase {

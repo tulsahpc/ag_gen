@@ -5,27 +5,35 @@
 #include "asset.hpp"
 #include "fact.hpp"
 #include "util_db.hpp"
+#include "types.hpp"
 
 using namespace std;
 
-Asset::Asset(int network_id, string const& asset_name) : network_id(network_id), name(asset_name) {};
+Asset::Asset(int id, int network_id, string asset_name) : id(id), network_id(network_id), name(asset_name) {};
 
-string Asset::getName() {
+int Asset::get_network_id(void) {
+	return network_id;
+}
+
+string Asset::get_name(void) {
 	return name;
 }
 
-int Asset::fetch_qualities(vector<shared_ptr<Quality> > &quality_list, int asset_id)
+void Asset::fetch_qualities(void)
 {
+	vector<Quality> qualities;
+
 	PGresult *res;
 	int num_rows;
 
-	string sql = "SELECT * FROM quality WHERE asset_id = '" + to_string(asset_id) + "';";
+	string sql = "SELECT * FROM quality WHERE asset_id = '" + to_string(id) + "';";
 
 	res = PQexec(conn, sql.c_str());
 	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
 		fprintf(stderr, "SELECT command failed: %s",
 			PQerrorMessage(conn));
-		goto fatal;
+		PQclear(res);
+		exit(1);
 	}
 
 	num_rows = PQntuples(res);
@@ -34,20 +42,17 @@ int Asset::fetch_qualities(vector<shared_ptr<Quality> > &quality_list, int asset
 		string property = PQgetvalue(res, i, 1);
 		string value = PQgetvalue(res, i, 2);
 
-		shared_ptr<Quality> qual(new Quality(asset_id, property, value));
-		quality_list.push_back(qual);
+		Quality qual(asset_id, property, value);
+		qualities.push_back(qual);
 	}
 
 	PQclear(res);
-	return quality_list.size();
-fatal:
-	PQclear(res);
-	return -1;
+	this->qualities = qualities;
 }
 
-vector<shared_ptr<Asset>> Asset::fetch_all(string const &network)
+vector<Asset> Asset::fetch_all(const string& network)
 {
-	vector<shared_ptr<Asset> > asset_list;
+	vector<Asset> assets;
 
 	PGresult *res;
 	int num_rows;
@@ -60,27 +65,23 @@ vector<shared_ptr<Asset>> Asset::fetch_all(string const &network)
 	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
 		fprintf(stderr, "SELECT command failed: %s",
 			PQerrorMessage(conn));
-		goto fatal;
+		PQclear(res);
+		exit(1);
 	}
 
 	num_rows = PQntuples(res);
 	for (int i=0; i<num_rows; i++) {
 		int id = stoi(PQgetvalue(res, i, 0));
-		auto name = PQgetvalue(res, i, 1);
+		string name = PQgetvalue(res, i, 1);
 		int network_id = stoi(PQgetvalue(res, i, 2));
 
-		shared_ptr<Asset> asset(new Asset(network_id, name));
+		Asset asset(id, network_id, name);
+		asset.fetch_qualities();
 
-		vector<shared_ptr<Quality> > quality_list;
-		Asset::fetch_qualities(quality_list, id);
-
-		asset_list.push_back(asset);
+		assets.push_back(asset);
 	}
 
 	dbtrans_end();
 	PQclear(res);
-	return asset_list;
-fatal:
-	PQclear(res);
-	return NULL;
+	return assets;
 }

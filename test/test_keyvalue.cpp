@@ -2,18 +2,23 @@
 // Created by archlord on 12/6/16.
 //
 
+#include "network.hpp"
+#include "asset.hpp"
 #include "keyvalue.hpp"
+#include "util_db.hpp"
 
 using namespace std;
 
-/*
- *  //unordered_map<string,int> assets;
-    //fill_asset_table(conn_info,opt_network,assets);
+int main(int argc, char **argv) {
+	string opt_network = "home";
+	string conn_info = "postgresql://kyle@localhost/ag_gen_test";
+
+    // unordered_map<string,int> assets;
+    // fill_asset_table(conn_info, opt_network, assets);
 
     dbconnect(conn_info.c_str());
     try {
         auto network = Network::find(opt_network);
-        // cout << network>id << endl;
     } catch (const exception &e) {
         cout << e.what() << endl;
     }
@@ -42,4 +47,4 @@ using namespace std;
     cout << "ID 0: " << meow.get_name(0) << endl;
     cout << "ID 1: " << meow.get_name(1) << endl;
     cout << "ID 2: " << meow.get_name(2) << endl;
- */
+}

@@ -4,7 +4,7 @@ function tester {
     printf "\n***** Test: '$1'\n"
     printf "~~~ Output:\n"
 
-    valgrind -q --tool=memcheck --error-exitcode=1 --leak-check=yes --show-leak-kinds=definite --errors-for-leak-kinds=definite $@
+    valgrind -q --tool=memcheck --track-origins=yes --error-exitcode=1 --leak-check=yes --show-leak-kinds=definite --errors-for-leak-kinds=definite $@
     ERR=$?
     RESULTS+=($ERR)
 }
@@ -18,7 +18,7 @@ function printer {
     printf "\n***** Result: '%s'\n~~~ Valgrind: %s\n" "$1" $succ
 }
 
-TESTS=("bin/ag_gen -n home")
+TESTS=("bin/main -n home")
 RESULTS=()
 
 if [[ "$1" = "all" ]]; then

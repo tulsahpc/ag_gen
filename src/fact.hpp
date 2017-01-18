@@ -2,34 +2,43 @@
 #define FACT_HPP
 
 #include <iostream>
+
 #include "asset.hpp"
+#include "types.hpp"
 
-class Asset;
-
-class Fact {
-public:
-    virtual void print() = 0;
+union EncodedQuality {
+	struct {
+		int asset_id : 32;
+		int attr : 16;
+		int val : 16;
+	} dec;
+	int enc;
 };
 
-class Topology : public Fact {
-    Asset& from;
-    Asset& to;
-    std::string status;
-public:
-    Topology(Asset& fromAsset, Asset& toAsset, std::string const& topStatus);
-    void print();
-};
-
-class Quality : public Fact {
-public:
-	int asset_id;
+class ParameterizedQuality {
+    int param;
     std::string name;
     std::string value;
-
-    Quality(int asset, std::string const& qualName, std::string const& qualValue);
-
-    int fetch(int asset_id);
+public:
+    ParameterizedQuality(int param, std::string attr, std::string val);
     void print();
+};
+
+class Quality {
+	int asset_id;
+	std::string name;
+    std::string value;
+
+public:
+    Quality(int assetId, std::string qualName, std::string qualValue);
+    std::string get_name(void);
+
+    void print(void);
+    int encoded(void);
+
+    static std::vector<Quality> fetch_all(void);
+    static std::vector<std::string> fetch_all_attributes(void);
+    static std::vector<std::string> fetch_all_values(void);
 };
 
 #endif // FACT_HPP

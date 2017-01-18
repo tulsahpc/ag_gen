@@ -5,10 +5,12 @@
  */
 
 #include <cstdlib>
+#include <cstring>
 #include <vector>
 #include <string>
 #include <memory>
 #include <sstream>
+#include <algorithm>
 
 #include "util_common.hpp"
 
@@ -34,7 +36,7 @@ unsigned int base_convert_string(string data, int base)
 	return total;
 }
 
-unique_ptr<vector<int> > base_convert_int(int num, int base)
+vector<int> base_convert_int(int num, int base)
 {
 	vector<int> str;
 	while(num > 0) {
@@ -47,22 +49,22 @@ unique_ptr<vector<int> > base_convert_int(int num, int base)
 		str[i] = alphabet[str[i]];
 	}
 
-	return make_unique<vector<int> >(str);
+	return vector<int>(str);
 }
 
-unique_ptr<vector<int> > base_convert(string num, int from, int to)
+vector<int> base_convert(string num, int from, int to)
 {
 	return base_convert_int(base_convert_string(num, from), to);
 }
 
-unique_ptr<vector<string> > split(string str, char delim) {
+vector<string> split(string str, char delim) {
 	vector<string> split_string;
 	stringstream ss(str);
 	string tmp;
 	while(getline(ss, tmp, delim)) {
 		split_string.push_back(tmp);
 	}
-	return make_unique<vector<string> >(split_string);
+	return vector<string>(split_string);
 };
 
 string trim(string str) {
@@ -70,3 +72,14 @@ string trim(string str) {
 	return str;
 }
 
+// Always free the string when no longer required
+char *dynstr(const char *str)
+{
+	int str_len = strlen(str);
+	char *new_str = (char *) malloc(sizeof(char)*(str_len+1));
+	if(new_str == NULL)
+		return (char *) -1;
+
+	strncpy(new_str, str, str_len);
+	return new_str;
+}

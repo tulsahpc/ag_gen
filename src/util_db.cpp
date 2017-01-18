@@ -5,25 +5,24 @@
  */
 
 #include <cstdlib>
+#include <string>
 #include <cstring>
 #include <libpq-fe.h>
 
 #include "util_common.hpp"
 #include "util_db.hpp"
 
+using namespace std;
+
 PGconn *conn;
-// Returns 0 on success, any other number on error.
-int dbconnect(const char *conninfo)
+void dbconnect(string conninfo)
 {
 	// Create database connection
-	conn = PQconnectdb(conninfo);
+	conn = PQconnectdb(conninfo.c_str());
 	if(PQstatus(conn) != CONNECTION_OK) {
 		fprintf(stderr, "Connection failed: %s", PQerrorMessage(conn));
-		goto fatal;
+		exit(1);
 	}
-fatal:
-	//dbclose();
-	return -1;
 }
 
 void dbclose()
@@ -32,7 +31,7 @@ void dbclose()
 	if(conn) PQfinish(conn);
 }
 
-int dbtrans_begin()
+void dbtrans_begin(void)
 {
 	PGresult *res;
 
@@ -40,16 +39,13 @@ int dbtrans_begin()
 	res = PQexec(conn, "BEGIN");
 	if(PQresultStatus(res) != PGRES_COMMAND_OK) {
 		fprintf(stderr, "BEGIN command failed: %s", PQerrorMessage(conn));
-		goto fatal;
+		PQclear(res);
+		exit(1);
 	}
 	PQclear(res);
-	return 0;
-fatal:
-	PQclear(res);
-	return -1;
 }
 
-int dbtrans_end()
+void dbtrans_end(void)
 {
 	PGresult *res;
 
@@ -57,14 +53,11 @@ int dbtrans_end()
 	res = PQexec(conn, "COMMIT");
 	if(PQresultStatus(res) != PGRES_COMMAND_OK) {
 		fprintf(stderr, "COMMIT failed: %s", PQerrorMessage(conn));
-		goto fatal;
+		PQclear(res);
+		exit(1);
 	}
 
 	PQclear(res);
-	return 0;
-fatal:
-	PQclear(res);
-	return -1;
 }
 
 void printResult(const PGresult *res)
@@ -73,12 +66,10 @@ void printResult(const PGresult *res)
 	int cols = PQnfields(res);
 	int colWidths[cols];
 
-	DEBUG_PRINT("Rows: %d\n", rows);
-	DEBUG_PRINT("Columns: %d\n", cols);
-
 	// Get the maximum length of each column
 	for(int i=0; i<cols; i++) {
-		int colMax = strlen(PQfname(res, i));
+		string columnName = PQfname(res,i);
+		int colMax = columnName.size();
 		for(int j=0; j<rows; j++) {
 			int nextVal = PQgetlength(res, j, i);
 			if(nextVal > colMax){

@@ -125,7 +125,6 @@ char *redis_dequeue(const char *key)
 		return NULL;
 	}
 
-	DEBUG_PRINT("reply type: %d\n", reply->type);
 	if(reply->type == REDIS_REPLY_NIL) {
 		rreply_error(reply);
 		freeReplyObject(reply);

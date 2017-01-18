@@ -7,27 +7,42 @@
 #include <algorithm>
 
 #include "config.hpp"
+#include "util_common.hpp"
 
 using namespace std;
 
-unique_ptr<unordered_map<string, string> > read_config(void) {
-	ifstream config_file("config.txt");
+Config::Config(string filename) {
+	ifstream config_file(filename);
 
 	if (!config_file.is_open()) {
 		cout << "Unable to open file." << endl;
-		return nullptr;
+		exit(1);
 	} else {
 		unordered_map<string, string> config;
 		string next_line;
 		while(getline(config_file, next_line)) {
-			unique_ptr<vector<string> > splitStrPtr = split(next_line, ':');
-			vector<string> splitStr = *splitStrPtr.get();
+			vector<string> splitStr = split(next_line, ':');
 			for(int i=0; i<splitStr.size()-1; i+=2) {
 				config[trim(splitStr[i])] = trim(splitStr[i+1]);
 			}
 		}
 
 		config_file.close();
-		return make_unique<unordered_map<string, string> >(config);
+		this->config = unordered_map<string, string>(config);
 	}
+}
+
+string Config::db_string(void) {
+	string db_string = "postgresql://" + config["login"] + "@" + config["server"] + "/" + config["db"];
+	return db_string;
+}
+
+void Config::print(void) {
+	for(const auto& it : config) {
+		cout << it.first << ": " << it.second << endl;
+	}
+}
+
+string Config::operator[](const std::string& q) {
+		return config[q];
 }

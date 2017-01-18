@@ -2,7 +2,17 @@
 #define CONFIG_HPP
 
 #include <unordered_map>
+#include <string>
 
-std::unique_ptr<std::unordered_map<std::string,std::string> > read_config(void);
+class Config {
+	std::unordered_map<std::string,std::string> config;
+public:
+	Config(std::string filename);
+
+	void print(void);
+	std::string db_string(void);
+
+	std::string operator[](const std::string& q);
+};
 
 #endif // CONFIG_HPP

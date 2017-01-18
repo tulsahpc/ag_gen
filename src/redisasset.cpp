@@ -9,19 +9,15 @@
  * Retrives data from a redis server list and turns it into an asset that can be returned.
  */
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <iostream>
+#include <string>
 
 #include "asset.hpp"
 #include "redisasset.hpp"
 #include "util_redis.hpp"
 #include "util_common.hpp"
 
-/*!
- * Maxlength of the strings that can be inputed/outputed
- */
-#define DELIMITER ":"
+using namespace std;
 
 /**
  * Takes in an asset and key and adds the assets data into the redis list given by key.
@@ -30,19 +26,14 @@
  */
 int rasset_set(const char *key, Asset *asset)
 {
-	char *str;
-
-	if(key == NULL)
+	if(asset == NULL) {
+		cout << "Asset cannot be null." << endl;
 		return 1;
+	}
 
-	if(asset == NULL)
-		return 1;
+	string redis_query = to_string(asset->get_network_id()) + ":" + asset->get_name() + ":" + to_string(asset->get_network_id());
 
-	str = ( char * ) malloc( sizeof(char) * ( MAXSTRLEN + 1));
-	snprintf(str, MAXSTRLEN, "%d:%s:%d", asset->network_id, asset->name.c_str(), asset->network_id);
-
-	redis_enqueue(key, str);
-	free(str);
+	redis_enqueue(key, redis_query.c_str());
 
 	return 0;
 }
@@ -52,29 +43,15 @@ int rasset_set(const char *key, Asset *asset)
  *
  * If the list given by key is empty then then it will return a null asset
  */
-Asset *rasset_get(const char *key)
+Asset rasset_get(const char *key)
 {
-	char *str;
-	char *saveptr;
-	Asset *asset = {0};
+	string redis_value = redis_dequeue(key);
+	vector<string> redis_parsed = split(redis_value, ':');
 
-	if(key == NULL)
-		return NULL;
+	int asset_id = stoi(redis_parsed[0]);
+	string asset_name = redis_parsed[1];
+	int asset_network_id = stoi(redis_parsed[2]);
 
-	str = redis_dequeue(key);
-	DEBUG_PRINT("key: %s\n", key);
-	if(str != NULL){
-		DEBUG_PRINT("DEQUEUE Reply string is: %s\n", str);
-
-		asset = ( Asset * ) malloc( sizeof(Asset));
-		asset->network_id = atoi(strtok_r(str, DELIMITER, &saveptr));
-
-		char *assetName = strtok_r(NULL, DELIMITER, &saveptr);
-		asset->name = dynstr(assetName);
-		asset->network_id = atoi(strtok_r(NULL, DELIMITER, &saveptr));
-
-		free(str);
-	}
-
+	Asset asset(asset_id, asset_network_id, asset_name);
 	return asset;
 }

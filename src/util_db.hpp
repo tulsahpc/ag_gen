@@ -4,25 +4,19 @@
  * \copyright Copyright (C) The University of Tulsa - All Rights Reserved. Unauthorized copying or distribution of this file is strictly prohibited.
  */
 
-#ifndef UTIL_DB_H
-#define UTIL_DB_H
+#ifndef UTIL_DB_HPP
+#define UTIL_DB_HPP
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+#include <string>
 #include <libpq-fe.h>
 
 extern PGconn *conn;
 
-int dbconnect(const char *);
+void dbconnect(std::string);
 void dbclose(void);
-int dbtrans_begin(void);
-int dbtrans_end(void);
+void dbtrans_begin(void);
+void dbtrans_end(void);
+
 void printResult(const PGresult*);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif //UTIL_DB_H
+#endif //UTIL_DB_HPP

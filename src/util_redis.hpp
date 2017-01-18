@@ -4,8 +4,8 @@
  * \copyright Copyright (C) The University of Tulsa - All Rights Reserved. Unauthorized copying or distribution of this file is strictly prohibited.
  */
 
-#ifndef UTIL_REDIS_H
-#define UTIL_REDIS_H
+#ifndef UTIL_REDIS_HPP
+#define UTIL_REDIS_HPP
 
 #ifdef __c_plus_plus
 extern "C" {
@@ -27,4 +27,4 @@ void rreply_error(redisReply *);
 }
 #endif
 
-#endif //UTIL_REDIS_H
+#endif //UTIL_REDIS_HPP
