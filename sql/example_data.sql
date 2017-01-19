@@ -146,26 +146,26 @@ INSERT INTO exploit VALUES
   (DEFAULT, 'light_vuln', 3);
 
 INSERT INTO exploit_precondition VALUES
-  (1, 'type', 'router'),
-  (1, 'version', '1.6'),
+  (1, 1, 'type', 'router'),
+  (1, 1, 'version', '1.6'),
 
-  (2, 'type', 'printer'),
-  (2, 'model', '456'),
+  (2, 1, 'type', 'printer'),
+  (2, 1, 'model', '456'),
 
-  (3, 'type', 'laptop'),
-  (3, 'os', 'winxp'),
-  (3, 'adobereader', '4'),
+  (3, 1, 'type', 'laptop'),
+  (3, 1, 'os', 'winxp'),
+  (3, 1, 'adobereader', '4'),
 
-  (4, 'type', 'desktop'),
-  (4, 'os', 'osx'),
-  (4, 'photoshop', '5'),
+  (4, 1, 'type', 'desktop'),
+  (4, 1, 'os', 'osx'),
+  (4, 1, 'photoshop', '5'),
 
-  (5, 'type', 'tablet'),
-  (5, 'os', 'kindle'),
+  (5, 1, 'type', 'tablet'),
+  (5, 1, 'os', 'kindle'),
 
-  (6, 'type',' smartphone'),
-  (6, 'os', 'ios'),
-  (6, 'light', 'off');
+  (6, 1, 'type',' smartphone'),
+  (6, 1, 'os', 'ios'),
+  (6, 1, 'light', 'off');
 
 INSERT INTO exploit_postcondition VALUES
   (1, 'access', 'root'),

@@ -65,7 +65,7 @@ public:
 	}
 
 	int length(void) {
-		return pow(n,k);
+		return pow(k,n);
 	}
 
 	std::array<int, n> next(void) {

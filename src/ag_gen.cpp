@@ -29,11 +29,11 @@ void AGGen::gen_hypo_facts(void) {
     int val_len = vals.length();
 
     vector<Exploit> exploit_list = Exploit::fetch_all();
-    for_each(exploit_list.begin(), exploit_list.end(), [](Exploit& e) {
-        cout << "Exploit: " + e.get_name() << endl;
-        e.print_preconds();
-    });
+    // for_each(exploit_list.begin(), exploit_list.end(), [](Exploit& e) {
+    //     cout << "Exploit: " + e.get_name() << endl << "~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    //     e.print_preconds();
+    // });
 
-    Odometer<3,2> od;
-    // od.print();
+    Odometer<1,5> od;
+    od.print();
 }
