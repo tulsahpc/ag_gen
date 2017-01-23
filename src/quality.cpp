@@ -25,7 +25,7 @@ int Quality::encoded() {
 }
 
 void Quality::print() {
-    std::cout << name + ": " + value << std::endl;
+    std::cout << to_string(asset_id) + ": " + name + " => " + value << std::endl;
 }
 
 vector<Quality> Quality::fetch_all() {

@@ -138,12 +138,12 @@ INSERT INTO topology VALUES
   (12, 24, 'connected,trusted');
 
 INSERT INTO exploit VALUES
-  (DEFAULT, 'router_vuln', 3),
-  (DEFAULT, 'printer_vuln', 3),
-  (DEFAULT, 'adobereader_vuln', 3),
-  (DEFAULT, 'photoshop_vuln', 3),
-  (DEFAULT, 'kindle_vuln', 3),
-  (DEFAULT, 'light_vuln', 3);
+  (DEFAULT, 'router_vuln', 1),
+  (DEFAULT, 'printer_vuln', 1),
+  (DEFAULT, 'adobereader_vuln', 1),
+  (DEFAULT, 'photoshop_vuln', 1),
+  (DEFAULT, 'kindle_vuln', 1),
+  (DEFAULT, 'light_vuln', 1);
 
 INSERT INTO exploit_precondition VALUES
   (1, 1, 'type', 'router'),

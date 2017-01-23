@@ -2,6 +2,7 @@
 #include <getopt.h>
 
 #include "ag_gen.hpp"
+#include "util_db.hpp"
 #include "config.hpp"
 
 using namespace std;

@@ -4,32 +4,33 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <array>
-#include <tuple>
 #include <cmath>
 #include <memory>
 
 // N is the width of the permutation
 // K is the number of elements
-template <int n,int k>
 class Odometer {
-	std::vector<std::array<int, n> > perms;
+	std::vector<std::vector<int> > perms;
 	int idx_state = 0;
+	int n, k;
 
 public:
-	Odometer() {
+	Odometer(int in_n, int in_k) {
+		n = in_n;
+		k = in_k;
+
 		int curr_idx = 0;
 		int perm_idx = 0;
 
-		std::array<int, n> orig_perm;
-		std::array<int, n>& last_perm = orig_perm;
+		std::vector<int> orig_perm(n);
+		std::vector<int>& last_perm = orig_perm;
 
 		for(int i=0; i<n; i++) {
 			orig_perm[i] = 0;
 		}
 
 		while(perm_idx < length()) {
-			std::array<int, n> curr_perm;
+			std::vector<int> curr_perm(n);
 			for(int i=0; i<n; i++) {
 				curr_perm[i] = last_perm[i];
 			}
@@ -56,27 +57,31 @@ public:
 	}
 
 	void print(void) {
-		for(std::array<int,n> perm : perms) {
+		for(std::vector<int> perm : perms) {
 			for(int num : perm) {
-				std::cout << num;
+				std::cout << num << " ";
 			}
 			std::cout << std::endl;
 		}
 	}
 
-	int length(void) {
+	const int length(void) {
 		return pow(k,n);
 	}
 
-	std::array<int, n> next(void) {
+	std::vector<int> next(void) {
 		return perms[idx_state++];
+	}
+
+	void reset(void) {
+		idx_state = 0;
 	}
 
 	int perm_length(void) {
 		return n;
 	}
 
-	std::vector<std::array<int, n> > get_all() {
+	std::vector<std::vector<int> > get_all() {
 		return perms;
 	}
 };

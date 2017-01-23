@@ -4,7 +4,7 @@ SRC_DIR := src
 BIN_DIR := bin
 VPATH := .:$(SRC_DIR)
 
-CXX := g++
+CXX := clang++
 CXXFLAGS := -g -Wall -Wpedantic --std=c++11 -I$(SRC_DIR)
 
 LIBS := -lm -lpq -lhiredis

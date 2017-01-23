@@ -5,6 +5,9 @@
 
 #include "asset.hpp"
 #include "types.hpp"
+#include "keyvalue.hpp"
+
+class Asset;
 
 union EncodedQuality {
 	struct {
@@ -13,15 +16,6 @@ union EncodedQuality {
 		int val : 16;
 	} dec;
 	int enc;
-};
-
-class ParameterizedQuality {
-    int param;
-    std::string name;
-    std::string value;
-public:
-    ParameterizedQuality(int param, std::string attr, std::string val);
-    void print();
 };
 
 class Quality {
@@ -39,6 +33,19 @@ public:
     static std::vector<Quality> fetch_all(void);
     static std::vector<std::string> fetch_all_attributes(void);
     static std::vector<std::string> fetch_all_values(void);
+};
+
+class ParameterizedQuality {
+    int param;
+    std::string name;
+    std::string value;
+public:
+    ParameterizedQuality(int param, std::string attr, std::string val);
+    void print(void);
+    std::vector<Quality> make_quals(std::vector<int> asset_ids, Keyvalue<Asset>& assets);
+    int get_param_num(void);
+    std::string get_name(void);
+    std::string get_value(void);
 };
 
 #endif // FACT_HPP

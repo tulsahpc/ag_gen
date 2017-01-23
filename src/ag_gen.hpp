@@ -1,6 +1,7 @@
 #ifndef AG_GEN_HPP
 #define AG_GEN_HPP
 
+#include "asset.hpp"
 #include "keyvalue.hpp"
 
 class AGGen {
