@@ -29,6 +29,7 @@ public:
 
     void print(void);
     int encoded(void);
+    bool operator==(const Quality& rhs);
 
     static std::vector<Quality> fetch_all(void);
     static std::vector<std::string> fetch_all_attributes(void);

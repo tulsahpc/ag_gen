@@ -99,3 +99,13 @@ vector<string> Quality::fetch_all_values() {
 	PQclear(res);
 	return vals;
 }
+
+bool Quality::operator==(const Quality& rhs) {
+	if(this->asset_id != rhs.asset_id)
+		return false;
+	if(this->name != rhs.name)
+		return false;
+	if(this->value != rhs.value)
+		return false;
+	return true;
+}

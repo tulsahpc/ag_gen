@@ -19,14 +19,18 @@
 
 using namespace std;
 
-class AssetGroup {
-public:
-    vector<Quality> group;
-};
-
 AGGen::AGGen(void) : assets(Asset::fetch_all("home")), attrs(Quality::fetch_all_attributes()), vals(Quality::fetch_all_values()) {
 
     gen_hypo_facts();
+}
+
+bool check_assetgroup(vector<Quality> assetgroup) {
+    auto real_factbase = Quality::fetch_all();
+    for(auto quality : assetgroup) {
+        if(find(real_factbase.begin(), real_factbase.end(), quality) == real_factbase.end())
+            return false;
+    }
+    return true;
 }
 
 void AGGen::gen_hypo_facts(void) {
@@ -51,13 +55,27 @@ void AGGen::gen_hypo_facts(void) {
         }
         od.reset();
 
-        int counter = 0;
+        cout << "Exploit " + e.get_name() + ": " << endl;
+
+        auto count = 0;
         for(auto asset_group : hypothetical_facts) {
-            cout << "Asset Group: " + to_string(counter++) << endl;
-            for(auto quality : asset_group) {
-                quality.print();
+            // Each quality must exist. If not, discard asset_group entirely.
+            bool applicable = check_assetgroup(asset_group);
+            if(applicable) {
+                cout << "\tGroup " + to_string(count) << endl;
+                for(auto quality : asset_group) {
+                    cout << "\t\t";
+                    quality.print();
+                }
+                cout << endl;
             }
-            cout << endl;
+            count++;
         }
+        cout << endl;
+
+        // int counter = 0;
+        // for(auto asset_group : hypothetical_facts) {
+        //     cout << "Asset Group: " + to_string(counter++) << endl;
+        // }
     }
 }
