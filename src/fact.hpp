@@ -36,10 +36,28 @@ public:
     static std::vector<std::string> fetch_all_values(void);
 };
 
+class Topology {
+	int from_asset_id;
+	int to_asset_id;
+	std::string options;
+
+public:
+	Topology(int f_asset, int t_asset, std::string opt);
+
+	int get_from_asset_id(void);
+	int get_to_asset_id(void);
+	std::string get_options(void);
+	bool operator==(const Topology& rhs);
+	void print(void);
+
+	static std::vector<Topology> fetch_all(void);
+};
+
 class ParameterizedQuality {
     int param;
     std::string name;
     std::string value;
+
 public:
     ParameterizedQuality(int param, std::string attr, std::string val);
     void print(void);
@@ -47,6 +65,24 @@ public:
     int get_param_num(void);
     std::string get_name(void);
     std::string get_value(void);
+};
+
+class ParameterizedTopology {
+    int from_param;
+    int to_param;
+    std::string options;
+public:
+	ParameterizedTopology(int from_param, int to_param, std::string options);
+	int get_from_param();
+	int get_to_param();
+	std::string get_options();
+
+	void print();
+};
+
+struct AssetGroup {
+	std::vector<Quality> hypothetical_qualities;
+	std::vector<Topology> hypothetical_topologies;
 };
 
 #endif // FACT_HPP

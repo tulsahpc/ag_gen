@@ -2,9 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <memory>
 #include <unordered_map>
-#include <algorithm>
 
 #include "config.hpp"
 #include "util_common.hpp"
@@ -15,10 +13,10 @@ Config::Config(string filename) {
 	ifstream config_file(filename);
 
 	if (!config_file.is_open()) {
-		cout << "Unable to open file." << endl;
-		exit(1);
-	} else {
-		unordered_map<string, string> config;
+		cout << "Unable to open config file." << endl;
+        exit(1);
+    } else {
+        unordered_map<string, string> config;
 		string next_line;
 		while(getline(config_file, next_line)) {
 			vector<string> splitStr = split(next_line, ':');
@@ -33,7 +31,11 @@ Config::Config(string filename) {
 }
 
 string Config::db_string(void) {
-	string db_string = "postgresql://" + config["login"] + "@" + config["server"] + "/" + config["db"];
+    string db_string;
+    if(config["password"] == "")
+    	db_string = "postgresql://" + config["login"] + "@" + config["server"] + "/" + config["db"];
+    else
+        db_string = "postgresql://" + config["login"] + ":" + config["password"] + "@" + config["server"] + "/" + config["db"];
 	return db_string;
 }
 

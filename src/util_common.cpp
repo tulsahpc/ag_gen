@@ -8,9 +8,7 @@
 #include <cstring>
 #include <vector>
 #include <string>
-#include <memory>
 #include <sstream>
-#include <algorithm>
 
 #include "util_common.hpp"
 
@@ -18,15 +16,15 @@ using namespace std;
 
 unsigned int base_convert_string(string data, int base)
 {
-	int total = 0;
+	unsigned int total = 0;
 	for(int i=0; i<data.size(); i++) {
 		unsigned int next_num = 0;
 		if(data[i] <= 'z' && data[i] >= 'a') {
-			next_num = data[i] - 87;
+			next_num = (unsigned int)data[i] - 87;
 		} else if(data[i] <= 'Z' && data[i] >= 'A') {
-			next_num = data[i] - 55;
+			next_num = (unsigned int)data[i] - 55;
 		} else if(data[i] <= '9' && data[i] >= '0') {
-			next_num = data[i] - '0';
+			next_num = (unsigned int)data[i] - '0';
 		} else {
 			printf("Malformed Input\n");
 			exit(1);
@@ -40,7 +38,7 @@ vector<int> base_convert_int(int num, int base)
 {
 	vector<int> str;
 	while(num > 0) {
-		str.push_back((unsigned long)(num % base));
+		str.push_back(num % base);
 		num = num / base;
 	}
 
@@ -49,7 +47,7 @@ vector<int> base_convert_int(int num, int base)
 		str[i] = alphabet[str[i]];
 	}
 
-	return vector<int>(str);
+	return str;
 }
 
 vector<int> base_convert(string num, int from, int to)
@@ -64,7 +62,7 @@ vector<string> split(string str, char delim) {
 	while(getline(ss, tmp, delim)) {
 		split_string.push_back(tmp);
 	}
-	return vector<string>(split_string);
+	return split_string;
 };
 
 string trim(string str) {
@@ -75,7 +73,7 @@ string trim(string str) {
 // Always free the string when no longer required
 char *dynstr(const char *str)
 {
-	int str_len = strlen(str);
+	size_t str_len = strlen(str);
 	char *new_str = (char *) malloc(sizeof(char)*(str_len+1));
 	if(new_str == NULL)
 		return (char *) -1;

@@ -146,31 +146,32 @@ INSERT INTO exploit VALUES
   (DEFAULT, 'light_vuln', 1);
 
 INSERT INTO exploit_precondition VALUES
-  (1, 1, 'type', 'router'),
-  (1, 1, 'version', '1.6'),
+  (DEFAULT, 1, 0, 1, NULL, 'type', 'router', NULL),
+  (DEFAULT, 1, 0, 1, NULL, 'version', '1.6', NULL),
+  (DEFAULT, 1, 1, 1, 2, NULL, NULL, 'connected'),
 
-  (2, 1, 'type', 'printer'),
-  (2, 1, 'model', '456'),
+  (DEFAULT, 2, 0, 1, NULL, 'type', 'printer', NULL),
+  (DEFAULT, 2, 0, 1, NULL, 'model', '456', NULL),
 
-  (3, 1, 'type', 'laptop'),
-  (3, 1, 'os', 'winxp'),
-  (3, 1, 'adobereader', '4'),
+  (DEFAULT, 3, 0, 1, NULL, 'type', 'laptop', NULL),
+  (DEFAULT, 3, 0, 1, NULL, 'os', 'winxp', NULL),
+  (DEFAULT, 3, 0, 1, NULL, 'adobereader', '4', NULL),
 
-  (4, 1, 'type', 'desktop'),
-  (4, 1, 'os', 'osx'),
-  (4, 1, 'photoshop', '5'),
+  (DEFAULT, 4, 0, 1, NULL, 'type', 'desktop', NULL),
+  (DEFAULT, 4, 0, 1, NULL, 'os', 'osx', NULL),
+  (DEFAULT, 4, 0, 1, NULL, 'photoshop', '5', NULL),
 
-  (5, 1, 'type', 'tablet'),
-  (5, 1, 'os', 'kindle'),
+  (DEFAULT, 5, 0, 1, NULL, 'type', 'tablet', NULL),
+  (DEFAULT, 5, 0, 1, NULL, 'os', 'kindle', NULL),
 
-  (6, 1, 'type',' smartphone'),
-  (6, 1, 'os', 'ios'),
-  (6, 1, 'light', 'off');
+  (DEFAULT, 6, 0, 1, NULL, 'type',' smartphone', NULL),
+  (DEFAULT, 6, 0, 1, NULL, 'os', 'ios', NULL),
+  (DEFAULT, 6, 0, 1, NULL, 'light', 'off', NULL);
 
 INSERT INTO exploit_postcondition VALUES
-  (1, 'access', 'root'),
-  (2, 'access', 'root'),
-  (3, 'access', 'root'),
-  (4, 'access', 'root'),
-  (5, 'access', 'root'),
-  (6, 'light', 'on');
+  (1, 1, 'access', 'root'),
+  (2, 1, 'access', 'root'),
+  (3, 1, 'access', 'root'),
+  (4, 1, 'access', 'root'),
+  (5, 1, 'access', 'root'),
+  (6, 1, 'light', 'on');

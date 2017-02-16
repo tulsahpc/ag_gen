@@ -19,7 +19,7 @@ CREATE TABLE quality (
 CREATE TABLE topology (
   asset_from_id INTEGER REFERENCES asset(id),
   asset_to_id INTEGER REFERENCES asset(id),
-  value TEXT,
+  options TEXT,
   PRIMARY KEY (asset_from_id, asset_to_id)
 );
 
@@ -30,11 +30,14 @@ CREATE TABLE exploit (
 );
 
 CREATE TABLE exploit_precondition (
+  id SERIAL PRIMARY KEY,
   exploit_id INTEGER REFERENCES exploit(id),
-  param INTEGER,
+  type INTEGER, -- 0 for quality, 1 for topology
+  param1 INTEGER,
+  param2 INTEGER,
   property TEXT,
   value TEXT,
-  PRIMARY KEY (exploit_id, param, property)
+  options TEXT
 );
 
 CREATE TABLE exploit_postcondition (

@@ -42,15 +42,12 @@ int main(int argc, char *argv[])
 				if(optopt == 'c')
 					fprintf(stderr, "Option -%c requires an argument.\n", optopt);
 				exit(EXIT_FAILURE);
-				break;
 			case ':':
 				fprintf(stderr, "wtf\n");
 				exit(EXIT_FAILURE);
-				break;
 			default:
 				fprintf(stderr, "Unknown option -%c. Exiting.\n", optopt);
 				exit(EXIT_FAILURE);
-				break;
 		}
 	}
 

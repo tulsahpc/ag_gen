@@ -72,3 +72,6 @@ build
 /docs
 /doxygen_docs
 /doxygen.tag
+
+.idea/
+cmake*/
