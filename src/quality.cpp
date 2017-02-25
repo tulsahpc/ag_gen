@@ -4,7 +4,6 @@
 #include <libpq-fe.h>
 
 #include "ag_gen.hpp"
-#include "global.hpp"
 #include "fact.hpp"
 #include "util_db.hpp"
 

@@ -6,7 +6,6 @@
 #include <memory>
 
 #include "fact.hpp"
-#include "types.hpp"
 
 class Quality;
 

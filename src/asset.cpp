@@ -5,7 +5,6 @@
 #include "asset.hpp"
 #include "fact.hpp"
 #include "util_db.hpp"
-#include "types.hpp"
 
 using namespace std;
 

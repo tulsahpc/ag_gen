@@ -4,7 +4,6 @@
 #include <iostream>
 
 #include "asset.hpp"
-#include "types.hpp"
 #include "keyvalue.hpp"
 
 class Asset;

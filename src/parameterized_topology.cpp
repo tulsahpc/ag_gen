@@ -1,7 +1,3 @@
-//
-// Created by Kyle Cook on 2/12/17.
-//
-
 #include "fact.hpp"
 
 using namespace std;

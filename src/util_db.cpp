@@ -6,10 +6,8 @@
 
 #include <cstdlib>
 #include <string>
-#include <cstring>
 #include <libpq-fe.h>
 
-#include "util_common.hpp"
 #include "util_db.hpp"
 
 using namespace std;

@@ -1,7 +1,3 @@
-//
-// Created by Kyle Cook on 1/30/17.
-//
-
 #include <string>
 #include "util_db.hpp"
 #include "fact.hpp"
