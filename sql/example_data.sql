@@ -38,7 +38,7 @@ INSERT INTO quality VALUES
   (2, 'type', 'router'),
   (2, 'version', '1.5'),
   (3, 'type', 'router'),
-  (3, 'version', '1.4'),
+  (3, 'version', '1.6'),
 
   (4, 'type', 'laptop'),
   (4, 'os', 'winxp'),
@@ -148,7 +148,7 @@ INSERT INTO exploit VALUES
 INSERT INTO exploit_precondition VALUES
   (DEFAULT, 1, 0, 1, NULL, 'type', 'router', NULL),
   (DEFAULT, 1, 0, 1, NULL, 'version', '1.6', NULL),
-  (DEFAULT, 1, 1, 1, 2, NULL, NULL, 'connected'),
+--   (DEFAULT, 1, 1, 1, 2, NULL, NULL, 'connected'),
 
   (DEFAULT, 2, 0, 1, NULL, 'type', 'printer', NULL),
   (DEFAULT, 2, 0, 1, NULL, 'model', '456', NULL),
@@ -169,9 +169,9 @@ INSERT INTO exploit_precondition VALUES
   (DEFAULT, 6, 0, 1, NULL, 'light', 'off', NULL);
 
 INSERT INTO exploit_postcondition VALUES
-  (1, 1, 'access', 'root'),
-  (2, 1, 'access', 'root'),
-  (3, 1, 'access', 'root'),
-  (4, 1, 'access', 'root'),
-  (5, 1, 'access', 'root'),
-  (6, 1, 'light', 'on');
+  (DEFAULT, 1, 0, 1, NULL, 'access', 'root', NULL),
+  (DEFAULT, 2, 0, 1, NULL, 'access', 'root', NULL),
+  (DEFAULT, 3, 0, 1, NULL, 'access', 'root', NULL),
+  (DEFAULT, 4, 0, 1, NULL, 'access', 'root', NULL),
+  (DEFAULT, 5, 0, 1, NULL, 'access', 'root', NULL),
+  (DEFAULT, 6, 0, 1, NULL, 'light', 'on', NULL);

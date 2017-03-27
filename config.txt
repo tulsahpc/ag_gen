@@ -1,4 +1,3 @@
 db: ag_gen_test
-server: 192.168.222.50
-login: kcook
-password: hello123
+server: localhost
+login: kyle

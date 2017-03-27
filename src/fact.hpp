@@ -82,6 +82,32 @@ public:
 struct AssetGroup {
 	std::vector<Quality> hypothetical_qualities;
 	std::vector<Topology> hypothetical_topologies;
+	std::vector<int> perm;
+
+	void print_facts(void) {
+		for (auto &quality : this->hypothetical_qualities) {
+			std::cout << "\t\t";
+			quality.print();
+		}
+
+		for (auto &topology : this->hypothetical_topologies) {
+			std::cout << "\t\t";
+			topology.print();
+		}
+		std::cout << std::endl;
+	}
+
+	void print_group(void) {
+		if(perm.size() == 1) {
+			std::cout << "Asset " + std::to_string(perm[0]);
+		} else {
+			std::cout << "Assets " + std::to_string(perm[0]);
+			for (auto i = 0; i < perm.size(); i++) {
+				std::cout << ", " + std::to_string(perm[i]);
+			}
+		}
+		std::cout << std::endl;
+	}
 };
 
 #endif // FACT_HPP

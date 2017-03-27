@@ -41,18 +41,20 @@ CREATE TABLE exploit_precondition (
 );
 
 CREATE TABLE exploit_postcondition (
+  id SERIAL PRIMARY KEY,
   exploit_id INTEGER REFERENCES exploit(id),
-  param INTEGER,
+  type INTEGER, -- 0 for quality, 1 for topology
+  param1 INTEGER,
+  param2 INTEGER,
   property TEXT,
   value TEXT,
-  PRIMARY KEY (exploit_id, param, property)
+  options TEXT
 );
 
-CREATE TABLE exploit_topology(
-  exploit_id INTEGER REFERENCES exploit(id),
-  from_param INTEGER,
-  to_param INTEGER,
-  value TEXT,
-  PRIMARY KEY (exploit_id, from_param, to_param)
-);
-
+-- CREATE TABLE exploit_topology(
+--   exploit_id INTEGER REFERENCES exploit(id),
+--   from_param INTEGER,
+--   to_param INTEGER,
+--   value TEXT,
+--   PRIMARY KEY (exploit_id, from_param, to_param)
+-- );
