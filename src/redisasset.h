@@ -7,8 +7,8 @@
 #ifndef REDISASSET_H
 #define REDISASSET_H
 
-#include "asset.hpp"
-#include "util_redis.hpp"
+#include "asset.h"
+#include "util_redis.h"
 
 int rasset_set(const char *key, Asset *);
 Asset rasset_get(const char *key);

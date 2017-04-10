@@ -1,13 +1,12 @@
 #include <iostream>
 #include <vector>
 
-#include "ag_gen.hpp"
-#include "util_odometer.hpp"
+#include "ag_gen.h"
+#include "util_odometer.h"
 
 using namespace std;
 
-AGGen::AGGen(void) : assets(Asset::fetch_all("home")), attrs(Quality::fetch_all_attributes()), vals(Quality::fetch_all_values()) {}
-void AGGen::generate() {
+AGGen::AGGen(void) : assets(Asset::fetch_all("home")), attrs(Quality::fetch_all_attributes()), vals(Quality::fetch_all_values()) {
     vector<tuple<Exploit, AssetGroup> > appl_exploits = check_exploits();
 
     for_each(appl_exploits.begin(), appl_exploits.end(), [](tuple<Exploit, AssetGroup> e) {

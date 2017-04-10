@@ -2,10 +2,11 @@
 #define AG_GEN_HPP
 
 #include <vector>
-#include "asset.hpp"
-#include "keyvalue.hpp"
-#include "exploit.hpp"
-#include "factbase.hpp"
+
+#include "asset.h"
+#include "keyvalue.h"
+#include "exploit.h"
+#include "factbase.h"
 
 class AGGen {
     Keyvalue<Asset> assets;

@@ -12,10 +12,10 @@
 #include <iostream>
 #include <string>
 
-#include "asset.hpp"
-#include "redisasset.hpp"
-#include "util_redis.hpp"
-#include "util_common.hpp"
+#include "asset.h"
+#include "redisasset.h"
+#include "util_redis.h"
+#include "util_common.h"
 
 using namespace std;
 

@@ -8,7 +8,7 @@
 #include <string>
 #include <libpq-fe.h>
 
-#include "util_db.hpp"
+#include "util_db.h"
 
 using namespace std;
 

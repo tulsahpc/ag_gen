@@ -1,9 +1,9 @@
 #include <iostream>
 #include <getopt.h>
 
-#include "ag_gen.hpp"
-#include "util_db.hpp"
-#include "config.hpp"
+#include "ag_gen.h"
+#include "util_db.h"
+#include "config.h"
 
 using namespace std;
 
@@ -46,7 +46,8 @@ int main(int argc, char *argv[])
 				fprintf(stderr, "wtf\n");
 				exit(EXIT_FAILURE);
 			default:
-				fprintf(stderr, "Unknown option -%c. Exiting.\n", optopt);
+				fprintf(stderr, "Unknown option -%c.\n", optopt);
+                print_usage();
 				exit(EXIT_FAILURE);
 		}
 	}

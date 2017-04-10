@@ -10,7 +10,7 @@
 #include <string>
 #include <sstream>
 
-#include "util_common.hpp"
+#include "util_common.h"
 
 using namespace std;
 

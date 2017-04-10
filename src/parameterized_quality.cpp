@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
-#include "keyvalue.hpp"
-#include "fact.hpp"
+#include "keyvalue.h"
+#include "fact.h"
 
 using namespace std;
 

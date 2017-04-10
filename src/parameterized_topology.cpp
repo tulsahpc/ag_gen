@@ -1,4 +1,4 @@
-#include "fact.hpp"
+#include "fact.h"
 
 using namespace std;
 

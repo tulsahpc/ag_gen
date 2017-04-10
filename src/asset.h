@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 
-#include "fact.hpp"
+#include "fact.h"
 
 class Quality;
 

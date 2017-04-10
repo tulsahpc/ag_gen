@@ -18,8 +18,8 @@
 
 #include <hiredis/hiredis.h>
 
-#include "util_common.hpp"
-#include "util_redis.hpp"
+#include "util_common.h"
+#include "util_redis.h"
 
 /**
  * Global redis server context.

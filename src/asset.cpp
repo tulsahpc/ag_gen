@@ -2,9 +2,9 @@
 #include <memory>
 #include <string>
 #include <libpq-fe.h>
-#include "asset.hpp"
-#include "fact.hpp"
-#include "util_db.hpp"
+#include "asset.h"
+#include "fact.h"
+#include "util_db.h"
 
 using namespace std;
 

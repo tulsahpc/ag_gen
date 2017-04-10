@@ -1,6 +1,6 @@
 #include <string>
-#include "util_db.hpp"
-#include "fact.hpp"
+#include "util_db.h"
+#include "fact.h"
 
 using namespace std;
 

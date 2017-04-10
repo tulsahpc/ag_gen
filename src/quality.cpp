@@ -3,9 +3,9 @@
 #include <vector>
 #include <libpq-fe.h>
 
-#include "ag_gen.hpp"
-#include "fact.hpp"
-#include "util_db.hpp"
+#include "ag_gen.h"
+#include "fact.h"
+#include "util_db.h"
 
 using namespace std;
 

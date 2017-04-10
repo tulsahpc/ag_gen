@@ -3,8 +3,8 @@
 
 #include <iostream>
 
-#include "asset.hpp"
-#include "keyvalue.hpp"
+#include "asset.h"
+#include "keyvalue.h"
 
 class Asset;
 

@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "fact.hpp"
+#include "fact.h"
 
 class Factbase {
 	std::vector<Quality> qualities;
