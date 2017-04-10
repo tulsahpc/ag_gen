@@ -1,4 +1,6 @@
-#include "fact.h"
+#include <iostream>
+
+#include "parameterized_topology.h"
 
 using namespace std;
 

@@ -7,6 +7,7 @@
 #include "keyvalue.h"
 #include "exploit.h"
 #include "factbase.h"
+#include "assetgroup.h"
 
 class AGGen {
     Keyvalue<Asset> assets;

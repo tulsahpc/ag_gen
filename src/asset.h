@@ -5,9 +5,7 @@
 #include <vector>
 #include <memory>
 
-#include "fact.h"
-
-class Quality;
+#include "quality.h"
 
 class Asset {
 	int id;

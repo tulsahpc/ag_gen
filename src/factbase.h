@@ -3,7 +3,8 @@
 
 #include <vector>
 
-#include "fact.h"
+#include "quality.h"
+#include "topology.h"
 
 class Factbase {
 	std::vector<Quality> qualities;

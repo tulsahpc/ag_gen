@@ -1,6 +1,9 @@
+#include <iostream>
 #include <string>
+#include <vector>
+
+#include "topology.h"
 #include "util_db.h"
-#include "fact.h"
 
 using namespace std;
 

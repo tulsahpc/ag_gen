@@ -1,7 +1,6 @@
 #include <iostream>
-#include <string>
-#include "keyvalue.h"
-#include "fact.h"
+
+#include "parameterized_quality.h"
 
 using namespace std;
 

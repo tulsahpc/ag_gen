@@ -4,7 +4,7 @@
 #include <libpq-fe.h>
 
 #include "ag_gen.h"
-#include "fact.h"
+#include "quality.h"
 #include "util_db.h"
 
 using namespace std;

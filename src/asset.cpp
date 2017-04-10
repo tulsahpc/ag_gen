@@ -1,9 +1,9 @@
 #include <vector>
-#include <memory>
 #include <string>
 #include <libpq-fe.h>
+
 #include "asset.h"
-#include "fact.h"
+#include "quality.h"
 #include "util_db.h"
 
 using namespace std;
