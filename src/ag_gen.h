@@ -16,6 +16,7 @@ class AGGen {
 
     Factbase facts;
 
+	void createPostConditions(std::tuple<Exploit, AssetGroup> group);
     std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(void);
     bool check_assetgroup(AssetGroup assetgroup);
     std::vector<AssetGroup> gen_hypo_facts(Exploit& e);

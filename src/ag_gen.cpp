@@ -9,15 +9,18 @@ using namespace std;
 AGGen::AGGen(void) : assets(Asset::fetch_all("home")), attrs(Quality::fetch_all_attributes()), vals(Quality::fetch_all_values()) {
     vector<tuple<Exploit, AssetGroup> > appl_exploits = check_exploits();
 
-    for_each(appl_exploits.begin(), appl_exploits.end(), [](tuple<Exploit, AssetGroup> e) {
-        Exploit ex = get<0>(e);
-        AssetGroup ag = get<1>(e);
-
-        ex.print_id();
-        ag.print_group();
-        ex.print_postconds_q();
-        ex.print_postconds_t();
+    // All of these exploits are applicable
+    for_each(appl_exploits.begin(), appl_exploits.end(), [this](tuple<Exploit, AssetGroup> e) {
+        createPostConditions(e);
     });
+}
+
+void AGGen::createPostConditions(tuple<Exploit, AssetGroup> group) {
+    Exploit ex = get<0>(group);
+    AssetGroup ag = get<1>(group);
+
+    ag.print_facts();
+    ag.print_group();
 }
 
 bool AGGen::check_assetgroup(AssetGroup assetgroup) {
