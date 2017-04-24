@@ -10,12 +10,10 @@ using namespace std;
 
 void AssetGroup::print_facts(void) {
     for (auto &quality : this->hypothetical_qualities) {
-        cout << "\t\t";
         quality.print();
     }
 
     for (auto &topology : this->hypothetical_topologies) {
-        cout << "\t\t";
         topology.print();
     }
     cout << endl;

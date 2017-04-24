@@ -5,6 +5,8 @@
 #ifndef AG_GEN_QUALITY_H
 #define AG_GEN_QUALITY_H
 
+#include <string>
+
 union EncodedQuality {
     struct {
         int asset_id : 32;

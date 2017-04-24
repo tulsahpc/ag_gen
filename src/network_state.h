@@ -1,8 +1,10 @@
 #ifndef NETWORK_STATE_H
 #define NETWORK_STATE_H
 
-class NetworkState {
+#include "factbase.h"
 
+class NetworkState {
+    Factbase factbase;
 public:
 };
 

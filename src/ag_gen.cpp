@@ -19,19 +19,19 @@ void AGGen::createPostConditions(tuple<Exploit, AssetGroup> group) {
     Exploit ex = get<0>(group);
     AssetGroup ag = get<1>(group);
 
-    ag.print_facts();
-    ag.print_group();
+    vector<ParameterizedQuality> postconds_q = ex.postcond_list_q();
+    vector<ParameterizedTopology> postconds_t = ex.postcond_list_t();
 }
 
 bool AGGen::check_assetgroup(AssetGroup assetgroup) {
     for(auto& quality : assetgroup.hypothetical_qualities) {
-        if(!facts.find_quality(quality)) {
+        if(!current_facts.find_quality(quality)) {
             return false;
         }
     }
 
     for(auto& topology : assetgroup.hypothetical_topologies) {
-        if(!facts.find_topology(topology)) {
+        if(!current_facts.find_topology(topology)) {
             return false;
         }
     }

@@ -14,7 +14,7 @@ class AGGen {
     Keyvalue<std::string> attrs;
     Keyvalue<std::string> vals;
 
-    Factbase facts;
+    Factbase current_facts;
 
 	void createPostConditions(std::tuple<Exploit, AssetGroup> group);
     std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(void);
