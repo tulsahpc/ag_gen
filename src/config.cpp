@@ -9,7 +9,7 @@
 
 using namespace std;
 
-Config::Config(string filename) {
+Config::Config(const string &filename) {
 	ifstream config_file(filename);
 
 	if (!config_file.is_open()) {

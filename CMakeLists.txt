@@ -7,7 +7,7 @@ file(GLOB ag_gen_src
         "src/*.cpp"
         "src/*.hpp")
 
-add_executable(ag_gen ${ag_gen_src} src/quality.h src/topology.h src/assetgroup.cpp src/assetgroup.h src/parameterized_quality.h src/parameterized_topology.h)
+add_executable(ag_gen ${ag_gen_src} src/quality.h src/topology.h src/assetgroup.cpp src/assetgroup.h src/parameterized_quality.h src/parameterized_topology.h src/appl_exploit.cpp src/appl_exploit.h)
 
 include_directories("/usr/local/include")
 

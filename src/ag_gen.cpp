@@ -15,15 +15,7 @@ AGGen::AGGen(void) : assets(Asset::fetch_all("home")), attrs(Quality::fetch_all_
     });
 }
 
-void AGGen::createPostConditions(tuple<Exploit, AssetGroup> group) {
-    Exploit ex = get<0>(group);
-    AssetGroup ag = get<1>(group);
-
-    vector<ParameterizedQuality> postconds_q = ex.postcond_list_q();
-    vector<ParameterizedTopology> postconds_t = ex.postcond_list_t();
-}
-
-bool AGGen::check_assetgroup(AssetGroup assetgroup) {
+bool AGGen::check_assetgroup(AssetGroup &assetgroup) {
     for(auto& quality : assetgroup.hypothetical_qualities) {
         if(!current_facts.find_quality(quality)) {
             return false;
@@ -65,11 +57,26 @@ vector<AssetGroup> AGGen::gen_hypo_facts(Exploit& e) {
         }
 
         AssetGroup exploit_asset_group = { asset_group_quals, asset_group_topos, perm };
+
         asset_groups.push_back(exploit_asset_group);
     }
     od.reset();
 
     return asset_groups;
+}
+
+void AGGen::createPostConditions(tuple<Exploit, AssetGroup> group) {
+    Exploit ex = get<0>(group);
+    AssetGroup ag = get<1>(group);
+
+    vector<ParameterizedQuality> param_postconds_q = ex.postcond_list_q();
+    vector<ParameterizedTopology> param_postconds_t = ex.postcond_list_t();
+
+    vector<Quality> postconds_q;
+    vector<Topology> postconds_t;
+
+    ag.print_group();
+
 }
 
 vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(void) {

@@ -9,7 +9,7 @@
 
 using namespace std;
 
-Quality::Quality(int asset, string qualName, string qualValue) : asset_id(asset), name(qualName), value(qualValue) {}
+Quality::Quality(int asset, const string &qualName, const string &qualValue) : asset_id(asset), name(qualName), value(qualValue) {}
 
 string Quality::get_name() {
 	return name;

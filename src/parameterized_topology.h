@@ -13,11 +13,11 @@ class ParameterizedTopology {
     std::string options;
 public:
     ParameterizedTopology(int from_param, int to_param, std::string options);
-    int get_from_param();
-    int get_to_param();
-    std::string get_options();
+    int get_from_param(void);
+    int get_to_param(void);
+    std::string get_options(void);
 
-    void print();
+    void print(void);
 };
 
 #endif //AG_GEN_PARAMETERIZED_TOPOLOGY_H

@@ -22,12 +22,12 @@ class Quality {
     std::string value;
 
 public:
-    Quality(int assetId, std::string qualName, std::string qualValue);
+    Quality(int assetId, const std::string &qualName, const std::string &qualValue);
     std::string get_name(void);
 
     void print(void);
     int encoded(void);
-    bool operator==(const Quality& rhs);
+    bool operator==(const Quality &rhs);
 
     static std::vector<Quality> fetch_all(void);
     static std::vector<std::string> fetch_all_attributes(void);

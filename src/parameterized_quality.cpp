@@ -12,7 +12,7 @@ void ParameterizedQuality::print() {
     cout << "Value: " + value << endl << endl;
 }
 
-vector<Quality> ParameterizedQuality::make_quals(vector<int> asset_ids, Keyvalue<Asset>& assets) {
+vector<Quality> ParameterizedQuality::make_quals(vector<int, allocator<int>> &asset_ids, Keyvalue<Asset> &assets) {
     vector<Quality> new_quals;
     for(auto i=0; i<assets.length(); i++) {
         Quality q(asset_ids[i], name, value);
