@@ -6,6 +6,7 @@
 class NetworkState {
     Factbase factbase;
 public:
+
 };
 
 #endif
