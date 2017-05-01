@@ -5,6 +5,8 @@ Factbase::Factbase(void) {
     topologies = Topology::fetch_all();
 }
 
+Factbase::Factbase(Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {}
+
 bool Factbase::find_quality(Quality q) {
     if(find(qualities.begin(), qualities.end(), q) == qualities.end()) {
         return false;

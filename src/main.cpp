@@ -4,6 +4,7 @@
 #include "ag_gen.h"
 #include "util_db.h"
 #include "config.h"
+#include "network_state.h"
 
 using namespace std;
 
@@ -56,7 +57,7 @@ int main(int argc, char *argv[])
 	string db_string = config.db_string();
 	dbconnect(db_string.c_str());
 
-	AGGen generator;
+//	AGGen generator(initial_state);
 
 	dbclose();
 }

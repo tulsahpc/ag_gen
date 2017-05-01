@@ -29,7 +29,7 @@ void Asset::fetch_qualities(void)
 
 	res = PQexec(conn, sql.c_str());
 	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-		fprintf(stderr, "SELECT command failed: %s",
+		fprintf(stderr, "asset SELECT command failed: %s",
 			PQerrorMessage(conn));
 		PQclear(res);
 		exit(1);

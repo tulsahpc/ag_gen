@@ -31,7 +31,7 @@ vector<Topology> Topology::fetch_all() {
 
     res = PQexec(conn, sql.c_str());
     if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-        fprintf(stderr, "SELECT command failed: %s",
+        fprintf(stderr, "topology SELECT command failed: %s",
                 PQerrorMessage(conn));
     }
 

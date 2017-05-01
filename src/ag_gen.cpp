@@ -2,17 +2,32 @@
 #include <vector>
 
 #include "ag_gen.h"
+
 #include "util_odometer.h"
 
 using namespace std;
 
-AGGen::AGGen(void) : assets(Asset::fetch_all("home")), attrs(Quality::fetch_all_attributes()), vals(Quality::fetch_all_values()) {
-    vector<tuple<Exploit, AssetGroup> > appl_exploits = check_exploits();
+AGGen::AGGen(NetworkState initial_state) : assets(Asset::fetch_all("home")), attrs(Quality::fetch_all_attributes()), vals(Quality::fetch_all_values()) {
+
+    this->frontier.push_back(initial_state);
+    auto appl_exploits = check_exploits();
 
     // All of these exploits are applicable
-    for_each(appl_exploits.begin(), appl_exploits.end(), [this](tuple<Exploit, AssetGroup> e) {
-        createPostConditions(e);
-    });
+    for(auto& e : appl_exploits) {
+        auto postconditions = createPostConditions(e);
+        auto qualities = get<0>(postconditions);
+        auto topologies = get<1>(postconditions);
+
+        NetworkState new_state(initial_state);
+
+        for(auto& qual : qualities) {
+            new_state.factbase.add_quality(qual);
+        }
+
+        for(auto& topo : topologies) {
+            new_state.factbase.add_topology(topo);
+        }
+    }
 }
 
 bool AGGen::check_assetgroup(AssetGroup &assetgroup) {
@@ -65,9 +80,11 @@ vector<AssetGroup> AGGen::gen_hypo_facts(Exploit& e) {
     return asset_groups;
 }
 
-void AGGen::createPostConditions(tuple<Exploit, AssetGroup> group) {
+tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(tuple<Exploit, AssetGroup> group) {
     Exploit ex = get<0>(group);
     AssetGroup ag = get<1>(group);
+
+    vector<int> perm = ag.perm;
 
     vector<ParameterizedQuality> param_postconds_q = ex.postcond_list_q();
     vector<ParameterizedTopology> param_postconds_t = ex.postcond_list_t();
@@ -75,8 +92,16 @@ void AGGen::createPostConditions(tuple<Exploit, AssetGroup> group) {
     vector<Quality> postconds_q;
     vector<Topology> postconds_t;
 
-    ag.print_group();
+    for(auto& postcond : param_postconds_q) {
+        Quality q(perm[postcond.get_param_num()], postcond.get_name(), postcond.get_value());
+        postconds_q.push_back(q);
+    }
 
+    for(auto& postcond : param_postconds_t) {
+        Topology t(perm[postcond.get_from_param()], perm[postcond.get_to_param()], postcond.get_options());
+    }
+
+    return make_tuple(postconds_q, postconds_t);
 }
 
 vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(void) {
