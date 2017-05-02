@@ -2,35 +2,44 @@
 #include <vector>
 
 #include "ag_gen.h"
+#include "network_state.h"
 
 #include "util_odometer.h"
 
 using namespace std;
 
-AGGen::AGGen(NetworkState initial_state) : assets(Asset::fetch_all("home")), attrs(Quality::fetch_all_attributes()), vals(Quality::fetch_all_values()) {
-
-    this->frontier.push_back(initial_state);
+AGGen::AGGen(NetworkState initial_state) : assets(Asset::fetch_all("home")), attrs(Quality::fetch_all_attributes()), vals(Quality::fetch_all_values()), current_state(initial_state) {
     auto appl_exploits = check_exploits();
 
+    vector<reference_wrapper<NetworkState> > new_states;
+    int count = 0;
     // All of these exploits are applicable
     for(auto& e : appl_exploits) {
         auto postconditions = createPostConditions(e);
         auto qualities = get<0>(postconditions);
         auto topologies = get<1>(postconditions);
 
-        NetworkState new_state(initial_state);
+        NetworkState new_state(current_state);
 
         for(auto& qual : qualities) {
-            new_state.factbase.add_quality(qual);
+            new_state.get_factbase().add_quality(qual);
         }
 
         for(auto& topo : topologies) {
-            new_state.factbase.add_topology(topo);
+            new_state.get_factbase().add_topology(topo);
         }
+
+        new_states.push_back(ref(new_state));
+    }
+
+    for(auto& state : new_states) {
+        state.get().print();
     }
 }
 
-bool AGGen::check_assetgroup(AssetGroup &assetgroup) {
+bool AGGen::check_assetgroup(AssetGroup& assetgroup) {
+    auto& current_facts = current_state.get_factbase();
+
     for(auto& quality : assetgroup.hypothetical_qualities) {
         if(!current_facts.find_quality(quality)) {
             return false;

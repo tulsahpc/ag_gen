@@ -15,13 +15,13 @@ class AGGen {
     Keyvalue<std::string> attrs;
     Keyvalue<std::string> vals;
 
-//    Factbase& current_facts;
+    NetworkState current_state;
     std::vector<NetworkState> frontier;
 
-	std::tuple<std::vector<Quality>, std::vector<Topology> > createPostConditions(std::tuple<Exploit, AssetGroup> group);
+	std::tuple<std::vector<Quality>, std::vector<Topology> > createPostConditions(std::tuple<Exploit, AssetGroup>);
     std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(void);
-    bool check_assetgroup(AssetGroup &assetgroup);
-    std::vector<AssetGroup> gen_hypo_facts(Exploit &e);
+    bool check_assetgroup(AssetGroup&);
+    std::vector<AssetGroup> gen_hypo_facts(Exploit &);
 public:
 	AGGen(NetworkState);
 };
