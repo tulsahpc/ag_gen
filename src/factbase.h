@@ -11,11 +11,12 @@ class Factbase {
 	std::vector<Topology> topologies;
 public:
 	Factbase(void);
-	Factbase(Factbase&);
-	bool find_quality(Quality);
-	bool find_topology(Topology);
-	void add_quality(Quality);
-	void add_topology(Topology);
+
+	bool find_quality(Quality&);
+	bool find_topology(Topology&);
+
+    void add_quality(Quality&);
+	void add_topology(Topology&);
 };
 
 #endif

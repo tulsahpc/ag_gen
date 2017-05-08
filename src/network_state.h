@@ -3,8 +3,12 @@
 
 #include "factbase.h"
 
-struct NetworkState {
+class NetworkState {
     Factbase factbase;
+public:
+    NetworkState(void);
+
+    Factbase& get_factbase(void);
 };
 
 #endif

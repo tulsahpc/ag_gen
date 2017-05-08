@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 3.6)
 project(ag_gen)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Wpedantic --std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -Wall -DDEBUG_BUILD")
 
 file(GLOB ag_gen_src
         "src/*.cpp"
         "src/*.h")
 
-add_executable(ag_gen ${ag_gen_src})
+add_executable(ag_gen ${ag_gen_src} src/network_state.cpp)
 
 include_directories("/usr/local/include")
 

@@ -29,6 +29,11 @@ unsigned int base_convert_string(std::string data, int base);
 std::vector<int> base_convert_int(int num, int base);
 std::vector<int> base_convert(std::string num, int from, int to);
 
+template <class T>
+std::string compare(const T& a, const T& b) {
+	return (&a == &b) ? "true" : "false";
+}
+
 std::vector<std::string> split(std::string str, char delim);
 std::string trim(std::string str);
 char *dynstr(const char *str);

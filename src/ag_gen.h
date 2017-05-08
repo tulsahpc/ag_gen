@@ -18,12 +18,13 @@ class AGGen {
 //    Factbase& current_facts;
     std::vector<NetworkState> frontier;
 
-	std::tuple<std::vector<Quality>, std::vector<Topology> > createPostConditions(std::tuple<Exploit, AssetGroup> group);
-    std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(void);
-    bool check_assetgroup(AssetGroup &assetgroup);
-    std::vector<AssetGroup> gen_hypo_facts(Exploit &e);
+    std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(NetworkState&);
+    bool check_assetgroup(NetworkState&, AssetGroup&);
+    std::vector<AssetGroup> gen_hypo_facts(NetworkState&, Exploit&);
+    std::tuple<std::vector<Quality>, std::vector<Topology> > createPostConditions(std::tuple<Exploit, AssetGroup> group);
 public:
-	AGGen(NetworkState);
+	AGGen(const NetworkState&);
+    void generate();
 };
 
 #endif //AG_GEN_HPP

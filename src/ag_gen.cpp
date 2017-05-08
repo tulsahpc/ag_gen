@@ -3,42 +3,79 @@
 
 #include "ag_gen.h"
 
+#include "util_common.h"
 #include "util_odometer.h"
+
+#ifdef DEBUG_BUILD
+#define DEBUG(x) do { std::cerr << x << endl; } while (0)
+#else
+#define DEBUG(x)
+#endif
 
 using namespace std;
 
-AGGen::AGGen(NetworkState initial_state) : assets(Asset::fetch_all("home")), attrs(Quality::fetch_all_attributes()), vals(Quality::fetch_all_values()) {
-
+AGGen::AGGen(const NetworkState& initial_state) : assets(Asset::fetch_all("home")), attrs(Quality::fetch_all_attributes()), vals(Quality::fetch_all_values()) {
     this->frontier.push_back(initial_state);
-    auto appl_exploits = check_exploits();
+}
 
-    // All of these exploits are applicable
-    for(auto& e : appl_exploits) {
-        auto postconditions = createPostConditions(e);
-        auto qualities = get<0>(postconditions);
-        auto topologies = get<1>(postconditions);
+void AGGen::generate(void) {
+    while(!this->frontier.empty()) {
+        NetworkState next_state = this->frontier.back();
 
-        NetworkState new_state(initial_state);
+        this->frontier.pop_back();
+        auto appl_exploits = check_exploits(next_state);
 
-        for(auto& qual : qualities) {
-            new_state.factbase.add_quality(qual);
-        }
+        vector<NetworkState> new_states;
 
-        for(auto& topo : topologies) {
-            new_state.factbase.add_topology(topo);
+        // All of these exploits are applicable
+        for (auto &e : appl_exploits) {
+            auto postconditions = createPostConditions(e);
+
+            auto qualities = get<0>(postconditions);
+            auto topologies = get<1>(postconditions);
+
+            NetworkState new_state = next_state;
+
+            for (auto &qual : qualities) {
+                new_state.get_factbase().add_quality(qual);
+            }
+
+            for (auto &topo : topologies) {
+                new_state.get_factbase().add_topology(topo);
+            }
+
+            new_states.push_back(new_state);
         }
     }
 }
 
-bool AGGen::check_assetgroup(AssetGroup &assetgroup) {
+vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(NetworkState& s) {
+    vector<Exploit> exploit_list = Exploit::fetch_all();
+    vector<tuple<Exploit, AssetGroup> > appl_exploit_list;
+
+    for(auto& e : exploit_list) {
+        vector<AssetGroup> asset_groups = gen_hypo_facts(s, e);
+        for(auto asset_group : asset_groups) {
+            // Each quality must exist. If not, discard asset_group entirely.
+            bool applicable = check_assetgroup(s, asset_group);
+            if(applicable) {
+                appl_exploit_list.push_back(make_tuple(e, asset_group));
+            }
+        }
+    }
+
+    return appl_exploit_list;
+}
+
+bool AGGen::check_assetgroup(NetworkState& s, AssetGroup& assetgroup) {
     for(auto& quality : assetgroup.hypothetical_qualities) {
-        if(!current_facts.find_quality(quality)) {
+        if(!s.get_factbase().find_quality(quality)) {
             return false;
         }
     }
 
     for(auto& topology : assetgroup.hypothetical_topologies) {
-        if(!current_facts.find_topology(topology)) {
+        if(!s.get_factbase().find_topology(topology)) {
             return false;
         }
     }
@@ -46,7 +83,7 @@ bool AGGen::check_assetgroup(AssetGroup &assetgroup) {
     return true;
 }
 
-vector<AssetGroup> AGGen::gen_hypo_facts(Exploit& e) {
+vector<AssetGroup> AGGen::gen_hypo_facts(NetworkState& s, Exploit& e) {
     int num_assets = assets.length();
     int num_params = e.get_num_params();
 
@@ -102,22 +139,4 @@ tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(tuple<Expl
     }
 
     return make_tuple(postconds_q, postconds_t);
-}
-
-vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(void) {
-    vector<Exploit> exploit_list = Exploit::fetch_all();
-    vector<tuple<Exploit, AssetGroup> > appl_exploit_list;
-
-    for(auto& e : exploit_list) {
-        vector<AssetGroup> asset_groups = gen_hypo_facts(e);
-        for(auto asset_group : asset_groups) {
-            // Each quality must exist. If not, discard asset_group entirely.
-            bool applicable = check_assetgroup(asset_group);
-            if(applicable) {
-                appl_exploit_list.push_back(make_tuple(e, asset_group));
-            }
-        }
-    }
-
-    return appl_exploit_list;
 }

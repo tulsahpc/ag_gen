@@ -57,7 +57,9 @@ int main(int argc, char *argv[])
 	string db_string = config.db_string();
 	dbconnect(db_string.c_str());
 
-//	AGGen generator(initial_state);
+    NetworkState initial_state;
+	AGGen generator(initial_state);
+    generator.generate();
 
 	dbclose();
 }
