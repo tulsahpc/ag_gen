@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "ag_gen.h"
+#include "network_state.h"
 
 #include "util_common.h"
 #include "util_odometer.h"
@@ -12,6 +13,7 @@
 #define DEBUG(x)
 #endif
 
+<<<<<<< HEAD
 using namespace std;
 
 AGGen::AGGen(const NetworkState& initial_state) : assets(Asset::fetch_all("home")), attrs(Quality::fetch_all_attributes()), vals(Quality::fetch_all_values()) {
@@ -61,7 +63,12 @@ vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(NetworkState& s) {
             if(applicable) {
                 appl_exploit_list.push_back(make_tuple(e, asset_group));
             }
-        }
+
+        new_states.push_back(ref(new_state));
+    }
+
+    for(auto& state : new_states) {
+        state.get().print();
     }
 
     return appl_exploit_list;

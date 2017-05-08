@@ -1,8 +1,16 @@
+#include <iostream>
 #include "factbase.h"
 
 Factbase::Factbase(void) {
     qualities = Quality::fetch_all();
     topologies = Topology::fetch_all();
+}
+
+Factbase::Factbase(Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {
+
+    std::cout << &qualities << std::endl;
+    std::cout << &fb.qualities << std::endl;
+    std::cout << std::endl;
 }
 
 bool Factbase::find_quality(Quality& q) {
@@ -25,4 +33,14 @@ void Factbase::add_quality(Quality& q) {
 
 void Factbase::add_topology(Topology& t) {
     topologies.push_back(t);
+}
+
+void Factbase::print(void) {
+    for(auto& q : qualities) {
+        q.print();
+    }
+
+    for(auto& t : topologies) {
+        t.print();
+    }
 }
