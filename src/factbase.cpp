@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "factbase.h"
 
 Factbase::Factbase(void) {

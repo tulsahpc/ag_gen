@@ -20,7 +20,7 @@ elif [[ $OS = 'linux' ]]; then
     if [[ $? ]]; then
         sudo apt-get -y install postgresql postgresql-contrib libpq-dev \
             redis-server libhiredis-dev cppcheck clang valgrind \
-            doxygen graphviz
+            doxygen graphviz cmake build-essential
     fi
 else
     echo "Your operating system is not currently supported."
