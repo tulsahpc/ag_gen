@@ -7,8 +7,7 @@ class NetworkState {
     Factbase factbase;
 public:
     NetworkState(void) {};
-
-    NetworkState(NetworkState& ns) : factbase(ns.get_factbase()) {};
+    NetworkState(const NetworkState& ns): factbase(const_cast<NetworkState&>(ns).get_factbase()) {};
 
     Factbase& get_factbase(void) {
         return factbase;

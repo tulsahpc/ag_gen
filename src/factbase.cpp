@@ -6,12 +6,7 @@ Factbase::Factbase(void) {
     topologies = Topology::fetch_all();
 }
 
-Factbase::Factbase(Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {
-
-    std::cout << &qualities << std::endl;
-    std::cout << &fb.qualities << std::endl;
-    std::cout << std::endl;
-}
+Factbase::Factbase(Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {}
 
 bool Factbase::find_quality(Quality& q) {
     if(find(qualities.begin(), qualities.end(), q) == qualities.end()) {

@@ -13,21 +13,25 @@
 #define DEBUG(x)
 #endif
 
-<<<<<<< HEAD
 using namespace std;
 
-AGGen::AGGen(const NetworkState& initial_state) : assets(Asset::fetch_all("home")), attrs(Quality::fetch_all_attributes()), vals(Quality::fetch_all_values()) {
+AGGen::AGGen(const NetworkState& initial_state) :
+        assets(Asset::fetch_all("home")),
+        attrs(Quality::fetch_all_attributes()),
+        vals(Quality::fetch_all_values()),
+        current_state(const_cast<NetworkState&>(initial_state))
+{
     this->frontier.push_back(initial_state);
 }
 
 void AGGen::generate(void) {
+    vector<NetworkState> new_states;
+
     while(!this->frontier.empty()) {
         NetworkState next_state = this->frontier.back();
 
         this->frontier.pop_back();
         auto appl_exploits = check_exploits(next_state);
-
-        vector<NetworkState> new_states;
 
         // All of these exploits are applicable
         for (auto &e : appl_exploits) {
@@ -47,7 +51,12 @@ void AGGen::generate(void) {
             }
 
             new_states.push_back(new_state);
+//            this->frontier.push_back(new_state);
         }
+    }
+
+    for(auto& state : new_states) {
+        state.print();
     }
 }
 
@@ -60,15 +69,10 @@ vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(NetworkState& s) {
         for(auto asset_group : asset_groups) {
             // Each quality must exist. If not, discard asset_group entirely.
             bool applicable = check_assetgroup(s, asset_group);
-            if(applicable) {
+            if (applicable) {
                 appl_exploit_list.push_back(make_tuple(e, asset_group));
             }
-
-        new_states.push_back(ref(new_state));
-    }
-
-    for(auto& state : new_states) {
-        state.get().print();
+        }
     }
 
     return appl_exploit_list;

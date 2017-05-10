@@ -15,7 +15,7 @@ class AGGen {
     Keyvalue<std::string> attrs;
     Keyvalue<std::string> vals;
 
-    NetworkState current_state;
+    NetworkState& current_state;
     std::vector<NetworkState> frontier;
 
     std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(NetworkState&);

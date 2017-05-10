@@ -8,7 +8,7 @@ file(GLOB ag_gen_src
         "src/*.cpp"
         "src/*.h")
 
-add_executable(ag_gen ${ag_gen_src} src/network_state.cpp)
+add_executable(ag_gen ${ag_gen_src})
 
 include_directories("/usr/local/include")
 

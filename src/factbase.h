@@ -20,7 +20,6 @@ public:
 	void add_topology(Topology&);
 
     void print(void);
->>>>>>> 9a036bddf759a46cd5fcb48810208f6a8a6af5d7
 };
 
 #endif
