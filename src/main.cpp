@@ -1,3 +1,6 @@
+// main.cpp contains the main fuction that runs the program including flag handling and calls to functions
+// that access the database and generate the attack graph.
+
 #include <iostream>
 #include <getopt.h>
 
@@ -8,6 +11,7 @@
 
 using namespace std;
 
+// print_usage prints to stdout the help menu that corresponds to the ag_gen command 
 void print_usage()
 {
     cout << "Usage: ag_gen [OPTION...]" << endl << endl;
@@ -17,6 +21,8 @@ void print_usage()
 	cout << "\t-h\tThis help menu." << endl;
 }
 
+// the main function executes the command according to the given flag and throws and error if an unknown flag
+// is provided. It then uses the database given in the "config.txt" file to generate an attack graph.
 int main(int argc, char *argv[])
 {
 	if(argc < 2) {

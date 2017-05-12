@@ -1,3 +1,6 @@
+// ag_gen.cpp contains the methods for building an attack graph and generating an attack graph's exploits and
+// printing them
+
 #include <iostream>
 #include <vector>
 
@@ -15,6 +18,8 @@
 
 using namespace std;
 
+// The AGGen constructor creates an AGGen and takes the given NetworkState and adds it as the first element to
+// the new AGGen's NetworkState vector named frontier
 AGGen::AGGen(const NetworkState& initial_state) :
         assets(Asset::fetch_all("home")),
         attrs(Quality::fetch_all_attributes()),
@@ -24,6 +29,8 @@ AGGen::AGGen(const NetworkState& initial_state) :
     this->frontier.push_back(initial_state);
 }
 
+// generate iterates through AGGen's frontier vector, back to front, and prints out the exploits of each
+// NetworkState based on its qualities and topologies
 void AGGen::generate(void) {
     vector<NetworkState> new_states;
 
@@ -60,6 +67,8 @@ void AGGen::generate(void) {
     }
 }
 
+// check_exploits takes a given NetworkState and returns a vector containing the exploits and corresponding
+// asset groups that are applicable to the given NetworkState
 vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(NetworkState& s) {
     vector<Exploit> exploit_list = Exploit::fetch_all();
     vector<tuple<Exploit, AssetGroup> > appl_exploit_list;
@@ -78,6 +87,9 @@ vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(NetworkState& s) {
     return appl_exploit_list;
 }
 
+// check_assetgroup takes a NetworkState and AssetGroup and returns a boolean. It returns true iff all of the
+// hypothetical qualities and hypothetical topologies of the given AssetGroup are also part of the Network
+// State's factbase
 bool AGGen::check_assetgroup(NetworkState& s, AssetGroup& assetgroup) {
     for(auto& quality : assetgroup.hypothetical_qualities) {
         if(!s.get_factbase().find_quality(quality)) {
@@ -94,6 +106,9 @@ bool AGGen::check_assetgroup(NetworkState& s, AssetGroup& assetgroup) {
     return true;
 }
 
+// gen_hypo_facts takes a NetworkState and an Exploit, finds all of the precondition qualities and
+// precondition topoligies that lead to the given exploit, and returns these in a vector of asset groups
+/* Not sure on this one. Especially concerning the Odometer */
 vector<AssetGroup> AGGen::gen_hypo_facts(NetworkState& s, Exploit& e) {
     int num_assets = assets.length();
     int num_params = e.get_num_params();
@@ -128,6 +143,10 @@ vector<AssetGroup> AGGen::gen_hypo_facts(NetworkState& s, Exploit& e) {
     return asset_groups;
 }
 
+// createPostConditions takes a tuple of an Exploit and an AssetGroup. For both the qualities and toplogies,
+// it iterates through the respective postcondition list of the given exploit and creates a new
+// quality/topology from the current one and the given asset group's perm (?) for each item in the list.
+// It returns a tuple of a vector of the new qualities and a vector of the new topologies.
 tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(tuple<Exploit, AssetGroup> group) {
     Exploit ex = get<0>(group);
     AssetGroup ag = get<1>(group);
