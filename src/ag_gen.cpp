@@ -2,9 +2,6 @@
 #include <vector>
 
 #include "ag_gen.h"
-#include "network_state.h"
-
-#include "util_common.h"
 #include "util_odometer.h"
 
 #ifdef DEBUG_BUILD

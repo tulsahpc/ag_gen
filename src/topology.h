@@ -16,7 +16,7 @@ public:
     int get_from_asset_id(void);
     int get_to_asset_id(void);
     std::string get_options(void);
-    bool operator==(const Topology& rhs);
+    bool operator==(const Topology& rhs) const;
     void print(void);
 
     static std::vector<Topology> fetch_all(void);

@@ -53,7 +53,7 @@ void Topology::print(void) {
     cout << to_string(from_asset_id) + " => " + to_string(to_asset_id) + ": " + options << endl;
 }
 
-bool Topology::operator==(const Topology& rhs) {
+bool Topology::operator==(const Topology& rhs) const {
     if(this->from_asset_id != rhs.from_asset_id)
         return false;
     if(this->to_asset_id != rhs.to_asset_id)

@@ -9,7 +9,7 @@ public:
     NetworkState(void) {};
     NetworkState(const NetworkState& ns): factbase(const_cast<NetworkState&>(ns).get_factbase()) {};
 
-    Factbase& get_factbase(void) {
+    const Factbase& get_factbase(void) const {
         return factbase;
     };
 
