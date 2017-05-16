@@ -1,11 +1,12 @@
-// factbase.cpp contains a default constructor, standard setter and getter methods for the qualities and
-// topologies of factbase, and a print method that prints the qualities and topologies of a factbase
+// factbase.cpp implements the Factbase class which contains the known facts that are completely true in a
+// particular Network State
 
 #include <iostream>
 #include <algorithm>
 #include "factbase.h"
 
-// The Factbase constructor creates a factbase object
+// The default Factbase constructor creates a factbase object with all of the qualities and topologies
+// currently on the database
 Factbase::Factbase(void) {
     qualities = Quality::fetch_all();
     topologies = Topology::fetch_all();
@@ -22,8 +23,8 @@ bool Factbase::find_quality(Quality& q) {
     return true;
 }
 
-// find_topology searches for a given topology in a factbase. Returns true if the topology is found, otherwise
-// returns false
+// find_topology searches for a given topology in a factbase. Returns true if the topology is found,
+// otherwise returns false
 bool Factbase::find_topology(Topology& t) {
     if(find(topologies.begin(), topologies.end(), t) == topologies.end()) {
         return false;
@@ -41,7 +42,7 @@ void Factbase::add_topology(Topology& t) {
     topologies.push_back(t);
 }
 
-// print prints to stdout every quality of the factbase then every topology of the factbase
+// print prints to stdout every quality of the factbase, then every topology of the factbase
 void Factbase::print(void) {
     for(auto& q : qualities) {
         q.print();

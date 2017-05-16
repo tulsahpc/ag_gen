@@ -1,5 +1,5 @@
-// network_state.h contains standard constructors, get method for the factbase, and a print method that prints
-// the factbase
+// network_state.h implements the Network State class which represents a single state of a network and cotains a factbase of known truths for the Network State
+
 #ifndef NETWORK_STATE_H
 #define NETWORK_STATE_H
 
@@ -8,10 +8,10 @@
 class NetworkState {
     Factbase factbase;
 public:
-    // default constructor
+    // default constructor that creates a NetworkState object with a zero-value Factbase
     NetworkState(void) {};
 
-    // copy constructor that creates a new NetworkState with the same factbse as the given NetworkState
+    // copy constructor that creates a new NetworkState with the same factbase as the given NetworkState
     NetworkState(const NetworkState& ns): factbase(const_cast<NetworkState&>(ns).get_factbase()) {};
 
     // get_factbase returns the factbase of a NetworkState
