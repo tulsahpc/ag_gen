@@ -104,7 +104,7 @@ bool AGGen::check_assetgroup(NetworkState& s, AssetGroup& assetgroup) {
         }
     }
 
-    return true;i
+    return true;
 }
 
 // gen_hypo_facts takes a NetworkState and an Exploit, generates all the potential facts a Network State
