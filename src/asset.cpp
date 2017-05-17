@@ -1,3 +1,6 @@
+// asset.cpp is used to represent an asset on the network and contains functions to access and manipulate
+// the properties (id, name, network, qualities) of an asset
+
 #include <vector>
 #include <string>
 #include <libpq-fe.h>
@@ -10,14 +13,18 @@ using namespace std;
 
 Asset::Asset(int id, int network_id, string asset_name) : id(id), network_id(network_id), name(asset_name) {};
 
+// get_network_id returns the Asset's network_id
 int Asset::get_network_id(void) {
 	return network_id;
 }
 
+// get_name returns the Asset's name
 string Asset::get_name(void) {
 	return name;
 }
 
+// fetch_qualities grabs all of the qualities in the database associated with the Asset's ID and gives them
+// to the Asset
 void Asset::fetch_qualities(void)
 {
 	vector<Quality> qualities;
@@ -49,6 +56,8 @@ void Asset::fetch_qualities(void)
 	this->qualities = qualities;
 }
 
+// fetch_all grabs all of the Assets in the database under the network given in the argument and returns a
+// vector of those Assets
 vector<Asset> Asset::fetch_all(const string& network)
 {
 	vector<Asset> assets;
