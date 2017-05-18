@@ -13,7 +13,7 @@ public:
         return factbase;
     };
 
-    void print(void) {
+    void print(void) const {
         factbase.print();
     };
 };

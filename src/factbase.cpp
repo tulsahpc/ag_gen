@@ -20,7 +20,7 @@ bool Factbase::find_quality(const Quality& q) const {
 //    return
 //}
 
-void Factbase::add_quality(const Quality& q) const {
+void Factbase::add_quality(const Quality& q) {
     qualities.push_back(q);
 }
 
@@ -39,7 +39,7 @@ bool Factbase::find_topology(const Topology& t) const {
 //
 //}
 
-void Factbase::add_topology(const Topology& t) const {
+void Factbase::add_topology(const Topology& t) {
     topologies.push_back(t);
 }
 
@@ -47,7 +47,7 @@ void Factbase::add_topology(const Topology& t) const {
 //
 //}
 
-void Factbase::print(void) {
+void Factbase::print(void) const {
     for(auto& q : qualities) {
         q.print();
     }

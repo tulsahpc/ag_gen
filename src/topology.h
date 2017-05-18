@@ -13,13 +13,13 @@ class Topology {
 public:
     Topology(int f_asset, int t_asset, std::string opt);
 
-    int get_from_asset_id(void);
-    int get_to_asset_id(void);
-    std::string get_options(void);
+    int get_from_asset_id(void) const;
+    int get_to_asset_id(void) const;
+    std::string get_options(void) const;
     bool operator==(const Topology& rhs) const;
-    void print(void);
+    void print(void) const;
 
-    static std::vector<Topology> fetch_all(void);
+    static std::vector<const Topology> fetch_all(void);
 };
 
 #endif //AG_GEN_TOPOLOGY_H

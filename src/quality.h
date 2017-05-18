@@ -25,7 +25,7 @@ public:
     Quality(int assetId, const std::string &qualName, const std::string &qualValue);
     const std::string get_name(void) const;
 
-    void print(void);
+    void print(void) const;
     int encoded(void);
     bool operator==(const Quality &rhs) const;
 
