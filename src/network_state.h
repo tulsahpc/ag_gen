@@ -15,12 +15,12 @@ public:
     NetworkState(const NetworkState& ns): factbase(const_cast<NetworkState&>(ns).get_factbase()) {};
 
     // get_factbase returns the factbase of a NetworkState
-    Factbase& get_factbase(void) {
+    const Factbase& get_factbase(void) const {
         return factbase;
     };
 
     // print prints the factbase of the NetworkState by calling on factbase's print method
-    void print(void) {
+    void print(void) const {
         factbase.print();
     };
 };

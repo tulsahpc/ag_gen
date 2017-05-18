@@ -7,19 +7,19 @@
 #include "topology.h"
 
 class Factbase {
-	std::vector<Quality> qualities;
-	std::vector<Topology> topologies;
+	std::vector<const Quality> qualities;
+	std::vector<const Topology> topologies;
 public:
 	Factbase(void);
-	Factbase(Factbase&);
+	Factbase(const Factbase&);
 
-	bool find_quality(Quality&);
-	void add_quality(Quality&);
+	bool find_quality(const Quality&) const;
+	void add_quality(const Quality&);
 
-	bool find_topology(Topology&);
-	void add_topology(Topology&);
+	bool find_topology(const Topology&) const;
+	void add_topology(const Topology&);
 
-    void print(void);
+    void print(void) const;
 };
 
 #endif

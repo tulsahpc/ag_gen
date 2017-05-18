@@ -11,7 +11,7 @@ using namespace std;
 
 Quality::Quality(int asset, const string &qualName, const string &qualValue) : asset_id(asset), name(qualName), value(qualValue) {}
 
-string Quality::get_name() {
+const string Quality::get_name() const {
 	return name;
 }
 
@@ -23,12 +23,12 @@ int Quality::encoded() {
 	return qual.enc;
 }
 
-void Quality::print() {
+void Quality::print() const {
     std::cout << to_string(asset_id) + ": " + name + " => " + value << std::endl;
 }
 
-vector<Quality> Quality::fetch_all() {
-	vector<Quality> qualities;
+vector<const Quality> Quality::fetch_all(void) {
+	vector<const Quality> qualities;
 
 	PGresult *res;
 	int num_rows;
@@ -47,7 +47,7 @@ vector<Quality> Quality::fetch_all() {
 		string property = PQgetvalue(res, i, 1);
 		string value = PQgetvalue(res, i, 2);
 
-		Quality qual(asset_id, property, value);
+		const Quality qual(asset_id, property, value);
 		qualities.push_back(qual);
 	}
 
@@ -99,7 +99,7 @@ vector<string> Quality::fetch_all_values() {
 	return vals;
 }
 
-bool Quality::operator==(const Quality& rhs) {
+bool Quality::operator==(const Quality& rhs) const {
 	if(this->asset_id != rhs.asset_id)
 		return false;
 	if(this->name != rhs.name)

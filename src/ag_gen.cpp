@@ -5,9 +5,6 @@
 #include <vector>
 
 #include "ag_gen.h"
-#include "network_state.h"
-
-#include "util_common.h"
 #include "util_odometer.h"
 
 #ifdef DEBUG_BUILD
@@ -49,13 +46,14 @@ void AGGen::generate(void) {
             auto topologies = get<1>(postconditions);
 
             NetworkState new_state = next_state;
+            auto factbase = new_state.get_factbase();
 
             for (auto &qual : qualities) {
-                new_state.get_factbase().add_quality(qual);
+                factbase.add_quality(qual);
             }
 
             for (auto &topo : topologies) {
-                new_state.get_factbase().add_topology(topo);
+                factbase.add_topology(topo);
             }
 
             new_states.push_back(new_state);
