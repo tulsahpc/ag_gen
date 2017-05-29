@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <iomanip>
 
 #include "ag_gen.h"
 #include "util_odometer.h"
@@ -35,6 +36,11 @@ void AGGen::generate(void) {
     while(!this->frontier.empty()) {
         NetworkState next_state = this->frontier.back();
 
+        auto current_factbase = next_state.get_factbase();
+        auto current_factbase_hash = FactbaseHash{}(current_factbase);
+
+//        cout << hex << current_factbase_hash << endl;
+
         this->frontier.pop_back();
         auto appl_exploits = check_exploits(next_state);
 
@@ -48,6 +54,9 @@ void AGGen::generate(void) {
             NetworkState new_state = next_state;
             auto factbase = new_state.get_factbase();
 
+//            auto hash = FactbaseHash{}(factbase);
+//            cout << hex << hash << endl;
+
             for (auto &qual : qualities) {
                 factbase.add_quality(qual);
             }
@@ -56,14 +65,17 @@ void AGGen::generate(void) {
                 factbase.add_topology(topo);
             }
 
+//            size_t hash2 = FactbaseHash{}(factbase);
+//            cout << std::hex << hash2 << endl << endl;
+
             new_states.push_back(new_state);
 //            this->frontier.push_back(new_state);
         }
     }
 
-    for(auto& state : new_states) {
-        state.print();
-    }
+//    for(auto& state : new_states) {
+//        state.print();
+//    }
 }
 
 // check_exploits takes a given NetworkState and returns a vector containing the exploits and corresponding
@@ -171,4 +183,4 @@ tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(tuple<Expl
     }
 
     return make_tuple(postconds_q, postconds_t);
-}f
+}

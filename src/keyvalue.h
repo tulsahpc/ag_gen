@@ -61,16 +61,6 @@ public:
     int length() {
         return size;
     }
-    
-private:
-    typedef std::vector<std::string> StringList;
-    StringList strs;
-public:
-    typedef StringList::iterator iterator;
-    typedef StringList::const_iterator const_iterator;
-    
-    iterator begin() {return strs.begin(); }
-    iterator end() {return strs.end(); }
 };
 
 #endif //KEYVALUE_HPP

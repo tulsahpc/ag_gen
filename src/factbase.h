@@ -2,9 +2,14 @@
 #define FACTBASE_HPP
 
 #include <vector>
+#include <functional>
+#include <cstdint>
 
 #include "quality.h"
 #include "topology.h"
+
+class Factbase;
+struct FactbaseHash;
 
 class Factbase {
 	std::vector<const Quality> qualities;
@@ -20,6 +25,30 @@ public:
 	void add_topology(const Topology&);
 
     void print(void) const;
+
+    friend struct FactbaseHash;
+};
+
+struct FactbaseHash {
+    size_t combine(size_t seed) const {
+//        std::cout << "build in hash: " << std::hash<size_t>{}(seed) << std::endl;
+        seed ^= std::hash<size_t>{}(seed) +
+                0x9e3779b97f4a7c15 +
+                (seed << 6) +
+                (seed >> 2);
+        return seed;
+    }
+
+    size_t operator()(const Factbase& fb) const {
+//        size_t hash = 0xf848b64e; // Random seed value
+        size_t hash = 0x0c32a12fe19d2119;
+        for(auto& qual : fb.qualities) {
+            EncodedQuality encoded = qual.encode();
+            std::cout << encoded.enc << std::endl;
+            hash ^= combine(encoded.enc);
+        }
+        return hash;
+    }
 };
 
 #endif

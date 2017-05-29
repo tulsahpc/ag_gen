@@ -15,12 +15,19 @@ const string Quality::get_name() const {
 	return name;
 }
 
-int Quality::encoded() {
+EncodedQuality Quality::encode(void) const {
+    vector<string> attrs = fetch_all_attributes();
+    vector<string> vals = fetch_all_values();
+
+    Keyvalue<string> attrs_kv(attrs);
+    Keyvalue<string> vals_kv(vals);
+
 	EncodedQuality qual;
-	// qual.dec.asset_id = asset_id;
-	// qual.dec.attr = generator.attrs[name];
-	// qual.dec.val = generator.vals[value];
-	return qual.enc;
+    qual.dec.asset_id = asset_id;
+    qual.dec.attr = attrs_kv[name];
+    qual.dec.val = vals_kv[value];
+
+	return qual;
 }
 
 void Quality::print() const {
