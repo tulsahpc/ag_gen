@@ -171,4 +171,4 @@ tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(tuple<Expl
     }
 
     return make_tuple(postconds_q, postconds_t);
-}f
+}
