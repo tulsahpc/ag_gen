@@ -10,13 +10,20 @@
 #include "assetgroup.h"
 #include "network_state.h"
 
+class AttackNode {
+    const Factbase& fb;
+    std::vector<AttackNode> children;
+public:
+    AttackNode(const Factbase& ifb): fb(ifb) {};
+};
+
 class AGGen {
     Keyvalue<Asset> assets;
     Keyvalue<std::string> attrs;
     Keyvalue<std::string> vals;
 
-    NetworkState& current_state;
     std::vector<NetworkState> frontier;
+    std::vector<size_t> hash_list;
 
     std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(NetworkState&);
     bool check_assetgroup(NetworkState&, AssetGroup&);

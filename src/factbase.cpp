@@ -52,3 +52,8 @@ void Factbase::print(void) const {
         t.print();
     }
 }
+
+size_t Factbase::hash(const Factbase& fb) {
+    auto hash = FactbaseHash{}(fb);
+    return hash;
+}

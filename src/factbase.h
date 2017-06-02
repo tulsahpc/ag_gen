@@ -26,12 +26,13 @@ public:
 
     void print(void) const;
 
+    static size_t hash(const Factbase&);
+
     friend struct FactbaseHash;
 };
 
 struct FactbaseHash {
     size_t combine(size_t seed) const {
-//        std::cout << "build in hash: " << std::hash<size_t>{}(seed) << std::endl;
         seed ^= std::hash<size_t>{}(seed) +
                 0x9e3779b97f4a7c15 +
                 (seed << 6) +
@@ -44,7 +45,6 @@ struct FactbaseHash {
         size_t hash = 0x0c32a12fe19d2119;
         for(auto& qual : fb.qualities) {
             EncodedQuality encoded = qual.encode();
-            std::cout << encoded.enc << std::endl;
             hash ^= combine(encoded.enc);
         }
         return hash;

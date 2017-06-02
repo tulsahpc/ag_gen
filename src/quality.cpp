@@ -27,6 +27,8 @@ EncodedQuality Quality::encode(void) const {
     qual.dec.attr = attrs_kv[name];
     qual.dec.val = vals_kv[value];
 
+//    cout << asset_id << " " << attrs_kv[name] << " " << vals_kv[value] << " - " << qual.enc << endl;
+
 	return qual;
 }
 
