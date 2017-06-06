@@ -1,0 +1,28 @@
+%{
+#include "../../src/"
+%}
+
+%token NETWORK MODEL EQ ASSETS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY;
+%token <std::string> IDENTIFIER;
+
+%type <NetworkState> root;
+%type <vector<Asset>> assetlist;
+
+%%
+
+root: NETWORK MODEL EQ ASSETS COLON assetlist FACTS COLON factlist PERIOD { $$ = NetworkState(); }
+;
+
+assetlist: assetlist IDENTIFIER SEMI {  }
+| {}
+;
+
+factlist: factlist fact {}
+| {}
+;
+
+fact: QUALITY COLON IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER SEMI {}
+| TOPOLOGY COLON IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER SEMI {}
+;
+
+%%
