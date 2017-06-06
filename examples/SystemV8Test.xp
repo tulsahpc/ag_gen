@@ -1,0 +1,88 @@
+global exploit backupPowerOn(building,backup,system)=
+	priority=2;#needs to be higher than systems turning off
+	preconditions:
+		#Voltage is currently at a standard range
+		quality:backup,platform=backupPower;
+		topology:building->backup,power<114;#Trigger when backup can't charge
+		topology:backup->system,power<114;
+		quality:backup,chargeLevel>0;
+		quality:backup,status=ok;
+	postconditions:
+		update topology:backup->system,power:=120;
+.
+
+# global exploit backupPowerChargeLoss(building,backup,system)=
+	# preconditions:
+		# #Voltage is currently at a standard range
+		# quality:backup,platform=backupPower;
+		# topology:building->backup,power<114;#Trigger when backup can't charge
+		# topology:backup->system,power>=114;
+		# quality:backup,chargeLevel>0;
+		# quality:backup,status=ok;
+	# postconditions:
+		# update quality:backup,chargeLevel-=0.05;
+# .
+
+# global exploit powerRestored(building,backup,system)=
+	# preconditions:
+		# #Voltage is currently at a standard range
+		# quality:backup,platform=backupPower;
+		# topology:building->backup,power>=114;#Trigger when backup can charge
+		# topology:backup->system,power>=114;
+		# quality:backup,status=ok;
+	# postconditions:
+		# update topology:backup->system,power:=0;
+# .
+
+# exploit rechargeBackup(building,backup)=
+	# preconditions:
+		# #Voltage is currently at a standard range
+		# quality:backup,platform=backupPower;
+		# topology:building->backup,power>=114;#Trigger when backup can charge
+		# quality:backup,chargeLevel<1;
+		# quality:backup,status=ok;
+	# postconditions:
+		# update quality:backup,chargeLevel:=1;
+# .
+
+global group(powerLoss) exploit sensorPowerLoss(phys,sensor)=
+	preconditions:
+		quality:phys,platform=physical;
+		quality:phys,buildingPower=on;
+		
+		#Voltage is currently at a standard range
+		topology:phys->sensor,power<126;
+		topology:phys->sensor,power>=114;
+		#after the topology, this is basically a formality
+		
+		
+		quality:sensor,platform!=controlRodController;
+		
+		#These pretty much have the same behavior
+		#quality:sensor,platform!=operatorStation;
+		#quality:sensor,platform!=scramUnit;
+		#quality:sensor,platform!=controlSystemRecorder;
+		
+	postconditions:
+		update quality:phys,buildingPower=off;
+		update quality:sensor,powerStatus=off;
+		update topology:phys->sensor,power:=0;
+.
+
+global group(powerLoss) exploit controlRodPowerLoss(phys,crc)=
+	preconditions:
+		quality:phys,platform=physical;
+		quality:phys,buildingPower=on;
+		
+		#Voltage is currently at a standard range
+		topology:phys->crc,power<=126;
+		topology:phys->crc,power>=114;
+		
+		
+		quality:crc,platform=controlRodController;
+	postconditions:
+		update quality:phys,buildingPower=off;
+		update quality:crc,powerStatus=off;
+		update quality:crc,emagPower=off;
+		update topology:phys->crc,power:=0;
+.

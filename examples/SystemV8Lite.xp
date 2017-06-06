@@ -1,0 +1,1300 @@
+#There seems to be little way to verify that everything is correctly typed here.
+#Syntax and logical errors only seem to be reported once an exploit is attempted
+#(All preconditions met,so bad preconditions cannot be determined)
+
+#I additionally could use tools which check that no topology exists for certian elements.
+#Wildcards would help here as well.
+#Ex. sensor!->_,power; could mean that the sensor had no topology sensor->[anything],power
+#Allowing wildcards on the left would be helpful, but likely more difficult to verify
+
+#Additionally, allowing global variables (qualities) would be helpful,
+#paricluarly if they could be accessed by any exploit without extra searching.
+
+#List of status values:ok,compromised,off
+
+
+#Even more streamlined
+#This can be commented out or changed to make the attack graphs manageable
+exploit spoofTempSensor(a)=
+	preconditions:
+        quality:a,platform!=physical;
+		quality:a,platform!=controlBlade;
+		quality:a,platform!=pulseControlRod;
+		quality:a,platform!=unknownScramInput;#not enough info on these systems yet
+		quality:a,platform=tempSensor;#to limit size
+		quality:a,status=ok;
+    postconditions:
+        update quality:a,status=compromised;
+.
+
+exploit spoofSeismicSensor(a)=
+	preconditions:
+        quality:a,platform!=physical;
+		quality:a,platform!=controlBlade;
+		quality:a,platform!=pulseControlRod;
+		quality:a,platform!=unknownScramInput;#not enough info on these systems yet
+		quality:a,platform=seismicSensor;#to limit size
+		quality:a,status=ok;
+    postconditions:
+        update quality:a,status=compromised;
+.
+
+#Reactive/normal behavior first
+
+# exploit closeAirSupplyValve(airSupply)=
+	# preconditions:
+		# quality:airSupply,platform=airCompressor;
+		# quality:airSupply,status=ok;
+		# quality:airSupply,powerStatus=on;
+		# quality:airSupply,ctValve=open;
+		# quality:airSupply,tankPressure>20;#Arbitrary
+	# postconditions:
+		# update quality:airSupply,ctValve=closed;
+# .
+
+global exploit earthquake(phys,sensor)=
+	preconditions:
+		quality:phys,platform=physical;
+		#really just need to check that this quality exists
+		quality:phys,seismicActivity<.0061;#below scram levels
+		quality:sensor,platform=seismicSensor;
+		quality:sensor,status=ok;
+		topology:phys<->sensor,physical;
+	postconditions:
+		update quality:phys,seismicActivity:=.007;
+		update quality:sensor,magnitude:=.007;
+.
+
+#Backup Power Exploits/Behavior
+#These have been problematic for the tool, can topologies have real values?
+# global exploit backupPowerOn(building,backup,system)=
+	# priority=2;#needs to be higher than systems turning off
+	# preconditions:
+		# #Voltage is currently at a standard range
+		# quality:backup,platform=backupPower;
+		# topology:building->backup,power<114;#Trigger when backup can't charge
+		# topology:backup->system,power<114;
+		# quality:backup,chargeLevel>0;
+		# quality:backup,status=ok;
+	# postconditions:
+		# update topology:backup->system,power:=120;
+# .
+
+# global exploit backupPowerChargeLoss(building,backup,system)=
+	# preconditions:
+		# #Voltage is currently at a standard range
+		# quality:backup,platform=backupPower;
+		# topology:building->backup,power<114;#Trigger when backup can't charge
+		# topology:backup->system,power>=114;
+		# quality:backup,chargeLevel>0;
+		# quality:backup,status=ok;
+	# postconditions:
+		# update quality:backup,chargeLevel-=0.05;
+# .
+
+# #Turns off backup power
+# global exploit powerRestored(building,backup,system)=
+	# preconditions:
+		# #Voltage is currently at a standard range
+		# quality:backup,platform=backupPower;
+		# topology:building->backup,power>=114;#Trigger when backup can charge
+		# topology:backup->system,power>=114;
+		# quality:backup,status=ok;
+	# postconditions:
+		# update topology:backup->system,power:=0;
+# .
+
+# exploit rechargeBackup(building,backup)=
+	# preconditions:
+		# #Voltage is currently at a standard range
+		# quality:backup,platform=backupPower;
+		# topology:building->backup,power>=114;#Trigger when backup can charge
+		# quality:backup,chargeLevel<1;
+		# quality:backup,status=ok;
+	# postconditions:
+		# update quality:backup,chargeLevel:=1;
+# .
+
+
+#Normal movement of control blades
+#*********DOES NOT UPDATE POWER/TEMPERATURE************
+# global group(moveRodsUp) exploit moveControlBladeUp1(crc, blade, operator)=
+	# preconditions:
+		# quality: crc, platform=controlRodController;
+		# quality: blade, platform=controlBlade;
+		# quality: operator, platform=operatorStation;
+		
+		# quality: crc, status=ok;
+		# quality: crc, powerStatus=on;
+		# quality: crc, emagPower=on;
+		
+		# quality: blade, actualPosition<15; #*******ARBITRARY max position****
+		# quality: blade, motorStatus=ok;
+		# topology: blade->crc, subcomponent;
+		
+		# quality: operator, operationMode!=test;
+		# quality: operator, operationMode!=rundown;
+	# postconditions:
+		# update quality: blade, actualPosition+=.5;
+		# update quality: blade, reportedPosition+=.5;
+# .
+# #Same as above, but for pulse control rod, with a different platform
+# global group(moveRodsUp) exploit moveControlBladeUp2(crc, blade, operator)=
+	# preconditions:
+		# quality: crc, platform=controlRodController;
+		# quality: blade, platform=pulseControlRod;
+		# quality: operator, platform=operatorStation;
+		
+		# quality: crc, status=ok;
+		# quality: crc, powerStatus=on;
+		# quality: crc, emagPower=on;
+		
+		# quality: blade, actualPosition<15; #*******ARBITRARY max position****
+		# quality: blade, motorStatus=ok;
+		# topology: blade->crc, subcomponent;
+		
+		# quality: operator, operationMode!=test;
+		# quality: operator, operationMode!=rundown;
+	# postconditions:
+		# update quality: blade, actualPosition+=.5;
+		# update quality: blade, cylinderPosition+=.5;
+		# update quality: blade, reportedPosition+=.5;
+# .
+
+# #*********DOES NOT UPDATE POWER/TEMPERATURE************
+# global group(moveRodsDown) exploit moveControlBladeDown1(crc, blade)=
+	# preconditions:
+		# quality: crc, platform=controlRodController;
+		# quality: blade, platform=controlBlade;
+		
+		# quality: crc, status=ok;
+		# quality: crc, powerStatus=on;
+		# quality: crc, emagPower=on;
+		
+		# quality: blade, actualPosition<15; #*******ARBITRARY max position****
+		# quality: blade, motorStatus=ok;
+		
+	# postconditions:
+		# update quality: blade, actualPosition-=.5;
+		# update quality: blade, reportedPosition-=.5;
+# .
+# #Same as above, but for pulse control rod, with a different platform
+# global group(moveRodsDown) exploit moveControlBladeDown2(crc, blade)=
+	# preconditions:
+		# quality: crc, platform=controlRodController;
+		# quality: blade, platform=pulseControlRod;
+		
+		# quality: crc, status=ok;
+		# quality: crc, powerStatus=on;
+		# quality: crc, emagPower=on;
+		
+		# quality: blade, actualPosition<15; #*******ARBITRARY max position****
+		# quality: blade, motorStatus=ok;
+	# postconditions:
+		# update quality: blade, actualPosition-=.5;
+		# update quality: blade, cylinderPosition-=.5;
+		# update quality: blade, reportedPosition-=.5;
+# .
+
+#Changing operation modes normally
+# exploit changeOperationModeManual(scram, operator)=
+	# preconditions:
+		# quality: scram, platform=scramUnit;
+		# quality: operator, platform=operatorStation;
+		
+		# quality: scram, status=ok;
+		# quality: scram, powerStatus=on;
+		
+		# quality: operator, status=ok;
+		# quality: operator, powerStatus=on;
+		
+		# topology: operator->scram, connected_modbus_slave;
+		# topology: scram->operator, connected_modbus_master;
+	# postconditions:
+		# update quality: operator, operationMode=manual;
+		# update quality: scram, mode=manual;
+# .
+
+# exploit changeOperationModePulse(scram, operator)=
+	# preconditions:
+		# quality: scram, platform=scramUnit;
+		# quality: operator, platform=operatorStation;
+		
+		# quality: scram, status=ok;
+		# quality: scram, powerStatus=on;
+		
+		# quality: operator, status=ok;
+		# quality: operator, powerStatus=on;
+		
+		# topology: operator->scram, connected_modbus_slave;
+		# topology: scram->operator, connected_modbus_master;
+	# postconditions:
+		# update quality: operator, operationMode=pulse;
+		# update quality: scram, mode=pulse;
+# .
+
+# exploit changeOperationModeRundown(scram, operator)=
+	# preconditions:
+		# quality: scram, platform=scramUnit;
+		# quality: operator, platform=operatorStation;
+		
+		# quality: scram, status=ok;
+		# quality: scram, powerStatus=on;
+		
+		# quality: operator, status=ok;
+		# quality: operator, powerStatus=on;
+		
+		# topology: operator->scram, connected_modbus_slave;
+		# topology: scram->operator, connected_modbus_master;
+	# postconditions:
+		# update quality: operator, operationMode=rundown;
+		# update quality: scram, mode=rundown;
+# .
+
+# exploit changeOperationModeTest(scram, operator, crc)=
+	# preconditions:
+		# quality: scram, platform=scramUnit;
+		# quality: operator, platform=operatorStation;
+		# quality: crc, platform=controlRodController;
+		
+		# quality: scram, status=ok;
+		# quality: scram, powerStatus=on;
+		
+		# quality: operator, status=ok;
+		# quality: operator, powerStatus=on;
+		
+		# quality: crc, powerStatus=on;
+		# quality: crc, emagPower=off;
+		
+		# topology: operator->scram, connected_modbus_slave;
+		# topology: scram->operator, connected_modbus_master;
+		# topology:operator->crc,connected_modbus_master;
+		# topology:crc->operator,connected_modbus_slave;
+	# postconditions:
+		# update quality: operator, operationMode=test;
+		# update quality: scram, mode=test;
+# .
+
+#Ventilation system 
+# exploit CAMAlarmDilute(CAM, ventCon)=
+	# priority=1;#TBD
+	# preconditions:
+		# quality: CAM, platform=CAM;
+		# quality: ventCon, platform=ventilationController;
+		
+		# quality: CAM, powerStatus=on;
+		# quality: CAM, airborneRadiation=high;
+		
+		# quality: ventCon, status=ok;
+		# quality: ventCon, powerStatus=on;
+		# quality: ventCon, mode!=dilute;
+		
+		# topology:CAM->ventCon,connected_modbus_slave;
+		# topology:ventCon->CAM,connected_modbus_master;
+	# postconditions:
+		# update quality: ventCon, mode=dilute;
+# .
+# #No way to update other fans and such....?
+
+# #System Off
+# exploit diffuserLeak1(diffuser, airRad)=
+	# priority=1;#TBD
+	# preconditions:
+		# quality: diffuser, platform=diffuser;
+		# quality: airRad, platform=physical;
+		
+		# quality: diffuser, powerStatus=off;
+		# quality: airRad, N16_level<100;#*******ARBITRARY
+		
+	# postconditions:
+		# update quality: airRad, N16_level:=100;#*******ARBITRARY
+# .
+# #System Compromised
+# exploit diffuserLeak2(diffuser, airRad)=
+	# priority=1;#TBD
+	# preconditions:
+		# quality: diffuser, platform=diffuser;
+		# quality: airRad, platform=physical;
+		
+		# quality: diffuser, status=compromised;
+		# quality: airRad, N16_level<100;#*******ARBITRARY
+		
+	# postconditions:
+		# update quality: airRad, N16_level:=100;#*******ARBITRARY
+# .
+
+# exploit updateAreaMonitoringSystem(ams, airRad)=
+	# priority=3;#TBD
+	# preconditions:
+		# quality: ams, platform=N16Detector;
+		# quality: airRad, platform=physical;
+		
+		# quality: ams, powerStatus=ok;
+		# quality: ams, status=ok;
+		# quality: ams, N16_level<>airRad.N16_level;
+		
+		# topology:airRad<->ams,physical;
+		
+	# postconditions:
+		# update quality: ams, N16_level:=airRad.N16_level;
+# .
+
+# #Does this do anything else?!!*****************************
+# exploit areaMonitoringSystemAlarm(ams, evacAlarm)=
+	# priority=1;#TBD
+	# preconditions:
+		# quality: ams, platform=N16Detector;
+		# quality: evacAlarm, platform=evacuationAlarm;
+		
+		# quality:evacAlarm,powerStatus=on;
+		# quality:ams,status=ok;
+		# quality:ams,powerStatus=on;
+		# quality:ams,N16_level>10;#**************ARBITRARY
+		
+		# topology:evacAlarm->ams,connected_modbus_master;
+		# topology:ams->evacAlarm,connected_modbus_slave;
+		
+	# postconditions:
+		# update quality:evacAlarm,activated=true;
+# .
+
+#*************************Missing startReactor!!!**************
+
+
+#Air Pulse Group
+# global group (airPulse) exploit pressurizeAirTank(airSupply)=
+	# preconditions:
+		# quality:airSupply,platform=buildingCompressedAir;
+		
+		# quality:airSupply,status=ok;
+		# quality:airSupply,powerStatus=on;
+		# quality:airSupply,compressor=on;
+		# quality:airSupply,ctValve=open;
+		# quality:airSupply,tankPressure<50;#******Arbitrary maximum
+	# postconditions:
+		# update quality:airSupply,tankPressure+=5;#******Arbitrary
+# .
+
+# global group (airPulse) exploit pulseControlRod(airSupply,pulseRod)=
+	# preconditions:
+		# quality:airSupply,platform=buildingCompressedAir;
+		# quality:airSupply,tankPressure>5;#******Arbitrary
+		# quality:pulseRod,platform=pulseControlRod;
+		# topology:airSupply->pulseRod,pneumatic_open;
+	# postconditions:
+		# update quality:pulseRod,actualPosition:=15;#******Arbitrary
+		# update quality:pulseRod,pulsed=true;
+		# update quality:airSupply,tankPressure-=5;#******Arbitrary
+# .
+# #Pnematic Valve Closed
+# global group (airPulse) exploit pulseControlRodFall1(airSupply,pulseRod)=
+	# priority=1; #TBD
+	# preconditions:
+		# quality:airSupply,platform=buildingCompressedAir;
+		# quality:pulseRod,platform=pulseControlRod;
+		
+		# topology:airSupply->pulseRod,pneumatic_closed;
+	# postconditions:
+		# update quality:pulseRod,actualPosition:=pulseRod.cylinerPosition;
+		# update quality:pulseRod,pulsed=false;
+# .
+# #Pnematic Valve opened, low pressure
+# global group (airPulse) exploit pulseControlRodFall2(airSupply,pulseRod)=
+	# priority=1; #TBD
+	# preconditions:
+		# quality:airSupply,platform=buildingCompressedAir;
+		# quality:airSupply,tankPressure<5;#******Arbitrary
+		
+		# quality:pulseRod,platform=pulseControlRod;
+		# topology:airSupply->pulseRod,pneumatic_open;
+	# postconditions:
+		# update quality:pulseRod,actualPosition:=pulseRod.cylinerPosition;
+		# update quality:pulseRod,pulsed=false;
+# .
+
+#Time 1 Automatic Scram Group (Priority 3)
+#Automatic Scram activations have Scram in the exploit name.
+#These may need bidirectional topologies for preconditions
+#Scrams are fast. They are given the time1 group
+global group(time1) exploit tempScram(sensor,scram)=
+    priority=3;
+	preconditions:
+        quality:sensor,platform=tempSensor;
+		quality:sensor,powerStatus=on;
+        quality:sensor,temp>500;
+		
+		quality:scram,platform=scramUnit;
+		quality:scram,status=ok;
+		quality:scram,powerStatus=on;
+		
+		topology: sensor->scram,connected_modbus_slave;
+		topology: scram->sensor,connected_modbus_master;
+    postconditions:
+        update quality:scram,activated=true;
+.
+
+global group(time1) exploit seismicScram(sensor,scram)=
+	priority=3;
+	preconditions:
+		quality:sensor,platform=seismicSensor;
+		quality:sensor,powerStatus=on;
+		quality:sensor,magnitude>.0061;
+		
+		quality:scram,platform=scramUnit;
+		quality:scram,status=ok;
+		quality:scram,powerStatus=on;
+		
+		topology: sensor->scram,connected_modbus_slave;
+		topology: scram->sensor,connected_modbus_master;
+	postconditions:
+		update quality:scram,activated=true;
+.
+
+# global group(time1) exploit highFluxScram(sensor,scram)=
+	# priority=3;
+	# preconditions:
+		# quality:sensor,platform=fluxMonitor;
+		# quality:sensor,powerStatus=on;
+		# quality:sensor,alarmActivated=true;
+		
+		# quality:scram,platform=scramUnit;
+		# quality:scram,mode!=pulse;
+		# quality:scram,status=ok;
+		# quality:scram,powerStatus=on;
+		
+		# topology: sensor->scram,connected_modbus_slave;
+		# topology: scram->sensor,connected_modbus_master;
+	# postconditions:
+		# update quality:scram,activated=true;
+# .
+
+# global group(time1) exploit buildingEvacScram(evacAlarm,scram)=
+	# priority=3;
+	# preconditions:
+		# quality:evacAlarm,platform=evacuationAlarm;
+		# quality:evacAlarm,activated=true;
+		# quality:evacAlarm,powerStatus=on;
+		
+		# quality:scram,platform=scramUnit;
+		# quality:scram,status=ok;
+		# quality:scram,powerStatus=on;
+		
+		# topology: evacAlarm->scram,connected_modbus_slave;
+		# topology: scram->evacAlarm,connected_modbus_master;
+	# postconditions:
+		# update quality:scram,activated=true;
+# .
+
+# global group(time1) exploit manualBeamRoomScram(beamRoom,scram)=
+	# priority=3;
+	# preconditions:
+		# quality:beamRoom,platform=scramInput;
+		# quality:beamRoom,activated=true;
+		# quality:beamRoom,powerStatus=on;
+		
+		# quality:scram,platform=scramUnit;
+		# quality:scram,status=ok;
+		# quality:scram,powerStatus=on;
+		
+		# topology: beamRoom->scram,connected_modbus_slave;
+		# topology: scram->beamRoom,connected_modbus_master;
+	# postconditions:
+		# update quality:scram,activated=true;
+# .
+
+# global group(time1) exploit manualScram(operator,scram)=
+	# priority=3;
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# quality:operator,manualScram=true;
+		# quality:operator,powerStatus=on;
+		
+		# quality:scram,platform=scramUnit;
+		# quality:scram,status=ok;
+		# quality:scram,powerStatus=on;
+		
+		# topology:operator->scram,connected_modbus_slave;
+		# topology:scram->operator,connected_modbus_master;
+	# postconditions:
+		# update quality:scram,activated=true;
+# .
+
+# global group(time1) exploit HVSensorScram(sensor,scram)=
+	# priority=3;
+	# preconditions:
+		# quality:sensor,platform=HVSensor;
+		# quality:sensor,activated=true;
+		# quality:sensor,powerStatus=on;
+		
+		# quality:scram,platform=scramUnit;
+		# quality:scram,status=ok;
+		# quality:scram,powerStatus=on;
+		
+		# topology: sensor->scram,connected_modbus_slave;
+		# topology: scram->sensor,connected_modbus_master;
+	# postconditions:
+		# update quality:scram,activated=true;
+# .
+
+#actually doing the scram
+#Putting this in the same time-step as the scram triggering seems like it allows some unnessesary steps
+global group(time1) exploit executeScram(crc,scram)=
+    priority=3;
+	preconditions:
+        quality:crc,platform=controlRodController;
+		quality:scram,platform=scramUnit;
+		quality:scram,status=ok;
+		quality:scram,activated=true;
+		topology: scram->crc,connected_emag_power;
+    postconditions:
+        update quality:crc,emagPower=off;
+		delete topology:scram->crc,connected_emag_power;
+.
+#Finishes perfoming the scram by dropping blades into the reactor
+#***********Does NOT account for blade 5 being unscrammable.
+# (This is 3 steps?!)
+global group(time1) exploit dropBlades1(crc, blade)=
+    priority=3;
+	preconditions:
+        quality:crc,platform=controlRodController;
+		quality:blade,platform=controlBlade;
+		
+		quality:crc,emagPower=off;
+		
+		topology:blade->crc,subcomponent;
+    postconditions:
+        update quality:blade,actualPosition:=0;
+		#Should reported position be updated?
+.
+
+global group(time1) exploit dropBlades2(crc, blade)=
+    priority=3;
+	preconditions:
+        quality:crc,platform=controlRodController;
+		quality:blade,platform=pulseControlRod;
+		
+		quality:crc,emagPower=off;
+		
+		topology:blade->crc,subcomponent;
+    postconditions:
+        update quality:blade,actualPosition:=0;
+		#Should reported position be updated?
+.
+
+#Attempting to model operator's reactive behavior. All of these are called "Shutdown"
+#These are slower than scrams, and are in the group time2
+#Technically in the model they still activate a scram for simplicity at the moment.
+# global group(time2) exploit coolantLossShutdown(operator,sensor)=
+	# priority=2;
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# quality:operator,status=ok;
+		# quality:operator,powerStatus=on;
+		
+		# quality:sensor,platform=coolantLevelSensor;
+		# quality:sensor,powerStatus=on;
+		# quality:sensor,level<-8.0;
+		
+		# topology:sensor->operator,connected_modbus_slave;
+		# topology:operator->sensor,connected_modbus_master;
+	# postconditions:
+		# update quality:operator,manualScram=true;
+# .
+
+# global group(time2) exploit coolantTempShutdown(operator,sensor)=
+	# priority=2;
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# quality:operator,status=ok;
+		# quality:operator,powerStatus=on;
+		
+		# quality:sensor,platform=coolantTempSensor;
+		# quality:sensor,powerStatus=on;
+		# quality:sensor,temp>400;#*******Arbitrary
+		
+		# topology:sensor->operator,connected_modbus_slave;
+		# topology:operator->sensor,connected_modbus_master;
+	# postconditions:
+		# update quality:operator,manualScram=true;
+# .
+
+# global group(time2) exploit fuelTempShutdown(operator,sensor)=
+	# priority=2;
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# quality:operator,status=ok;
+		# quality:operator,powerStatus=on;
+		
+		# quality:sensor,platform=tempSensor;
+		# quality:sensor,temp>350;#*******Arbitrary
+		# quality:sensor,powerStatus=on;
+		
+		# topology:sensor->operator,connected_modbus_slave;
+		# topology:operator->sensor,connected_modbus_master;
+	# postconditions:
+		# update quality:operator,manualScram=true;
+# .
+
+#Not sure how to go about adding this one, flux vs power
+# global group(time2) exploit fluxLevelShutdown(operator,sensor)=
+	# priority=2;
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# quality:operator,status=ok;
+		# quality:operator,powerStatus=on;
+		
+		# quality:sensor,platform=powerSensor;
+		# quality:sensor,powerLevel>0.9;#*******Arbitrary
+		# quality:sensor,powerStatus=on;
+		
+		# topology:sensor->operator,connected_modbus_slave;
+		# topology:operator->sensor,connected_modbus_master;
+	# postconditions:
+		# update quality:operator,manualScram=true;
+# .
+
+# global group(time2) exploit CAMShutdown(operator,sensor)=
+	# priority=2;
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# quality:operator,status=ok;
+		# quality:operator,powerStatus=on;
+		
+		# quality:sensor,platform=CAM;
+		# quality:sensor,airborneFissionProducts=high;
+		# quality:sensor,powerStatus=on;
+		
+		# topology:sensor->operator,connected_modbus_slave;
+		# topology:operator->sensor,connected_modbus_master;
+	# postconditions:
+		# update quality:operator,manualScram=true;
+# .
+
+# global group(time2) exploit areaMonitoringSystemShutdown(operator,sensor)=
+	# priority=2;
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# quality:operator,status=ok;
+		# quality:operator,powerStatus=on;
+		
+		# quality:sensor,platform=N16Detector;
+		# quality:sensor,N16_level>10;#*************Arbitrary
+		# quality:sensor,powerStatus=on;
+		
+		# topology:sensor->operator,connected_modbus_slave;
+		# topology:operator->sensor,connected_modbus_master;
+	# postconditions:
+		# update quality:operator,manualScram=true;
+# .
+
+# global group(time2) exploit ventilationAirDetectorShutdown(operator,sensor)=
+	# priority=2;
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# quality:operator,status=ok;
+		# quality:operator,powerStatus=on;
+		
+		# quality:sensor,platform=Ar41Detector;
+		# quality:sensor,Ar41_level>10;#************Arbitrary
+		# quality:sensor,powerStatus=on;
+		
+		# topology:sensor->operator,connected_modbus_slave;
+		# topology:operator->sensor,connected_modbus_master;
+	# postconditions:
+		# update quality:operator,manualScram=true;
+# .
+
+# global group(time2) exploit coolantLeakShutdown(operator,sensor)=
+	# priority=2;
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# quality:operator,status=ok;
+		# quality:operator,powerStatus=on;
+		
+		# quality:sensor,platform=conductivitySensor;
+		# quality:sensor,leakDetected=true;
+		# quality:sensor,powerStatus=on;
+		
+		# topology:sensor->operator,connected_modbus_slave;
+		# topology:operator->sensor,connected_modbus_master;
+	# postconditions:
+		# update quality:operator,manualScram=true;
+# .
+
+#Building power loss is also more complicated, requiring a global group
+# global group(powerLoss) exploit sensorPowerLoss(phys,sensor)=
+	# preconditions:
+		# #Voltage is currently at a standard range
+		# topology:phys->sensor,power<=126;
+		# topology:phys->sensor,power>=114;
+		# #after the topology, this is basically a formality
+		# quality:phys,platform=physical;
+		# quality:phys,buildingPower=on;
+		# quality:sensor,platform!=controlRodController;
+		
+		# #These pretty much have the same behavior
+		# #quality:sensor,platform!=operatorStation;
+		# #quality:sensor,platform!=scramUnit;
+		# #quality:sensor,platform!=controlSystemRecorder;
+		
+	# postconditions:
+		# update quality:phys,buildingPower=off;
+		# update quality:sensor,powerStatus=off;
+		# update topology:phys->sensor,power:=0;
+# .
+
+# global group(powerLoss) exploit controlRodPowerLoss(phys,crc)=
+	# preconditions:
+		# #Voltage is currently at a standard range
+		# topology:phys->crc,power<=126;
+		# topology:phys->crc,power>=114;
+		
+		# quality:phys,platform=physical;
+		# quality:phys,buildingPower=on;
+		# quality:crc,platform=controlRodController;
+	# postconditions:
+		# update quality:phys,buildingPower=off;
+		# update quality:crc,powerStatus=off;
+		# update quality:crc,emagPower=off;
+		# update topology:phys->crc,power:=0;
+# .
+
+#Actual Exploits Start Here
+
+
+#Miscalabrating a sensor probably can't be done while the reactor is on
+#Nor is it likely to hide more than a slight temperature change, 50 degrees
+#in these cases
+exploit miscalibrateTempSensorLow(sensor)=
+	preconditions:
+		quality:sensor,platform=tempSensor;
+		quality:sensor,calibration=normal;
+	postconditions:
+		update quality:sensor,calibration=low;
+		update quality:sensor,temp-=50;#Arbitrary
+.
+
+exploit miscalibrateTempSensorHigh(sensor)=
+	preconditions:
+		quality:sensor,platform=tempSensor;
+		quality:sensor,calibration=normal;
+	postconditions:
+		update quality:sensor,calibration=high;
+		update quality:sensor,temp+=50;#Arbitrary
+.
+
+# exploit miscalibrateTempSensorHighPowerBase(sensor, phys)=
+	# preconditions:
+		# quality:sensor,platform=tempSensor;
+		# quality:sensor,calibration=normal;
+		
+		# quality:phys,platform=physical;
+		
+		# topology:phys->sensor,power<114;
+
+	# postconditions:
+		# update quality:sensor,calibration=high;
+		# update quality:sensor,temp+=50;#Arbitrary
+# .
+
+#Tampering with sensor readings to scram-triggering levels
+#These assume the sensor has been hacked
+exploit incTempReading(sensor)=
+	priority=1;
+	preconditions:
+		quality:sensor,platform=tempSensor;
+		quality:sensor,status=compromised;
+	postconditions:
+		update quality:sensor,temp:=600;#Arbitrary above scram point
+.
+
+exploit incSeismicReading(sensor)=
+	preconditions:
+		quality:sensor,platform=seismicSensor;
+		quality:sensor,status=compromised;
+	postconditions:
+		update quality:sensor,magnitude:=.007;#Arbitrary above scram point
+.
+
+# exploit incPowerReading(sensor)=
+	# preconditions:
+		# quality:sensor,platform=powerSensor;
+		# quality:sensor,status=compromised;
+	# postconditions:
+		# update quality:sensor,powerLevel:=1.5;#Arbitrary above scram point
+# .
+
+# exploit incFluxReading(sensor)=
+	# preconditions:
+		# quality:sensor,platform=fluxMonitor;
+		# quality:sensor,status=compromised;
+	# postconditions:
+		# update quality:sensor,alarmActivated=true;
+# .
+
+# exploit triggerCAMAlarm(sensor)=
+    # preconditions:
+        # quality:sensor,platform=CAM;
+        # quality:sensor,status=compromised;
+		# #quality:sensor,airborneRadiation=low;
+    # postconditions:
+        # update quality:sensor,airborneRadiation=high;
+# .
+
+# exploit triggerN16Alarm(sensor)=
+    # preconditions:
+        # quality:sensor,platform=N16Detector;
+        # quality:sensor,status=compromised;
+		# #quality:sensor,N16_level<10;#*********ARBITRARY
+    # postconditions:
+        # update quality:sensor,N16_level:=15;#*********ARBITRARY
+# .
+
+# exploit triggerAr41Alarm(sensor)=
+    # preconditions:
+        # quality:sensor,platform=Ar41Detector;
+        # quality:sensor,status=compromised;
+		# #quality:sensor,Ar41_level<10;#*********ARBITRARY
+    # postconditions:
+         # update quality:sensor,Ar41_level:=15;#*********ARBITRARY
+# .
+
+# #Additional operator shutdown conditions
+# exploit decCoolantLevelReading(sensor)=
+	# preconditions:
+		# quality:sensor,platform=coolantLevelSensor;
+		# quality:sensor,status=compromised;
+	# postconditions:
+		# update quality:sensor,level:=-10;#Arbitrary below shutdown setpoint
+# .
+
+# exploit incCoolantTempReading(sensor)=
+	# preconditions:
+		# quality:sensor,platform=coolantTempSensor;
+		# quality:sensor,status=compromised;
+	# postconditions:
+		# update quality:sensor,temp:=600;#Arbitrary above shutdown setpoint
+# .
+
+# #Some things for the air supply
+# exploit lockAirSupplyValve(airSupply)=
+	# preconditions:
+		# quality:airSupply,platform=buildingCompressedAir;
+		# quality:airSupply,status=compromised;
+	# postconditions:
+		# update quality:airSupply,compressor=on;
+		# update quality:airSupply,ctValve=open;
+# .
+
+# #Control System Recorder exploits
+# exploit manipulateRecorder(csr)=
+	# preconditions:
+		# quality:csr,platform=controlSystemRecorder;
+		# quality:csr,status=compromised;
+	# postconditions:
+		# update quality:csr,dataValid=false;
+# .
+
+#DoS Attacks
+exploit dosScramSensorTrigger(sensor, scram)=
+	preconditions:
+		quality: scram,platform=scramUnit;
+		quality: sensor,platform!=operator;#TODO
+		topology: sensor->scram,connected_modbus_slave;
+		topology: scram->sensor,connected_modbus_master;
+	postconditions:
+		delete topology: sensor->scram,connected_modbus_slave;
+		delete topology: scram->sensor,connected_modbus_master;
+		update quality:scram,activated=true;
+.
+
+exploit dosScramSensorUntrigger(sensor, scram)=
+	preconditions:
+		quality: scram,platform=scramUnit;
+		quality: sensor,platform=operator;#TODO
+		topology: sensor->scram,connected_modbus_slave;
+		topology: scram->sensor,connected_modbus_master;
+	postconditions:
+		delete topology: sensor->scram,connected_modbus_slave;
+		delete topology: scram->sensor,connected_modbus_master;
+		#Does not trigger scram
+.
+
+exploit triggerManualScram(sensor)=
+	preconditions:
+		quality:sensor,platform=operatorStation;
+		quality:sensor,status=compromised;
+	postconditions:
+		update quality:sensor,manualScram=true;
+.
+
+# exploit	desyncOperationModeScramPulse(scram)=
+	# preconditions:
+		# quality:scram,platform=scramUnit;
+		# quality:scram,status=compromised;
+	# postconditions:
+		# update quality:scram,mode=pulse;
+# .
+
+# exploit	desyncOperationModeScramManual(scram)=
+	# preconditions:
+		# quality:scram,platform=scramUnit;
+		# quality:scram,status=compromised;
+	# postconditions:
+		# update quality:scram,mode=manual;
+# .
+
+# #Operator desyncs are more complicated
+# #Operator station compromised
+# exploit desyncOperationModeOperatorPulse1(operator)=
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# quality:operator,status=compromised;
+	# postconditions:
+		# update quality:operator,mode=pulse;
+# .
+# #Scram compromised
+# exploit desyncOperationModeOperatorPulse2(operator, scram)=
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# #Operator status is unneeded
+		
+		# quality:scram,platform=scramUnit;
+		# quality:scram,status=compromised;
+		
+		# topology:operator->scram,connected_modbus_slave;
+		# topology:scram->operator,connected_modbus_master;
+	# postconditions:
+		# update quality:operator,mode=pulse;
+# .
+# #No connection. Unsupported by tool
+# # exploit desyncOperationModeOperatorPulse3(operator, scram)=
+	# # preconditions:
+		# # quality:operator,platform=operatorStation;
+		# # #Operator status is unneeded
+		
+		# # quality:scram,platform=scramUnit;
+		
+		# # topology:operator!->scram,connected_modbus_slave;
+		# # topology:scram!->operator,connected_modbus_master;
+	# # postconditions:
+		# # update quality:operator,mode=pulse;
+# # .
+
+# #Operator station compromised
+# exploit desyncOperationModeOperatorManual1(operator)=
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# quality:operator,status=compromised;
+	# postconditions:
+		# update quality:operator,mode=manual;
+# .
+# #Scram compromised
+# exploit desyncOperationModeOperatorManual2(operator, scram)=
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# #Operator status is unneeded
+		
+		# quality:scram,platform=scramUnit;
+		# quality:scram,status=compromised;
+		
+		# topology:operator->scram,connected_modbus_slave;
+		# topology:scram->operator,connected_modbus_master;
+	# postconditions:
+		# update quality:operator,mode=manual;
+# .
+# #No connection. Unsupported by tool
+# # exploit desyncOperationModeOperatorManual3(operator, scram)=
+	# # preconditions:
+		# # quality:operator,platform=operatorStation;
+		# # #Operator status is unneeded
+		
+		# # quality:scram,platform=scramUnit;
+		
+		# # topology:operator!->scram,connected_modbus_slave;
+		# # topology:scram!->operator,connected_modbus_master;
+	# # postconditions:
+		# # update quality:operator,mode=manual;
+# # .
+
+# #Operator station compromised
+# exploit desyncOperationModeOperatorRundown1(operator)=
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# quality:operator,status=compromised;
+	# postconditions:
+		# update quality:operator,mode=rundown;
+# .
+# #Scram compromised
+# exploit desyncOperationModeOperatorRundown2(operator, scram)=
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# #Operator status is unneeded
+		
+		# quality:scram,platform=scramUnit;
+		# quality:scram,status=compromised;
+		
+		# topology:operator->scram,connected_modbus_slave;
+		# topology:scram->operator,connected_modbus_master;
+	# postconditions:
+		# update quality:operator,mode=rundown;
+# .
+# #No connection. Unsupported by tool
+# # exploit desyncOperationModeOperatorRundown3(operator, scram)=
+	# # preconditions:
+		# # quality:operator,platform=operatorStation;
+		# # #Operator status is unneeded
+		
+		# # quality:scram,platform=scramUnit;
+		
+		# # topology:operator!->scram,connected_modbus_slave;
+		# # topology:scram!->operator,connected_modbus_master;
+	# # postconditions:
+		# # update quality:operator,mode=rundown;
+# # .
+
+# #Operator station compromised
+# exploit desyncOperationModeOperatorTest1(operator)=
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# quality:operator,status=compromised;
+	# postconditions:
+		# update quality:operator,mode=test;
+# .
+# #Scram compromised
+# exploit desyncOperationModeOperatorTest2(operator, scram)=
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# #Operator status is unneeded
+		
+		# quality:scram,platform=scramUnit;
+		# quality:scram,status=compromised;
+		
+		# topology:operator->scram,connected_modbus_slave;
+		# topology:scram->operator,connected_modbus_master;
+	# postconditions:
+		# update quality:operator,mode=test;
+# .
+#No connection. Unsupported by tool
+# exploit desyncOperationModeOperatorTest3(operator, scram)=
+	# preconditions:
+		# quality:operator,platform=operatorStation;
+		# #Operator status is unneeded
+		
+		# quality:scram,platform=scramUnit;
+		
+		# topology:operator!->scram,connected_modbus_slave;
+		# topology:scram!->operator,connected_modbus_master;
+	# postconditions:
+		# update quality:operator,mode=test;
+# .
+
+# exploit desyncBladePositionHigh1(blade, crc)=
+	# preconditions:
+		# quality: crc, platform=controlRodController;
+		# quality: blade, platform=controlBlade;
+		
+		# quality: crc, status=compromised;
+		
+	# postconditions:
+		# update quality: blade, reportedPosition+=.5;
+# .
+
+# exploit desyncBladePositionHigh2(blade, crc)=
+	# preconditions:
+		# quality: crc, platform=controlRodController;
+		# quality: blade, platform=pulseControlRod;
+		
+		# quality: crc, status=compromised;
+		
+	# postconditions:
+		# update quality: blade, reportedPosition+=.5;
+# .
+
+# exploit desyncBladePositionLow1(blade, crc)=
+	# preconditions:
+		# quality: crc, platform=controlRodController;
+		# quality: blade, platform=controlBlade;
+		
+		# quality: crc, status=compromised;
+		
+	# postconditions:
+		# update quality: blade, reportedPosition-=.5;
+# .
+
+# exploit desyncBladePositionLow2(blade, crc)=
+	# preconditions:
+		# quality: crc, platform=controlRodController;
+		# quality: blade, platform=pulseControlRod;
+		
+		# quality: crc, status=compromised;
+		
+	# postconditions:
+		# update quality: blade, reportedPosition-=.5;
+# .
+
+# exploit moveBladeUpDesync1(blade, crc)=
+	# preconditions:
+		# quality: crc, platform=controlRodController;
+		# quality: blade, platform=controlBlade;
+		
+		# quality: crc, status=compromised;
+		# quality: crc, powerStatus=on;
+		# quality: crc, emagPower=on;
+		
+		# quality: blade, actualPosition<15; #*******ARBITRARY max position****
+		# quality: blade, motorStatus=ok;
+	# postconditions:
+		# update quality: blade, actualPosition+=.5;
+# .
+
+# exploit moveBladeUpDesync2(blade, crc)=
+	# preconditions:
+		# quality: crc, platform=controlRodController;
+		# quality: blade, platform=pulseControlRod;
+		
+		# quality: crc, status=compromised;
+		# quality: crc, powerStatus=on;
+		# quality: crc, emagPower=on;
+		
+		# quality: blade, actualPosition<15; #*******ARBITRARY max position****
+		# quality: blade, motorStatus=ok;
+	# postconditions:
+		# update quality: blade, actualPosition+=.5;
+# .
+
+# exploit moveBladeDownDesync1(blade, crc)=
+	# preconditions:
+		# quality: crc, platform=controlRodController;
+		# quality: blade, platform=controlBlade;
+		
+		# quality: crc, status=compromised;
+		# quality: crc, powerStatus=on;
+		# quality: crc, emagPower=on;
+		
+		# quality: blade, actualPosition>0;
+		# quality: blade, motorStatus=ok;
+	# postconditions:
+		# update quality: blade, actualPosition-=.5;
+# .
+
+# exploit moveBladeDownDesync2(blade, crc)=
+	# preconditions:
+		# quality: crc, platform=controlRodController;
+		# quality: blade, platform=pulseControlRod;
+		
+		# quality: crc, status=compromised;
+		# quality: crc, powerStatus=on;
+		# quality: crc, emagPower=on;
+		
+		# quality: blade, actualPosition>0;
+		# quality: blade, motorStatus=ok;
+	# postconditions:
+		# update quality: blade, actualPosition-=.5;
+# .
+
+# exploit compromiseScram(scram)=
+	# preconditions:
+		# quality: scram, platform=scramUnit;
+		
+		# quality: scram, status=ok;
+		# #More preconditions?
+	# postconditions:
+		# update quality: scram, status=compromised;
+# .
+
+
+
+#Not really different from pulseControlRod
+# exploit firePulseRodUnsafe(blade, crc)=
+	# preconditions:
+		# quality: crc, platform=controlRodController;
+		# quality: blade, platform=pulseControlRod;
+		
+		# quality: crc, status=compromised;
+		# quality: crc, powerStatus=on;
+		# quality: crc, emagPower=on;
+		
+		# quality: blade, actualPosition>0;
+		# quality: blade, motorStatus=ok;
+	# postconditions:
+		# update quality: blade, actualPosition-=.5;
+# .
+
+#END OF EXPLOITS
+
+
+#Should this be used in some capacity?
+# exploit closeAirSupplyValve(airSupply)=
+	# preconditions:
+		# quality:airSupply,platform=buildingCompressedAir;
+		# quality:airSupply,status=ok;
+		# quality:airSupply,tankPressure>=50;#Arbitrary capacity
+	# postconditions:
+		# update quality:airSupply,ctValve=closed;
+# .
+
+
+
+
+
+
+#I feel this implementation is simplistic, and possibly should be time-based.
+# global exploit reactorOverheat(phys,sensor)=
+	# preconditions:
+		# quality:phys,platform=physical;
+		# #really just need to check that this quality exists
+		# quality:phys,fuelTemp<400;
+		# quality:sensor,platform=tempSensor;
+		# quality:sensor,status=ok;
+		# topology:phys<->sensor,physical;
+	# postconditions:
+		# update quality:phys,fuelTemp:=400;
+		# update quality:sensor,temp:=400;
+# .
+
+# global exploit reactorOverpower(phys,sensor)=
+	# preconditions:
+		# quality:phys,platform=physical;
+		# #really just need to check that this quality exists
+		# quality:phys,reactorPower<0.75;
+		# quality:sensor,platform=powerSensor;
+		# quality:sensor,status=ok;
+		# topology:phys<->sensor,physical;
+	# postconditions:
+		# update quality:phys,reactorPower:=0.75;
+		# update quality:sensor,powerLevel:=0.75;
+# .
+
+# #This seems like an extremely unlikely event, possibly should be commented out
+# global exploit coolantLeak(phys,sensor)=
+	# preconditions:
+		# quality:phys,platform=physical;
+		# #really just need to check that this quality exists
+		# quality:phys,coolantLevel>-6.0;
+		# quality:sensor,platform=coolantLevelSensor;
+		# quality:sensor,status=ok;
+		# topology:phys<->sensor,physical;
+	# postconditions:
+		# update quality:phys,coolantLevel:=-8.0;
+		# update quality:sensor,level:=-8.0;
+# .
+
+# #Coolant temp probaly also needs to be tied into reactor temp...
+# global exploit coolantWarm(phys,sensor)=
+	# preconditions:
+		# quality:phys,platform=physical;
+		# #really just need to check that this quality exists
+		# quality:phys,coolantTemp<400;#below scram levels
+		# quality:sensor,platform=coolantTempSensor;
+		# quality:sensor,status=ok;
+		# topology:phys<->sensor,physical;
+	# postconditions:
+		# update quality:phys,coolantTemp:=400;
+		# update quality:sensor,temp:=400;
+# .
+
+
+
+
+

@@ -1,0 +1,7 @@
+<network-model> ::= "network" "model" "=" "assets" ":" <asset-list> "facts" ":" <fact-list> "."
+<asset-list> ::= <asset-list> <identifier> ";" | <EOL>
+<fact-list> ::= <fact-list> <fact> | <EOL>
+<fact> ::= "quality" ":" <identifier> "," <identifier> "," <identifier> ";"
+    | "topology" ":" <identifier> "," <identifier> "," <identifier> ";"
+
+<identifier> ::= [A-Za-z][A-Za-z0-9_]
