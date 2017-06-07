@@ -76,3 +76,7 @@ build
 .idea/
 cmake*/
 config.txt
+
+# flex and bison files
+tools/compiler/*.cpp
+tools/compiler/*.hpp
