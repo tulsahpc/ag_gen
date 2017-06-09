@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+#include "keyvalue.h"
 #include "topology.h"
 #include "util_db.h"
 
@@ -19,6 +20,14 @@ int Topology::get_to_asset_id(void) const {
 
 string Topology::get_options(void) const {
     return options;
+}
+
+const EncodedTopology Topology::encode(void) const {
+    EncodedTopology topo;
+    topo.dec.from_asset = from_asset_id;
+    topo.dec.to_asset = to_asset_id;
+
+    return topo;
 }
 
 vector<const Topology> Topology::fetch_all() {

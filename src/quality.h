@@ -26,7 +26,7 @@ public:
     const std::string get_name(void) const;
 
     void print(void) const;
-    EncodedQuality encode(void) const;
+    const EncodedQuality encode(void) const;
     bool operator==(const Quality &rhs) const;
 
     static std::vector<const Quality> fetch_all(void);

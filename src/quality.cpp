@@ -15,7 +15,7 @@ const string Quality::get_name() const {
 	return name;
 }
 
-EncodedQuality Quality::encode(void) const {
+const EncodedQuality Quality::encode(void) const {
     vector<string> attrs = fetch_all_attributes();
     vector<string> vals = fetch_all_values();
 

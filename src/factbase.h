@@ -44,7 +44,11 @@ struct FactbaseHash {
 //        size_t hash = 0xf848b64e; // Random seed value
         size_t hash = 0x0c32a12fe19d2119;
         for(auto& qual : fb.qualities) {
-            EncodedQuality encoded = qual.encode();
+            const EncodedQuality encoded = qual.encode();
+            hash ^= combine(encoded.enc);
+        }
+        for(auto& topo : fb.topologies) {
+            const EncodedTopology encoded = topo.encode();
             hash ^= combine(encoded.enc);
         }
         return hash;
