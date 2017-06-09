@@ -8,6 +8,7 @@
 #include "util_db.h"
 #include "config.h"
 #include "network_state.h"
+#include "keyvalue.h"
 
 using namespace std;
 

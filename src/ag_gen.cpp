@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <iomanip>
 
 #include "ag_gen.h"
 #include "util_odometer.h"
@@ -20,8 +21,7 @@ using namespace std;
 AGGen::AGGen(const NetworkState& initial_state) :
         assets(Asset::fetch_all("home")),
         attrs(Quality::fetch_all_attributes()),
-        vals(Quality::fetch_all_values()),
-        current_state(const_cast<NetworkState&>(initial_state))
+        vals(Quality::fetch_all_values())
 {
     this->frontier.push_back(initial_state);
 }
@@ -31,14 +31,22 @@ AGGen::AGGen(const NetworkState& initial_state) :
 // and topologies. It then prints out the exploits of the new Network States.
 void AGGen::generate(void) {
     vector<NetworkState> new_states;
+    int counter = 0;
 
     while(!this->frontier.empty()) {
+        // Remove the next state from the queue and get its factbase
         NetworkState next_state = this->frontier.back();
-
+        auto current_factbase = next_state.get_factbase();
         this->frontier.pop_back();
+
+        // Save the initial state's hash value
+        hash_list.push_back(Factbase::hash(current_factbase));
+
+        // Get all applicable exploits with this network state
         auto appl_exploits = check_exploits(next_state);
 
-        // All of these exploits are applicable
+        // Apply each exploit to the network state to generate
+        // new network states
         for (auto &e : appl_exploits) {
             auto postconditions = createPostConditions(e);
 
@@ -56,14 +64,24 @@ void AGGen::generate(void) {
                 factbase.add_topology(topo);
             }
 
-            new_states.push_back(new_state);
-//            this->frontier.push_back(new_state);
+            // If the hash of the new factbase doesn't already exist,
+            // push the new state into the queue and add the hash
+            // to the list of known states
+            auto factbase_hash = Factbase::hash(factbase);
+            if(find(hash_list.begin(), hash_list.end(), factbase_hash) == hash_list.end()) {
+                counter++;
+                new_states.push_back(new_state);
+                this->frontier.push_back(new_state);
+                hash_list.push_back(factbase_hash);
+            }
         }
     }
 
-    for(auto& state : new_states) {
-        state.print();
-    }
+    cout << "total number of generated states: " << counter << endl;
+
+//    for(auto& state : new_states) {
+//        state.print();
+//    }
 }
 
 // check_exploits takes a given NetworkState and returns a vector containing the exploits and corresponding

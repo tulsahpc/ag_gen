@@ -13,7 +13,7 @@ union EncodedQuality {
         int attr : 16;
         int val : 16;
     } dec;
-    int enc;
+    size_t enc;
 };
 
 class Quality {
@@ -26,7 +26,7 @@ public:
     const std::string get_name(void) const;
 
     void print(void) const;
-    int encoded(void);
+    EncodedQuality encode(void) const;
     bool operator==(const Quality &rhs) const;
 
     static std::vector<const Quality> fetch_all(void);

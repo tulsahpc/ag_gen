@@ -9,6 +9,12 @@
 
 using namespace std;
 
+// Config file:
+//      - server
+//      - db
+//      - login
+//      - password (optional)
+
 Config::Config(const string &filename) {
 	ifstream config_file(filename);
 
