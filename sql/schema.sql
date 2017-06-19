@@ -3,6 +3,18 @@ CREATE TABLE network (
   name TEXT
 );
 
+CREATE TABLE edge (
+  id INTEGER,
+  from_node INTEGER REFERENCES factbase(node_id),
+  to_node INTEGER REFERENCES factbase(node_id)
+);
+
+CREATE TABLE factbase (
+  node_id INTEGER,
+  fact INTEGER,
+  PRIMARY KEY (node_id, fact)
+);
+
 CREATE TABLE asset (
   id SERIAL PRIMARY KEY,
   name TEXT,
@@ -50,11 +62,3 @@ CREATE TABLE exploit_postcondition (
   value TEXT,
   options TEXT
 );
-
--- CREATE TABLE exploit_topology(
---   exploit_id INTEGER REFERENCES exploit(id),
---   from_param INTEGER,
---   to_param INTEGER,
---   value TEXT,
---   PRIMARY KEY (exploit_id, from_param, to_param)
--- );
