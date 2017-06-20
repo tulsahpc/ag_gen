@@ -7,13 +7,13 @@ if [[ $OS = 'darwin' ]]; then
         echo "Please install homebrew first."
     else
         xcode-select --install > /dev/null
-        brew install postgresql redis hiredis cppcheck doxygen valgrind graphviz
+        brew cask install postgresql
+        brew install cmake redis hiredis cppcheck doxygen valgrind graphviz
     fi
 elif [[ $OS = 'linux' ]]; then
     type pacman &> /dev/null
     if [[ $? ]]; then
-        sudo pacman -S postgresql redis hiredis cppcheck clang \
-            doxygen graphviz
+        sudo pacman -S cmake postgresql redis hiredis cppcheck clang doxygen graphviz
     fi
 
     type apt-get &> /dev/null
