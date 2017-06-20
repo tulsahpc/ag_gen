@@ -3,16 +3,17 @@ CREATE TABLE network (
   name TEXT
 );
 
-CREATE TABLE edge (
-  id INTEGER,
-  from_node INTEGER REFERENCES factbase(node_id),
-  to_node INTEGER REFERENCES factbase(node_id)
-);
-
 CREATE TABLE factbase (
+  id SERIAL PRIMARY KEY,
   node_id INTEGER,
   fact INTEGER,
-  PRIMARY KEY (node_id, fact)
+  UNIQUE (node_id, fact)
+);
+
+CREATE TABLE edge (
+  id INTEGER,
+  from_node INTEGER REFERENCES factbase(id),
+  to_node INTEGER REFERENCES factbase(id)
 );
 
 CREATE TABLE asset (
