@@ -1,7 +1,7 @@
 #include "../src/util_db.h"
 
 int main(int argc, char **argv) {
-	dbconnect("ag_gen_test@localhost");
+	dbconnect("postgresql://captredbeard@localhost/ag_gen_test");
 	dbtrans_begin();
 
 	PGresult* res;
