@@ -8,17 +8,17 @@ if [[ $OS = 'darwin' ]]; then
     else
         xcode-select --install > /dev/null
         brew cask install postgres
-        brew install cmake redis hiredis cppcheck doxygen valgrind graphviz
+        brew install postgresql cmake boost redis hiredis cppcheck doxygen valgrind graphviz
     fi
 elif [[ $OS = 'linux' ]]; then
     type pacman &> /dev/null
     if [[ $? ]]; then
-        sudo pacman -S cmake postgresql redis hiredis cppcheck clang doxygen graphviz
+        sudo pacman -S cmake postgresql boost redis hiredis cppcheck clang doxygen graphviz
     fi
 
     type apt-get &> /dev/null
     if [[ $? ]]; then
-        sudo apt-get -y install postgresql postgresql-contrib libpq-dev \
+        sudo apt-get -y install boost postgresql postgresql-contrib libpq-dev \
             redis-server libhiredis-dev cppcheck clang valgrind \
             doxygen graphviz cmake build-essential
     fi
