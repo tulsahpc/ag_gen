@@ -5,15 +5,19 @@ CREATE TABLE network (
 
 CREATE TABLE factbase (
   id SERIAL PRIMARY KEY,
-  node_id INTEGER,
-  fact INTEGER,
-  UNIQUE (node_id, fact)
+  hash INTEGER UNIQUE
+);
+
+CREATE TABLE attack_node (
+  factbase_id INTEGER,
+  fact BIGINT,
+  PRIMARY KEY (factbase_id, fact)
 );
 
 CREATE TABLE edge (
-  id INTEGER,
   from_node INTEGER REFERENCES factbase(id),
-  to_node INTEGER REFERENCES factbase(id)
+  to_node INTEGER REFERENCES factbase(id),
+  PRIMARY KEY (from_node, to_node)
 );
 
 CREATE TABLE asset (

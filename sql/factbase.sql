@@ -1,0 +1,10 @@
+CREATE FUNCTION new_factbase() RETURNS INTEGER AS $$
+DECLARE
+  myid INTEGER;
+BEGIN
+  INSERT INTO factbase VALUES
+    (DEFAULT)
+  RETURNING id INTO myid;
+  RETURN myid;
+END;
+$$ LANGUAGE plpgsql;

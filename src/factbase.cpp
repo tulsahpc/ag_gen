@@ -51,23 +51,32 @@ void Factbase::save(void) {
 	PGresult *res;
 	int num_rows;
 
-	string sql = "SELECT * FROM quality;";
+    dbtrans_begin();
 
-	res = PQexec(conn, sql.c_str());
-	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-		fprintf(stderr, "quality SELECT command failed: %s",
-				PQerrorMessage(conn));
-	}
+	string sql = "SELECT new_factbase();";
 
-	num_rows = PQntuples(res);
-	for(int i=0; i<num_rows; i++) {
-		int asset_id = stoi(PQgetvalue(res, i, 0));
-		string property = PQgetvalue(res, i, 1);
-		string value = PQgetvalue(res, i, 2);
+    res = PQexec(conn, sql.c_str());
+    if(PQresultStatus(res) != PGRES_TUPLES_OK) {
+        fprintf(stderr, "new_factbase() SELECT command failed: %s",
+                PQerrorMessage(conn));
+    }
+    int factbase_id = stoi(PQgetvalue(res, 0, 0));
 
-		const Quality qual(asset_id, property, value);
-		qualities.push_back(qual);
-	}
+    // XXX: There has to be a better way to do this
+    string insert_sql = "INSERT INTO attack_node VALUES ";
+    insert_sql += "(" + to_string(factbase_id) + "," + to_string(qualities[0].encode().enc) + ")";
+    for(int i=1; i<qualities.size(); i++) {
+        insert_sql += ",(" + to_string(factbase_id) + "," + to_string(qualities[i].encode().enc) + ")";
+    }
+    insert_sql += ";";
+
+    res = PQexec(conn, insert_sql.c_str());
+    if(PQresultStatus(res) != PGRES_COMMAND_OK) {
+        fprintf(stderr, "quality INSERT command failed: %s",
+                PQerrorMessage(conn));
+    }
+
+    dbtrans_end();
 
 	PQclear(res);
 }

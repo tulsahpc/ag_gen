@@ -1,1 +1,0 @@
-/Users/captredbeard/.dotfiles/zsh
