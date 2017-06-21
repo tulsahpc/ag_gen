@@ -9,7 +9,7 @@ CREATE TABLE factbase (
 );
 
 CREATE TABLE attack_node (
-  factbase_id INTEGER,
+  factbase_id INTEGER REFERENCES factbase(id),
   fact BIGINT,
   PRIMARY KEY (factbase_id, fact)
 );
