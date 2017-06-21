@@ -3,7 +3,12 @@
 
 #include <iostream>
 #include <algorithm>
+#include <vector>
+
 #include "factbase.h"
+#include "util_db.h"
+
+using namespace std;
 
 // The default Factbase constructor creates a factbase object with all of the qualities and topologies
 // currently on the database
@@ -18,7 +23,7 @@ Factbase::Factbase(const Factbase& fb) : qualities(fb.qualities), topologies(fb.
 // returns false
 bool Factbase::find_quality(const Quality& q) const {
     if(find(qualities.begin(), qualities.end(), q) == qualities.end()) {
-        return false;
+		return false;
     }
     return true;
 }
@@ -40,6 +45,40 @@ void Factbase::add_quality(const Quality& q) {
 // add_topology adds a given topology to the factbase's vector of topologies
 void Factbase::add_topology(const Topology& t) {
     topologies.push_back(t);
+}
+
+void Factbase::save(void) {
+	PGresult *res;
+	int num_rows;
+
+    dbtrans_begin();
+
+	string sql = "SELECT new_factbase();";
+
+    res = PQexec(conn, sql.c_str());
+    if(PQresultStatus(res) != PGRES_TUPLES_OK) {
+        fprintf(stderr, "new_factbase() SELECT command failed: %s",
+                PQerrorMessage(conn));
+    }
+    int factbase_id = stoi(PQgetvalue(res, 0, 0));
+
+    // XXX: There has to be a better way to do this
+    string insert_sql = "INSERT INTO attack_node VALUES ";
+    insert_sql += "(" + to_string(factbase_id) + "," + to_string(qualities[0].encode().enc) + ")";
+    for(int i=1; i<qualities.size(); i++) {
+        insert_sql += ",(" + to_string(factbase_id) + "," + to_string(qualities[i].encode().enc) + ")";
+    }
+    insert_sql += ";";
+
+    res = PQexec(conn, insert_sql.c_str());
+    if(PQresultStatus(res) != PGRES_COMMAND_OK) {
+        fprintf(stderr, "quality INSERT command failed: %s",
+                PQerrorMessage(conn));
+    }
+
+    dbtrans_end();
+
+	PQclear(res);
 }
 
 // print prints to stdout every quality of the factbase, then every topology of the factbase

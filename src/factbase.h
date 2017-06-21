@@ -24,6 +24,8 @@ public:
 	bool find_topology(const Topology&) const;
 	void add_topology(const Topology&);
 
+	void save(void);
+
     void print(void) const;
 
     static size_t hash(const Factbase&);

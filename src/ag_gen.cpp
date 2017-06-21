@@ -73,6 +73,7 @@ void AGGen::generate(void) {
                 new_states.push_back(new_state);
                 this->frontier.push_back(new_state);
                 hash_list.push_back(factbase_hash);
+                factbase.save();
             }
         }
     }

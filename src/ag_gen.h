@@ -10,13 +10,6 @@
 #include "assetgroup.h"
 #include "network_state.h"
 
-class AttackNode {
-    const Factbase& fb;
-    std::vector<AttackNode> children;
-public:
-    AttackNode(const Factbase& ifb): fb(ifb) {};
-};
-
 class AGGen {
     Keyvalue<Asset> assets;
     Keyvalue<std::string> attrs;
