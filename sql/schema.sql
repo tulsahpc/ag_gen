@@ -8,8 +8,8 @@ CREATE TABLE factbase (
   hash INTEGER UNIQUE
 );
 
-CREATE TABLE attack_node (
-  factbase_id INTEGER,
+CREATE TABLE factbase_items (
+  factbase_id INTEGER REFERENCES factbase(id),
   fact BIGINT,
   PRIMARY KEY (factbase_id, fact)
 );

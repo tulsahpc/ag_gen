@@ -15,6 +15,7 @@ using namespace std;
 Factbase::Factbase(void) {
     qualities = Quality::fetch_all();
     topologies = Topology::fetch_all();
+	id = request_id();
 }
 
 Factbase::Factbase(const Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {}
@@ -47,32 +48,44 @@ void Factbase::add_topology(const Topology& t) {
     topologies.push_back(t);
 }
 
+int Factbase::request_id(void) {
+	PGresult *res;
+	string sql = "SELECT new_factbase();";
+
+	dbtrans_begin();
+
+	res = PQexec(conn, sql.c_str());
+	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
+		fprintf(stderr, "new_factbase() SELECT command failed: %s",
+				PQerrorMessage(conn));
+	}
+	int factbase_id = stoi(PQgetvalue(res, 0, 0));
+
+	dbtrans_end();
+	PQclear(res);
+
+	return factbase_id;
+}
+
 void Factbase::save(void) {
 	PGresult *res;
-	int num_rows;
 
     dbtrans_begin();
 
-	string sql = "SELECT new_factbase();";
-
-    res = PQexec(conn, sql.c_str());
-    if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-        fprintf(stderr, "new_factbase() SELECT command failed: %s",
-                PQerrorMessage(conn));
-    }
-    int factbase_id = stoi(PQgetvalue(res, 0, 0));
-
     // XXX: There has to be a better way to do this
-    string insert_sql = "INSERT INTO attack_node VALUES ";
-    insert_sql += "(" + to_string(factbase_id) + "," + to_string(qualities[0].encode().enc) + ")";
+    string insert_sql = "INSERT INTO factbase_items VALUES ";
+    insert_sql += "(" + to_string(this->id) + "," + to_string(qualities[0].encode().enc) + ")";
     for(int i=1; i<qualities.size(); i++) {
-        insert_sql += ",(" + to_string(factbase_id) + "," + to_string(qualities[i].encode().enc) + ")";
+        insert_sql += ",(" + to_string(this->id) + "," + to_string(qualities[i].encode().enc) + ")";
     }
+	for(int i=0; i<topologies.size(); i++) {
+		insert_sql += ",(" + to_string(this->id) + "," + to_string(topologies[i].encode().enc) + ")";
+	}
     insert_sql += ";";
 
     res = PQexec(conn, insert_sql.c_str());
     if(PQresultStatus(res) != PGRES_COMMAND_OK) {
-        fprintf(stderr, "quality INSERT command failed: %s",
+        fprintf(stderr, "factbase_items INSERT command failed: %s",
                 PQerrorMessage(conn));
     }
 

@@ -12,6 +12,7 @@ class Factbase;
 struct FactbaseHash;
 
 class Factbase {
+	int id;
 	std::vector<const Quality> qualities;
 	std::vector<const Topology> topologies;
 public:
@@ -24,6 +25,7 @@ public:
 	bool find_topology(const Topology&) const;
 	void add_topology(const Topology&);
 
+	int request_id(void);
 	void save(void);
 
     void print(void) const;

@@ -26,7 +26,7 @@ AGGen::AGGen(const NetworkState& initial_state) :
     this->frontier.push_back(initial_state);
 }
 
-// generate iterates through AGGen's frontier vector, back to front, and takes the next Network State, 
+// generate iterates through AGGen's frontier vector, back to front, and takes the next Network State,
 // generating all of the possible Network States that it could lead to based on its exploitable qualities
 // and topologies. It then prints out the exploits of the new Network States.
 void AGGen::generate(void) {
@@ -73,6 +73,7 @@ void AGGen::generate(void) {
                 new_states.push_back(new_state);
                 this->frontier.push_back(new_state);
                 hash_list.push_back(factbase_hash);
+
                 factbase.save();
             }
         }
