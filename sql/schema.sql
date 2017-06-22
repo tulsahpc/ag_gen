@@ -8,7 +8,7 @@ CREATE TABLE factbase (
   hash INTEGER UNIQUE
 );
 
-CREATE TABLE factbase_items (
+CREATE TABLE factbase_item (
   factbase_id INTEGER REFERENCES factbase(id),
   fact BIGINT,
   PRIMARY KEY (factbase_id, fact)

@@ -15,7 +15,6 @@ using namespace std;
 Factbase::Factbase(void) {
     qualities = Quality::fetch_all();
     topologies = Topology::fetch_all();
-	id = request_id();
 }
 
 Factbase::Factbase(const Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {}
@@ -70,10 +69,13 @@ int Factbase::request_id(void) {
 void Factbase::save(void) {
 	PGresult *res;
 
+	int id = request_id();
+	this->id = id;
+
     dbtrans_begin();
 
     // XXX: There has to be a better way to do this
-    string insert_sql = "INSERT INTO factbase_items VALUES ";
+    string insert_sql = "INSERT INTO factbase_item VALUES ";
     insert_sql += "(" + to_string(this->id) + "," + to_string(qualities[0].encode().enc) + ")";
     for(int i=1; i<qualities.size(); i++) {
         insert_sql += ",(" + to_string(this->id) + "," + to_string(qualities[i].encode().enc) + ")";
@@ -85,7 +87,7 @@ void Factbase::save(void) {
 
     res = PQexec(conn, insert_sql.c_str());
     if(PQresultStatus(res) != PGRES_COMMAND_OK) {
-        fprintf(stderr, "factbase_items INSERT command failed: %s",
+        fprintf(stderr, "factbase_item INSERT command failed: %s",
                 PQerrorMessage(conn));
     }
 
@@ -105,7 +107,8 @@ void Factbase::print(void) const {
     }
 }
 
-size_t Factbase::hash(const Factbase& fb) {
-    auto hash = FactbaseHash{}(fb);
+size_t Factbase::hash(void) {
+    auto hash = FactbaseHash{}(*this);
+	this->hash_value = hash;
     return hash;
 }
