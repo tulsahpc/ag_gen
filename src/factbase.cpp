@@ -21,19 +21,47 @@ Factbase::Factbase(void) {
 
 Factbase::Factbase(const Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {}
 
-Factbase Factbase::get(const int id) const {
+Factbase::Factbase(int id) {
 	PGresult *res;
 
 	dbtrans_begin();
 
-	string sql = "SELECT * FROM factbase";
+	string sql = "SELECT * FROM factbase WHERE id = " + to_string(id) + ";";
 	res = PQexec(conn, sql.c_str());
 	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
 		fprintf(stderr, "SELECT factbase error: %s", PQerrorMessage(conn));
 	}
 
+	Factbase new_factbase;
+	new_factbase.id = id;
+	sscanf(PQgetvalue(res, 0, 0), "%zu", &new_factbase.hash_value);
+
+	sql = "SELECT * FROM factbase_item WHERE factbase_id = " + to_string(id) + ";";
+	res = PQexec(conn, sql.c_str());
+	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
+		cerr << "SELECT factbase_items failed: " << PQerrorMessage(conn) << endl;
+	}
+
+	int num_rows = PQntuples(res);
+	for(auto i=0; i<num_rows; i++) {
+		size_t fact;
+		sscanf(PQgetvalue(res, i, 1), "%zu", &fact);
+
+		string type = PQgetvalue(res, i, 2);
+		if(type == "quality") {
+			Quality qual;
+		}
+	}
 
 	dbtrans_end();
+}
+
+int Factbase::get_id(void) const {
+	if(id == 0) {
+		return -1;
+	} else {
+		return id;
+	}
 }
 
 // find_quality searches for a given quality in a factbase. Returns true if the quality is found, otherwise
@@ -92,13 +120,14 @@ int Factbase::request_id(void) {
 void Factbase::save(void) {
 	PGresult *res;
 
-	int id = request_id();
+	if(id == 0) {
+		int id = request_id();
+	}
 
     dbtrans_begin();
 
 	// Save hash
 	string hash_sql = "UPDATE factbase SET hash = '" + to_string(this->hash()) + "' WHERE id = " + to_string(id) + ";";
-//	cout << hash_sql << endl;
 	res = PQexec(conn, hash_sql.c_str());
 	if(PQresultStatus(res) != PGRES_COMMAND_OK) {
 		fprintf(stderr, "factbase UPDATE hash command failed: %s",

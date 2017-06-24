@@ -21,8 +21,9 @@ class Factbase {
 public:
 	Factbase(void);
 	Factbase(const Factbase&);
+	Factbase(int id);
 
-	Factbase get(const int id) const;
+	int get_id(void) const;
 
 	bool find_quality(const Quality&) const;
 	void add_quality(const Quality&);
@@ -40,6 +41,7 @@ public:
 };
 
 struct FactbaseHash {
+	// Shamelessly copied from Boost::hash_combine
     size_t combine(size_t seed) const {
         seed ^= std::hash<size_t>{}(seed) +
                 0x9e3779b97f4a7c15 +

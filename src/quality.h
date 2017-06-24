@@ -23,6 +23,8 @@ class Quality {
 
 public:
     Quality(int assetId, const std::string &qualName, const std::string &qualValue);
+	Quality(size_t fact);
+
     const std::string get_name(void) const;
 
     void print(void) const;

@@ -11,6 +11,15 @@ using namespace std;
 
 Quality::Quality(int asset, const string &qualName, const string &qualValue) : asset_id(asset), name(qualName), value(qualValue) {}
 
+Quality::Quality(size_t fact) {
+	EncodedQuality eQual;
+	eQual.enc = fact;
+
+	asset_id = eQual.dec.asset_id;
+	name = eQual.dec.attr;
+	value = eQual.dec.val;
+}
+
 const string Quality::get_name() const {
 	return name;
 }

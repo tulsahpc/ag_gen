@@ -65,12 +65,13 @@ void AGGen::generate(void) {
                 factbase.add_topology(topo);
             }
 
-            // If the hash of the new factbase doesn't already exist,
-            // push the new state into the queue and add the hash
-            // to the list of known states
+			// Check if factbase already exists
             auto factbase_hash = factbase.hash();
 			auto factbase_search = find(hash_list.begin(), hash_list.end(), factbase_hash);
             if(factbase_search == hash_list.end()) {
+				// If the hash of the new factbase doesn't already exist,
+				// push the new state into the queue and add the hash
+				// to the list of known states
                 counter++;
                 new_states.push_back(new_state);
                 this->frontier.push_back(new_state);
@@ -79,7 +80,19 @@ void AGGen::generate(void) {
                 factbase.save();
             } else {
 				// Factbase already exists
+				// Get factbase id
+				PGresult *res;
+				string sql = "SELECT id FROM factbase WHERE hash = '" + to_string(factbase_hash) + "';";
+				res = PQexec(conn, sql.c_str());
+				if(PQresultStatus(res) == PGRES_TUPLES_OK) {
+					int new_id = stoi(PQgetvalue(res, 0, 0));
+				} else {
+					// Cannot find factbase id for some reason. Error out.
+					cerr << "Cannot find factbase when it exists. WTF THIS CAN'T HAPPEN." << endl;
+					exit(1);
+				}
 
+				PQclear(res);
 			}
         }
     }
