@@ -16,9 +16,13 @@ class Factbase {
 	size_t hash_value;
 	std::vector<const Quality> qualities;
 	std::vector<const Topology> topologies;
+
+	int request_id(void);
 public:
 	Factbase(void);
 	Factbase(const Factbase&);
+
+	Factbase get(const int id) const;
 
 	bool find_quality(const Quality&) const;
 	void add_quality(const Quality&);
@@ -26,7 +30,6 @@ public:
 	bool find_topology(const Topology&) const;
 	void add_topology(const Topology&);
 
-	int request_id(void);
 	void save(void);
 
     void print(void) const;

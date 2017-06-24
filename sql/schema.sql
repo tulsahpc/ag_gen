@@ -5,13 +5,15 @@ CREATE TABLE network (
 
 CREATE TABLE factbase (
   id SERIAL PRIMARY KEY,
-  hash INTEGER UNIQUE
+  hash TEXT UNIQUE
 );
 
 CREATE TABLE factbase_item (
   factbase_id INTEGER REFERENCES factbase(id),
   fact BIGINT,
-  PRIMARY KEY (factbase_id, fact)
+  type TEXT,
+  options TEXT,
+  PRIMARY KEY (factbase_id, fact, type)
 );
 
 CREATE TABLE edge (

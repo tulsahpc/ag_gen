@@ -15,9 +15,26 @@ using namespace std;
 Factbase::Factbase(void) {
     qualities = Quality::fetch_all();
     topologies = Topology::fetch_all();
+	id = 0;
+	hash_value = 0;
 }
 
 Factbase::Factbase(const Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {}
+
+Factbase Factbase::get(const int id) const {
+	PGresult *res;
+
+	dbtrans_begin();
+
+	string sql = "SELECT * FROM factbase";
+	res = PQexec(conn, sql.c_str());
+	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
+		fprintf(stderr, "SELECT factbase error: %s", PQerrorMessage(conn));
+	}
+
+
+	dbtrans_end();
+}
 
 // find_quality searches for a given quality in a factbase. Returns true if the quality is found, otherwise
 // returns false
@@ -48,40 +65,54 @@ void Factbase::add_topology(const Topology& t) {
 }
 
 int Factbase::request_id(void) {
-	PGresult *res;
-	string sql = "SELECT new_factbase();";
+	if(this->id != 0) {
+		PGresult *res;
+		string sql = "SELECT new_factbase();";
 
-	dbtrans_begin();
+		dbtrans_begin();
 
-	res = PQexec(conn, sql.c_str());
-	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-		fprintf(stderr, "new_factbase() SELECT command failed: %s",
-				PQerrorMessage(conn));
+		res = PQexec(conn, sql.c_str());
+		if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+			fprintf(stderr, "new_factbase() SELECT command failed: %s",
+					PQerrorMessage(conn));
+		}
+		int factbase_id = stoi(PQgetvalue(res, 0, 0));
+
+		dbtrans_end();
+		PQclear(res);
+
+		this->id = factbase_id;
+
+		return factbase_id;
+	} else {
+		return this->id;
 	}
-	int factbase_id = stoi(PQgetvalue(res, 0, 0));
-
-	dbtrans_end();
-	PQclear(res);
-
-	return factbase_id;
 }
 
 void Factbase::save(void) {
 	PGresult *res;
 
 	int id = request_id();
-	this->id = id;
 
     dbtrans_begin();
 
+	// Save hash
+	string hash_sql = "UPDATE factbase SET hash = '" + to_string(this->hash()) + "' WHERE id = " + to_string(id) + ";";
+//	cout << hash_sql << endl;
+	res = PQexec(conn, hash_sql.c_str());
+	if(PQresultStatus(res) != PGRES_COMMAND_OK) {
+		fprintf(stderr, "factbase UPDATE hash command failed: %s",
+			PQerrorMessage(conn));
+	}
+
     // XXX: There has to be a better way to do this
     string insert_sql = "INSERT INTO factbase_item VALUES ";
-    insert_sql += "(" + to_string(this->id) + "," + to_string(qualities[0].encode().enc) + ")";
+    insert_sql += "(" + to_string(id) + "," + to_string(qualities[0].encode().enc) + ",'quality', NULL)";
     for(int i=1; i<qualities.size(); i++) {
-        insert_sql += ",(" + to_string(this->id) + "," + to_string(qualities[i].encode().enc) + ")";
+        insert_sql += ",(" + to_string(id) + "," + to_string(qualities[i].encode().enc) + ",'quality', NULL)";
     }
 	for(int i=0; i<topologies.size(); i++) {
-		insert_sql += ",(" + to_string(this->id) + "," + to_string(topologies[i].encode().enc) + ")";
+		insert_sql += ",(" + to_string(id) + "," + to_string(topologies[i].encode().enc) + ",'topology','" + topologies[i].get_raw_options() + "')";
 	}
     insert_sql += ";";
 

@@ -9,6 +9,7 @@ union EncodedTopology {
     struct {
         int from_asset : 32;
         int to_asset : 32;
+		int options : 32;
     } dec;
     size_t enc;
 };
@@ -20,9 +21,11 @@ class Topology {
 
 public:
     Topology(int f_asset, int t_asset, std::string opt);
+
     int get_from_asset_id(void) const;
     int get_to_asset_id(void) const;
-    std::string get_options(void) const;
+    std::string get_raw_options(void) const;
+	std::vector<std::string> get_options(void) const;
 
     void print(void) const;
     const EncodedTopology encode(void) const;

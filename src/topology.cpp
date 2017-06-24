@@ -5,6 +5,7 @@
 #include "keyvalue.h"
 #include "topology.h"
 #include "util_db.h"
+#include "util_common.h"
 
 using namespace std;
 
@@ -18,8 +19,12 @@ int Topology::get_to_asset_id(void) const {
     return to_asset_id;
 }
 
-string Topology::get_options(void) const {
+string Topology::get_raw_options(void) const {
     return options;
+}
+
+vector<string> Topology::get_options(void) const {
+	return split(get_raw_options(), ',');
 }
 
 const EncodedTopology Topology::encode(void) const {
