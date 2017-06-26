@@ -12,7 +12,7 @@
 
 using namespace std;
 
-// print_usage prints to stdout the help menu that corresponds to the ag_gen command 
+// print_usage prints to stdout the help menu that corresponds to the ag_gen command
 void print_usage()
 {
     cout << "Usage: ag_gen [OPTION...]" << endl << endl;
@@ -65,10 +65,8 @@ int main(int argc, char *argv[])
 	dbconnect(db_string.c_str());
 
     NetworkState initial_state;
-    initial_state.save_factbase();
-    cout << initial_state.get_factbase().get_id();
-//	AGGen generator(initial_state);
-//    generator.generate();
+	AGGen generator(initial_state);
+    generator.generate();
 
 	dbclose();
 }

@@ -12,17 +12,17 @@ struct FactbaseHash;
 
 class Factbase {
 	int id;
-	size_t hash_value;
 	std::vector<const Quality> qualities;
 	std::vector<const Topology> topologies;
-
-	int request_id(void);
 public:
 	Factbase(void);
-	Factbase(const Factbase&);
+	Factbase(Factbase&);
 	Factbase(int id);
 
+	void populate(void);
+
 	int get_id(void) const;
+	int get_id(void);
 
 	bool find_quality(const Quality&) const;
 	void add_quality(const Quality&);
@@ -34,7 +34,7 @@ public:
 
     void print(void) const;
 
-	size_t hash(void);
+	size_t hash(void) const;
 
     friend struct FactbaseHash;
 };

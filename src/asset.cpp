@@ -6,7 +6,6 @@
 #include <libpq-fe.h>
 
 #include "asset.h"
-#include "quality.h"
 #include "util_db.h"
 
 using namespace std;

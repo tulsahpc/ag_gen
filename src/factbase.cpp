@@ -2,7 +2,6 @@
 // particular Network State
 
 #include <iostream>
-#include <algorithm>
 #include <vector>
 
 #include "factbase.h"
@@ -12,18 +11,15 @@ using namespace std;
 
 // The default Factbase constructor creates a factbase object with all of the qualities and topologies
 // currently on the database
-Factbase::Factbase(void) {
-    qualities = Quality::fetch_all();
-    topologies = Topology::fetch_all();
+Factbase::Factbase(void) : qualities(), topologies() {
 	id = 0;
-	hash_value = 0;
 }
 
-Factbase::Factbase(const Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {
+Factbase::Factbase(Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {
     id = 0;
 }
 
-Factbase::Factbase(int id) {
+Factbase::Factbase(int iId) {
 	PGresult *res;
 
 	dbtrans_begin();
@@ -34,9 +30,9 @@ Factbase::Factbase(int id) {
 		fprintf(stderr, "SELECT factbase error: %s", PQerrorMessage(conn));
 	}
 
-	Factbase new_factbase;
-	new_factbase.id = id;
-	sscanf(PQgetvalue(res, 0, 0), "%zu", &new_factbase.hash_value);
+	id = iId;
+	size_t hash_value;
+	sscanf(PQgetvalue(res, 0, 0), "%zu", &hash_value);
 
 	sql = "SELECT * FROM factbase_item WHERE factbase_id = " + to_string(id) + ";";
 	res = PQexec(conn, sql.c_str());
@@ -52,22 +48,53 @@ Factbase::Factbase(int id) {
 		string type = PQgetvalue(res, i, 2);
 		if(type == "quality") {
 			Quality qual(fact);
-            new_factbase.add_quality(qual);
+            add_quality(qual);
 		}
 
         if(type == "topology") {
             string options = PQgetvalue(res, i, 3);
             Topology topo(fact, options);
-            new_factbase.add_topology(topo);
+            add_topology(topo);
         }
 	}
 
 	dbtrans_end();
 }
 
+void Factbase::populate(void) {
+	qualities = Quality::fetch_all();
+	topologies = Topology::fetch_all();
+}
+
 int Factbase::get_id(void) const {
+	return id;
+}
+
+int Factbase::get_id(void) {
 	if(id == 0) {
-		return -1;
+		PGresult *res;
+		string sql = "SELECT id FROM factbase WHERE hash = '" + to_string(hash()) + "';";
+		res = PQexec(conn, sql.c_str());
+
+		// If has of current factbase exists, pull that id
+		int numrows = PQntuples(res);
+		if(numrows > 0) {
+			id = stoi(PQgetvalue(res, 0, 0));
+			return id;
+		} else { // Else, get a new id from the db
+			sql = "SELECT new_factbase();";
+
+			res = PQexec(conn, sql.c_str());
+			if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+				fprintf(stderr, "new_factbase() SELECT command failed: %s",
+						PQerrorMessage(conn));
+			}
+			int factbase_id = stoi(PQgetvalue(res, 0, 0));
+			id = factbase_id;
+
+			PQclear(res);
+			return factbase_id;
+		}
 	} else {
 		return id;
 	}
@@ -101,51 +128,9 @@ void Factbase::add_topology(const Topology& t) {
     topologies.push_back(t);
 }
 
-int Factbase::request_id(void) {
-	if(this->id == 0) {
-		PGresult *res;
-		string sql = "SELECT new_factbase();";
-
-		dbtrans_begin();
-
-		res = PQexec(conn, sql.c_str());
-		if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-			fprintf(stderr, "new_factbase() SELECT command failed: %s",
-					PQerrorMessage(conn));
-		}
-		int factbase_id = stoi(PQgetvalue(res, 0, 0));
-
-		dbtrans_end();
-		PQclear(res);
-
-		this->id = factbase_id;
-
-		return factbase_id;
-	} else {
-		return this->id;
-	}
-}
-
 void Factbase::save(void) {
 	PGresult *res;
-
-    // Check if I exist already
-    cout << "hash: " + hash_value << endl;
-    cout << "id: " + id << endl;
-    if(hash_value != 0) {
-        string exist_sql = "SELECT * FROM factbase WHERE hash = '" + to_string(hash_value) + "';";
-        PGresult *res = PQexec(conn, exist_sql.c_str());
-        int numrows = PQntuples(res);
-        cout << numrows << endl;
-        if(numrows != 0) {
-            // Factbase already exists in database
-            return;
-        }
-    }
-
-	if(id == 0) {
-		id = this->request_id();
-	}
+	get_id();
 
     dbtrans_begin();
 
@@ -190,8 +175,7 @@ void Factbase::print(void) const {
     }
 }
 
-size_t Factbase::hash(void) {
+size_t Factbase::hash(void) const {
     auto hash = FactbaseHash{}(*this);
-	this->hash_value = hash;
     return hash;
 }

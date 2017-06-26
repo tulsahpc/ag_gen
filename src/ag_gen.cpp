@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <vector>
-#include <iomanip>
 
 #include "ag_gen.h"
 #include "util_odometer.h"
@@ -35,17 +34,21 @@ void AGGen::generate(void) {
     vector<NetworkState> new_states;
     int counter = 0;
 
-    while(!this->frontier.empty()) {
+    while(!frontier.empty()) {
         // Remove the next state from the queue and get its factbase
-        NetworkState next_state = this->frontier.back();
+        NetworkState next_state = frontier.back();
         auto current_factbase = next_state.get_factbase();
-        this->frontier.pop_back();
+        frontier.pop_back();
+
+		cout << "Frontier size: " + to_string(frontier.size()) << endl;
+		cout << "Current Factbase: " + to_string(current_factbase.get_id()) + " : " + to_string(current_factbase.hash()) << endl;
 
         // Save the initial state's hash value
         hash_list.push_back(current_factbase.hash());
 
         // Get all applicable exploits with this network state
         auto appl_exploits = check_exploits(next_state);
+		cout << "Applicable exploits: " + to_string(appl_exploits.size()) << endl;
 
         // Apply each exploit to the network state to generate
         // new network states
@@ -55,8 +58,7 @@ void AGGen::generate(void) {
             auto qualities = get<0>(postconditions);
             auto topologies = get<1>(postconditions);
 
-            NetworkState new_state = next_state;
-            auto factbase = new_state.get_factbase();
+            Factbase factbase(current_factbase);
 
             for (auto &qual : qualities) {
                 factbase.add_quality(qual);
@@ -70,9 +72,11 @@ void AGGen::generate(void) {
             auto factbase_hash = factbase.hash();
 			auto factbase_search = find(hash_list.begin(), hash_list.end(), factbase_hash);
             if(factbase_search == hash_list.end()) {
-				// If the hash of the new factbase doesn't already exist,
-				// push the new state into the queue and add the hash
+				// The hash of the new factbase doesn't already exist,
+				// so push the new state into the queue and add the hash
 				// to the list of known states
+				NetworkState new_state(factbase);
+
                 counter++;
                 new_states.push_back(new_state);
                 this->frontier.push_back(new_state);
@@ -80,6 +84,8 @@ void AGGen::generate(void) {
 
                 factbase.save();
 
+				cout << "Factbase does not exist." << endl;
+				cout << to_string(factbase.get_id()) + " : " + to_string(factbase.hash()) << endl;
                 Edge e(current_factbase.get_id(), factbase.get_id());
                 e.save();
             } else {
@@ -90,8 +96,9 @@ void AGGen::generate(void) {
 				res = PQexec(conn, sql.c_str());
 				if(PQresultStatus(res) == PGRES_TUPLES_OK) {
 					int exists_id = stoi(PQgetvalue(res, 0, 0));
+					cout << "Factbase does exist." << endl;
+					cout << to_string(exists_id) + " : " + to_string(factbase_hash) << endl;
                     Edge e(current_factbase.get_id(), exists_id);
-                    e.save();
 				} else {
 					// Cannot find factbase id for some reason. Error out.
 					cerr << "Cannot find factbase when it exists. WTF THIS CAN'T HAPPEN." << endl;
