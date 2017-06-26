@@ -5,8 +5,6 @@
 #ifndef AG_GEN_QUALITY_H
 #define AG_GEN_QUALITY_H
 
-#include <string>
-
 union EncodedQuality {
     struct {
         int asset_id : 32;
@@ -21,6 +19,7 @@ class Quality {
     std::string name;
     std::string value;
 
+    friend class Factbase;
 public:
     Quality(int assetId, const std::string &qualName, const std::string &qualValue);
 	Quality(size_t fact);

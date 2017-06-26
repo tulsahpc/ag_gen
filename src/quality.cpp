@@ -1,11 +1,10 @@
 #include <iostream>
-#include <memory>
 #include <vector>
 #include <libpq-fe.h>
 
-#include "ag_gen.h"
 #include "quality.h"
 #include "util_db.h"
+#include "keyvalue.h"
 
 using namespace std;
 

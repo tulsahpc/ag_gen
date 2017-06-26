@@ -8,7 +8,6 @@
 #include "quality.h"
 #include "topology.h"
 
-class Factbase;
 struct FactbaseHash;
 
 class Factbase {

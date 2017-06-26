@@ -65,8 +65,10 @@ int main(int argc, char *argv[])
 	dbconnect(db_string.c_str());
 
     NetworkState initial_state;
-	AGGen generator(initial_state);
-    generator.generate();
+    initial_state.save_factbase();
+    cout << initial_state.get_factbase().get_id();
+//	AGGen generator(initial_state);
+//    generator.generate();
 
 	dbclose();
 }

@@ -10,6 +10,8 @@ class Edge {
 	int to_node;
 public:
 	Edge(int iFrom, int iTo) : from_node(iFrom), to_node(iTo) {}
+
+	void save(void) const;
 };
 
 #endif //AG_GEN_EDGE_H

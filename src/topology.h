@@ -21,6 +21,7 @@ class Topology {
 
 public:
     Topology(int f_asset, int t_asset, std::string opt);
+	Topology(size_t fact, std::string opts);
 
     int get_from_asset_id(void) const;
     int get_to_asset_id(void) const;

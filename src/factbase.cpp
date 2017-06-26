@@ -19,7 +19,9 @@ Factbase::Factbase(void) {
 	hash_value = 0;
 }
 
-Factbase::Factbase(const Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {}
+Factbase::Factbase(const Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {
+    id = 0;
+}
 
 Factbase::Factbase(int id) {
 	PGresult *res;
@@ -49,8 +51,15 @@ Factbase::Factbase(int id) {
 
 		string type = PQgetvalue(res, i, 2);
 		if(type == "quality") {
-			Quality qual;
+			Quality qual(fact);
+            new_factbase.add_quality(qual);
 		}
+
+        if(type == "topology") {
+            string options = PQgetvalue(res, i, 3);
+            Topology topo(fact, options);
+            new_factbase.add_topology(topo);
+        }
 	}
 
 	dbtrans_end();
@@ -93,7 +102,7 @@ void Factbase::add_topology(const Topology& t) {
 }
 
 int Factbase::request_id(void) {
-	if(this->id != 0) {
+	if(this->id == 0) {
 		PGresult *res;
 		string sql = "SELECT new_factbase();";
 
@@ -120,8 +129,22 @@ int Factbase::request_id(void) {
 void Factbase::save(void) {
 	PGresult *res;
 
+    // Check if I exist already
+    cout << "hash: " + hash_value << endl;
+    cout << "id: " + id << endl;
+    if(hash_value != 0) {
+        string exist_sql = "SELECT * FROM factbase WHERE hash = '" + to_string(hash_value) + "';";
+        PGresult *res = PQexec(conn, exist_sql.c_str());
+        int numrows = PQntuples(res);
+        cout << numrows << endl;
+        if(numrows != 0) {
+            // Factbase already exists in database
+            return;
+        }
+    }
+
 	if(id == 0) {
-		int id = request_id();
+		id = this->request_id();
 	}
 
     dbtrans_begin();

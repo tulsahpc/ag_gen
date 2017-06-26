@@ -8,6 +8,7 @@
 #include "ag_gen.h"
 #include "util_odometer.h"
 #include "util_db.h"
+#include "edge.h"
 
 #ifdef DEBUG_BUILD
 #define DEBUG(x) do { std::cerr << x << endl; } while (0)
@@ -19,7 +20,7 @@ using namespace std;
 
 // The AGGen constructor creates a new AGGen object and takes the given NetworkState and sets it as the
 // initial network state for generation by pushing it onto the new AGGen object's frontier vector.
-AGGen::AGGen(const NetworkState& initial_state) :
+AGGen::AGGen(NetworkState& initial_state) :
         assets(Asset::fetch_all("home")),
         attrs(Quality::fetch_all_attributes()),
         vals(Quality::fetch_all_values())
@@ -78,6 +79,9 @@ void AGGen::generate(void) {
                 hash_list.push_back(factbase_hash);
 
                 factbase.save();
+
+                Edge e(current_factbase.get_id(), factbase.get_id());
+                e.save();
             } else {
 				// Factbase already exists
 				// Get factbase id
@@ -85,7 +89,9 @@ void AGGen::generate(void) {
 				string sql = "SELECT id FROM factbase WHERE hash = '" + to_string(factbase_hash) + "';";
 				res = PQexec(conn, sql.c_str());
 				if(PQresultStatus(res) == PGRES_TUPLES_OK) {
-					int new_id = stoi(PQgetvalue(res, 0, 0));
+					int exists_id = stoi(PQgetvalue(res, 0, 0));
+                    Edge e(current_factbase.get_id(), exists_id);
+                    e.save();
 				} else {
 					// Cannot find factbase id for some reason. Error out.
 					cerr << "Cannot find factbase when it exists. WTF THIS CAN'T HAPPEN." << endl;

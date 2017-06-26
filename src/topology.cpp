@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string>
 #include <vector>
 
 #include "keyvalue.h"
@@ -10,6 +9,15 @@
 using namespace std;
 
 Topology::Topology(int f_asset, int t_asset, string opt) : from_asset_id(f_asset), to_asset_id(t_asset), options(opt) {}
+
+Topology::Topology(size_t fact, string opts) {
+    EncodedTopology eTopo;
+    eTopo.enc = fact;
+
+    from_asset_id = eTopo.dec.from_asset;
+    to_asset_id = eTopo.dec.to_asset;
+    options = opts;
+}
 
 int Topology::get_from_asset_id(void) const {
     return from_asset_id;

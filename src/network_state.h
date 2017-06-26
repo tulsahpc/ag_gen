@@ -9,15 +9,19 @@ class NetworkState {
     Factbase factbase;
 public:
     // default constructor that creates a NetworkState object with a zero-value Factbase
-    NetworkState(void) {};
+    NetworkState(void) : factbase() {};
 
     // copy constructor that creates a new NetworkState with the same factbase as the given NetworkState
-    NetworkState(const NetworkState& ns): factbase(const_cast<NetworkState&>(ns).get_factbase()) {};
+    NetworkState(const NetworkState& ns) : factbase(const_cast<NetworkState&>(ns).get_factbase()) {};
 
     // get_factbase returns the factbase of a NetworkState
     const Factbase& get_factbase(void) const {
         return factbase;
     };
+
+    void save_factbase(void) {
+        factbase.save();
+    }
 
     // print prints the factbase of the NetworkState by calling on factbase's print method
     void print(void) const {
