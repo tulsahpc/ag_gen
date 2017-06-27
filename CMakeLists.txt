@@ -11,7 +11,8 @@ file(GLOB ag_gen_src
 add_executable(ag_gen ${ag_gen_src})
 add_executable(sha256_test "tools/sha256_test.cpp")
 add_executable(graphing_test "tools/graphing_db.cpp")
-add_executable(db_save_test "tools/db_save.cpp" "../src/util_db.cpp")
+add_executable(db_save_test "tools/db_save.cpp")
+add_executable(db2_test "tools/db2_test.cpp")
 
 include_directories(
     "/usr/local/include"
@@ -33,3 +34,5 @@ target_link_libraries(sha256_test ${OPENSSL_LIB} ${OPENSSL_CRYPTO_LIB})
 target_link_libraries(graphing_test ${POSTGRESQL_LIB})
 
 target_link_libraries(db_save_test ${POSTGRESQL_LIB})
+
+target_link_libraries(db2_test ${POSTGRESQL_LIB})

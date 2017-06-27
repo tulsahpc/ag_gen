@@ -19,9 +19,8 @@ public:
 	Factbase(Factbase&);
 	Factbase(int id);
 
-	void populate(void);
+	void initial_populate(void);
 
-	int get_id(void) const;
 	int get_id(void);
 
 	bool find_quality(const Quality&) const;
@@ -31,8 +30,6 @@ public:
 	void add_topology(const Topology&);
 
 	void save(void);
-
-    void print(void) const;
 
 	size_t hash(void) const;
 

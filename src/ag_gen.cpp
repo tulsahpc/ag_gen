@@ -69,48 +69,26 @@ void AGGen::generate(void) {
             }
 
 			// Check if factbase already exists
-            auto factbase_hash = factbase.hash();
-			auto factbase_search = find(hash_list.begin(), hash_list.end(), factbase_hash);
-            if(factbase_search == hash_list.end()) {
+			// Get factbase hash
+			// Search factbase in list of hashes
+            // if(factbase_search == hash_list.end()) {
 				// The hash of the new factbase doesn't already exist,
 				// so push the new state into the queue and add the hash
 				// to the list of known states
-				NetworkState new_state(factbase);
 
-                counter++;
-                new_states.push_back(new_state);
-                this->frontier.push_back(new_state);
-                hash_list.push_back(factbase_hash);
-
-                factbase.save();
-
-				cout << "Factbase does not exist." << endl;
-				cout << to_string(factbase.get_id()) + " : " + to_string(factbase.hash()) << endl;
-                Edge e(current_factbase.get_id(), factbase.get_id());
-                e.save();
-            } else {
+				// Create network state
+				// Add new state to list of new states
+				// add hash to list of known hashes
+				// Save networkstate to database
+            // } else {
 				// Factbase already exists
 				// Get factbase id
-				PGresult *res;
-				string sql = "SELECT id FROM factbase WHERE hash = '" + to_string(factbase_hash) + "';";
-				res = PQexec(conn, sql.c_str());
-				if(PQresultStatus(res) == PGRES_TUPLES_OK) {
-					int exists_id = stoi(PQgetvalue(res, 0, 0));
-					cout << "Factbase does exist." << endl;
-					cout << to_string(exists_id) + " : " + to_string(factbase_hash) << endl;
-                    Edge e(current_factbase.get_id(), exists_id);
-				} else {
-					// Cannot find factbase id for some reason. Error out.
-					cerr << "Cannot find factbase when it exists. WTF THIS CAN'T HAPPEN." << endl;
-					exit(1);
-				}
-
-				PQclear(res);
-			}
+				// Create Edge
+			// }
         }
     }
 
-    cout << "total number of generated states: " << counter << endl;
+//    cout << "total number of generated states: " << counter << endl;
 
 //    for(auto& state : new_states) {
 //        state.print();

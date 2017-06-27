@@ -22,7 +22,9 @@ Factbase::Factbase(Factbase& fb) : qualities(fb.qualities), topologies(fb.topolo
 Factbase::Factbase(int iId) {
 	PGresult *res;
 
-	dbtrans_begin();
+	// Check if factbase exists
+	// If it does exist, import all of its data
+	// If it doesn't exist, throw exception
 
 	string sql = "SELECT * FROM factbase WHERE id = " + to_string(id) + ";";
 	res = PQexec(conn, sql.c_str());
@@ -57,17 +59,6 @@ Factbase::Factbase(int iId) {
             add_topology(topo);
         }
 	}
-
-	dbtrans_end();
-}
-
-void Factbase::populate(void) {
-	qualities = Quality::fetch_all();
-	topologies = Topology::fetch_all();
-}
-
-int Factbase::get_id(void) const {
-	return id;
 }
 
 int Factbase::get_id(void) {
@@ -162,17 +153,6 @@ void Factbase::save(void) {
     dbtrans_end();
 
 	PQclear(res);
-}
-
-// print prints to stdout every quality of the factbase, then every topology of the factbase
-void Factbase::print(void) const {
-    for(auto& q : qualities) {
-        q.print();
-    }
-
-    for(auto& t : topologies) {
-        t.print();
-    }
 }
 
 size_t Factbase::hash(void) const {
