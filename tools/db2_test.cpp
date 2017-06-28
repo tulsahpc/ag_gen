@@ -15,8 +15,12 @@ int main(int argc, char **argv) {
 
 	try {
 		auto rows = db.exec("SELECT * FROM factbase;");
-		for (auto &row : rows) {
-
+		for(auto& row : rows) {
+			cout << "Row: ";
+			for(auto& field : row) {
+				cout << field << " ";
+			}
+			cout << endl;
 		}
 	} catch (DBException& e) {
 		cout << e.what() << endl;

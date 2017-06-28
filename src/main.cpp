@@ -61,12 +61,11 @@ int main(int argc, char *argv[])
 	}
 
 	Config config("config.txt");
-	string db_string = config.db_string();
-	dbconnect(db_string.c_str());
+	DB::connect(config.db_string());
 
     NetworkState initial_state;
 	AGGen generator(initial_state);
     generator.generate();
 
-	dbclose();
+	DB::close();
 }

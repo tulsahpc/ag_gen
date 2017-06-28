@@ -23,13 +23,24 @@ public:
 class DB {
 	class Connection {
 		PGconn *conn_r;
+		bool connected = false;
 	public:
+		Connection(void) {}
 		Connection(std::string conninfo) {
+			connect(conninfo);
+		}
+
+		void connect(std::string conninfo) {
 			// Create database connection
 			conn_r = PQconnectdb(conninfo.c_str());
 			if(PQstatus(conn_r) != CONNECTION_OK) {
 				throw DBException("Database connection failed.");
 			}
+			connected = true;
+		}
+
+		bool is_connected(void) {
+			return connected;
 		}
 
 		void close() {
@@ -37,32 +48,55 @@ class DB {
 			if(conn_r) {
 				PQfinish(conn_r);
 			}
+			connected = false;
 		}
 
 		friend class DB;
 	};
 
-	create_tuple
-
 	Connection conn;
 public:
 	typedef std::vector<std::string> Row;
-	DB(std::string conninfo) : conn(conninfo) {}
+	static DB instance;
 
-	std::vector<Row> exec(std::string sql) {
-		PGresult* res = PQexec(conn.conn_r, sql.c_str());
+	static DB& connect(std::string conninfo) {
+		if(!instance.conn.is_connected()) {
+			instance.conn.connect(conninfo);
+		}
+		return instance;
+	}
+
+	static void close(void) {
+		instance.conn.close();
+	}
+
+	static std::vector<Row> exec(std::string sql) {
+		if(!instance.conn.is_connected()) {
+			throw DBException("Not connected to Database.");
+		}
+
+		PGresult* res = PQexec(instance.conn.conn_r, sql.c_str());
 		if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-			throw DBException(PQerrorMessage(conn.conn_r));
+			throw DBException(PQerrorMessage(instance.conn.conn_r));
 		}
 
 		int numrows = PQntuples(res);
 		int numfields = PQnfields(res);
+		std::vector<Row> rows;
 		for(auto i=0; i<numrows; i++) {
-
+			Row new_row;
+			for(auto j=0; j<numfields; j++) {
+				new_row.push_back(PQgetvalue(res, i, j));
+			}
+			rows.push_back(new_row);
 		}
 
 		PQclear(res);
+		return rows;
 	}
+
+	DB(DB const&) = delete;
+	void operator=(DB const&) = delete;
 };
 
 #endif //UTIL_DB_HPP

@@ -46,73 +46,41 @@ void Quality::print() const {
 
 vector<const Quality> Quality::fetch_all(void) {
 	vector<const Quality> qualities;
+	vector<DB::Row> rows = DB::exec("SELECT * FROM quality;");
 
-	PGresult *res;
-	int num_rows;
-
-	string sql = "SELECT * FROM quality;";
-
-	res = PQexec(conn, sql.c_str());
-	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-		fprintf(stderr, "quality SELECT command failed: %s",
-			PQerrorMessage(conn));
-	}
-
-	num_rows = PQntuples(res);
-	for(int i=0; i<num_rows; i++) {
-		int asset_id = stoi(PQgetvalue(res, i, 0));
-		string property = PQgetvalue(res, i, 1);
-		string value = PQgetvalue(res, i, 2);
+	for(auto& row : rows) {
+		int asset_id = stoi(row[0]);
+		string property = row[1];
+		string value = row[2];
 
 		const Quality qual(asset_id, property, value);
 		qualities.push_back(qual);
 	}
 
-	PQclear(res);
 	return qualities;
 }
 
 vector<string> Quality::fetch_all_attributes() {
 	vector<string> attrs;
+	vector<DB::Row> rows = DB::exec("SELECT DISTINCT property FROM quality;");
 
-	PGresult *res;
-
-	string sql = "SELECT DISTINCT property FROM quality;";
-	res = PQexec(conn, sql.c_str());
-	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-		fprintf(stderr, "SELECT command failed: %s",
-			PQerrorMessage(conn));
-	}
-
-	int num_rows = PQntuples(res);
-	for(int i=0; i<num_rows; i++) {
-		string prop = PQgetvalue(res, i, 0);
+	for(auto& row : rows) {
+		string prop = row[0];
 		attrs.push_back(prop);
 	}
 
-	PQclear(res);
 	return attrs;
 }
 
 vector<string> Quality::fetch_all_values() {
 	vector<string> vals;
+	vector<DB::Row> rows = DB::exec("SELECT DISTINCT value FROM quality;");
 
-	PGresult *res;
-
-	string sql = "SELECT DISTINCT value FROM quality;";
-	res = PQexec(conn, sql.c_str());
-	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-		fprintf(stderr, "SELECT command failed: %s",
-			PQerrorMessage(conn));
-	}
-
-	int num_rows = PQntuples(res);
-	for(int i=0; i<num_rows; i++) {
-		string val = PQgetvalue(res, i, 0);
+	for(auto& row : rows) {
+		string val = row[0];
 		vals.push_back(val);
 	}
 
-	PQclear(res);
 	return vals;
 }
 

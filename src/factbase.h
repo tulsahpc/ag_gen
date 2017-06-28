@@ -20,6 +20,7 @@ public:
 	Factbase(int id);
 
 	void initial_populate(void);
+	bool exists_in_db(void);
 
 	int get_id(void);
 

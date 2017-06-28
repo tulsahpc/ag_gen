@@ -61,6 +61,11 @@ Factbase::Factbase(int iId) {
 	}
 }
 
+bool Factbase::exists_in_db(void) {
+	int id = get_id();
+
+}
+
 int Factbase::get_id(void) {
 	if(id == 0) {
 		PGresult *res;

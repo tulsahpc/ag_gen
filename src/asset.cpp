@@ -26,69 +26,40 @@ string Asset::get_name(void) {
 // to the Asset
 void Asset::fetch_qualities(void)
 {
-	vector<Quality> qualities;
+	vector<DB::Row> rows = DB::exec(
+		"SELECT * FROM quality WHERE asset_id = '" + to_string(id) + "';");
+	vector<Quality> new_qualities;
 
-	PGresult *res;
-	int num_rows;
-
-	string sql = "SELECT * FROM quality WHERE asset_id = '" + to_string(id) + "';";
-
-	res = PQexec(conn, sql.c_str());
-	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-		fprintf(stderr, "asset SELECT command failed: %s",
-			PQerrorMessage(conn));
-		PQclear(res);
-		exit(1);
-	}
-
-	num_rows = PQntuples(res);
-	for(int i=0; i<num_rows; i++) {
-		int asset_id = stoi(PQgetvalue(res, i, 0));
-		string property = PQgetvalue(res, i, 1);
-		string value = PQgetvalue(res, i, 2);
+	for(auto& row : rows) {
+		int asset_id = stoi(row[0]);
+		string property = row[1];
+		string value = row[2];
 
 		Quality qual(asset_id, property, value);
-		qualities.push_back(qual);
+		new_qualities.push_back(qual);
 	}
 
-	PQclear(res);
-	this->qualities = qualities;
+	this->qualities = new_qualities;
 }
 
 // fetch_all grabs all of the Assets in the database under the network given in the argument and returns a
 // vector of those Assets
 vector<Asset> Asset::fetch_all(const string& network)
 {
-	vector<Asset> assets;
+	vector<DB::Row> rows = DB::exec(
+		"SELECT * FROM asset WHERE network_id = (SELECT id FROM network WHERE name = '" + network + "');");
+	vector<Asset> new_assets;
 
-	PGresult *res;
-	int num_rows;
-
-	dbtrans_begin();
-
-	string sql = "SELECT * FROM asset WHERE network_id = (SELECT id FROM network WHERE name = '" + network + "');";
-
-	res = PQexec(conn, sql.c_str());
-	if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-		fprintf(stderr, "SELECT command failed: %s",
-			PQerrorMessage(conn));
-		PQclear(res);
-		exit(1);
-	}
-
-	num_rows = PQntuples(res);
-	for (int i=0; i<num_rows; i++) {
-		int id = stoi(PQgetvalue(res, i, 0));
-		string name = PQgetvalue(res, i, 1);
-		int network_id = stoi(PQgetvalue(res, i, 2));
+	for (auto& row : rows) {
+		int id = stoi(row[0]);
+		string name = row[1];
+		int network_id = stoi(row[2]);
 
 		Asset asset(id, network_id, name);
 		asset.fetch_qualities();
 
-		assets.push_back(asset);
+		new_assets.push_back(asset);
 	}
 
-	dbtrans_end();
-	PQclear(res);
-	return assets;
+	return new_assets;
 }
