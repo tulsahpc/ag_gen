@@ -88,19 +88,6 @@ void graph_db(const char *conninfo) {
         }
         PQclear(res);
 
-        res = PQexec(conn, "SELECT * FROM asset;");
-        checkSelect(conn, res);
-        rows = PQntuples(res);
-        std::unordered_map<std::string, Net_Vertex> net_vertex_map;
-        for (int i=0; i<rows; i++) {
-                Net_Vertex v = boost::add_vertex(ng);
-                ng[v].id = PQgetvalue(res, i, 0);
-                ng[v].name = PQgetvalue(res, i, 1);
-                ng[v].network_id = PQgetvalue(res, i, 2);
-                net_vertex_map[ ng[v].id] = v;
-        }
-        PQclear(res);
-
         res = PQexec(conn, "SELECT * FROM topology;");
         checkSelect(conn, res);
         rows = PQntuples(res);

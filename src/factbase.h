@@ -16,7 +16,9 @@ class Factbase {
 	std::vector<Topology> topologies;
 
 	int id;
+    int hash_value;
 
+    Factbase get(const int id) const;
 	int request_id(void);
 public:
 	Factbase(void);
