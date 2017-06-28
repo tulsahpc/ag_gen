@@ -51,8 +51,8 @@ void graph_db(const char *conninfo) {
                 PQfinish(conn);
                 exit(1);
         }
-    
-        res = PQexec(conn, "SELECT * FROM attack_node;");
+
+        res = PQexec(conn, "SELECT * FROM factbase;");
         checkSelect(conn, res);
         int rows = PQntuples(res);
         std::unordered_map<std::string, Attack_Vertex> att_vertex_map;
@@ -62,7 +62,7 @@ void graph_db(const char *conninfo) {
                 ag[v].fact = PQgetvalue(res, i, 1);
                 att_vertex_map[ ag[v].factbase_id] = v;
         }
-        PQclear(res);	
+        PQclear(res);
 
         res = PQexec(conn, "SELECT * FROM edge;");
         checkSelect(conn, res);
@@ -86,7 +86,20 @@ void graph_db(const char *conninfo) {
                 ng[v].network_id = PQgetvalue(res, i, 2);
                 net_vertex_map[ ng[v].id] = v;
         }
-        PQclear(res);	
+        PQclear(res);
+
+        res = PQexec(conn, "SELECT * FROM asset;");
+        checkSelect(conn, res);
+        rows = PQntuples(res);
+        std::unordered_map<std::string, Net_Vertex> net_vertex_map;
+        for (int i=0; i<rows; i++) {
+                Net_Vertex v = boost::add_vertex(ng);
+                ng[v].id = PQgetvalue(res, i, 0);
+                ng[v].name = PQgetvalue(res, i, 1);
+                ng[v].network_id = PQgetvalue(res, i, 2);
+                net_vertex_map[ ng[v].id] = v;
+        }
+        PQclear(res);
 
         res = PQexec(conn, "SELECT * FROM topology;");
         checkSelect(conn, res);
@@ -107,7 +120,7 @@ void graph_db(const char *conninfo) {
         dp.property("node_id", get(boost::vertex_index, ag));
         boost::write_graphviz_dp(gout, ag, dp);
         gout.close();
-        
+
         gout.open("net_graph.circo");
         boost::dynamic_properties dp2;
         dp2.property("label", get(&Asset::name, ng));
@@ -119,6 +132,6 @@ int main() {
         const char *conninfo;
         conninfo = "postgresql://ruff@localhost/ag_gen_test";
         graph_db(conninfo);
-        
+
         return 0;
 }

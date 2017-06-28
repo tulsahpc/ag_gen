@@ -8,6 +8,7 @@
 
 #include "ag_gen.h"
 #include "util_odometer.h"
+#include "util_db.h"
 
 #ifdef DEBUG_BUILD
 #define DEBUG(x) do { std::cerr << x << endl; } while (0)
@@ -41,7 +42,7 @@ void AGGen::generate(void) {
         this->frontier.pop_back();
 
         // Save the initial state's hash value
-        hash_list.push_back(Factbase::hash(current_factbase));
+        hash_list.push_back(current_factbase.hash());
 
         // Get all applicable exploits with this network state
         auto appl_exploits = check_exploits(next_state);
@@ -68,14 +69,19 @@ void AGGen::generate(void) {
             // If the hash of the new factbase doesn't already exist,
             // push the new state into the queue and add the hash
             // to the list of known states
-            auto factbase_hash = Factbase::hash(factbase);
-            if(find(hash_list.begin(), hash_list.end(), factbase_hash) == hash_list.end()) {
+            auto factbase_hash = factbase.hash();
+			auto factbase_search = find(hash_list.begin(), hash_list.end(), factbase_hash);
+            if(factbase_search == hash_list.end()) {
                 counter++;
                 new_states.push_back(new_state);
                 this->frontier.push_back(new_state);
                 hash_list.push_back(factbase_hash);
+
                 factbase.save();
-            }
+            } else {
+				// Factbase already exists
+
+			}
         }
     }
 
