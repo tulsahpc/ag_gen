@@ -28,7 +28,7 @@ public:
     const EncodedTopology encode(void) const;
     bool operator==(const Topology& rhs) const;
 
-    static std::vector<const Topology> fetch_all(void);
+    static std::vector<Topology> fetch_all(void);
 };
 
 #endif //AG_GEN_TOPOLOGY_H

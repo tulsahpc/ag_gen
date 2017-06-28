@@ -12,20 +12,19 @@ class Factbase;
 struct FactbaseHash;
 
 class Factbase {
-	std::vector<const Quality> qualities;
-	std::vector<const Topology> topologies;
+	std::vector<Quality> qualities;
+	std::vector<Topology> topologies;
 public:
 	Factbase(void);
 	Factbase(const Factbase&);
 
-	bool find_quality(const Quality&) const;
-	void add_quality(const Quality&);
+	bool find_quality(Quality&);
+	void add_quality(Quality&);
 
-	bool find_topology(const Topology&) const;
-	void add_topology(const Topology&);
+	bool find_topology(Topology&);
+	void add_topology(Topology&);
 
 	void save(void);
-
     void print(void) const;
 
     static size_t hash(const Factbase&);

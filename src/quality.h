@@ -23,13 +23,13 @@ class Quality {
 
 public:
     Quality(int assetId, const std::string &qualName, const std::string &qualValue);
-    const std::string get_name(void) const;
+	const std::string get_name(void) const;
 
     void print(void) const;
     const EncodedQuality encode(void) const;
     bool operator==(const Quality &rhs) const;
 
-    static std::vector<const Quality> fetch_all(void);
+    static std::vector<Quality> fetch_all(void);
     static std::vector<std::string> fetch_all_attributes(void);
     static std::vector<std::string> fetch_all_values(void);
 };

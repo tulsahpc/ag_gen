@@ -21,7 +21,7 @@ Factbase::Factbase(const Factbase& fb) : qualities(fb.qualities), topologies(fb.
 
 // find_quality searches for a given quality in a factbase. Returns true if the quality is found, otherwise
 // returns false
-bool Factbase::find_quality(const Quality& q) const {
+bool Factbase::find_quality(Quality& q) {
     if(find(qualities.begin(), qualities.end(), q) == qualities.end()) {
 		return false;
     }
@@ -30,7 +30,7 @@ bool Factbase::find_quality(const Quality& q) const {
 
 // find_topology searches for a given topology in a factbase. Returns true if the topology is found,
 // otherwise returns false
-bool Factbase::find_topology(const Topology& t) const {
+bool Factbase::find_topology(Topology& t) {
     if(find(topologies.begin(), topologies.end(), t) == topologies.end()) {
         return false;
     }
@@ -38,12 +38,12 @@ bool Factbase::find_topology(const Topology& t) const {
 }
 
 // add_quality adds a given quality to the factbase's vector of qualities
-void Factbase::add_quality(const Quality& q) {
+void Factbase::add_quality(Quality& q) {
     qualities.push_back(q);
 }
 
 // add_topology adds a given topology to the factbase's vector of topologies
-void Factbase::add_topology(const Topology& t) {
+void Factbase::add_topology(Topology& t) {
     topologies.push_back(t);
 }
 

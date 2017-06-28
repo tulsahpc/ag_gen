@@ -6,7 +6,7 @@
 #include "factbase.h"
 
 class NetworkState {
-    Factbase factbase;
+	Factbase factbase;
 public:
     // default constructor that creates a NetworkState object with a zero-value Factbase
     NetworkState(void) {};
@@ -15,12 +15,12 @@ public:
     NetworkState(const NetworkState& ns): factbase(const_cast<NetworkState&>(ns).get_factbase()) {};
 
     // get_factbase returns the factbase of a NetworkState
-    const Factbase& get_factbase(void) const {
+	Factbase& get_factbase(void) {
         return factbase;
     };
 
     // print prints the factbase of the NetworkState by calling on factbase's print method
-    void print(void) const {
+    void print(void) {
         factbase.print();
     };
 };

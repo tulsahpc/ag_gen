@@ -36,8 +36,8 @@ void Quality::print() const {
     std::cout << to_string(asset_id) + ": " + name + " => " + value << std::endl;
 }
 
-vector<const Quality> Quality::fetch_all(void) {
-	vector<const Quality> qualities;
+vector<Quality> Quality::fetch_all(void) {
+	vector<Quality> qualities;
 
 	PGresult *res;
 	int num_rows;
