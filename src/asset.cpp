@@ -26,7 +26,7 @@ string Asset::get_name(void) {
 // to the Asset
 void Asset::fetch_qualities(void)
 {
-	vector<DB::Row> rows = DB::exec(
+	vector<DB::Row> rows = DB::get().exec(
 		"SELECT * FROM quality WHERE asset_id = '" + to_string(id) + "';");
 	vector<Quality> new_qualities;
 
@@ -46,7 +46,7 @@ void Asset::fetch_qualities(void)
 // vector of those Assets
 vector<Asset> Asset::fetch_all(const string& network)
 {
-	vector<DB::Row> rows = DB::exec(
+	vector<DB::Row> rows = DB::get().exec(
 		"SELECT * FROM asset WHERE network_id = (SELECT id FROM network WHERE name = '" + network + "');");
 	vector<Asset> new_assets;
 

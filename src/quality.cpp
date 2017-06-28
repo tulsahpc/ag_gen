@@ -46,7 +46,7 @@ void Quality::print() const {
 
 vector<const Quality> Quality::fetch_all(void) {
 	vector<const Quality> qualities;
-	vector<DB::Row> rows = DB::exec("SELECT * FROM quality;");
+	vector<DB::Row> rows = DB::get().exec("SELECT * FROM quality;");
 
 	for(auto& row : rows) {
 		int asset_id = stoi(row[0]);
@@ -62,7 +62,7 @@ vector<const Quality> Quality::fetch_all(void) {
 
 vector<string> Quality::fetch_all_attributes() {
 	vector<string> attrs;
-	vector<DB::Row> rows = DB::exec("SELECT DISTINCT property FROM quality;");
+	vector<DB::Row> rows = DB::get().exec("SELECT DISTINCT property FROM quality;");
 
 	for(auto& row : rows) {
 		string prop = row[0];
@@ -74,7 +74,7 @@ vector<string> Quality::fetch_all_attributes() {
 
 vector<string> Quality::fetch_all_values() {
 	vector<string> vals;
-	vector<DB::Row> rows = DB::exec("SELECT DISTINCT value FROM quality;");
+	vector<DB::Row> rows = DB::get().exec("SELECT DISTINCT value FROM quality;");
 
 	for(auto& row : rows) {
 		string val = row[0];

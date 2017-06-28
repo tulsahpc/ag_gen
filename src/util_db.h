@@ -55,40 +55,44 @@ class DB {
 	};
 
 	Connection conn;
+
+	DB(std::string conninfo) : conn(conninfo) {};
 public:
 	typedef std::vector<std::string> Row;
-	static DB instance;
+	static std::string db_string;
 
-	static DB& connect(std::string conninfo) {
-		if(!instance.conn.is_connected()) {
-			instance.conn.connect(conninfo);
-		}
+	static DB& get() {
+		static DB instance(db_string);
 		return instance;
 	}
 
-	static void close(void) {
-		instance.conn.close();
+	void close() {
+		conn.close();
 	}
 
-	static std::vector<Row> exec(std::string sql) {
-		if(!instance.conn.is_connected()) {
+	std::vector<Row> exec(std::string sql) {
+		if(!conn.is_connected()) {
 			throw DBException("Not connected to Database.");
 		}
 
-		PGresult* res = PQexec(instance.conn.conn_r, sql.c_str());
-		if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-			throw DBException(PQerrorMessage(instance.conn.conn_r));
-		}
-
-		int numrows = PQntuples(res);
-		int numfields = PQnfields(res);
 		std::vector<Row> rows;
-		for(auto i=0; i<numrows; i++) {
-			Row new_row;
-			for(auto j=0; j<numfields; j++) {
-				new_row.push_back(PQgetvalue(res, i, j));
+		PGresult* res = PQexec(conn.conn_r, sql.c_str());
+		if(PQresultStatus(res) == PGRES_COMMAND_OK) {
+			// No return
+		} else if(PQresultStatus(res) == PGRES_TUPLES_OK) {
+			// Return rows
+			int numrows = PQntuples(res);
+			int numfields = PQnfields(res);
+			for(auto i=0; i<numrows; i++) {
+				Row new_row;
+				for(auto j=0; j<numfields; j++) {
+					new_row.push_back(PQgetvalue(res, i, j));
+				}
+				rows.push_back(new_row);
 			}
-			rows.push_back(new_row);
+		} else {
+			// DB Error
+			throw DBException(PQerrorMessage(conn.conn_r));
 		}
 
 		PQclear(res);
@@ -96,7 +100,7 @@ public:
 	}
 
 	DB(DB const&) = delete;
-	void operator=(DB const&) = delete;
+	DB& operator=(DB const&) = delete;
 };
 
 #endif //UTIL_DB_HPP

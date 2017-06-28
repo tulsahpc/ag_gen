@@ -46,28 +46,16 @@ const EncodedTopology Topology::encode(void) const {
 vector<const Topology> Topology::fetch_all() {
     vector<const Topology> topologies;
 
-    PGresult *res;
-    int num_rows;
-
-    string sql = "SELECT * FROM topology;";
-
-    res = PQexec(conn, sql.c_str());
-    if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-        fprintf(stderr, "topology SELECT command failed: %s",
-                PQerrorMessage(conn));
-    }
-
-    num_rows = PQntuples(res);
-    for(int i=0; i<num_rows; i++) {
-        int from_asset = stoi(PQgetvalue(res, i, 0));
-        int to_asset = stoi(PQgetvalue(res, i, 1));
-        string options = PQgetvalue(res, i, 2);
+    vector<DB::Row> rows = DB::get().exec("SELECT * FROM topology;");
+    for(auto& row : rows) {
+        int from_asset = stoi(row[0]);
+        int to_asset = stoi(row[1]);
+        string options = row[2];
 
         const Topology t(from_asset, to_asset, options);
         topologies.push_back(t);
     }
 
-    PQclear(res);
     return topologies;
 }
 

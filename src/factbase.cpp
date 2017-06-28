@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cstdio>
 
 #include "factbase.h"
 #include "util_db.h"
@@ -20,75 +21,54 @@ Factbase::Factbase(Factbase& fb) : qualities(fb.qualities), topologies(fb.topolo
 }
 
 Factbase::Factbase(int iId) {
-	PGresult *res;
-
 	// Check if factbase exists
 	// If it does exist, import all of its data
 	// If it doesn't exist, throw exception
 
-	string sql = "SELECT * FROM factbase WHERE id = " + to_string(id) + ";";
-	res = PQexec(conn, sql.c_str());
-	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-		fprintf(stderr, "SELECT factbase error: %s", PQerrorMessage(conn));
+	vector<DB::Row> rows = DB::get().exec("SELECT * FROM factbase WHERE id = " + to_string(iId) + ";");
+	if(rows.size() != 1) {
+		throw DBException("Something went wrong.");
 	}
 
-	id = iId;
+	// There should only be one row that is returned,
+	// so shortcut with rows[0][0]
 	size_t hash_value;
-	sscanf(PQgetvalue(res, 0, 0), "%zu", &hash_value);
+	sscanf(rows[0][0].c_str(), "%zu", &hash_value);
 
-	sql = "SELECT * FROM factbase_item WHERE factbase_id = " + to_string(id) + ";";
-	res = PQexec(conn, sql.c_str());
-	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-		cerr << "SELECT factbase_items failed: " << PQerrorMessage(conn) << endl;
-	}
+	rows = DB::get().exec("SELECT * FROM factbase_item WHERE factbase_id = " + to_string(id) + ";");
 
-	int num_rows = PQntuples(res);
-	for(auto i=0; i<num_rows; i++) {
+	for(auto& row : rows) {
 		size_t fact;
-		sscanf(PQgetvalue(res, i, 1), "%zu", &fact);
+		sscanf(row[1].c_str(), "%zu", &fact);
 
-		string type = PQgetvalue(res, i, 2);
+		string type = row[2];
 		if(type == "quality") {
 			Quality qual(fact);
             add_quality(qual);
 		}
 
         if(type == "topology") {
-            string options = PQgetvalue(res, i, 3);
+            string options = row[3];
             Topology topo(fact, options);
             add_topology(topo);
         }
 	}
 }
 
-bool Factbase::exists_in_db(void) {
-	int id = get_id();
-
-}
-
 int Factbase::get_id(void) {
 	if(id == 0) {
-		PGresult *res;
-		string sql = "SELECT id FROM factbase WHERE hash = '" + to_string(hash()) + "';";
-		res = PQexec(conn, sql.c_str());
+		vector<DB::Row> rows = DB::get().exec("SELECT id FROM factbase WHERE hash = '" + to_string(hash()) + "';");
 
-		// If has of current factbase exists, pull that id
-		int numrows = PQntuples(res);
-		if(numrows > 0) {
-			id = stoi(PQgetvalue(res, 0, 0));
+		// Should only be one result.
+		if(rows.size() == 0) {
+			id = stoi(rows[0][0]);
 			return id;
 		} else { // Else, get a new id from the db
-			sql = "SELECT new_factbase();";
+			rows = DB::get().exec("SELECT new_factbase();");
 
-			res = PQexec(conn, sql.c_str());
-			if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-				fprintf(stderr, "new_factbase() SELECT command failed: %s",
-						PQerrorMessage(conn));
-			}
-			int factbase_id = stoi(PQgetvalue(res, 0, 0));
+			int factbase_id = stoi(rows[0][0]);
 			id = factbase_id;
 
-			PQclear(res);
 			return factbase_id;
 		}
 	} else {
@@ -125,18 +105,8 @@ void Factbase::add_topology(const Topology& t) {
 }
 
 void Factbase::save(void) {
-	PGresult *res;
-	get_id();
-
-    dbtrans_begin();
-
 	// Save hash
-	string hash_sql = "UPDATE factbase SET hash = '" + to_string(this->hash()) + "' WHERE id = " + to_string(id) + ";";
-	res = PQexec(conn, hash_sql.c_str());
-	if(PQresultStatus(res) != PGRES_COMMAND_OK) {
-		fprintf(stderr, "factbase UPDATE hash command failed: %s",
-			PQerrorMessage(conn));
-	}
+	vector<DB::Row> rows = DB::get().exec("UPDATE factbase SET hash = '" + to_string(this->hash()) + "' WHERE id = " + to_string(id) + ";");
 
     // XXX: There has to be a better way to do this
     string insert_sql = "INSERT INTO factbase_item VALUES ";
@@ -149,15 +119,7 @@ void Factbase::save(void) {
 	}
     insert_sql += ";";
 
-    res = PQexec(conn, insert_sql.c_str());
-    if(PQresultStatus(res) != PGRES_COMMAND_OK) {
-        fprintf(stderr, "factbase_item INSERT command failed: %s",
-                PQerrorMessage(conn));
-    }
-
-    dbtrans_end();
-
-	PQclear(res);
+    DB::get().exec(insert_sql);
 }
 
 size_t Factbase::hash(void) const {
