@@ -3,6 +3,7 @@
 //
 
 #include "network_state.h"
+#include "util_db.h"
 
 // default constructor that creates a NetworkState object with a zero-value Factbase
 NetworkState::NetworkState(void) : factbase() {};
@@ -18,4 +19,5 @@ Factbase& NetworkState::get_factbase(void) {
 
 void NetworkState::init(void) {
 	factbase.populate();
+    factbase.save();
 }

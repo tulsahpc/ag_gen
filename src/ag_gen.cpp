@@ -19,11 +19,12 @@ using namespace std;
 
 // The AGGen constructor creates a new AGGen object and takes the given NetworkState and sets it as the
 // initial network state for generation by pushing it onto the new AGGen object's frontier vector.
-AGGen::AGGen(const NetworkState& initial_state) :
+AGGen::AGGen(NetworkState& initial_state) :
         assets(Asset::fetch_all("home")),
         attrs(Quality::fetch_all_attributes()),
         vals(Quality::fetch_all_values())
 {
+    initial_state.init();
     frontier.push_back(initial_state);
 }
 
@@ -36,8 +37,8 @@ void AGGen::generate(void) {
 
     while(!frontier.empty()) {
         // Remove the next state from the queue and get its factbase
-        NetworkState& next_state = frontier.back();
-        Factbase& current_factbase = next_state.get_factbase();
+        NetworkState next_state = frontier.back();
+        Factbase current_factbase = next_state.get_factbase();
         frontier.pop_back();
 
 		cout << "Frontier size: " + to_string(frontier.size()) << endl;
@@ -66,6 +67,25 @@ void AGGen::generate(void) {
 
             for (auto &topo : topologies) {
                 factbase.add_topology(topo);
+            }
+
+            size_t hash = factbase.hash();
+            try {
+                vector<DB::Row> rows = db->exec("SELECT id FROM factbase WHERE hash = '" + to_string(hash) + "';");
+                int a = 3;
+                if(rows.size() == 0) {
+                    // Factbase does not exist already
+                    factbase.get_id();
+                    NetworkState ns(factbase);
+                    frontier.push_back(ns);
+                    factbase.save();
+                } else {
+                    // Factbase exists already
+                    cout << "FACTBASE EXISTS" << endl;
+                }
+            } catch (DBException e) {
+                cerr << e.what() << endl;
+                abort();
             }
 
 			// Check if factbase already exists

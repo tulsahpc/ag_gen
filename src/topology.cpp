@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-#include "global.h"
+
 #include "keyvalue.h"
 #include "topology.h"
 #include "util_db.h"

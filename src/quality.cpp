@@ -5,7 +5,7 @@
 #include "quality.h"
 #include "util_db.h"
 #include "keyvalue.h"
-#include "global.h"
+
 
 using namespace std;
 

@@ -5,7 +5,7 @@
 #include <string>
 #include <libpq-fe.h>
 
-#include "global.h"
+
 #include "asset.h"
 #include "util_db.h"
 

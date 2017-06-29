@@ -20,7 +20,6 @@ public:
 	Factbase(int id);
 
 	void populate(void);
-
 	int get_id(void);
 
 	bool find_quality(const Quality&) const;

@@ -7,7 +7,7 @@
 #include "ag_gen.h"
 #include "util_db.h"
 #include "config.h"
-#include "global.h"
+
 #include "network_state.h"
 #include "keyvalue.h"
 
@@ -67,7 +67,6 @@ int main(int argc, char *argv[])
     db = make_shared<DB>(config.db_string());
 
     NetworkState initial_state;
-    initial_state.init();
 	AGGen generator(initial_state);
     generator.generate();
 

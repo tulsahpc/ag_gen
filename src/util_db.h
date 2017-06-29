@@ -13,9 +13,11 @@
 #include <vector>
 #include <tuple>
 #include <utility>
+#include <memory>
 #include <libpq-fe.h>
 
-#include "global.h"
+class DB;
+extern std::shared_ptr<DB> db;
 
 class DBException : public std::runtime_error {
 public:

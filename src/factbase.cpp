@@ -7,7 +7,7 @@
 
 #include "factbase.h"
 #include "util_db.h"
-#include "global.h"
+
 
 using namespace std;
 
@@ -112,7 +112,14 @@ void Factbase::add_topology(const Topology& t) {
 
 void Factbase::save(void) {
 	// Save hash
-	vector<DB::Row> rows = db->exec("UPDATE factbase SET hash = '" + to_string(this->hash()) + "' WHERE id = " + to_string(id) + ";");
+    vector<DB::Row> rows = db->exec("SELECT id FROM factbase WHERE id = '" + to_string(get_id()) + "';");
+    if(rows.size() == 0) {
+        // Does not exist already
+        db->exec("INSERT INTO factbase VALUES (" + to_string(get_id()) + ",'" + to_string(hash()) +"');");
+    } else {
+        // Does exist
+        db->exec("UPDATE factbase SET hash = '" + to_string(hash()) + "' WHERE id = " + to_string(get_id()) + ";");
+    }
 
     // XXX: There has to be a better way to do this
     string insert_sql = "INSERT INTO factbase_item VALUES ";
