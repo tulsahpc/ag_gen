@@ -24,7 +24,6 @@ AGGen::AGGen(NetworkState& initial_state) :
         attrs(Quality::fetch_all_attributes()),
         vals(Quality::fetch_all_values())
 {
-    initial_state.init();
     frontier.push_back(initial_state);
 }
 
@@ -41,15 +40,15 @@ void AGGen::generate(void) {
         Factbase current_factbase = next_state.get_factbase();
         frontier.pop_back();
 
-		cout << "Frontier size: " + to_string(frontier.size()) << endl;
-		cout << "Current Factbase: " + to_string(current_factbase.get_id()) + " : " + to_string(current_factbase.hash()) << endl;
+//		DEBUG("Frontier size: " + to_string(frontier.size()));
+//		DEBUG("Current Factbase: " + to_string(current_factbase.get_id()) + " : " + to_string(current_factbase.hash()));
 
         // Save the initial state's hash value
         hash_list.push_back(current_factbase.hash());
 
         // Get all applicable exploits with this network state
         auto appl_exploits = check_exploits(next_state);
-		cout << "Applicable exploits: " + to_string(appl_exploits.size()) << endl;
+//		DEBUG("Applicable exploits: " + to_string(appl_exploits.size()));
 
         // Apply each exploit to the network state to generate
         // new network states
@@ -62,27 +61,29 @@ void AGGen::generate(void) {
             Factbase factbase(current_factbase);
 
             for (auto &qual : qualities) {
-                factbase.add_quality(qual);
+				if(!factbase.find_quality(qual)) {
+					factbase.add_quality(qual);
+				}
             }
 
             for (auto &topo : topologies) {
-                factbase.add_topology(topo);
+				if(!factbase.find_topology(topo)) {
+					factbase.add_topology(topo);
+				}
             }
 
-            size_t hash = factbase.hash();
             try {
-                vector<DB::Row> rows = db->exec("SELECT id FROM factbase WHERE hash = '" + to_string(hash) + "';");
-                int a = 3;
-                if(rows.size() == 0) {
-                    // Factbase does not exist already
-                    factbase.get_id();
-                    NetworkState ns(factbase);
-                    frontier.push_back(ns);
-                    factbase.save();
-                } else {
-                    // Factbase exists already
-                    cout << "FACTBASE EXISTS" << endl;
-                }
+				if(!factbase.exists_in_db()) {
+					// Factbase is new
+					counter++;
+					factbase.save();
+					NetworkState ns(factbase);
+					frontier.push_back(ns);
+				}
+				Edge e(current_factbase.get_id(), factbase.get_id());
+				if(!e.exists_in_db()) {
+					e.save();
+				}
             } catch (DBException e) {
                 cerr << e.what() << endl;
                 abort();
@@ -108,7 +109,7 @@ void AGGen::generate(void) {
         }
     }
 
-//    cout << "total number of generated states: " << counter << endl;
+    cout << "total number of generated states: " << counter << endl;
 
 //    for(auto& state : new_states) {
 //        state.print();

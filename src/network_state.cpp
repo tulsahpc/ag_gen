@@ -11,9 +11,13 @@ NetworkState::NetworkState(void) : factbase() {};
 NetworkState::NetworkState(Factbase& fb) : factbase(fb) {};
 
 // copy constructor that creates a new NetworkState with the same factbase as the given NetworkState
-NetworkState::NetworkState(const NetworkState& ns) : factbase(const_cast<NetworkState&>(ns).get_factbase()) {};
+NetworkState::NetworkState(const NetworkState& ns) : factbase(ns.get_factbase()) {};
 
 Factbase& NetworkState::get_factbase(void) {
+	return factbase;
+}
+
+const Factbase& NetworkState::get_factbase(void) const {
 	return factbase;
 }
 

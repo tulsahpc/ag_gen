@@ -12,32 +12,35 @@ struct FactbaseHash;
 
 class Factbase {
 	int id;
-	std::vector<const Quality> qualities;
-	std::vector<const Topology> topologies;
+	std::vector<Quality> qualities;
+	std::vector<Topology> topologies;
+
+	int new_id(size_t);
 public:
 	Factbase(void);
-	Factbase(Factbase&);
+	Factbase(const Factbase&);
 	Factbase(int id);
 
 	void populate(void);
+
+	bool find_quality(Quality&) const;
+	void add_quality(Quality&);
+
+	bool find_topology(Topology&) const;
+	void add_topology(Topology&);
+
+	bool exists_in_db(void);
 	int get_id(void);
-
-	bool find_quality(const Quality&) const;
-	void add_quality(const Quality&);
-
-	bool find_topology(const Topology&) const;
-	void add_topology(const Topology&);
-
 	void save(void);
 
-	size_t hash(void) const;
+	size_t hash(void);
 
     friend struct FactbaseHash;
 };
 
 struct FactbaseHash {
 	// Shamelessly copied from Boost::hash_combine
-    size_t combine(size_t seed) const {
+    size_t combine(size_t seed) {
         seed ^= std::hash<size_t>{}(seed) +
                 0x9e3779b97f4a7c15 +
                 (seed << 6) +
@@ -45,7 +48,7 @@ struct FactbaseHash {
         return seed;
     }
 
-    size_t operator()(const Factbase& fb) const {
+    size_t operator()(Factbase& fb) {
 //        size_t hash = 0xf848b64e; // Random seed value
         size_t hash = 0x0c32a12fe19d2119;
         for(auto& qual : fb.qualities) {

@@ -8,10 +8,12 @@
 class Edge {
 	int from_node;
 	int to_node;
+
 public:
 	Edge(int iFrom, int iTo) : from_node(iFrom), to_node(iTo) {}
 
-	void save(void) const;
+	bool exists_in_db(void);
+	void save(void);
 };
 
 #endif //AG_GEN_EDGE_H

@@ -17,7 +17,7 @@ Factbase::Factbase(void) : qualities(), topologies() {
 	id = 0;
 }
 
-Factbase::Factbase(Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {
+Factbase::Factbase(const Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {
     id = 0;
 }
 
@@ -36,7 +36,7 @@ Factbase::Factbase(int iId) {
 	size_t hash_value;
 	sscanf(rows[0][0].c_str(), "%zu", &hash_value);
 
-	rows = db->exec("SELECT * FROM factbase_item WHERE factbase_id = " + to_string(id) + ";");
+	rows = db->exec("SELECT * FROM factbase_item WHERE factbase_id = " + to_string(iId) + ";");
 
 	for(auto& row : rows) {
 		size_t fact;
@@ -61,30 +61,40 @@ void Factbase::populate() {
     topologies = Topology::fetch_all();
 }
 
-int Factbase::get_id(void) {
-	if(id == 0) {
-		vector<DB::Row> rows = db->exec("SELECT id FROM factbase WHERE hash = '" + to_string(hash()) + "';");
-
-		// Should only be one result.
-		if(rows.size() != 0) {
-			id = stoi(rows[0][0]);
-			return id;
-		} else { // Else, get a new id from the db
-			rows = db->exec("SELECT new_factbase();");
-
-			int factbase_id = stoi(rows[0][0]);
-			id = factbase_id;
-
-			return factbase_id;
-		}
-	} else {
+int Factbase::new_id(size_t newhash) {
+	// Should only be one result.
+	if(exists_in_db()) {
+		vector<DB::Row> rows = db->exec("SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';");
+		id = stoi(rows[0][0]);
 		return id;
+	} else { // Else, get a new id from the db
+		vector<DB::Row> rows = db->exec("SELECT new_factbase('" + to_string(newhash) + "');");
+		int factbase_id = stoi(rows[0][0]);
+		id = factbase_id;
+		return factbase_id;
+	}
+}
+
+int Factbase::get_id(void) {
+	if(id != 0) {
+		return id;
+	} else {
+		return new_id(hash());
+	}
+}
+
+bool Factbase::exists_in_db(void) {
+	vector<DB::Row> rows = db->exec("SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';");
+	if(rows.size() > 0) {
+		return true;
+	} else {
+		return false;
 	}
 }
 
 // find_quality searches for a given quality in a factbase. Returns true if the quality is found, otherwise
 // returns false
-bool Factbase::find_quality(const Quality& q) const {
+bool Factbase::find_quality(Quality& q) const {
     if(find(qualities.begin(), qualities.end(), q) == qualities.end()) {
 		return false;
     }
@@ -93,7 +103,7 @@ bool Factbase::find_quality(const Quality& q) const {
 
 // find_topology searches for a given topology in a factbase. Returns true if the topology is found,
 // otherwise returns false
-bool Factbase::find_topology(const Topology& t) const {
+bool Factbase::find_topology(Topology& t) const {
     if(find(topologies.begin(), topologies.end(), t) == topologies.end()) {
         return false;
     }
@@ -101,41 +111,33 @@ bool Factbase::find_topology(const Topology& t) const {
 }
 
 // add_quality adds a given quality to the factbase's vector of qualities
-void Factbase::add_quality(const Quality& q) {
+void Factbase::add_quality(Quality& q) {
     qualities.push_back(q);
 }
 
 // add_topology adds a given topology to the factbase's vector of topologies
-void Factbase::add_topology(const Topology& t) {
+void Factbase::add_topology(Topology& t) {
     topologies.push_back(t);
 }
 
 void Factbase::save(void) {
-	// Save hash
-    vector<DB::Row> rows = db->exec("SELECT id FROM factbase WHERE id = '" + to_string(get_id()) + "';");
-    if(rows.size() == 0) {
-        // Does not exist already
-        db->exec("INSERT INTO factbase VALUES (" + to_string(get_id()) + ",'" + to_string(hash()) +"');");
-    } else {
-        // Does exist
-        db->exec("UPDATE factbase SET hash = '" + to_string(hash()) + "' WHERE id = " + to_string(get_id()) + ";");
-    }
+	int myid = get_id();
 
     // XXX: There has to be a better way to do this
     string insert_sql = "INSERT INTO factbase_item VALUES ";
-    insert_sql += "(" + to_string(id) + "," + to_string(qualities[0].encode().enc) + ",'quality', NULL)";
+    insert_sql += "(" + to_string(myid) + "," + to_string(qualities[0].encode().enc) + ",'quality', NULL)";
     for(int i=1; i<qualities.size(); i++) {
-        insert_sql += ",(" + to_string(id) + "," + to_string(qualities[i].encode().enc) + ",'quality', NULL)";
+        insert_sql += ",(" + to_string(myid) + "," + to_string(qualities[i].encode().enc) + ",'quality', NULL)";
     }
 	for(int i=0; i<topologies.size(); i++) {
-		insert_sql += ",(" + to_string(id) + "," + to_string(topologies[i].encode().enc) + ",'topology','" + topologies[i].get_raw_options() + "')";
+		insert_sql += ",(" + to_string(myid) + "," + to_string(topologies[i].encode().enc) + ",'topology','" + topologies[i].get_raw_options() + "')";
 	}
     insert_sql += ";";
 
     db->exec(insert_sql);
 }
 
-size_t Factbase::hash(void) const {
+size_t Factbase::hash(void) {
     auto hash = FactbaseHash{}(*this);
     return hash;
 }

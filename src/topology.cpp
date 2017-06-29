@@ -44,8 +44,8 @@ const EncodedTopology Topology::encode(void) const {
     return topo;
 }
 
-vector<const Topology> Topology::fetch_all() {
-    vector<const Topology> topologies;
+vector<Topology> Topology::fetch_all() {
+    vector<Topology> topologies;
 
     vector<DB::Row> rows = db->exec("SELECT * FROM topology;");
     for(auto& row : rows) {
@@ -53,7 +53,7 @@ vector<const Topology> Topology::fetch_all() {
         int to_asset = stoi(row[1]);
         string options = row[2];
 
-        const Topology t(from_asset, to_asset, options);
+		Topology t(from_asset, to_asset, options);
         topologies.push_back(t);
     }
 
