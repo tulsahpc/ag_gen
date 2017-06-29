@@ -19,12 +19,12 @@ using namespace std;
 
 // The AGGen constructor creates a new AGGen object and takes the given NetworkState and sets it as the
 // initial network state for generation by pushing it onto the new AGGen object's frontier vector.
-AGGen::AGGen(NetworkState& initial_state) :
+AGGen::AGGen(const NetworkState& initial_state) :
         assets(Asset::fetch_all("home")),
         attrs(Quality::fetch_all_attributes()),
         vals(Quality::fetch_all_values())
 {
-    this->frontier.push_back(initial_state);
+    frontier.push_back(initial_state);
 }
 
 // generate iterates through AGGen's frontier vector, back to front, and takes the next Network State,
@@ -36,8 +36,8 @@ void AGGen::generate(void) {
 
     while(!frontier.empty()) {
         // Remove the next state from the queue and get its factbase
-        NetworkState next_state = frontier.back();
-        auto current_factbase = next_state.get_factbase();
+        NetworkState& next_state = frontier.back();
+        Factbase& current_factbase = next_state.get_factbase();
         frontier.pop_back();
 
 		cout << "Frontier size: " + to_string(frontier.size()) << endl;

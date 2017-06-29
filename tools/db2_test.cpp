@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
 	DB db("postgresql://captredbeard@localhost/ag_gen");
 
 	try {
-		auto rows = db.exec("SELECT * FROM factbase;");
+		auto rows = db->exec("SELECT * FROM factbase;");
 		for(auto& row : rows) {
 			cout << "Row: ";
 			for(auto& field : row) {

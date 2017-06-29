@@ -13,7 +13,7 @@ public:
 	NetworkState(const NetworkState& ns);
 
 	Factbase& get_factbase(void);
-	void print(void) const;
+	void init(void);
 };
 
 #endif

@@ -15,6 +15,8 @@
 #include <utility>
 #include <libpq-fe.h>
 
+#include "global.h"
+
 class DBException : public std::runtime_error {
 public:
 	DBException(std::string error_message) : std::runtime_error(error_message) {}
@@ -55,20 +57,11 @@ class DB {
 	};
 
 	Connection conn;
-
-	DB(std::string conninfo) : conn(conninfo) {};
 public:
 	typedef std::vector<std::string> Row;
-	static std::string db_string;
 
-	static DB& get() {
-		static DB instance(db_string);
-		return instance;
-	}
-
-	void close() {
-		conn.close();
-	}
+    DB() {};
+    DB(std::string conninfo) : conn(conninfo) {};
 
 	std::vector<Row> exec(std::string sql) {
 		if(!conn.is_connected()) {
@@ -99,8 +92,9 @@ public:
 		return rows;
 	}
 
-	DB(DB const&) = delete;
-	DB& operator=(DB const&) = delete;
+    void close() {
+        conn.close();
+    }
 };
 
 #endif //UTIL_DB_HPP

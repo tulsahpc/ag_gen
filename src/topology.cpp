@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 
+#include "global.h"
 #include "keyvalue.h"
 #include "topology.h"
 #include "util_db.h"
@@ -46,7 +47,7 @@ const EncodedTopology Topology::encode(void) const {
 vector<const Topology> Topology::fetch_all() {
     vector<const Topology> topologies;
 
-    vector<DB::Row> rows = DB::get().exec("SELECT * FROM topology;");
+    vector<DB::Row> rows = db->exec("SELECT * FROM topology;");
     for(auto& row : rows) {
         int from_asset = stoi(row[0]);
         int to_asset = stoi(row[1]);

@@ -5,6 +5,7 @@
 #include <string>
 #include <libpq-fe.h>
 
+#include "global.h"
 #include "asset.h"
 #include "util_db.h"
 
@@ -26,7 +27,7 @@ string Asset::get_name(void) {
 // to the Asset
 void Asset::fetch_qualities(void)
 {
-	vector<DB::Row> rows = DB::get().exec(
+	vector<DB::Row> rows = db->exec(
 		"SELECT * FROM quality WHERE asset_id = '" + to_string(id) + "';");
 	vector<Quality> new_qualities;
 
@@ -46,7 +47,7 @@ void Asset::fetch_qualities(void)
 // vector of those Assets
 vector<Asset> Asset::fetch_all(const string& network)
 {
-	vector<DB::Row> rows = DB::get().exec(
+	vector<DB::Row> rows = db->exec(
 		"SELECT * FROM asset WHERE network_id = (SELECT id FROM network WHERE name = '" + network + "');");
 	vector<Asset> new_assets;
 

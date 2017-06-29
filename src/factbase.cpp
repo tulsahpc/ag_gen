@@ -7,6 +7,7 @@
 
 #include "factbase.h"
 #include "util_db.h"
+#include "global.h"
 
 using namespace std;
 
@@ -25,7 +26,7 @@ Factbase::Factbase(int iId) {
 	// If it does exist, import all of its data
 	// If it doesn't exist, throw exception
 
-	vector<DB::Row> rows = DB::get().exec("SELECT * FROM factbase WHERE id = " + to_string(iId) + ";");
+	vector<DB::Row> rows = db->exec("SELECT * FROM factbase WHERE id = " + to_string(iId) + ";");
 	if(rows.size() != 1) {
 		throw DBException("Something went wrong.");
 	}
@@ -35,7 +36,7 @@ Factbase::Factbase(int iId) {
 	size_t hash_value;
 	sscanf(rows[0][0].c_str(), "%zu", &hash_value);
 
-	rows = DB::get().exec("SELECT * FROM factbase_item WHERE factbase_id = " + to_string(id) + ";");
+	rows = db->exec("SELECT * FROM factbase_item WHERE factbase_id = " + to_string(id) + ";");
 
 	for(auto& row : rows) {
 		size_t fact;
@@ -55,16 +56,21 @@ Factbase::Factbase(int iId) {
 	}
 }
 
+void Factbase::populate() {
+    qualities = Quality::fetch_all();
+    topologies = Topology::fetch_all();
+}
+
 int Factbase::get_id(void) {
 	if(id == 0) {
-		vector<DB::Row> rows = DB::get().exec("SELECT id FROM factbase WHERE hash = '" + to_string(hash()) + "';");
+		vector<DB::Row> rows = db->exec("SELECT id FROM factbase WHERE hash = '" + to_string(hash()) + "';");
 
 		// Should only be one result.
-		if(rows.size() == 0) {
+		if(rows.size() != 0) {
 			id = stoi(rows[0][0]);
 			return id;
 		} else { // Else, get a new id from the db
-			rows = DB::get().exec("SELECT new_factbase();");
+			rows = db->exec("SELECT new_factbase();");
 
 			int factbase_id = stoi(rows[0][0]);
 			id = factbase_id;
@@ -106,7 +112,7 @@ void Factbase::add_topology(const Topology& t) {
 
 void Factbase::save(void) {
 	// Save hash
-	vector<DB::Row> rows = DB::get().exec("UPDATE factbase SET hash = '" + to_string(this->hash()) + "' WHERE id = " + to_string(id) + ";");
+	vector<DB::Row> rows = db->exec("UPDATE factbase SET hash = '" + to_string(this->hash()) + "' WHERE id = " + to_string(id) + ";");
 
     // XXX: There has to be a better way to do this
     string insert_sql = "INSERT INTO factbase_item VALUES ";
@@ -119,7 +125,7 @@ void Factbase::save(void) {
 	}
     insert_sql += ";";
 
-    DB::get().exec(insert_sql);
+    db->exec(insert_sql);
 }
 
 size_t Factbase::hash(void) const {
