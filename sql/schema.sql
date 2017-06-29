@@ -16,12 +16,6 @@ CREATE TABLE factbase_item (
   PRIMARY KEY (factbase_id, fact, type)
 );
 
-CREATE TABLE edge (
-  from_node INTEGER REFERENCES factbase(id),
-  to_node INTEGER REFERENCES factbase(id),
-  PRIMARY KEY (from_node, to_node)
-);
-
 CREATE TABLE asset (
   id SERIAL PRIMARY KEY,
   name TEXT,
@@ -68,4 +62,17 @@ CREATE TABLE exploit_postcondition (
   property TEXT,
   value TEXT,
   options TEXT
+);
+
+CREATE TABLE edge (
+  id SERIAL PRIMARY KEY,
+  from_node INTEGER REFERENCES factbase(id),
+  to_node INTEGER REFERENCES factbase(id),
+  exploit_id INTEGER REFERENCES exploit(id)
+);
+
+CREATE TABLE edge_asset_binding (
+  edge_id INTEGER REFERENCES edge(id),
+  exploit_param INTEGER,
+  asset_id INTEGER REFERENCES asset(id)
 );

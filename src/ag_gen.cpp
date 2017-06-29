@@ -53,8 +53,10 @@ void AGGen::generate(void) {
         // Apply each exploit to the network state to generate
         // new network states
         for (auto &e : appl_exploits) {
-            auto postconditions = createPostConditions(e);
+			auto exploit = get<0>(e);
+			auto assetGroup = get<1>(e);
 
+            auto postconditions = createPostConditions(e);
             auto qualities = get<0>(postconditions);
             auto topologies = get<1>(postconditions);
 
@@ -80,32 +82,15 @@ void AGGen::generate(void) {
 					NetworkState ns(factbase);
 					frontier.push_back(ns);
 				}
-				Edge e(current_factbase.get_id(), factbase.get_id());
-				if(!e.exists_in_db()) {
-					e.save();
+
+				Edge edge(current_factbase.get_id(), factbase.get_id(), exploit, assetGroup);
+				if(!edge.exists_in_db()) {
+					edge.save();
 				}
             } catch (DBException e) {
                 cerr << e.what() << endl;
                 abort();
             }
-
-			// Check if factbase already exists
-			// Get factbase hash
-			// Search factbase in list of hashes
-            // if(factbase_search == hash_list.end()) {
-				// The hash of the new factbase doesn't already exist,
-				// so push the new state into the queue and add the hash
-				// to the list of known states
-
-				// Create network state
-				// Add new state to list of new states
-				// add hash to list of known hashes
-				// Save networkstate to database
-            // } else {
-				// Factbase already exists
-				// Get factbase id
-				// Create Edge
-			// }
         }
     }
 

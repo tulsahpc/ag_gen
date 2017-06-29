@@ -11,14 +11,11 @@
 struct FactbaseHash;
 
 class Factbase {
-	std::vector<Quality> qualities;
-	std::vector<Topology> topologies;
-
 	int id;
 	std::vector<Quality> qualities;
 	std::vector<Topology> topologies;
 
-	int new_id(size_t);
+	int new_id(void);
 public:
 	Factbase(void);
 	Factbase(const Factbase&);

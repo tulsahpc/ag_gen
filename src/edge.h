@@ -5,15 +5,24 @@
 #ifndef AG_GEN_EDGE_H
 #define AG_GEN_EDGE_H
 
+#include "exploit.h"
+#include "assetgroup.h"
+
 class Edge {
+	int id;
 	int from_node;
 	int to_node;
+	Exploit exploit;
+	AssetGroup assetGroup;
 
 public:
-	Edge(int iFrom, int iTo) : from_node(iFrom), to_node(iTo) {}
+	Edge(int, int, Exploit&, AssetGroup&);
 
-	bool exists_in_db(void);
 	void save(void);
+
+	int new_id(void);
+	int get_id(void);
+	bool exists_in_db(void);
 };
 
 #endif //AG_GEN_EDGE_H

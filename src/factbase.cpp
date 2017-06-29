@@ -61,10 +61,11 @@ void Factbase::populate() {
     topologies = Topology::fetch_all();
 }
 
-int Factbase::new_id(size_t newhash) {
+int Factbase::new_id(void) {
+	size_t newhash = hash();
 	// Should only be one result.
 	if(exists_in_db()) {
-		vector<DB::Row> rows = db->exec("SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';");
+		vector<DB::Row> rows = db->exec("SELECT id FROM factbase WHERE hash = '" + to_string(newhash) + "';");
 		id = stoi(rows[0][0]);
 		return id;
 	} else { // Else, get a new id from the db
@@ -79,7 +80,7 @@ int Factbase::get_id(void) {
 	if(id != 0) {
 		return id;
 	} else {
-		return new_id(hash());
+		return new_id();
 	}
 }
 
