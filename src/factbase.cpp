@@ -2,43 +2,99 @@
 // particular Network State
 
 #include <iostream>
-#include <algorithm>
 #include <vector>
+#include <cstdio>
 
 #include "factbase.h"
 #include "util_db.h"
+
 
 using namespace std;
 
 // The default Factbase constructor creates a factbase object with all of the qualities and topologies
 // currently on the database
-Factbase::Factbase(void) {
-    qualities = Quality::fetch_all();
-    topologies = Topology::fetch_all();
+Factbase::Factbase(void) : qualities(), topologies() {
 	id = 0;
-	hash_value = 0;
 }
 
-Factbase::Factbase(const Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {}
+Factbase::Factbase(const Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {
+    id = 0;
+}
 
-Factbase Factbase::get(const int id) const {
-	PGresult *res;
+Factbase::Factbase(int iId) {
+	// Check if factbase exists
+	// If it does exist, import all of its data
+	// If it doesn't exist, throw exception
 
-	dbtrans_begin();
-
-	string sql = "SELECT * FROM factbase";
-	res = PQexec(conn, sql.c_str());
-	if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-		fprintf(stderr, "SELECT factbase error: %s", PQerrorMessage(conn));
+	vector<DB::Row> rows = db->exec("SELECT * FROM factbase WHERE id = " + to_string(iId) + ";");
+	if(rows.size() != 1) {
+		throw DBException("Something went wrong.");
 	}
 
+	// There should only be one row that is returned,
+	// so shortcut with rows[0][0]
+	size_t hash_value;
+	sscanf(rows[0][0].c_str(), "%zu", &hash_value);
 
-	dbtrans_end();
+	rows = db->exec("SELECT * FROM factbase_item WHERE factbase_id = " + to_string(iId) + ";");
+
+	for(auto& row : rows) {
+		size_t fact;
+		sscanf(row[1].c_str(), "%zu", &fact);
+
+		string type = row[2];
+		if(type == "quality") {
+			Quality qual(fact);
+            add_quality(qual);
+		}
+
+        if(type == "topology") {
+            string options = row[3];
+            Topology topo(fact, options);
+            add_topology(topo);
+        }
+	}
+}
+
+void Factbase::populate() {
+    qualities = Quality::fetch_all();
+    topologies = Topology::fetch_all();
+}
+
+int Factbase::new_id(size_t newhash) {
+	// Should only be one result.
+	if(exists_in_db()) {
+		vector<DB::Row> rows = db->exec("SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';");
+		id = stoi(rows[0][0]);
+		return id;
+	} else { // Else, get a new id from the db
+		vector<DB::Row> rows = db->exec("SELECT new_factbase('" + to_string(newhash) + "');");
+		int factbase_id = stoi(rows[0][0]);
+		id = factbase_id;
+		return factbase_id;
+	}
+}
+
+int Factbase::get_id(void) {
+	if(id != 0) {
+		return id;
+	} else {
+		return new_id(hash());
+	}
+}
+
+bool Factbase::exists_in_db(void) {
+	vector<DB::Row> rows = db->exec("SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';");
+	if(rows.size() > 0) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // find_quality searches for a given quality in a factbase. Returns true if the quality is found, otherwise
 // returns false
-bool Factbase::find_quality(Quality& q) {
+bool Factbase::find_quality(Quality& q) const {
     if(find(qualities.begin(), qualities.end(), q) == qualities.end()) {
 		return false;
     }
@@ -47,7 +103,7 @@ bool Factbase::find_quality(Quality& q) {
 
 // find_topology searches for a given topology in a factbase. Returns true if the topology is found,
 // otherwise returns false
-bool Factbase::find_topology(Topology& t) {
+bool Factbase::find_topology(Topology& t) const {
     if(find(topologies.begin(), topologies.end(), t) == topologies.end()) {
         return false;
     }
@@ -64,82 +120,24 @@ void Factbase::add_topology(Topology& t) {
     topologies.push_back(t);
 }
 
-int Factbase::request_id(void) {
-	if(this->id != 0) {
-		PGresult *res;
-		string sql = "SELECT new_factbase();";
-
-		dbtrans_begin();
-
-		res = PQexec(conn, sql.c_str());
-		if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-			fprintf(stderr, "new_factbase() SELECT command failed: %s",
-					PQerrorMessage(conn));
-		}
-		int factbase_id = stoi(PQgetvalue(res, 0, 0));
-
-		dbtrans_end();
-		PQclear(res);
-
-		this->id = factbase_id;
-
-		return factbase_id;
-	} else {
-		return this->id;
-	}
-}
-
 void Factbase::save(void) {
-	PGresult *res;
-
-	int id = request_id();
-
-    dbtrans_begin();
-
-	// Save hash
-	string hash_sql = "UPDATE factbase SET hash = '" + to_string(this->hash()) + "' WHERE id = " + to_string(id) + ";";
-//	cout << hash_sql << endl;
-	res = PQexec(conn, hash_sql.c_str());
-	if(PQresultStatus(res) != PGRES_COMMAND_OK) {
-		fprintf(stderr, "factbase UPDATE hash command failed: %s",
-			PQerrorMessage(conn));
-	}
+	int myid = get_id();
 
     // XXX: There has to be a better way to do this
     string insert_sql = "INSERT INTO factbase_item VALUES ";
-    insert_sql += "(" + to_string(id) + "," + to_string(qualities[0].encode().enc) + ",'quality', NULL)";
+    insert_sql += "(" + to_string(myid) + "," + to_string(qualities[0].encode().enc) + ",'quality', NULL)";
     for(int i=1; i<qualities.size(); i++) {
-        insert_sql += ",(" + to_string(id) + "," + to_string(qualities[i].encode().enc) + ",'quality', NULL)";
+        insert_sql += ",(" + to_string(myid) + "," + to_string(qualities[i].encode().enc) + ",'quality', NULL)";
     }
 	for(int i=0; i<topologies.size(); i++) {
-		insert_sql += ",(" + to_string(id) + "," + to_string(topologies[i].encode().enc) + ",'topology','" + topologies[i].get_raw_options() + "')";
+		insert_sql += ",(" + to_string(myid) + "," + to_string(topologies[i].encode().enc) + ",'topology','" + topologies[i].get_raw_options() + "')";
 	}
     insert_sql += ";";
 
-    res = PQexec(conn, insert_sql.c_str());
-    if(PQresultStatus(res) != PGRES_COMMAND_OK) {
-        fprintf(stderr, "factbase_item INSERT command failed: %s",
-                PQerrorMessage(conn));
-    }
-
-    dbtrans_end();
-
-	PQclear(res);
-}
-
-// print prints to stdout every quality of the factbase, then every topology of the factbase
-void Factbase::print(void) const {
-    for(auto& q : qualities) {
-        q.print();
-    }
-
-    for(auto& t : topologies) {
-        t.print();
-    }
+    db->exec(insert_sql);
 }
 
 size_t Factbase::hash(void) {
     auto hash = FactbaseHash{}(*this);
-	this->hash_value = hash;
     return hash;
 }

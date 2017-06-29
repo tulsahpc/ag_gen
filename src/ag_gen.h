@@ -23,7 +23,7 @@ class AGGen {
     std::vector<AssetGroup> gen_hypo_facts(NetworkState&, Exploit&);
     std::tuple<std::vector<Quality>, std::vector<Topology> > createPostConditions(std::tuple<Exploit, AssetGroup> group);
 public:
-	AGGen(const NetworkState&);
+	AGGen(NetworkState&);
     void generate();
 };
 

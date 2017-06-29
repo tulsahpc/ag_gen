@@ -1,10 +1,13 @@
-CREATE FUNCTION new_factbase() RETURNS INTEGER AS $$
+CREATE FUNCTION new_factbase(myhash TEXT) RETURNS INTEGER AS $$
 DECLARE
   myid INTEGER;
 BEGIN
-  INSERT INTO factbase VALUES
-    (DEFAULT)
-  RETURNING id INTO myid;
+  IF NOT EXISTS (SELECT 1 FROM factbase WHERE hash = myhash) THEN
+    INSERT INTO factbase VALUES (DEFAULT, myhash) RETURNING id INTO myid;
+  ELSE
+    SELECT id INTO myid FROM factbase WHERE hash = myhash;
+  END IF;
+
   RETURN myid;
 END;
 $$ LANGUAGE plpgsql;

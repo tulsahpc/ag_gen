@@ -3,12 +3,11 @@
 
 #include <iostream>
 #include <vector>
-#include <iomanip>
-#include <algorithm>
 
 #include "ag_gen.h"
 #include "util_odometer.h"
 #include "util_db.h"
+#include "edge.h"
 
 #ifdef DEBUG_BUILD
 #define DEBUG(x) do { std::cerr << x << endl; } while (0)
@@ -20,12 +19,12 @@ using namespace std;
 
 // The AGGen constructor creates a new AGGen object and takes the given NetworkState and sets it as the
 // initial network state for generation by pushing it onto the new AGGen object's frontier vector.
-AGGen::AGGen(const NetworkState& initial_state) :
+AGGen::AGGen(NetworkState& initial_state) :
         assets(Asset::fetch_all("home")),
         attrs(Quality::fetch_all_attributes()),
         vals(Quality::fetch_all_values())
 {
-    this->frontier.push_back(initial_state);
+    frontier.push_back(initial_state);
 }
 
 // generate iterates through AGGen's frontier vector, back to front, and takes the next Network State,
@@ -35,17 +34,21 @@ void AGGen::generate(void) {
     vector<NetworkState> new_states;
     int counter = 0;
 
-    while(!this->frontier.empty()) {
+    while(!frontier.empty()) {
         // Remove the next state from the queue and get its factbase
-        NetworkState next_state = this->frontier.back();
-        auto current_factbase = next_state.get_factbase();
-        this->frontier.pop_back();
+        NetworkState next_state = frontier.back();
+        Factbase current_factbase = next_state.get_factbase();
+        frontier.pop_back();
+
+//		DEBUG("Frontier size: " + to_string(frontier.size()));
+//		DEBUG("Current Factbase: " + to_string(current_factbase.get_id()) + " : " + to_string(current_factbase.hash()));
 
         // Save the initial state's hash value
         hash_list.push_back(current_factbase.hash());
 
         // Get all applicable exploits with this network state
         auto appl_exploits = check_exploits(next_state);
+//		DEBUG("Applicable exploits: " + to_string(appl_exploits.size()));
 
         // Apply each exploit to the network state to generate
         // new network states
@@ -55,33 +58,54 @@ void AGGen::generate(void) {
             auto qualities = get<0>(postconditions);
             auto topologies = get<1>(postconditions);
 
-            NetworkState new_state = next_state;
-            auto factbase = new_state.get_factbase();
+            Factbase factbase(current_factbase);
 
             for (auto &qual : qualities) {
-                factbase.add_quality(qual);
+				if(!factbase.find_quality(qual)) {
+					factbase.add_quality(qual);
+				}
             }
 
             for (auto &topo : topologies) {
-                factbase.add_topology(topo);
+				if(!factbase.find_topology(topo)) {
+					factbase.add_topology(topo);
+				}
             }
 
-            // If the hash of the new factbase doesn't already exist,
-            // push the new state into the queue and add the hash
-            // to the list of known states
-            auto factbase_hash = factbase.hash();
-			auto factbase_search = find(hash_list.begin(), hash_list.end(), factbase_hash);
-            if(factbase_search == hash_list.end()) {
-                counter++;
-                new_states.push_back(new_state);
-                this->frontier.push_back(new_state);
-                hash_list.push_back(factbase_hash);
+            try {
+				if(!factbase.exists_in_db()) {
+					// Factbase is new
+					counter++;
+					factbase.save();
+					NetworkState ns(factbase);
+					frontier.push_back(ns);
+				}
+				Edge e(current_factbase.get_id(), factbase.get_id());
+				if(!e.exists_in_db()) {
+					e.save();
+				}
+            } catch (DBException e) {
+                cerr << e.what() << endl;
+                abort();
+            }
 
-                factbase.save();
-            } else {
+			// Check if factbase already exists
+			// Get factbase hash
+			// Search factbase in list of hashes
+            // if(factbase_search == hash_list.end()) {
+				// The hash of the new factbase doesn't already exist,
+				// so push the new state into the queue and add the hash
+				// to the list of known states
+
+				// Create network state
+				// Add new state to list of new states
+				// add hash to list of known hashes
+				// Save networkstate to database
+            // } else {
 				// Factbase already exists
-
-			}
+				// Get factbase id
+				// Create Edge
+			// }
         }
     }
 

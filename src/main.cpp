@@ -7,12 +7,15 @@
 #include "ag_gen.h"
 #include "util_db.h"
 #include "config.h"
+
 #include "network_state.h"
 #include "keyvalue.h"
 
 using namespace std;
 
-// print_usage prints to stdout the help menu that corresponds to the ag_gen command 
+shared_ptr<DB> db;
+
+// print_usage prints to stdout the help menu that corresponds to the ag_gen command
 void print_usage()
 {
     cout << "Usage: ag_gen [OPTION...]" << endl << endl;
@@ -61,12 +64,12 @@ int main(int argc, char *argv[])
 	}
 
 	Config config("config.txt");
-	string db_string = config.db_string();
-	dbconnect(db_string.c_str());
+    db = make_shared<DB>(config.db_string());
 
     NetworkState initial_state;
+	initial_state.init();
 	AGGen generator(initial_state);
     generator.generate();
 
-	dbclose();
+	db->close();
 }
