@@ -14,7 +14,6 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 
 #include <hiredis/hiredis.h>
 

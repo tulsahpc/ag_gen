@@ -3,6 +3,19 @@ CREATE TABLE network (
   name TEXT
 );
 
+CREATE TABLE factbase (
+  id SERIAL PRIMARY KEY,
+  hash TEXT UNIQUE
+);
+
+CREATE TABLE factbase_item (
+  factbase_id INTEGER REFERENCES factbase(id),
+  fact BIGINT,
+  type TEXT,
+  options TEXT,
+  PRIMARY KEY (factbase_id, fact, type)
+);
+
 CREATE TABLE asset (
   id SERIAL PRIMARY KEY,
   name TEXT,
@@ -51,10 +64,15 @@ CREATE TABLE exploit_postcondition (
   options TEXT
 );
 
--- CREATE TABLE exploit_topology(
---   exploit_id INTEGER REFERENCES exploit(id),
---   from_param INTEGER,
---   to_param INTEGER,
---   value TEXT,
---   PRIMARY KEY (exploit_id, from_param, to_param)
--- );
+CREATE TABLE edge (
+  id SERIAL PRIMARY KEY,
+  from_node INTEGER REFERENCES factbase(id),
+  to_node INTEGER REFERENCES factbase(id),
+  exploit_id INTEGER REFERENCES exploit(id)
+);
+
+CREATE TABLE edge_asset_binding (
+  edge_id INTEGER REFERENCES edge(id),
+  exploit_param INTEGER,
+  asset_id INTEGER REFERENCES asset(id)
+);

@@ -10,13 +10,6 @@
 #include "assetgroup.h"
 #include "network_state.h"
 
-class AttackNode {
-    const Factbase& fb;
-    std::vector<AttackNode> children;
-public:
-    AttackNode(const Factbase& ifb): fb(ifb) {};
-};
-
 class AGGen {
     Keyvalue<Asset> assets;
     Keyvalue<std::string> attrs;
@@ -30,7 +23,7 @@ class AGGen {
     std::vector<AssetGroup> gen_hypo_facts(NetworkState&, Exploit&);
     std::tuple<std::vector<Quality>, std::vector<Topology> > createPostConditions(std::tuple<Exploit, AssetGroup> group);
 public:
-	AGGen(const NetworkState&);
+	AGGen(NetworkState&);
     void generate();
 };
 

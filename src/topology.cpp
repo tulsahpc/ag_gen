@@ -1,13 +1,24 @@
 #include <iostream>
-#include <string>
 #include <vector>
 
+
+#include "keyvalue.h"
 #include "topology.h"
 #include "util_db.h"
+#include "util_common.h"
 
 using namespace std;
 
 Topology::Topology(int f_asset, int t_asset, string opt) : from_asset_id(f_asset), to_asset_id(t_asset), options(opt) {}
+
+Topology::Topology(size_t fact, string opts) {
+    EncodedTopology eTopo;
+    eTopo.enc = fact;
+
+    from_asset_id = eTopo.dec.from_asset;
+    to_asset_id = eTopo.dec.to_asset;
+    options = opts;
+}
 
 int Topology::get_from_asset_id(void) const {
     return from_asset_id;
@@ -17,35 +28,35 @@ int Topology::get_to_asset_id(void) const {
     return to_asset_id;
 }
 
-string Topology::get_options(void) const {
+string Topology::get_raw_options(void) const {
     return options;
 }
 
-vector<const Topology> Topology::fetch_all() {
-    vector<const Topology> topologies;
+vector<string> Topology::get_options(void) const {
+	return split(get_raw_options(), ',');
+}
 
-    PGresult *res;
-    int num_rows;
+const EncodedTopology Topology::encode(void) const {
+    EncodedTopology topo;
+    topo.dec.from_asset = from_asset_id;
+    topo.dec.to_asset = to_asset_id;
 
-    string sql = "SELECT * FROM topology;";
+    return topo;
+}
 
-    res = PQexec(conn, sql.c_str());
-    if(PQresultStatus(res) != PGRES_TUPLES_OK) {
-        fprintf(stderr, "topology SELECT command failed: %s",
-                PQerrorMessage(conn));
-    }
+vector<Topology> Topology::fetch_all() {
+    vector<Topology> topologies;
 
-    num_rows = PQntuples(res);
-    for(int i=0; i<num_rows; i++) {
-        int from_asset = stoi(PQgetvalue(res, i, 0));
-        int to_asset = stoi(PQgetvalue(res, i, 1));
-        string options = PQgetvalue(res, i, 2);
+    vector<DB::Row> rows = db->exec("SELECT * FROM topology;");
+    for(auto& row : rows) {
+        int from_asset = stoi(row[0]);
+        int to_asset = stoi(row[1]);
+        string options = row[2];
 
-        const Topology t(from_asset, to_asset, options);
+		Topology t(from_asset, to_asset, options);
         topologies.push_back(t);
     }
 
-    PQclear(res);
     return topologies;
 }
 
