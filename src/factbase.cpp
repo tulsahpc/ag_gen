@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdio>
+#include <algorithm>
 
 #include "factbase.h"
 #include "util_db.h"

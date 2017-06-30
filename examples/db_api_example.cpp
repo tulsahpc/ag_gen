@@ -10,9 +10,9 @@
 
 using namespace std;
 
+shared_ptr<DB> db;
 int main(int argc, char **argv) {
-	DB db("postgresql://captredbeard@localhost/ag_gen");
-
+	db = make_shared<DB>("postgres://captredbeard@localhost/ag_gen");
 	try {
 		auto rows = db->exec("SELECT * FROM factbase;");
 		for(auto& row : rows) {
