@@ -1,6 +1,6 @@
 %{
 #include <vector>
-#include "../../src/"
+#include "../network_state.h"
 %}
 
 %token NETWORK MODEL EQ ASSETS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY;

@@ -12,7 +12,7 @@ file(GLOB ag_gen_src
 add_executable(ag_gen ${ag_gen_src})
 
 # Coding examples
-add_executable(graphing_test "examples/graphing_example.cpp")
+add_executable(graph_example "examples/graph_example.cpp")
 add_executable(db_api_example "examples/db_api_example.cpp")
 
 # Tools and Work-in-Progress Ideas
@@ -36,6 +36,6 @@ find_library(OPENSSL_LIB ssl /usr/local/opt/openssl/lib)
 find_library(OPENSSL_CRYPTO_LIB crypto /usr/local/opt/openssl/lib)
 target_link_libraries(sha256_test ${OPENSSL_LIB} ${OPENSSL_CRYPTO_LIB})
 
-target_link_libraries(graphing_test ${POSTGRESQL_LIB})
+target_link_libraries(graph_example ${POSTGRESQL_LIB})
 
 target_link_libraries(db_api_example ${POSTGRESQL_LIB})

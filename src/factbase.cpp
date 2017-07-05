@@ -134,7 +134,7 @@ void Factbase::save(void) {
 	for(int i=0; i<topologies.size(); i++) {
 		insert_sql += ",(" + to_string(myid) + "," + to_string(topologies[i].encode().enc) + ",'topology','" + topologies[i].get_raw_options() + "')";
 	}
-    insert_sql += ";";
+    insert_sql += " ON CONFLICT DO NOTHING;";
 
     db->exec(insert_sql);
 }
