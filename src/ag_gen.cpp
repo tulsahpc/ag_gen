@@ -81,11 +81,11 @@ void AGGen::generate(void) {
 					factbase.save();
 					NetworkState ns(factbase);
 					frontier.push_back(ns);
-				}
-
-				Edge edge(current_factbase.get_id(), factbase.get_id(), exploit, assetGroup);
-				if(!edge.exists_in_db()) {
-					edge.save();
+				} else if (current_factbase.get_id() != factbase.get_id()) {
+					Edge edge(current_factbase.get_id(), factbase.get_id(), exploit, assetGroup);
+					if (!edge.exists_in_db()) {
+						edge.save();
+					}
 				}
             } catch (DBException e) {
                 cerr << e.what() << endl;
