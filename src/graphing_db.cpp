@@ -102,14 +102,40 @@ void Graph::graph_db(PGconn *conn) {
         dp.property("node_id", get(boost::vertex_index, ag));
         boost::write_graphviz_dp(gout, ag, dp);
         gout.close();
+        std::string att_str;
+        for (int i=0; i<1000; i++) {
+                att_str = "att_graph";
+                att_str = att_str + std::to_string(i) + ".pdf";
+                const char* att_chars = att_str.c_str();
+                if (std::ifstream( att_chars ))
+                {
+                     std::cout << "File " << att_str << " already exists" << std::endl;
+                }
+                else {break;}
+        }
+        att_str = "circo -Tpdf att_graph.circo -o " + att_str;
         //XXX: The use of std::system is horrible!
-        std::system("circo -Tpdf att_graph.circo -o graph_a.pdf");
+        std::system(att_str.c_str());
+        std::system("rm att_graph.circo");
         
         gout.open("net_graph.circo");
         boost::dynamic_properties dp2;
         dp2.property("label", get(&Asset_Node::name, ng));
         dp2.property("node_id", get(boost::vertex_index, ng));
         boost::write_graphviz_dp(gout, ng, dp2);
+        std::string net_str;
+        for (int i=0; i<1000; i++) {
+                net_str = "net_graph";
+                net_str = net_str + std::to_string(i) + ".pdf";
+                const char* net_chars = net_str.c_str();
+                if (std::ifstream( net_chars ))
+                {
+                     std::cout << "File " << net_str << " already exists" << std::endl;
+                }
+                else {break;}
+        }
+        net_str = "circo -Tpdf net_graph.circo -o " + net_str;
         //XXX: The use of std::system is horrible!
-        std::system("circo -Tpdf net_graph.circo -o graph_n.pdf");
+        std::system(net_str.c_str());
+        std::system("rm net_graph.circo");
 }
