@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
@@ -7,6 +8,7 @@
 #include <libpq-fe.h>
 #include <cstdlib> // for std::system()
 
+#include "util_db.h"
 #include "graphing_db.h"
 
 struct Factbase_Node {
@@ -24,18 +26,7 @@ struct Topology_Edge {
         std::string option;
 };
 
-void Graph::checkSelect(PGconn *conn, PGresult *res) {
-        if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-                fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
-                PQclear(res);
-                PQfinish(conn);
-                exit(1);
-        }
-}
-
-void Graph::graph_db(PGconn *conn) {
-
-        PGresult    *res;
+void Graph::graph_db() {
 
         typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, Factbase_Node, Factbase_Edge> Attack_Graph;
         typedef boost::graph_traits<Attack_Graph>::vertex_descriptor Attack_Vertex;
@@ -47,53 +38,41 @@ void Graph::graph_db(PGconn *conn) {
         typedef boost::graph_traits<Net_Graph>::edge_descriptor Net_Edge;
         Net_Graph ng;
    
-        res = PQexec(conn, "SELECT * FROM factbase;");
-        checkSelect(conn, res);
-        int rows = PQntuples(res);
+        std::vector<DB::Row> rows = db->exec("SELECT * FROM factbase;");
         std::unordered_map<std::string, Attack_Vertex> att_vertex_map;
-        for (int i=0; i<rows; i++) {
+        for (int i=0; i<rows.size(); i++) {
                 Attack_Vertex v = boost::add_vertex(ag);
-                ag[v].factbase_id = PQgetvalue(res, i, 0);
-                ag[v].hash = PQgetvalue(res, i, 1);
+                ag[v].factbase_id = rows[i][0];
+                ag[v].hash = rows[i][1];
                 att_vertex_map[ ag[v].factbase_id] = v;
-        }
-        PQclear(res);	
+        }	
 
-        res = PQexec(conn, "SELECT * FROM edge;");
-        checkSelect(conn, res);
-        rows = PQntuples(res);
-        for (int i=0; i<rows; i++) {
+        rows = db->exec("SELECT * FROM edge;");
+        for (int i=0; i<rows.size(); i++) {
                 Attack_Edge edge; bool added;
-                std::string from = PQgetvalue(res, i, 0);
-                std::string to = PQgetvalue(res, i, 1);
+                std::string from = rows[i][0];
+                std::string to = rows[i][1];
                 boost::tie(edge, added) = boost::add_edge(att_vertex_map[from], att_vertex_map[to], ag);
         }
-        PQclear(res);
         
-        res = PQexec(conn, "SELECT * FROM asset;");
-        checkSelect(conn, res);
-        rows = PQntuples(res);
+        rows = db->exec("SELECT * FROM asset;");
         std::unordered_map<std::string, Net_Vertex> net_vertex_map;
-        for (int i=0; i<rows; i++) {
+        for (int i=0; i<rows.size(); i++) {
                 Net_Vertex v = boost::add_vertex(ng);
-                ng[v].id = PQgetvalue(res, i, 0);
-                ng[v].name = PQgetvalue(res, i, 1);
-                ng[v].network_id = PQgetvalue(res, i, 2);
+                ng[v].id = rows[i][0];
+                ng[v].name = rows[i][1];
+                ng[v].network_id = rows[i][2];
                 net_vertex_map[ ng[v].id] = v;
         }
-        PQclear(res);	
 
-        res = PQexec(conn, "SELECT * FROM topology;");
-        checkSelect(conn, res);
-        rows = PQntuples(res);
-        for (int i=0; i<rows; i++) {
+        rows = db->exec("SELECT * FROM topology;");
+        for (int i=0; i<rows.size(); i++) {
                 Net_Edge edge; bool added;
-                std::string from = PQgetvalue(res, i, 0);
-                std::string to = PQgetvalue(res, i, 1);
+                std::string from = rows[i][0];
+                std::string to = rows[i][1];
                 boost::tie(edge, added) = boost::add_edge(net_vertex_map[from], net_vertex_map[to], ng);
-                ng[edge].option = PQgetvalue(res, i, 2);
+                ng[edge].option = rows[i][2];
         }
-        PQclear(res);
 
         std::ofstream gout;
         gout.open("att_graph.circo");
@@ -127,8 +106,7 @@ void Graph::graph_db(PGconn *conn) {
         for (int i=0; i<1000; i++) {
                 net_str = "net_graph";
                 net_str = net_str + std::to_string(i) + ".pdf";
-                const char* net_chars = net_str.c_str();
-                if (std::ifstream( net_chars ))
+                if (std::ifstream( net_str.c_str() ))
                 {
                      std::cout << "File " << net_str << " already exists" << std::endl;
                 }

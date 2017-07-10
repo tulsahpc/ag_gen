@@ -2,13 +2,15 @@
 
 function init() {
     if [[ -z "$DB" ]]; then
-        echo "-d is required for the init action." >&2
-        exit 1
+        DB="ag_gen"
+#        echo "-d is required for the init action." >&2
+#        exit 1
     fi
 
     if [[ -z "$SCHEMA" ]]; then
-        echo "-s is required for the init action." >&2
-        exit 1
+        SCHEMA="sql/schema.sql"
+#        echo "-s is required for the init action." >&2
+#        exit 1
     fi
 
     if [[ ! -f "$SCHEMA" ]]; then
@@ -62,6 +64,16 @@ function init() {
         fi
         echo "Done"
     fi
+
+    # Execute extra sql files
+    echo -n "Adding support functions: "
+    OUTPUT="$(psql $DB < "sql/factbase.sql" 2>&1)"
+    if [[ $? -ne 0 ]]; then
+        echo "Error"
+        echo $OUTPUT
+        exit 1
+    fi
+    echo "Done"
 
     echo "Database Initialization Complete."
 }
@@ -120,12 +132,21 @@ function usage() {
     echo "A script to help manage the attack graph generation database" >&2
     echo "" >&2
     echo "  -a, --action        Action to perform on the database" >&2
+    echo "                          Defaults to \"init\"" >&2
     echo "  -d, --database      The database to manage" >&2
+    echo "                          Defaults to \"ag_gen\"" >&2
+    echo "  -f, --force         Forces a database to be overwritten" >&2
+    echo "  -h, --help          Displays this help message" >&2
     echo "  -i, --import        SQL data to import to the database" >&2
     echo "  -s, --schema        Schema file to initialize database with" >&2
-    echo "  -f, --force         Forces a database to be overwritten" >&2
+    echo "                          Defaults to \"sql/schema.sql\"" >&2
     echo "" >&2
 }
+
+if [[ -z "$1" ]]; then
+    usage
+    exit 1
+fi
 
 while true; do
     case "$1" in
@@ -171,6 +192,9 @@ while true; do
     esac
 done
 
+if [[ -z "$ACTION" ]]; then
+    ACTION="init"
+fi
 $ACTION # Call the action as a function
 
 

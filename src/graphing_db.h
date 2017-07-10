@@ -6,8 +6,7 @@
 
 class Graph {
 public:
-        void checkSelect(PGconn *conn, PGresult *res);
-        void graph_db(PGconn *conn);
+        void graph_db();
 };
 
 #endif
