@@ -10,6 +10,7 @@
 
 #include "network_state.h"
 #include "keyvalue.h"
+#include "graphing_db.h"
 
 using namespace std;
 
@@ -22,6 +23,7 @@ void print_usage()
     cout << "Flags:" << endl;
 	cout << "\t-n\tNetwork model name to generate attack graph on." << endl;
 	cout << "\t-p\tPrint information about the network specified by -n." << endl;
+	cout << "\t-g\tCreates and exports the attack and network graphs." << endl;
 	cout << "\t-h\tThis help menu." << endl;
 }
 
@@ -38,6 +40,7 @@ int main(int argc, char *argv[])
 	string opt_network;
 
 	int opt;
+	bool do_graph = false;
 	while((opt = getopt(argc, argv, "hpn:")) != -1) {
 		switch(opt) {
 			case 'h':
@@ -49,6 +52,9 @@ int main(int argc, char *argv[])
 			case 'p':
 				opt_print = 1;
 				break;
+			case 'g':
+			        do_graph = true;
+				break;
 			case '?':
 				if(optopt == 'c')
 					fprintf(stderr, "Option -%c requires an argument.\n", optopt);
@@ -58,18 +64,23 @@ int main(int argc, char *argv[])
 				exit(EXIT_FAILURE);
 			default:
 				fprintf(stderr, "Unknown option -%c.\n", optopt);
-                print_usage();
+                                print_usage();
 				exit(EXIT_FAILURE);
 		}
 	}
 
 	Config config("config.txt");
-    db = make_shared<DB>(config.db_string());
+	db = make_shared<DB>(config.db_string());
 
-    NetworkState initial_state;
+        NetworkState initial_state;
 	initial_state.init();
+
 	AGGen generator(initial_state);
-    generator.generate();
+        generator.generate();
+        if (do_graph) {
+                Graph graph;
+                graph.graph_db();
+        }
 
 	db->close();
 }
