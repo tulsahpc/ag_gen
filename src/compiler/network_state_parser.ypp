@@ -7,14 +7,18 @@
 %token <std::string> IDENTIFIER;
 
 %type <NetworkState> root;
-%type <std::vector> assetlist;
+%type <std::vector<Asset>> assetlist;
 
 %%
 
-root: NETWORK MODEL EQ ASSETS COLON assetlist FACTS COLON factlist PERIOD { $$ = NetworkState(); }
+root: NETWORK MODEL EQ ASSETS COLON assetlist FACTS COLON factlist PERIOD
+    {
+        $$ = NetworkState();
+
+    }
 ;
 
-assetlist: assetlist IDENTIFIER SEMI {  }
+assetlist: assetlist IDENTIFIER SEMI { $$ = std::vector<Asset>(); }
 | {}
 ;
 

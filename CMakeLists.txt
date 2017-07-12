@@ -18,6 +18,7 @@ add_executable(db_api_example "examples/db_api_example.cpp")
 # Tools and Work-in-Progress Ideas
 add_executable(sha256_test "tools/sha256_test.cpp")
 add_executable(graphing_db "tools/graphing_db.cpp")
+add_executable(lexer "src/compiler/custom_lexer.cpp")
 
 include_directories(
     "/usr/local/include"
