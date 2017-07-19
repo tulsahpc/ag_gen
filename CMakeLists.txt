@@ -19,6 +19,7 @@ add_executable(db_api_example "examples/db_api_example.cpp")
 add_executable(sha256_test "tools/sha256_test.cpp")
 add_executable(graphing_db "tools/graphing_db.cpp")
 add_executable(lexer "src/compiler/custom_lexer.cpp")
+add_executable(spirit_test "src/compiler/spirit_test.cpp")
 
 include_directories(
     "/usr/local/include"
