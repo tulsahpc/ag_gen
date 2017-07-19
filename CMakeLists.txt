@@ -18,8 +18,6 @@ add_executable(db_api_example "examples/db_api_example.cpp")
 # Tools and Work-in-Progress Ideas
 add_executable(sha256_test "tools/sha256_test.cpp")
 add_executable(graphing_db "tools/graphing_db.cpp")
-add_executable(lexer "src/compiler/custom_lexer.cpp")
-add_executable(spirit_test "src/compiler/spirit_test.cpp")
 
 include_directories(
     "/usr/local/include"
@@ -29,6 +27,11 @@ include_directories(
 if(APPLE)
     include_directories("/usr/local/opt/openssl/include")
 endif()
+
+find_package(BISON)
+find_package(FLEX)
+
+BISON_TARGET(nm_parser compiler/nm)
 
 find_library(HIREDIS_LIB hiredis /usr/local/lib)
 find_library(POSTGRESQL_LIB pq /usr/local/lib)
