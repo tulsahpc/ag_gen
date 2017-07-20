@@ -1,10 +1,10 @@
 <network-model> ::= network <identifier> = assets : <asset-list> facts : <fact-list> .
-<asset-list>    ::= <identifier> <asset-list> ; | <EOL>
-<fact-list>     ::= <fact> <fact-list> | <EOL>
+<asset-list>    ::= <asset-list> <identifier> ; | <EOL>
+<fact-list>     ::= <fact-list> <fact> ; | <EOL>
 <fact>          ::= quality : <identifier> , <statement> ;
                   | topology : <identifier> <direction> <identifier> , <statement> ;
 
-<statement>     ::= <identifier> <eq> <value>
+<statement>     ::= <identifier> <operator> <value>
 <identifier>    ::= [A-Za-z][A-Za-z0-9_]*
 
 <value>         ::= <string>

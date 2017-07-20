@@ -4,13 +4,16 @@ project(ag_gen)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -Wall -DDEBUG_BUILD")
 
-set(Bison_ADDITIONAL_VERSIONS 3.0)
 find_package(BISON)
 find_package(FLEX)
 
-BISON_TARGET(nm_parser src/compiler/nm_parser.ypp ${CMAKE_CURRENT_BINARY_DIR}/nm_parser.cpp)
-FLEX_TARGET(nm_scanner src/compiler/nm_scanner.ll ${CMAKE_CURRENT_BINARY_DIR}/nm_scanner.cpp)
+BISON_TARGET(nm_parser src/compiler/nm_parser.yy ${CMAKE_CURRENT_BINARY_DIR}/nm_parser.c
+    DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/nm_parser.tab.h)
+FLEX_TARGET(nm_scanner src/compiler/nm_scanner.l ${CMAKE_CURRENT_BINARY_DIR}/nm_scanner.c)
 ADD_FLEX_BISON_DEPENDENCY(nm_scanner nm_parser)
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+add_executable(nm_test ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS})
 
 file(GLOB ag_gen_src
         "src/*.cpp"
@@ -26,7 +29,6 @@ add_executable(db_api_example "examples/db_api_example.cpp")
 # Tools and Work-in-Progress Ideas
 add_executable(sha256_test "tools/sha256_test.cpp")
 add_executable(graphing_db "tools/graphing_db.cpp")
-add_executable(nm_test "tools/nm_scanner.cpp" ${FLEX_nm_scanner_OUTPUTS})
 
 include_directories(
     "/usr/local/include"

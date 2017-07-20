@@ -1,0 +1,9 @@
+network example =
+    assets :
+        computer;
+        printer;
+    facts :
+        quality:computer,os=windows;
+        quality:printer,make=hp;
+        topology:computer->printer,connected;
+.
