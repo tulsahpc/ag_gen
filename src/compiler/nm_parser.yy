@@ -1,11 +1,14 @@
+%error-verbose
+
 %{
     #include <stdio.h>
 
-    #define YYDEBUG 1
+    #define YYDEBUG 0
 
     int yylex();
     void yyerror(char const *s);
     extern FILE* yyin;
+    extern int yylineno;
 %}
 
 %union {
@@ -77,7 +80,7 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    yydebug = 1;
+    //yydebug = 1;
     yyin = file;
     do {
         yyparse();
@@ -85,5 +88,5 @@ int main(int argc, char** argv) {
 }
 
 void yyerror(char const *s) {
-    fprintf(stderr, "%s\n", s);
+    fprintf(stderr, "Line %d: %s\n", yylineno, s);
 }
