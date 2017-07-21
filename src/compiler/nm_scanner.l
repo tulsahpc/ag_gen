@@ -1,8 +1,8 @@
 %option noyywrap
 %option yylineno
 
-DIGIT   [1-9][0-9]*
-ID      [a-zA-Z][a-zA-Z0-9]*
+DIGIT   [0-9]+
+ID      [a-zA-Z][a-zA-Z0-9_]*
 
 %{
 #include "nm_parser.tab.h"
@@ -19,10 +19,14 @@ quality  { return QUALITY; }
 topology  { return TOPOLOGY; }
 
 {DIGIT}+ { yylval.num = atoi(yytext); return INT; }
-{DIGIT}+"."{DIGIT}* { yylval.fnum = atof(yytext); return FLOAT; }
+{DIGIT}*"."{DIGIT}+ { yylval.fnum = atof(yytext); return FLOAT; }
 {ID} { yylval.string = (char*)malloc(32); return IDENTIFIER; }
 
 "="	 { return EQ; }
+"<" { return LT; }
+">" { return GT; }
+">=" { return GEQ; }
+"<=" { return LEQ; }
 ":="  { return EQ; }
 ":"	 { return COLON; }
 ";"	 { return SEMI; }
@@ -35,4 +39,3 @@ topology  { return TOPOLOGY; }
 . { return yytext[0]; }
 
 %%
-

@@ -2,6 +2,7 @@
 
 %{
     #include <stdio.h>
+    #include <stdlib.h>
 
     #define YYDEBUG 0
 
@@ -37,10 +38,11 @@ factlist:
 
 fact:
   QUALITY COLON IDENTIFIER COMMA statement SEMI
-| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA IDENTIFIER SEMI
+| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI
 ;
 
 statement:
+| IDENTIFIER
 | IDENTIFIER operator value
 ;
 
@@ -55,8 +57,8 @@ number:
 ;
 
 operator:
-  EQ
-| relop
+  relop
+| EQ
 ;
 
 relop:
@@ -74,7 +76,7 @@ direction:
 %%
 
 int main(int argc, char** argv) {
-    FILE* file = fopen("examples/grammar-test.nm", "r");
+    FILE* file = fopen("examples/SystemV8.nm", "r");
     if(!file) {
         fprintf(stderr, "Cannot open file.\n");
         return -1;
@@ -89,4 +91,5 @@ int main(int argc, char** argv) {
 
 void yyerror(char const *s) {
     fprintf(stderr, "Line %d: %s\n", yylineno, s);
+    exit(-1);
 }
