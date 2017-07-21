@@ -1,0 +1,73 @@
+%skeleton "lalr1.cc"
+%debug
+%defines
+%define api.namespace {NM}
+%define parser_class_name {NM_Parser}
+
+%code requires {
+    namespace NM {
+        class NM_Driver;
+        class NM_Scanner;
+    }
+}
+
+%parse-param { NM::NM_Scanner& scanner }
+%parse-param { NM::NM_Driver& driver }
+
+%locations
+%initial-action
+{
+  @$.begin.filename = @$.end.filename = &driver.file;
+}
+
+%code
+{
+    #include <vector>
+    #include <string>
+    #include "../network_state.h"
+
+    #include "nm_scanner.hpp"
+    #include "nm_driver.hpp"
+
+    #undef yylex
+    #define yylex scanner.yylex
+}
+
+
+%define api.value.type variant
+%define parse.assert
+
+%token <std::string> IDENTIFIER;
+%token <int> INTEGER;
+%token <double> FLOAT;
+%token END 0 "end of file"
+
+%token NETWORK MODEL EQ ASSETS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY ONEDIR BIDIR WHITESPACE;
+
+%locations
+
+%%
+%start root;
+
+root:
+| NETWORK IDENTIFIER EQ ASSETS COLON assetlist FACTS COLON factlist PERIOD
+;
+
+assetlist:
+| assetlist IDENTIFIER SEMI
+;
+
+factlist:
+| factlist fact
+;
+
+fact:
+  QUALITY COLON IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER SEMI
+| TOPOLOGY COLON IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER SEMI
+;
+
+%%
+
+void NM::NM_Parser::error(const NM::NM_Parser::location_type& l, const std::string& err_message) {
+    std::cerr << l << ": " << err_message << std::endl;
+}

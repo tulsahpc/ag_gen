@@ -78,6 +78,6 @@ cmake*/
 config.txt
 
 # flex and bison files
-tools/compiler/*.cpp
-tools/compiler/*.hpp
-tools/compiler/*.o
+*.hh
+*.tab.hpp
+*.tab.cpp
