@@ -20,7 +20,7 @@ topology  { return TOPOLOGY; }
 
 {DIGIT}+ { yylval.num = atoi(yytext); return INT; }
 {DIGIT}*"."{DIGIT}+ { yylval.fnum = atof(yytext); return FLOAT; }
-{ID} { yylval.string = (char*)malloc(32); return IDENTIFIER; }
+{ID} { yylval.string = strdup(yytext); return IDENTIFIER; }
 
 "="	 { return EQ; }
 "<" { return LT; }

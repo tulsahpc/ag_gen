@@ -22,10 +22,12 @@
 %token <fnum> FLOAT
 %token NETWORK MODEL EQ ASSETS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY ONEDIR BIDIR WHITESPACE;
 %token GT LT GEQ LEQ
+
+%type <string> statement value
+
 %%
 
-root:
-| NETWORK IDENTIFIER EQ ASSETS COLON assetlist FACTS COLON factlist PERIOD
+root: NETWORK IDENTIFIER EQ ASSETS COLON assetlist FACTS COLON factlist PERIOD
 ;
 
 assetlist:
@@ -37,13 +39,13 @@ factlist:
 ;
 
 fact:
-  QUALITY COLON IDENTIFIER COMMA statement SEMI
-| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI
+  QUALITY COLON IDENTIFIER COMMA statement SEMI { printf("quality: %s,%s\n", $3, $5); }
+| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI { printf("topology: %s->%s\n",$3,$5); }
 ;
 
 statement:
-| IDENTIFIER
-| IDENTIFIER operator value
+| IDENTIFIER { $$ = $1; }
+| IDENTIFIER operator value { $$ = $1; }
 ;
 
 value:
