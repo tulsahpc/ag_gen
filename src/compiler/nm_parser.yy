@@ -3,6 +3,7 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
+    #include "str_util.h"
 
     #define YYDEBUG 0
 
@@ -45,7 +46,7 @@ fact:
 
 statement:
 | IDENTIFIER { $$ = $1; }
-| IDENTIFIER operator value { $$ = $1; }
+| IDENTIFIER operator value { int len = strlen($1) + strlen($2) + strlen($3); $$ = $1; }
 ;
 
 value:
