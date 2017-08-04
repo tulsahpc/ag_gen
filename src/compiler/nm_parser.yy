@@ -4,6 +4,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include "str_util.h"
+    #include "build_sql.h"
 
     #define YYDEBUG 0
 
@@ -18,13 +19,13 @@
     int num;
     double fnum;
 }
-%token <string> IDENTIFIER
-%token <num> INT
-%token <fnum> FLOAT
-%token NETWORK MODEL EQ ASSETS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY ONEDIR BIDIR WHITESPACE;
-%token GT LT GEQ LEQ
 
-%type <string> statement value
+%token <string> IDENTIFIER INT FLOAT
+%token <string> EQ GT LT GEQ LEQ
+%token <string> ONEDIR BIDIR
+%token NETWORK MODEL ASSETS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE;
+
+%type <string> relop operator direction number value statement
 
 %%
 
@@ -32,7 +33,7 @@ root: NETWORK IDENTIFIER EQ ASSETS COLON assetlist FACTS COLON factlist PERIOD
 ;
 
 assetlist:
-| assetlist IDENTIFIER SEMI
+| assetlist IDENTIFIER SEMI { new_asset($2); }
 ;
 
 factlist:
@@ -40,40 +41,40 @@ factlist:
 ;
 
 fact:
-  QUALITY COLON IDENTIFIER COMMA statement SEMI { printf("quality: %s,%s\n", $3, $5); }
-| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI { printf("topology: %s->%s\n",$3,$5); }
+  QUALITY COLON IDENTIFIER COMMA statement SEMI {  }
+| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {  }
 ;
 
 statement:
-| IDENTIFIER { $$ = $1; }
-| IDENTIFIER operator value { int len = strlen($1) + strlen($2) + strlen($3); $$ = $1; }
+  IDENTIFIER { $$ = $1; }
+| IDENTIFIER operator value { $$ = $1; }
 ;
 
 value:
-  IDENTIFIER
-| number
+  IDENTIFIER { $$ = $1; }
+| number { $$ = $1; }
 ;
 
 number:
-  INT
-| FLOAT
+  INT { $$ = $1; }
+| FLOAT { $$ = $1; }
 ;
 
 operator:
-  relop
-| EQ
+  relop { $$ = $1; }
+| EQ { $$ = $1; }
 ;
 
 relop:
-  GT
-| LT
-| GEQ
-| LEQ
+  GT { $$ = $1; }
+| LT { $$ = $1; }
+| GEQ { $$ = $1; }
+| LEQ { $$ = $1; }
 ;
 
 direction:
-  ONEDIR
-| BIDIR
+  ONEDIR { $$ = $1; }
+| BIDIR { $$ = $1; }
 ;
 
 %%
@@ -85,11 +86,19 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    init_asset_list();
+
     //yydebug = 1;
     yyin = file;
     do {
         yyparse();
     } while(!feof(yyin));
+
+    for(int i=0; i<assetcount; i++) {
+        printf("%s\n", assets[i]);
+    }
+
+    free_asset_list();
 }
 
 void yyerror(char const *s) {

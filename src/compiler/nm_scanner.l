@@ -18,8 +18,8 @@ assets  { return ASSETS; }
 quality  { return QUALITY; }
 topology  { return TOPOLOGY; }
 
-{DIGIT}+ { yylval.num = atoi(yytext); return INT; }
-{DIGIT}*"."{DIGIT}+ { yylval.fnum = atof(yytext); return FLOAT; }
+{DIGIT}+ { yylval.string = strdup(yytext); return INT; }
+{DIGIT}*"."{DIGIT}+ { yylval.string = strdup(yytext); return FLOAT; }
 {ID} { yylval.string = strdup(yytext); return IDENTIFIER; }
 
 "="	 { return EQ; }
