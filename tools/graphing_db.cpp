@@ -4,7 +4,12 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/graph/graph_traits.hpp>
-#include <libpq-fe.h>
+
+#ifdef __APPLE__
+        #include <libpq-fe.h>
+#elif __LINUX__
+        #include <postgresql/libpq-fe.h>
+#endif
 
 struct Attack_Node {
         std::string factbase_id;

@@ -18,7 +18,7 @@ elif [[ $OS = 'linux' ]]; then
 
     type apt-get &> /dev/null
     if [[ $? ]]; then
-        sudo apt-get -y install boost postgresql postgresql-contrib libpq-dev \
+        sudo apt-get -y install libboost-graph-dev postgresql postgresql-contrib libpq-dev \
             redis-server libhiredis-dev cppcheck clang valgrind \
             doxygen graphviz cmake build-essential
     fi
