@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(ag_gen)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -Wall -DDEBUG_BUILD")
 
 find_package(BISON)
@@ -39,9 +39,8 @@ if(APPLE)
     include_directories("/usr/local/opt/openssl/include")
 endif()
 
-find_library(HIREDIS_LIB hiredis /usr/local/lib)
 find_library(POSTGRESQL_LIB pq /usr/local/lib)
-target_link_libraries(ag_gen ${HIREDIS_LIB} ${POSTGRESQL_LIB})
+target_link_libraries(ag_gen ${POSTGRESQL_LIB})
 
 find_library(OPENSSL_LIB ssl /usr/local/opt/openssl/lib)
 find_library(OPENSSL_CRYPTO_LIB crypto /usr/local/opt/openssl/lib)
