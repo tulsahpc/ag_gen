@@ -18,9 +18,9 @@ assets  { return ASSETS; }
 quality  { return QUALITY; }
 topology  { return TOPOLOGY; }
 
-{DIGIT}+ { yylval.string = strdup(yytext); return INT; }
-{DIGIT}*"."{DIGIT}+ { yylval.string = strdup(yytext); return FLOAT; }
-{ID} { yylval.string = strdup(yytext); return IDENTIFIER; }
+{DIGIT}+ { yylval.string = yytext; return INT; }
+{DIGIT}*"."{DIGIT}+ { yylval.string = yytext; return FLOAT; }
+{ID} { yylval.string = yytext; return IDENTIFIER; }
 
 "="	 { return EQ; }
 "<" { return LT; }

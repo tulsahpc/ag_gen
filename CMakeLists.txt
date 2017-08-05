@@ -50,3 +50,5 @@ target_link_libraries(sha256_test ${OPENSSL_LIB} ${OPENSSL_CRYPTO_LIB})
 target_link_libraries(graph_example ${POSTGRESQL_LIB})
 
 target_link_libraries(db_api_example ${POSTGRESQL_LIB})
+
+target_link_libraries(graphing_db ${POSTGRESQL_LIB})

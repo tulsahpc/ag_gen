@@ -80,7 +80,13 @@ direction:
 %%
 
 int main(int argc, char** argv) {
-    FILE* file = fopen("examples/SystemV8.nm", "r");
+    FILE* file;
+    if(argv[1] == 0) {
+        file = fopen("examples/SystemV8.nm", "r");
+    } else {
+        file = fopen(argv[1], "r");
+    }
+
     if(!file) {
         fprintf(stderr, "Cannot open file.\n");
         return -1;
