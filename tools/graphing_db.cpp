@@ -7,7 +7,7 @@
 
 #ifdef __APPLE__
         #include <libpq-fe.h>
-#elif __LINUX__
+#elif __linux__
         #include <postgresql/libpq-fe.h>
 #endif
 
