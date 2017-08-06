@@ -5,11 +5,14 @@
 #ifndef AG_GEN_BUILD_SQL_H
 #define AG_GEN_BUILD_SQL_H
 
-char** assets;
-int assetcount;
+typedef struct {
+	char** elts;
+	int count;
+} str_list;
 
-void new_asset(char*);
-void init_asset_list(void);
-void free_asset_list(void);
+void init_list(str_list* l);
+void add_entry(str_list* l, char* name);
+void free_list(str_list* l);
+void print_list(str_list* l);
 
 #endif //AG_GEN_BUILD_SQL_H

@@ -4,13 +4,16 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "str_util.h"
 
 void* getmem(size_t size) {
 	void* data = malloc(size);
-	if(data == NULL)
+	if(data == NULL) {
+		fprintf(stderr, "Could not allocate memory.\n");
 		exit(EXIT_FAILURE);
+	}
 	return data;
 }
 

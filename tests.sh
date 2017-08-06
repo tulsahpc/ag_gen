@@ -18,7 +18,7 @@ function printer {
     printf "\n***** Result: '%s'\n~~~ Valgrind: %s\n" "$1" $succ
 }
 
-TESTS=("bin/main -n home")
+TESTS=("build/ag_gen -n home")
 RESULTS=()
 
 if [[ "$1" = "all" ]]; then

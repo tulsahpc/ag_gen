@@ -12,6 +12,8 @@
     void yyerror(char const *s);
     extern FILE* yyin;
     extern int yylineno;
+
+    str_list assets;
 %}
 
 %union {
@@ -33,7 +35,7 @@ root: NETWORK IDENTIFIER EQ ASSETS COLON assetlist FACTS COLON factlist PERIOD
 ;
 
 assetlist:
-| assetlist IDENTIFIER SEMI { new_asset($2); }
+| assetlist IDENTIFIER SEMI { add_entry(&assets, $2); }
 ;
 
 factlist:
@@ -41,8 +43,8 @@ factlist:
 ;
 
 fact:
-  QUALITY COLON IDENTIFIER COMMA statement SEMI {  }
-| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {  }
+  QUALITY COLON IDENTIFIER COMMA statement SEMI
+| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI
 ;
 
 statement:
@@ -92,7 +94,7 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    init_asset_list();
+    init_list(&assets);
 
     //yydebug = 1;
     yyin = file;
@@ -100,11 +102,9 @@ int main(int argc, char** argv) {
         yyparse();
     } while(!feof(yyin));
 
-    for(int i=0; i<assetcount; i++) {
-        printf("%s\n", assets[i]);
-    }
+    print_list(&assets);
 
-    free_asset_list();
+    free_list(&assets);
 }
 
 void yyerror(char const *s) {
