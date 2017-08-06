@@ -12,33 +12,31 @@
     void yyerror(char const *s);
     extern FILE* yyin;
     extern int yylineno;
-
-    str_list assets;
 %}
 
 %union {
+    struct str_array* arr;
     char* string;
-    int num;
-    double fnum;
 }
+
+%type <arr> assetlist
+%type <string> relop operator direction number value statement
 
 %token <string> IDENTIFIER INT FLOAT
 %token <string> EQ GT LT GEQ LEQ
 %token <string> ONEDIR BIDIR
 %token NETWORK MODEL ASSETS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE;
 
-%type <string> relop operator direction number value statement
-
 %%
 
 root: NETWORK IDENTIFIER EQ ASSETS COLON assetlist FACTS COLON factlist PERIOD
 ;
 
-assetlist:
-| assetlist IDENTIFIER SEMI { add_entry(&assets, $2); }
+assetlist: { $$ = new_str_array(); }
+| assetlist IDENTIFIER SEMI { $$ = $1; add_str($1, $2); printf("%d\n", ); }
 ;
 
-factlist:
+factlist: 
 | factlist fact
 ;
 
@@ -94,17 +92,11 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    init_list(&assets);
-
     //yydebug = 1;
     yyin = file;
     do {
         yyparse();
     } while(!feof(yyin));
-
-    print_list(&assets);
-
-    free_list(&assets);
 }
 
 void yyerror(char const *s) {

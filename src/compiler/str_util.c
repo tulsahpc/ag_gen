@@ -30,6 +30,12 @@ char* dynstr(const char* str) {
 	return mystring;
 }
 
+str_array* new_str_array(void) {
+    str_array* arr = (str_array*) getmem(sizeof(str_array*));
+    init_str_array(arr);
+    return arr;
+}
+
 const int INIT_SIZE = 50;
 void init_str_array(str_array* arr) {
     arr->arr = (char**) getmem(INIT_SIZE);
@@ -42,5 +48,18 @@ void add_str(str_array* arr, char* str) {
         arr->arr = (char**) realloc(arr->arr, arr->size*2*sizeof(char*));
         arr->size *= 2;
     }
-    arr->arr[arr->used++] = str;
+    arr->arr[arr->used++] = dynstr(str);
+}
+
+void free_str_array(str_array* arr) {
+	for(int i=0; i<arr->used; i++) {
+		free(arr->arr[i]);
+	}
+	free(arr->arr);
+}
+
+void print_str_array(str_array* arr) {
+	for(int i=0; i<arr->used; i++) {
+		printf("%s\n", arr->arr[i]);
+	}
 }
