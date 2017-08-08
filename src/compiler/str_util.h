@@ -7,6 +7,8 @@
 
 #include <string.h>
 
+#define INIT_SIZE 20
+
 struct str_array {
     char** arr;
     size_t size;

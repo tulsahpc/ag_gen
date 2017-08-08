@@ -25,20 +25,19 @@ char* getstr(size_t size) {
 
 char* dynstr(const char* str) {
 	size_t len = strlen(str);
-	char* mystring = (char*) getstr(len);
+	char* mystring = getstr(len);
 	memcpy(mystring, str, len);
 	return mystring;
 }
 
 str_array* new_str_array(void) {
-    str_array* arr = (str_array*) getmem(sizeof(str_array*));
+    str_array* arr = (str_array*) getmem(sizeof(str_array));
     init_str_array(arr);
     return arr;
 }
 
-const int INIT_SIZE = 50;
 void init_str_array(str_array* arr) {
-    arr->arr = (char**) getmem(INIT_SIZE);
+    arr->arr = (char**) getmem(INIT_SIZE * sizeof(char*));
     arr->size = INIT_SIZE;
     arr->used = 0;
 }

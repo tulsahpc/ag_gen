@@ -22,18 +22,18 @@ topology  { return TOPOLOGY; }
 {DIGIT}*"."{DIGIT}+ { yylval.string = yytext; return FLOAT; }
 {ID} { yylval.string = yytext; return IDENTIFIER; }
 
-"="	 { return EQ; }
-"<" { return LT; }
-">" { return GT; }
-">=" { return GEQ; }
-"<=" { return LEQ; }
-":="  { return EQ; }
-":"	 { return COLON; }
-";"	 { return SEMI; }
-","	 { return COMMA; }
-"."	 { return PERIOD; }
-"->"  { return ONEDIR; }
-"<->"  { return BIDIR; }
+"="	 { yylval.string = yytext; return EQ; }
+"<" { yylval.string = yytext; return LT; }
+">" { yylval.string = yytext; return GT; }
+">=" { yylval.string = yytext; return GEQ; }
+"<=" { yylval.string = yytext; return LEQ; }
+":="  { yylval.string = yytext; return EQ; }
+":"	 { yylval.string = yytext; return COLON; }
+";"	 { yylval.string = yytext; return SEMI; }
+","	 { yylval.string = yytext; return COMMA; }
+"."	 { yylval.string = yytext; return PERIOD; }
+"->"  { yylval.string = yytext; return ONEDIR; }
+"<->"  { yylval.string = yytext; return BIDIR; }
 [ \t\r\n]+ {}
 
 . { return yytext[0]; }

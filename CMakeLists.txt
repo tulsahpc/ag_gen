@@ -13,7 +13,7 @@ FLEX_TARGET(nm_scanner src/compiler/nm_scanner.l ${CMAKE_CURRENT_BINARY_DIR}/nm_
 ADD_FLEX_BISON_DEPENDENCY(nm_scanner nm_parser)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/src/compiler)
-add_executable(nm_test ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS} src/compiler/str_util.c src/compiler/build_sql.c)
+add_executable(nm_test ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS} src/compiler/str_util.c)
 
 file(GLOB ag_gen_src
         "src/*.cpp"

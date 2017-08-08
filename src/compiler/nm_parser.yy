@@ -4,23 +4,31 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include "str_util.h"
-    #include "build_sql.h"
 
     #define YYDEBUG 0
 
+    struct networkmodel {
+        str_array* assets;
+        str_array* facts;
+    };
+
     int yylex();
-    void yyerror(char const *s);
+    void yyerror(struct networkmodel* nm, char const *s);
     extern FILE* yyin;
     extern int yylineno;
+
 %}
 
 %union {
     struct str_array* arr;
+    struct networkmodel* model;
     char* string;
 }
 
-%type <arr> assetlist
-%type <string> relop operator direction number value statement
+%parse-param { struct networkmodel* nm }
+
+%type <arr> assetlist assets factlist facts
+%type <string> relop operator direction number value statement asset fact
 
 %token <string> IDENTIFIER INT FLOAT
 %token <string> EQ GT LT GEQ LEQ
@@ -29,52 +37,85 @@
 
 %%
 
-root: NETWORK IDENTIFIER EQ ASSETS COLON assetlist FACTS COLON factlist PERIOD
+root: NETWORK IDENTIFIER EQ assets facts PERIOD {
+    nm->assets = $4;
+    nm->facts = $5;
+  }
 ;
 
-assetlist: { $$ = new_str_array(); }
-| assetlist IDENTIFIER SEMI { $$ = $1; add_str($1, $2); printf("%d\n", ); }
-;
+assets: ASSETS COLON assetlist { $$ = $3; }
 
-factlist: 
-| factlist fact
+assetlist: { $$ = NULL; }
+| assetlist asset {
+    if($1 == NULL) {
+        $$ = new_str_array();
+    } else {
+        add_str($1, $2);
+        $$ = $1;
+    }
+  }
+
+asset: IDENTIFIER SEMI { $$ = $1; }
+
+facts: FACTS COLON factlist { $$ = $3; }
+
+factlist: { $$ = NULL; }
+| factlist fact {
+    if($1 == NULL) {
+        $$ = new_str_array();
+    } else {
+        add_str($1, $2);
+        $$ = $1;
+    }
+  }
 ;
 
 fact:
-  QUALITY COLON IDENTIFIER COMMA statement SEMI
-| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI
+  QUALITY COLON IDENTIFIER COMMA statement SEMI {
+    int mystringlen = strlen($3) + strlen($5);
+    char* mystring = getstr(mystringlen);
+    sprintf(mystring, "%s%s", $3, $5);
+    $$ = mystring;
+  }
+| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {
+
+  }
 ;
 
 statement:
-  IDENTIFIER { $$ = $1; }
-| IDENTIFIER operator value { $$ = $1; }
+  IDENTIFIER operator value {
+    printf("%s\n", $1);
+    printf("%s\n", $2);
+    printf("%s\n\n", $3);
+  }
+| IDENTIFIER
 ;
 
 value:
-  IDENTIFIER { $$ = $1; }
-| number { $$ = $1; }
+  IDENTIFIER
+| number
 ;
 
 number:
-  INT { $$ = $1; }
-| FLOAT { $$ = $1; }
+  INT
+| FLOAT
 ;
 
 operator:
-  relop { $$ = $1; }
-| EQ { $$ = $1; }
+  relop
+| EQ
 ;
 
 relop:
-  GT { $$ = $1; }
-| LT { $$ = $1; }
-| GEQ { $$ = $1; }
-| LEQ { $$ = $1; }
+  GT
+| LT
+| GEQ
+| LEQ
 ;
 
 direction:
-  ONEDIR { $$ = $1; }
-| BIDIR { $$ = $1; }
+  ONEDIR
+| BIDIR
 ;
 
 %%
@@ -92,14 +133,19 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    struct networkmodel nm;
     //yydebug = 1;
     yyin = file;
     do {
-        yyparse();
+        yyparse(&nm);
     } while(!feof(yyin));
+
+    //print_str_array(nm.assets);
+    //print_str_array(nm.facts);
+    free_str_array(nm.assets);
 }
 
-void yyerror(char const *s) {
+void yyerror(struct networkmodel* nm, char const *s) {
     fprintf(stderr, "Line %d: %s\n", yylineno, s);
     exit(-1);
 }
