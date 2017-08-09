@@ -4,13 +4,26 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include "str_util.h"
+    #include "util_hash.h"
 
     #define YYDEBUG 0
 
     struct networkmodel {
         str_array* assets;
-        str_array* facts;
+        hashtable* asset_tab;
+        int numassets;
+
+        str_array* qualities;
+        int numqualities;
+
+        str_array* topologies;
+        int numtopologies;
     };
+
+    const char* sqlAsset = "(%d, '%s', (SELECT id FROM network WHERE name = 'home')),";
+    const char* sqlQuality = "(1, 'type', 'router'),";
+
+    int assetcount = 0;
 
     int yylex();
     void yyerror(struct networkmodel* nm, char const *s);
@@ -39,7 +52,6 @@
 
 root: NETWORK IDENTIFIER EQ assets facts PERIOD {
     nm->assets = $4;
-    nm->facts = $5;
   }
 ;
 
@@ -50,8 +62,14 @@ assetlist: { $$ = NULL; }
     if($1 == NULL) {
         $$ = new_str_array();
     } else {
-        add_str($1, $2);
+        size_t mystringlen = strlen(sqlAsset) + strlen($2);
+        char* mystring = getstr(mystringlen);
+        sprintf(mystring, sqlAsset, assetcount++, $2);
+        add_str($1, mystring);
         $$ = $1;
+        /*asset* a = (asset*) getmem(sizeof(asset));
+        a->id = assetcount++;
+        a->name = dynstr($2);*/
     }
   }
 
@@ -74,21 +92,25 @@ fact:
   QUALITY COLON IDENTIFIER COMMA statement SEMI {
     int mystringlen = strlen($3) + strlen($5);
     char* mystring = getstr(mystringlen);
-    sprintf(mystring, "%s%s", $3, $5);
+    sprintf(mystring, "%s,%s", $3, $5);
     $$ = mystring;
   }
 | TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {
-
+    int mystringlen = strlen($3) + strlen($4) + strlen($5) + strlen($7);
+    char* mystring = getstr(mystringlen);
+    sprintf(mystring, "%s%s%s,%s", $3, $4, $5, $7);
+    $$ = mystring;
   }
 ;
 
 statement:
-  IDENTIFIER operator value {
-    printf("%s\n", $1);
-    printf("%s\n", $2);
-    printf("%s\n\n", $3);
+  IDENTIFIER
+| IDENTIFIER operator value {
+    int mystringlen = strlen($1) + strlen($2) + strlen($3);
+    char* mystring = getstr(mystringlen);
+    sprintf(mystring, "%s%s%s", $1, $2, $3);
+    $$ = mystring;
   }
-| IDENTIFIER
 ;
 
 value:
@@ -103,7 +125,7 @@ number:
 
 operator:
   relop
-| EQ
+| EQ { $$ = dynstr("="); }
 ;
 
 relop:
@@ -140,9 +162,7 @@ int main(int argc, char** argv) {
         yyparse(&nm);
     } while(!feof(yyin));
 
-    //print_str_array(nm.assets);
-    //print_str_array(nm.facts);
-    free_str_array(nm.assets);
+    print_str_array(nm.assets);
 }
 
 void yyerror(struct networkmodel* nm, char const *s) {

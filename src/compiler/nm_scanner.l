@@ -18,22 +18,22 @@ assets  { return ASSETS; }
 quality  { return QUALITY; }
 topology  { return TOPOLOGY; }
 
-{DIGIT}+ { yylval.string = yytext; return INT; }
-{DIGIT}*"."{DIGIT}+ { yylval.string = yytext; return FLOAT; }
-{ID} { yylval.string = yytext; return IDENTIFIER; }
+{DIGIT}+ { yylval.string = strdup(yytext); return INT; }
+{DIGIT}*"."{DIGIT}+ { yylval.string = strdup(yytext); return FLOAT; }
+{ID} { yylval.string = strdup(yytext); return IDENTIFIER; }
 
-"="	 { yylval.string = yytext; return EQ; }
-"<" { yylval.string = yytext; return LT; }
-">" { yylval.string = yytext; return GT; }
-">=" { yylval.string = yytext; return GEQ; }
-"<=" { yylval.string = yytext; return LEQ; }
-":="  { yylval.string = yytext; return EQ; }
-":"	 { yylval.string = yytext; return COLON; }
-";"	 { yylval.string = yytext; return SEMI; }
-","	 { yylval.string = yytext; return COMMA; }
-"."	 { yylval.string = yytext; return PERIOD; }
-"->"  { yylval.string = yytext; return ONEDIR; }
-"<->"  { yylval.string = yytext; return BIDIR; }
+"="	 { yylval.string = strdup(yytext); return EQ; }
+"<" { yylval.string = strdup(yytext); return LT; }
+">" { yylval.string = strdup(yytext); return GT; }
+">=" { yylval.string = strdup(yytext); return GEQ; }
+"<=" { yylval.string = strdup(yytext); return LEQ; }
+":="  { yylval.string = strdup(yytext); return EQ; }
+":"	 { yylval.string = strdup(yytext); return COLON; }
+";"	 { yylval.string = strdup(yytext); return SEMI; }
+","	 { yylval.string = strdup(yytext); return COMMA; }
+"."	 { yylval.string = strdup(yytext); return PERIOD; }
+"->"  { yylval.string = strdup(yytext); return ONEDIR; }
+"<->"  { yylval.string = strdup(yytext); return BIDIR; }
 [ \t\r\n]+ {}
 
 . { return yytext[0]; }

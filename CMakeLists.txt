@@ -7,13 +7,19 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -Wall -DDEBUG_BUILD")
 find_package(BISON)
 find_package(FLEX)
 
-BISON_TARGET(nm_parser src/compiler/nm_parser.yy ${CMAKE_CURRENT_BINARY_DIR}/nm_parser.c
+BISON_TARGET(nm_parser src/compiler/nm_parser.yy
+    ${CMAKE_CURRENT_BINARY_DIR}/nm_parser.c
     DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/nm_parser.tab.h)
-FLEX_TARGET(nm_scanner src/compiler/nm_scanner.l ${CMAKE_CURRENT_BINARY_DIR}/nm_scanner.c)
+FLEX_TARGET(nm_scanner src/compiler/nm_scanner.l
+    ${CMAKE_CURRENT_BINARY_DIR}/nm_scanner.c)
 ADD_FLEX_BISON_DEPENDENCY(nm_scanner nm_parser)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/src/compiler)
-add_executable(nm_test ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS} src/compiler/str_util.c)
+add_executable(nm_test
+    ${FLEX_nm_scanner_OUTPUTS}
+    ${BISON_nm_parser_OUTPUTS}
+    src/compiler/str_util.c
+    src/compiler/util_hash.c)
 
 file(GLOB ag_gen_src
         "src/*.cpp"
