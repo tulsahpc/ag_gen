@@ -156,13 +156,16 @@ int main(int argc, char** argv) {
     }
 
     struct networkmodel nm;
+    nm.asset_tab = new_hash_table();
+
     //yydebug = 1;
     yyin = file;
     do {
         yyparse(&nm);
     } while(!feof(yyin));
 
-    print_str_array(nm.assets);
+    //print_str_array(nm.assets);
+    
 }
 
 void yyerror(struct networkmodel* nm, char const *s) {

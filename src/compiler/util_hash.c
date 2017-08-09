@@ -34,3 +34,8 @@ void init_hashtable(hashtable* t) {
     t->size = HASH_INIT_SIZE;
     t->used = 0;
 }
+
+void add_hashtable(hashtable* t, char* str) {
+    uint64_t idx = hash(str);
+    
+}
