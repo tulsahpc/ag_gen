@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include "util_hash.h"
 #include "str_util.h"
 
@@ -23,19 +24,52 @@ bool should_rehash(hashtable* t) {
         return false;
 }
 
-hashtable* new_hashtable(void) {
+void clear_hashtable(hashtable* t) {
+    for(int i=0; i<t->size; i++) {
+        t->arr[i] = 0;
+    }
+}
+
+void rehash(hashtable* t) {
+    hashtable* new = new_hashtable(t->size*2); 
+    for(int i=0; i<t->size; i++) {
+        if(t->arr[i] != 0) {
+            add_hashtable(new, t->arr[i]);
+        }
+    }
+    t = new;
+}
+
+hashtable* new_hashtable(int size) {
     hashtable* t = (hashtable*) getmem(sizeof(hashtable));
-    init_hashtable(t);
+    init_hashtable(t, size);
     return t;
 }
 
-void init_hashtable(hashtable* t) {
-    t->arr = (char*) getmem(HASH_INIT_SIZE*sizeof(char));
-    t->size = HASH_INIT_SIZE;
+void init_hashtable(hashtable* t, int size) {
+    t->arr = (char**) getmem(size*sizeof(char*));
+    t->size = size;
     t->used = 0;
+
+    clear_hashtable(t);
 }
 
 void add_hashtable(hashtable* t, char* str) {
-    uint64_t idx = hash(str);
-    
+    if(should_rehash(t))
+        rehash(t);
+    uint64_t idx = hash(str) % t->size;
+    t->arr[idx] = str;
+}
+
+char* get_hashtable(hashtable* t, char* str) {
+    uint64_t idx = hash(str) % t->size;
+    return t->arr[idx];
+}
+
+void free_hashtable(hashtable* t) {
+    for(int i=0; i<t->size; i++) {
+        if(t->arr[i] != 0) {
+            free(t->arr[i]);
+        }
+    }
 }

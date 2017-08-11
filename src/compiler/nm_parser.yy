@@ -64,12 +64,10 @@ assetlist: { $$ = NULL; }
     } else {
         size_t mystringlen = strlen(sqlAsset) + strlen($2);
         char* mystring = getstr(mystringlen);
+        add_hashtable(nm->asset_tab->)
         sprintf(mystring, sqlAsset, assetcount++, $2);
         add_str($1, mystring);
         $$ = $1;
-        /*asset* a = (asset*) getmem(sizeof(asset));
-        a->id = assetcount++;
-        a->name = dynstr($2);*/
     }
   }
 
@@ -145,7 +143,7 @@ direction:
 int main(int argc, char** argv) {
     FILE* file;
     if(argv[1] == 0) {
-        file = fopen("examples/SystemV8.nm", "r");
+        file = fopen("../examples/SystemV8.nm", "r");
     } else {
         file = fopen(argv[1], "r");
     }
@@ -156,7 +154,7 @@ int main(int argc, char** argv) {
     }
 
     struct networkmodel nm;
-    nm.asset_tab = new_hash_table();
+    nm.asset_tab = new_hashtable(101);
 
     //yydebug = 1;
     yyin = file;
@@ -164,8 +162,7 @@ int main(int argc, char** argv) {
         yyparse(&nm);
     } while(!feof(yyin));
 
-    //print_str_array(nm.assets);
-    
+    free_hashtable(nm.asset_tab);
 }
 
 void yyerror(struct networkmodel* nm, char const *s) {

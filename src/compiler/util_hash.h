@@ -4,20 +4,23 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define HASH_INIT_SIZE 100
 #define LOAD_FACTOR .75
 
 struct hashtable {
-    char* arr;
+    char** arr;
     int size;
     int used;
 };
 typedef struct hashtable hashtable;
 
+uint64_t hash(char* str);
+
+hashtable* new_hashtable(int size);
+void init_hashtable(hashtable* t, int size);
+void add_hashtable(hashtable* t, char* str);
+void free_hashtable(hashtable* t);
+
 double get_loadfactor(hashtable* t);
 bool should_rehash(hashtable* t);
-uint64_t hash(char* str);
-hashtable* new_hashtable(void);
-void init_hashtable(hashtable* t);
 
 #endif
