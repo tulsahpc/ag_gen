@@ -64,7 +64,7 @@ assetlist: { $$ = NULL; }
     } else {
         size_t mystringlen = strlen(sqlAsset) + strlen($2);
         char* mystring = getstr(mystringlen);
-        add_hashtable(nm->asset_tab->)
+        add_hashtable(nm->asset_tab, $2);
         sprintf(mystring, sqlAsset, assetcount++, $2);
         add_str($1, mystring);
         $$ = $1;
@@ -161,6 +161,15 @@ int main(int argc, char** argv) {
     do {
         yyparse(&nm);
     } while(!feof(yyin));
+
+    int counter = 0;
+    for(int i=0; i<nm.asset_tab->size; i++) {
+        if(nm.asset_tab->arr[i] != 0) {
+            printf("%d: %s\n", i, nm.asset_tab->arr[i]);
+            counter++;
+        }
+    }
+    printf("Total: %d\n", counter);
 
     free_hashtable(nm.asset_tab);
 }
