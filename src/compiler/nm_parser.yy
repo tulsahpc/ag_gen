@@ -24,10 +24,11 @@
         char* obj;
         char* op;
         char* val;
-    }
+    };
 
     const char* sqlAsset = "(%d, '%s', (SELECT id FROM network WHERE name = 'home')),";
     const char* sqlQuality = "(%d, '%s', '%s'),";
+    const char* sqlTopology = "(%d, %d, '%s'),";
 
     int assetcount = 0;
 
@@ -41,13 +42,15 @@
 %union {
     struct str_array* arr;
     struct networkmodel* model;
+    struct statement* st;
     char* string;
 }
 
 %parse-param { struct networkmodel* nm }
 
 %type <arr> assetlist assets factlist facts
-%type <string> relop operator direction number value statement asset fact
+%type <string> relop operator direction number value asset fact
+%type <st> statement
 
 %token <string> IDENTIFIER INT FLOAT
 %token <string> EQ GT LT GEQ LEQ
@@ -58,6 +61,7 @@
 
 root: NETWORK IDENTIFIER EQ assets facts PERIOD {
     nm->assets = $4;
+    nm->qualities = $5;
   }
 ;
 
@@ -94,21 +98,33 @@ factlist: { $$ = NULL; }
 
 fact:
   QUALITY COLON IDENTIFIER COMMA statement SEMI {
-    size_t mystringlen = strlen(sqlQuality) + strlen($3) + strlen($5);
+    struct statement* st = $5;
+    size_t mystringlen = strlen(sqlQuality) + strlen(st->obj) + strlen(st->op) + strlen(st->val);
     char* mystring = getstr(mystringlen);
     int assetid = get_hashtable(nm->asset_tab, $3);
-    sprintf(mystring, sqlQuality, assetid,)
+    sprintf(mystring, sqlQuality, assetid, st->obj, st->val);
+    $$ = mystring;
   }
 | TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {
-    int mystringlen = strlen($3) + strlen($4) + strlen($5) + strlen($7);
+    struct statement* st = $7;
+    int firstassetid = get_hashtable(nm->asset_tab, $3);
+    int secondassetid = get_hashtable(nm->asset_tab, $5);
+    size_t mystringlen = strlen(sqlTopology) + strlen(itoa(firstassetid)) +
+        strlen($4) + strlen(itoa(secondassetid)) + strlen(st->obj) +
+        strlen(st->op) + strlen(st->val);
     char* mystring = getstr(mystringlen);
-    sprintf(mystring, "%s%s%s,%s", $3, $4, $5, $7);
-    $$ = mystring;
+    sprintf(mystring, sqlTopology, firstassetid, secondassetid,)
   }
 ;
 
-statement:
-  IDENTIFIER operator value {
+statement: IDENTIFIER {
+    struct statement* st = getmem(sizeof(struct statement));
+    st->obj = $1;
+    st->op = NULL;
+    st->val = NULL;
+    $$ = st;
+}
+| IDENTIFIER operator value {
     struct statement* st = getmem(sizeof(struct statement));
     st->obj = $1;
     st->op = $2;
