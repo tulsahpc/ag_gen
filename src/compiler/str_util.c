@@ -17,6 +17,10 @@ void* getmem(size_t size) {
 	return data;
 }
 
+void clearmem(void* data, size_t size) {
+    memset(data, 0, size);
+}
+
 char* getstr(size_t size) {
 	char* mystring = (char*) getmem(size+1);
 	mystring[size] = '\0';

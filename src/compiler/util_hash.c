@@ -20,47 +20,61 @@ hashtable* new_hashtable(int size) {
 }
 
 void init_hashtable(hashtable* t, int size) {
-    t->arr = (hashnode*) getmem(size*sizeof(hashnode));
+    t->arr = (hashnode**) getmem(size*sizeof(hashnode*));
     t->size = size;
     t->used = 0;
-
-    clear_hashtable(t);
-}
-
-void clear_hashtable(hashtable* t) {
-    for(int i=0; i<t->size; i++) {
-        t->arr[i] = 0;
-    }
+    clearmem(t->arr, size*sizeof(hashnode*));
 }
 
 void add_hashtable(hashtable* t, char* key, void* val) {
     // if(should_rehash(t))
         // rehash(t);
     uint64_t idx = hash(key) % t->size;
-    printf("hashing: %s\n", key);
+    // printf("hashing: %s\n", key);
 
-    hashnode* prevnode = t->arr[idx];
-    while(prevnode != NULL)
-        prevnode = prevnode->next;
-    
-    hashnode* newnode = (hashnode*) getmem(sizeof(hashnode))
+    hashnode* newnode = (hashnode*) getmem(sizeof(hashnode));
     newnode->key = key;
     newnode->val = val;
     newnode->next = NULL;
+
+    hashnode* prevnode = t->arr[idx];
+    if(prevnode != NULL) {
+        while(prevnode->next != NULL) {
+            if(strcmp(prevnode->key, key) == 0) {
+                free(newnode);
+                return;
+            }
+            prevnode = prevnode->next;
+        }
+        
+        prevnode->next = newnode;
+    }
     
     t->arr[idx] = newnode;
     t->used++;
 }
 
-char* get_hashtable(hashtable* t, char* str) {
+void* get_hashtable(hashtable* t, char* str) {
     uint64_t idx = hash(str) % t->size;
-    return t->arr[idx];
+    hashnode* currnode = t->arr[idx];
+    while(currnode != NULL) {
+        if(strcmp(currnode->key, str) == 0)
+            return currnode->val;
+        currnode = currnode->next;
+    }
+    return (void*) -1;
 }
 
 void free_hashtable(hashtable* t) {
     for(int i=0; i<t->size; i++) {
-        if(t->arr[i] != 0) {
-            free(t->arr[i]);
+        hashnode* node = t->arr[i];
+        if(node != NULL) {
+            while(node->next != NULL) {
+                hashnode* tmp = node;
+                free(node);
+                node = tmp->next;
+            }
+            free(node);
         }
     }
 }

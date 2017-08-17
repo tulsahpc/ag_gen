@@ -20,8 +20,14 @@
         int numtopologies;
     };
 
+    struct statement {
+        char* obj;
+        char* op;
+        char* val;
+    }
+
     const char* sqlAsset = "(%d, '%s', (SELECT id FROM network WHERE name = 'home')),";
-    const char* sqlQuality = "(1, 'type', 'router'),";
+    const char* sqlQuality = "(%d, '%s', '%s'),";
 
     int assetcount = 0;
 
@@ -64,7 +70,7 @@ assetlist: { $$ = NULL; }
     } else {
         size_t mystringlen = strlen(sqlAsset) + strlen($2);
         char* mystring = getstr(mystringlen);
-        add_hashtable(nm->asset_tab, $2);
+        add_hashtable(nm->asset_tab, $2, assetcount);
         sprintf(mystring, sqlAsset, assetcount++, $2);
         add_str($1, mystring);
         $$ = $1;
@@ -88,10 +94,10 @@ factlist: { $$ = NULL; }
 
 fact:
   QUALITY COLON IDENTIFIER COMMA statement SEMI {
-    int mystringlen = strlen($3) + strlen($5);
+    size_t mystringlen = strlen(sqlQuality) + strlen($3) + strlen($5);
     char* mystring = getstr(mystringlen);
-    sprintf(mystring, "%s,%s", $3, $5);
-    $$ = mystring;
+    int assetid = get_hashtable(nm->asset_tab, $3);
+    sprintf(mystring, sqlQuality, assetid,)
   }
 | TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {
     int mystringlen = strlen($3) + strlen($4) + strlen($5) + strlen($7);
@@ -102,12 +108,12 @@ fact:
 ;
 
 statement:
-  IDENTIFIER
-| IDENTIFIER operator value {
-    int mystringlen = strlen($1) + strlen($2) + strlen($3);
-    char* mystring = getstr(mystringlen);
-    sprintf(mystring, "%s%s%s", $1, $2, $3);
-    $$ = mystring;
+  IDENTIFIER operator value {
+    struct statement* st = getmem(sizeof(struct statement));
+    st->obj = $1;
+    st->op = $2;
+    st->val = $3;
+    $$ = st;
   }
 ;
 
@@ -162,14 +168,7 @@ int main(int argc, char** argv) {
         yyparse(&nm);
     } while(!feof(yyin));
 
-    int counter = 0;
-    for(int i=0; i<nm.asset_tab->size; i++) {
-        if(nm.asset_tab->arr[i] != 0) {
-            printf("%d: %s\n", i, nm.asset_tab->arr[i]);
-            counter++;
-        }
-    }
-    printf("Total: %d\n", counter);
+    // printf("%s : %d\n", "flowmeter", get_hashtable(nm.asset_tab, "flowmeter"));
 
     free_hashtable(nm.asset_tab);
 }

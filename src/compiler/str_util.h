@@ -18,6 +18,7 @@ struct str_array {
 typedef struct str_array str_array;
 
 void* getmem(size_t size);
+void clearmem(void* data, size_t size);
 char* getstr(size_t size);
 char* dynstr(const char* str);
 

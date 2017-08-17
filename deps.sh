@@ -20,7 +20,7 @@ elif [[ $OS = 'linux' ]]; then
     if [[ $? ]]; then
         sudo apt-get -y install libboost-graph-dev postgresql postgresql-contrib libpq-dev \
             redis-server libhiredis-dev cppcheck clang valgrind \
-            doxygen graphviz cmake build-essential
+            doxygen graphviz cmake build-essential bison flex
     fi
 else
     echo "Your operating system is not currently supported."
