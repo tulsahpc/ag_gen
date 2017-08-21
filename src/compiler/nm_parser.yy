@@ -48,9 +48,8 @@
 
 %parse-param { struct networkmodel* nm }
 
-%type <arr> assetlist assets factlist facts
-%type <string> relop operator direction number value asset fact
-%type <st> statement
+%type <arr> assetlist assets
+%type <string> relop operator direction number value asset
 
 %token <string> IDENTIFIER INT FLOAT
 %token <string> EQ GT LT GEQ LEQ
@@ -83,54 +82,20 @@ assetlist: { $$ = NULL; }
 
 asset: IDENTIFIER SEMI { $$ = $1; }
 
-facts: FACTS COLON factlist { $$ = $3; }
+facts: FACTS COLON factlist
 
-factlist: { $$ = NULL; }
-| factlist fact {
-    if($1 == NULL) {
-        $$ = new_str_array();
-    } else {
-        add_str($1, $2);
-        $$ = $1;
-    }
-  }
+factlist:
+| factlist fact
 ;
 
 fact:
-  QUALITY COLON IDENTIFIER COMMA statement SEMI {
-    struct statement* st = $5;
-    size_t mystringlen = strlen(sqlQuality) + strlen(st->obj) + strlen(st->op) + strlen(st->val);
-    char* mystring = getstr(mystringlen);
-    int assetid = get_hashtable(nm->asset_tab, $3);
-    sprintf(mystring, sqlQuality, assetid, st->obj, st->val);
-    $$ = mystring;
-  }
-| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {
-    struct statement* st = $7;
-    int firstassetid = get_hashtable(nm->asset_tab, $3);
-    int secondassetid = get_hashtable(nm->asset_tab, $5);
-    size_t mystringlen = strlen(sqlTopology) + strlen(itoa(firstassetid)) +
-        strlen($4) + strlen(itoa(secondassetid)) + strlen(st->obj) +
-        strlen(st->op) + strlen(st->val);
-    char* mystring = getstr(mystringlen);
-    sprintf(mystring, sqlTopology, firstassetid, secondassetid,)
-  }
+  QUALITY COLON IDENTIFIER COMMA statement SEMI
+| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI
 ;
 
-statement: IDENTIFIER {
-    struct statement* st = getmem(sizeof(struct statement));
-    st->obj = $1;
-    st->op = NULL;
-    st->val = NULL;
-    $$ = st;
-}
-| IDENTIFIER operator value {
-    struct statement* st = getmem(sizeof(struct statement));
-    st->obj = $1;
-    st->op = $2;
-    st->val = $3;
-    $$ = st;
-  }
+statement:
+  IDENTIFIER
+| IDENTIFIER operator value
 ;
 
 value:
@@ -184,7 +149,7 @@ int main(int argc, char** argv) {
         yyparse(&nm);
     } while(!feof(yyin));
 
-    // printf("%s : %d\n", "flowmeter", get_hashtable(nm.asset_tab, "flowmeter"));
+    printf("%s : %d\n", "flowmeter", get_hashtable(nm.asset_tab, "flowmeter"));
 
     free_hashtable(nm.asset_tab);
 }
