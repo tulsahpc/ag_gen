@@ -5,6 +5,7 @@
     #include <stdlib.h>
     #include "str_util.h"
     #include "util_hash.h"
+    #include "build_sql.h"
 
     #define YYDEBUG 0
 
@@ -12,12 +13,6 @@
         str_array* assets;
         hashtable* asset_tab;
         int numassets;
-
-        str_array* qualities;
-        int numqualities;
-
-        str_array* topologies;
-        int numtopologies;
     };
 
     struct statement {
@@ -26,17 +21,12 @@
         char* val;
     };
 
-    const char* sqlAsset = "(%d, '%s', (SELECT id FROM network WHERE name = 'home')),";
-    const char* sqlQuality = "(%d, '%s', '%s'),";
-    const char* sqlTopology = "(%d, %d, '%s'),";
-
-    int assetcount = 0;
-
     int yylex();
     void yyerror(struct networkmodel* nm, char const *s);
     extern FILE* yyin;
     extern int yylineno;
 
+    int assetcount = 0;
 %}
 
 %union {
@@ -60,7 +50,6 @@
 
 root: NETWORK IDENTIFIER EQ assets facts PERIOD {
     nm->assets = $4;
-    nm->qualities = $5;
   }
 ;
 
@@ -70,12 +59,11 @@ assetlist: { $$ = NULL; }
 | assetlist asset {
     if($1 == NULL) {
         $$ = new_str_array();
+        char* sql = make_asset($2);
+        add_str($$, sql);
     } else {
-        size_t mystringlen = strlen(sqlAsset) + strlen($2);
-        char* mystring = getstr(mystringlen);
-        add_hashtable(nm->asset_tab, $2, assetcount);
-        sprintf(mystring, sqlAsset, assetcount++, $2);
-        add_str($1, mystring);
+        char* sql = make_asset($2);
+        add_str($1, sql);
         $$ = $1;
     }
   }
@@ -149,7 +137,8 @@ int main(int argc, char** argv) {
         yyparse(&nm);
     } while(!feof(yyin));
 
-    printf("%s : %d\n", "flowmeter", get_hashtable(nm.asset_tab, "flowmeter"));
+    //printf("%s : %d\n", "flowmeter", get_hashtable(nm.asset_tab, "flowmeter"));
+    print_str_array(nm.assets);
 
     free_hashtable(nm.asset_tab);
 }

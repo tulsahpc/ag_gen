@@ -19,7 +19,8 @@ add_executable(nm_test
     ${FLEX_nm_scanner_OUTPUTS}
     ${BISON_nm_parser_OUTPUTS}
     src/compiler/str_util.c
-    src/compiler/util_hash.c)
+    src/compiler/util_hash.c
+    src/compiler/build_sql.c)
 
 file(GLOB ag_gen_src
         "src/*.cpp"
