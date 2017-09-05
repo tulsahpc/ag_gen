@@ -27,10 +27,10 @@ void init_hashtable(hashtable* t, int size) {
 }
 
 void add_hashtable(hashtable* t, char* key, void* val) {
-    // if(should_rehash(t))
-        // rehash(t);
+     if(should_rehash(t))
+         rehash(t);
     uint64_t idx = hash(key) % t->size;
-    // printf("hashing: %s\n", key);
+    printf("hashing: %s with size %d\n", key, t->size);
 
     hashnode* newnode = (hashnode*) getmem(sizeof(hashnode));
     newnode->key = key;
@@ -46,17 +46,18 @@ void add_hashtable(hashtable* t, char* key, void* val) {
             }
             prevnode = prevnode->next;
         }
-        
         prevnode->next = newnode;
+    } else {
+        t->arr[idx] = newnode;
     }
-    
-    t->arr[idx] = newnode;
+
     t->used++;
 }
 
 void* get_hashtable(hashtable* t, char* str) {
     uint64_t idx = hash(str) % t->size;
     hashnode* currnode = t->arr[idx];
+    printf("Looking up %s with size %d\n", str, t->size);
     while(currnode != NULL) {
         if(strcmp(currnode->key, str) == 0)
             return currnode->val;
@@ -87,12 +88,22 @@ double get_loadfactor(hashtable* t) {
 bool should_rehash(hashtable* t) {
     if(get_loadfactor(t) < LOAD_FACTOR)
         return false;
-    else
-        return true;
+    return true;
 }
 
-// void rehash(hashtable* t) {
-//     printf("REHASHING\n");
-//     t->arr = realloc(t->arr, ((t->size*2)+1)*sizeof(char*));
-//     t->size *= 2;
-// }
+void rehash(hashtable* t) {
+    printf("REHASHING\n");
+    hashtable* newhashtable = new_hashtable((t->size*2)+1);
+    for(int i=0; i<t->size; i++) {
+        hashnode* data = t->arr[i];
+        if(data != NULL) {
+            while(data->next != NULL) {
+                add_hashtable(newhashtable, data->key, data->val);
+                data = data->next;
+            }
+            add_hashtable(newhashtable, data->key, data->val);
+        }
+    }
+    t->arr = newhashtable->arr;
+    t->size = (t->size*2)+1;
+}

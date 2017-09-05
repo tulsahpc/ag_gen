@@ -30,6 +30,6 @@ void free_hashtable(hashtable* t);
 
 double get_loadfactor(hashtable* t);
 bool should_rehash(hashtable* t);
-// void rehash(hashtable* t);
+void rehash(hashtable* t);
 
 #endif

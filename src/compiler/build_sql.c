@@ -1,5 +1,8 @@
+#include <stdio.h>
 #include "build_sql.h"
 #include "str_util.h"
+
+int assetcount = 0;
 
 const char* sqlAsset = "(%d, '%s', (SELECT id FROM network WHERE name = 'home')),";
 const char* sqlQuality = "(%d, '%s', '%s'),";

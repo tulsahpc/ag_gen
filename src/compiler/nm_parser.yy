@@ -25,8 +25,7 @@
     void yyerror(struct networkmodel* nm, char const *s);
     extern FILE* yyin;
     extern int yylineno;
-
-    int assetcount = 0;
+    extern int assetcount;
 %}
 
 %union {
@@ -58,10 +57,12 @@ assets: ASSETS COLON assetlist { $$ = $3; }
 assetlist: { $$ = NULL; }
 | assetlist asset {
     if($1 == NULL) {
+        add_hashtable(nm->asset_tab, $2, assetcount);
         $$ = new_str_array();
         char* sql = make_asset($2);
         add_str($$, sql);
     } else {
+        add_hashtable(nm->asset_tab, $2, assetcount);
         char* sql = make_asset($2);
         add_str($1, sql);
         $$ = $1;
@@ -129,7 +130,7 @@ int main(int argc, char** argv) {
     }
 
     struct networkmodel nm;
-    nm.asset_tab = new_hashtable(101);
+    nm.asset_tab = new_hashtable(20);
 
     //yydebug = 1;
     yyin = file;
@@ -137,7 +138,7 @@ int main(int argc, char** argv) {
         yyparse(&nm);
     } while(!feof(yyin));
 
-    //printf("%s : %d\n", "flowmeter", get_hashtable(nm.asset_tab, "flowmeter"));
+    printf("%s : %d\n", "flowmeter", get_hashtable(nm.asset_tab, "flowmeter"));
     print_str_array(nm.assets);
 
     free_hashtable(nm.asset_tab);
