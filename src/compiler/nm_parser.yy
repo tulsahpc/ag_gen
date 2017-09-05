@@ -11,8 +11,11 @@
 
     struct networkmodel {
         str_array* assets;
+
         hashtable* asset_tab;
         int numassets;
+
+        str_array* facts;
     };
 
     struct statement {
@@ -25,7 +28,9 @@
     void yyerror(struct networkmodel* nm, char const *s);
     extern FILE* yyin;
     extern int yylineno;
+
     extern int assetcount;
+    extern int factcount;
 %}
 
 %union {
@@ -73,8 +78,11 @@ asset: IDENTIFIER SEMI { $$ = $1; }
 
 facts: FACTS COLON factlist
 
-factlist:
-| factlist fact
+factlist: { $$ = NULL; }
+| factlist fact {
+    $$ = new_str_array();
+    ``
+  }
 ;
 
 fact:
@@ -130,7 +138,8 @@ int main(int argc, char** argv) {
     }
 
     struct networkmodel nm;
-    nm.asset_tab = new_hashtable(20);
+    nm.asset_tab = new_hashtable(101);
+    nm.
 
     //yydebug = 1;
     yyin = file;
