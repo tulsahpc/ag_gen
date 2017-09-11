@@ -25,6 +25,7 @@ CREATE TABLE asset (
 CREATE TABLE quality (
   asset_id INTEGER REFERENCES asset(id),
   property TEXT,
+  op TEXT,
   value TEXT,
   PRIMARY KEY (asset_id, property)
 );

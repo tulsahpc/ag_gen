@@ -18,12 +18,6 @@
         str_array* facts;
     };
 
-    struct statement {
-        char* obj;
-        char* op;
-        char* val;
-    };
-
     int yylex();
     void yyerror(struct networkmodel* nm, char const *s);
     extern FILE* yyin;
@@ -42,8 +36,9 @@
 
 %parse-param { struct networkmodel* nm }
 
-%type <arr> assetlist assets
-%type <string> relop operator direction number value asset
+%type <arr> assetlist assets factlist facts
+%type <string> relop operator direction number value asset fact
+%type <st> statement
 
 %token <string> IDENTIFIER INT FLOAT
 %token <string> EQ GT LT GEQ LEQ
@@ -54,6 +49,7 @@
 
 root: NETWORK IDENTIFIER EQ assets facts PERIOD {
     nm->assets = $4;
+    nm->facts = $5;
   }
 ;
 
@@ -76,23 +72,38 @@ assetlist: { $$ = NULL; }
 
 asset: IDENTIFIER SEMI { $$ = $1; }
 
-facts: FACTS COLON factlist
+facts: FACTS COLON factlist { $$ = $3; }
 
 factlist: { $$ = NULL; }
 | factlist fact {
-    $$ = new_str_array();
-    ``
+    if($1 == NULL) {
+        $$ = new_str_array();
+        add_str($$, $2);
+    } else {
+        add_str($$, $2);
+        $$ = $1;
+    }
   }
 ;
 
 fact:
-  QUALITY COLON IDENTIFIER COMMA statement SEMI
-| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI
+  QUALITY COLON IDENTIFIER COMMA statement SEMI {
+    int assetid = get_hashtable(nm->asset_tab, $3);
+    char* sql = make_quality(assetid, $5);
+    $$ = sql;
+  }
+| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI { $$ = "topology"; }
 ;
 
 statement:
   IDENTIFIER
-| IDENTIFIER operator value
+| IDENTIFIER operator value {
+    struct statement* st = getmem(sizeof(struct statement));
+    st->obj = $1;
+    st->op = $2;
+    st->val = $3;
+    $$ = st;
+  }
 ;
 
 value:
@@ -139,7 +150,6 @@ int main(int argc, char** argv) {
 
     struct networkmodel nm;
     nm.asset_tab = new_hashtable(101);
-    nm.
 
     //yydebug = 1;
     yyin = file;
@@ -147,8 +157,9 @@ int main(int argc, char** argv) {
         yyparse(&nm);
     } while(!feof(yyin));
 
-    printf("%s : %d\n", "flowmeter", get_hashtable(nm.asset_tab, "flowmeter"));
+    //printf("%s : %d\n", "flowmeter", get_hashtable(nm.asset_tab, "flowmeter"));
     print_str_array(nm.assets);
+    print_str_array(nm.facts);
 
     free_hashtable(nm.asset_tab);
 }

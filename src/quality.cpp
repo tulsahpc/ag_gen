@@ -9,7 +9,7 @@
 
 using namespace std;
 
-Quality::Quality(int asset, const string &qualName, const string &qualValue) : asset_id(asset), name(qualName), value(qualValue) {}
+Quality::Quality(int asset, const string &qualName, const string &op, const string &qualValue) : asset_id(asset), name(qualName), value(qualValue) {}
 
 Quality::Quality(size_t fact) {
 	EncodedQuality eQual;
@@ -17,6 +17,7 @@ Quality::Quality(size_t fact) {
 
 	asset_id = eQual.dec.asset_id;
 	name = eQual.dec.attr;
+	op = eQual.dec.op;
 	value = eQual.dec.val;
 }
 
@@ -24,7 +25,11 @@ string Quality::get_name() const {
 	return name;
 }
 
-EncodedQuality Quality::encode(void) const {
+string Quality::get_op() const {
+	return op;
+}
+
+EncodedQuality Quality::encode() const {
     vector<string> attrs = fetch_all_attributes();
     vector<string> vals = fetch_all_values();
 
@@ -45,16 +50,17 @@ void Quality::print() const {
     std::cout << to_string(asset_id) + ": " + name + " => " + value << std::endl;
 }
 
-vector<Quality> Quality::fetch_all(void) {
+vector<Quality> Quality::fetch_all() {
 	vector<Quality> qualities;
 	vector<DB::Row> rows = db->exec("SELECT * FROM quality;");
 
 	for(auto& row : rows) {
 		int asset_id = stoi(row[0]);
 		string property = row[1];
-		string value = row[2];
+		string op = row[2];
+		string value = row[3];
 
-		Quality qual(asset_id, property, value);
+		Quality qual(asset_id, property, op, value);
 		qualities.push_back(qual);
 	}
 
