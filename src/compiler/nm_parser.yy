@@ -90,7 +90,12 @@ fact:
   QUALITY COLON IDENTIFIER COMMA statement SEMI {
     int assetid = get_hashtable(nm->asset_tab, $3);
     char* sql = make_quality(assetid, $5);
-    $$ = sql;
+
+    char* typesql = getstr(strlen(sql)+2);
+    strncat(typesql, "q:", 2);
+    strncat(typesql, sql, strlen(sql));
+
+    $$ = typesql;
   }
 | TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {
     int fromasset = get_hashtable(nm->asset_tab, $3);
@@ -104,7 +109,12 @@ fact:
     strncat(options, st->val, strlen(st->val));
 
     char* sql = make_topology(fromasset, toasset, options);
-    $$ = sql;
+
+    char* typesql = getstr(strlen(sql)+2);
+    strncat(typesql, "t:", 2);
+    strncat(typesql, sql, strlen(sql));
+
+    $$ = typesql;
   }
 ;
 
