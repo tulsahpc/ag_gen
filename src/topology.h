@@ -20,16 +20,16 @@ class Topology {
     std::string options;
 
 public:
-    Topology(int f_asset, int t_asset, std::string opt);
-	Topology(size_t fact, std::string opts);
+    Topology(int f_asset, int t_asset, std::string& opt);
+	Topology(size_t fact, std::string& opts);
 
-    int get_from_asset_id(void) const;
-    int get_to_asset_id(void) const;
-    std::string get_raw_options(void) const;
+    int get_from_asset_id() const;
+    int get_to_asset_id() const;
+    std::string get_raw_options() const;
 	std::vector<std::string> get_options(void) const;
 
-    void print(void) const;
-    const EncodedTopology encode(void) const;
+    void print() const;
+    const EncodedTopology encode() const;
     bool operator==(const Topology& rhs) const;
 
     static std::vector<Topology> fetch_all(void);

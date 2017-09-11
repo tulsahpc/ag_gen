@@ -9,9 +9,9 @@
 
 using namespace std;
 
-Topology::Topology(int f_asset, int t_asset, string opt) : from_asset_id(f_asset), to_asset_id(t_asset), options(opt) {}
+Topology::Topology(int f_asset, int t_asset, string& opt) : from_asset_id(f_asset), to_asset_id(t_asset), options(opt) {}
 
-Topology::Topology(size_t fact, string opts) {
+Topology::Topology(size_t fact, string& opts) {
     EncodedTopology eTopo;
     eTopo.enc = fact;
 
@@ -20,23 +20,23 @@ Topology::Topology(size_t fact, string opts) {
     options = opts;
 }
 
-int Topology::get_from_asset_id(void) const {
+int Topology::get_from_asset_id() const {
     return from_asset_id;
 }
 
-int Topology::get_to_asset_id(void) const {
+int Topology::get_to_asset_id() const {
     return to_asset_id;
 }
 
-string Topology::get_raw_options(void) const {
+string Topology::get_raw_options() const {
     return options;
 }
 
-vector<string> Topology::get_options(void) const {
+vector<string> Topology::get_options() const {
 	return split(get_raw_options(), ',');
 }
 
-const EncodedTopology Topology::encode(void) const {
+const EncodedTopology Topology::encode() const {
     EncodedTopology topo;
     topo.dec.from_asset = from_asset_id;
     topo.dec.to_asset = to_asset_id;

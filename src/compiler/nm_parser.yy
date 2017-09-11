@@ -92,11 +92,30 @@ fact:
     char* sql = make_quality(assetid, $5);
     $$ = sql;
   }
-| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI { $$ = "topology"; }
+| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {
+    int fromasset = get_hashtable(nm->asset_tab, $3);
+    int toasset = get_hashtable(nm->asset_tab, $5);
+
+    struct statement* st = $7;
+
+    char* options = getmem(128*sizeof(char));
+    strncat(options, st->obj, strlen(st->obj));
+    strncat(options, st->op, strlen(st->op));
+    strncat(options, st->val, strlen(st->val));
+
+    char* sql = make_topology(fromasset, toasset, options);
+    $$ = sql;
+  }
 ;
 
 statement:
-  IDENTIFIER
+  IDENTIFIER {
+    struct statement* st = getmem(sizeof(struct statement));
+    st->obj = $1;
+    st->op = "";
+    st->val = "";
+    $$ = st;
+  }
 | IDENTIFIER operator value {
     struct statement* st = getmem(sizeof(struct statement));
     st->obj = $1;
