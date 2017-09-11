@@ -187,9 +187,30 @@ int main(int argc, char** argv) {
     } while(!feof(yyin));
 
     //printf("%s : %d\n", "flowmeter", get_hashtable(nm.asset_tab, "flowmeter"));
-    print_str_array(nm.assets);
-    print_str_array(nm.facts);
+    //print_str_array(nm.assets);
+    //print_str_array(nm.facts);
 
+    str_array* qualities = new_str_array();
+    str_array* topologies = new_str_array();
+
+    for(int i=0; i<nm.facts->used; i++) {
+        char* current = nm.facts->arr[i];
+        char* copy = getstr(strlen(current));
+
+        strncpy(copy, current, strlen(current));
+
+        char* type = strsep(&copy, ":");
+        if(strncmp(type, "q", 1) == 0) {
+            add_str(qualities, copy);
+        } else {
+            add_str(topologies, copy);
+        }
+    }
+
+    printf("------ QUALITIES ------\n");
+    print_str_array(qualities);
+    printf("\n------ TOPOLOGIES ------\n");
+    print_str_array(topologies);
     free_hashtable(nm.asset_tab);
 }
 
