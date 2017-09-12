@@ -33,8 +33,11 @@ CREATE TABLE quality (
 CREATE TABLE topology (
   asset_from_id INTEGER REFERENCES asset(id),
   asset_to_id INTEGER REFERENCES asset(id),
-  options TEXT,
-  PRIMARY KEY (asset_from_id, asset_to_id)
+  direction TEXT,
+  property TEXT,
+  op TEXT,
+  value TEXT,
+  PRIMARY KEY (asset_from_id, asset_to_id, property)
 );
 
 CREATE TABLE exploit (

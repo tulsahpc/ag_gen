@@ -207,10 +207,42 @@ int main(int argc, char** argv) {
         }
     }
 
-    printf("------ QUALITIES ------\n");
-    print_str_array(qualities);
-    printf("\n------ TOPOLOGIES ------\n");
-    print_str_array(topologies);
+    FILE* fp = fopen("test.sql", "w");
+    if(fp == NULL) {
+        printf("Error creating file.\n");
+        exit(1);
+    }
+
+    char* assetheader = "INSERT INTO asset VALUES";
+    fprintf(fp, "%s\n", assetheader);
+    for(int i=0; i<nm.assets->used-1; i++) {
+        char* nextstring = nm.assets->arr[i];
+        fprintf(fp, "%s\n", nextstring);
+    }
+    char* stripped = nm.assets->arr[nm.assets->used-1];
+    stripped[strlen(stripped)-1] = ';';
+    fprintf(fp, "%s\n", stripped);
+
+    char* qualityheader = "\nINSERT INTO quality VALUES";
+    fprintf(fp, "%s\n", qualityheader);
+    for(int i=0; i<qualities->used-1; i++) {
+        char* nextstring = qualities->arr[i];
+        fprintf(fp, "%s\n", nextstring);
+    }
+    stripped = qualities->arr[nm.assets->used-1];
+    stripped[strlen(stripped)-1] = ';';
+    fprintf(fp, "%s\n", stripped);
+
+    char* topologyheader = "\nINSERT INTO topology VALUES";
+    fprintf(fp, "%s\n", topologyheader);
+    for(int i=0; i<topologies->used-1; i++) {
+        char* nextstring = topologies->arr[i];
+        fprintf(fp, "%s\n", nextstring);
+    }
+    stripped = topologies->arr[nm.assets->used-1];
+    stripped[strlen(stripped)-1] = ';';
+    fprintf(fp, "%s\n", stripped);
+
     free_hashtable(nm.asset_tab);
 }
 

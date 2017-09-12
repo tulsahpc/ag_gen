@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 function init() {
     if [[ -z "$DB" ]]; then
         DB="ag_gen"
