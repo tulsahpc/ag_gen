@@ -54,7 +54,8 @@ CREATE TABLE exploit_precondition (
   param2 INTEGER,
   property TEXT,
   value TEXT,
-  options TEXT
+  op TEXT,
+  dir TEXT
 );
 
 CREATE TABLE exploit_postcondition (
@@ -65,7 +66,8 @@ CREATE TABLE exploit_postcondition (
   param2 INTEGER,
   property TEXT,
   value TEXT,
-  options TEXT
+  op TEXT,
+  dir TEXT
 );
 
 CREATE TABLE edge (

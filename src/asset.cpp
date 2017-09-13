@@ -36,7 +36,7 @@ void Asset::fetch_qualities(void)
 		string property = row[1];
 		string value = row[2];
 
-		Quality qual(asset_id, property, value);
+		Quality qual(asset_id, property, "=", value);
 		new_qualities.push_back(qual);
 	}
 

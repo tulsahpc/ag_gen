@@ -10,14 +10,21 @@
 class ParameterizedTopology {
     int from_param;
     int to_param;
-    std::string options;
+    std::string dir;
+    std::string prop;
+    std::string op;
+    std::string val;
 public:
-    ParameterizedTopology(int from_param, int to_param, std::string options);
-    int get_from_param(void);
-    int get_to_param(void);
-    std::string get_options(void);
+    ParameterizedTopology(int from_param, int to_param, std::string& dir, std::string& prop, std::string& op, std::string& val);
+    int get_from_param();
+    int get_to_param();
 
-    void print(void);
+    std::string get_dir();
+    std::string get_property();
+    std::string get_operation();
+    std::string get_value();
+
+    void print();
 };
 
 #endif //AG_GEN_PARAMETERIZED_TOPOLOGY_H

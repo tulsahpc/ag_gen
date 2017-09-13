@@ -9,7 +9,6 @@
 #include "factbase.h"
 #include "util_db.h"
 
-
 using namespace std;
 
 // The default Factbase constructor creates a factbase object with all of the qualities and topologies
@@ -51,7 +50,7 @@ Factbase::Factbase(int iId) {
 
         if(type == "topology") {
             string options = row[3];
-            Topology topo(fact, options);
+            Topology topo(fact);
             add_topology(topo);
         }
 	}
@@ -62,7 +61,7 @@ void Factbase::populate() {
     topologies = Topology::fetch_all();
 }
 
-int Factbase::new_id(void) {
+int Factbase::new_id() {
 	size_t newhash = hash();
 	// Should only be one result.
 	if(exists_in_db()) {
@@ -77,7 +76,7 @@ int Factbase::new_id(void) {
 	}
 }
 
-int Factbase::get_id(void) {
+int Factbase::get_id() {
 	if(id != 0) {
 		return id;
 	} else {
@@ -85,7 +84,7 @@ int Factbase::get_id(void) {
 	}
 }
 
-bool Factbase::exists_in_db(void) {
+bool Factbase::exists_in_db() {
 	vector<DB::Row> rows = db->exec("SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';");
 	if(rows.size() > 0) {
 		return true;
@@ -122,7 +121,7 @@ void Factbase::add_topology(Topology& t) {
     topologies.push_back(t);
 }
 
-void Factbase::save(void) {
+void Factbase::save() {
 	int myid = get_id();
 
     // XXX: There has to be a better way to do this
@@ -139,7 +138,7 @@ void Factbase::save(void) {
     db->exec(insert_sql);
 }
 
-size_t Factbase::hash(void) {
+size_t Factbase::hash() {
     auto hash = FactbaseHash{}(*this);
     return hash;
 }

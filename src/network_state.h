@@ -8,13 +8,13 @@
 class NetworkState {
 	Factbase factbase;
 public:
-	NetworkState(void);
-	NetworkState(Factbase& fb);
+	NetworkState();
+	explicit NetworkState(Factbase& fb);
 	NetworkState(const NetworkState& ns);
 
-	Factbase& get_factbase(void);
-	const Factbase& get_factbase(void) const;
-	void init(void);
+	Factbase& get_factbase();
+	const Factbase& get_factbase() const;
+	void init();
 };
 
 #endif

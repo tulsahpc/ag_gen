@@ -15,7 +15,7 @@ void ParameterizedQuality::print() {
 vector<Quality> ParameterizedQuality::make_quals(vector<int, allocator<int>> &asset_ids, Keyvalue<Asset> &assets) {
     vector<Quality> new_quals;
     for(auto i=0; i<assets.length(); i++) {
-        Quality q(asset_ids[i], name, value);
+        Quality q(asset_ids[i], name, "=", value);
         new_quals.push_back(q);
     }
     return new_quals;
