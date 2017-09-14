@@ -126,12 +126,12 @@ void Factbase::save() {
 
     // XXX: There has to be a better way to do this
     string insert_sql = "INSERT INTO factbase_item VALUES ";
-    insert_sql += "(" + to_string(myid) + "," + to_string(qualities[0].encode().enc) + ",'quality', NULL)";
+    insert_sql += "(" + to_string(myid) + "," + to_string(qualities[0].encode().enc) + ",'quality')";
     for(int i=1; i<qualities.size(); i++) {
-        insert_sql += ",(" + to_string(myid) + "," + to_string(qualities[i].encode().enc) + ",'quality', NULL)";
+        insert_sql += ",(" + to_string(myid) + "," + to_string(qualities[i].encode().enc) + ",'quality')";
     }
 	for(int i=0; i<topologies.size(); i++) {
-		insert_sql += ",(" + to_string(myid) + "," + to_string(topologies[i].encode().enc) + ",'topology','" + topologies[i].get_raw_options() + "')";
+		insert_sql += ",(" + to_string(myid) + "," + to_string(topologies[i].encode().enc) + ",'topology')";
 	}
     insert_sql += " ON CONFLICT DO NOTHING;";
 

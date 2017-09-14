@@ -12,7 +12,6 @@ CREATE TABLE factbase_item (
   factbase_id INTEGER REFERENCES factbase(id),
   fact BIGINT,
   type TEXT,
-  options TEXT,
   PRIMARY KEY (factbase_id, fact, type)
 );
 

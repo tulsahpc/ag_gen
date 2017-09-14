@@ -6,7 +6,7 @@ int assetcount = 0;
 
 const char* sqlAsset = "(%d, '%s', (SELECT id FROM network WHERE name = 'home')),";
 const char* sqlQuality = "(%d, '%s', '%s', '%s'),";
-const char* sqlTopology = "(%d, %d, '%s'),";
+const char* sqlTopology = "(%d, %d, '%s', '%s', '%s', '%s'),";
 
 char* make_asset(char* as) {
     size_t mystringlen = strlen(sqlAsset) + strlen(as);
@@ -22,9 +22,13 @@ char* make_quality(int assetid, struct statement* st) {
     return mystring;
 }
 
-char* make_topology(int fromasset, int toasset, char* options) {
-    size_t mystringlen = 32 + 32 + strlen(options);
+char* make_topology(int fromasset, int toasset, char* dir, struct statement* st) {
+	char* prop = st->obj;
+	char* op = st->op;
+	char* val = st->val;
+
+    size_t mystringlen = 32 + 32 + strlen(dir) + strlen(prop) + strlen(op) + strlen(val);
     char* mystring = getstr(mystringlen);
-    sprintf(mystring, sqlTopology, fromasset, toasset, options);
+    sprintf(mystring, sqlTopology, fromasset, toasset, dir, prop, op, val);
     return mystring;
 }

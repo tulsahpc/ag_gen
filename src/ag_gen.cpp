@@ -165,7 +165,12 @@ vector<AssetGroup> AGGen::gen_hypo_facts(NetworkState& s, Exploit& e) {
         }
 
         for(auto& precond : preconds_t) {
-            Topology t(perm[precond.get_from_param()], perm[precond.get_to_param()], "->", precond.get_options());
+			auto dir = precond.get_dir();
+			auto prop = precond.get_property();
+			auto op = precond.get_operation();
+			auto val = precond.get_value();
+
+            Topology t(perm[precond.get_from_param()], perm[precond.get_to_param()], dir, prop, op, val);
             asset_group_topos.push_back(t);
         }
 
@@ -202,7 +207,13 @@ tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(tuple<Expl
     }
 
     for(auto& postcond : param_postconds_t) {
-        Topology t(perm[postcond.get_from_param()], perm[postcond.get_to_param()], postcond.get_options());
+		auto dir = postcond.get_dir();
+		auto prop = postcond.get_property();
+		auto op = postcond.get_operation();
+		auto val = postcond.get_value();
+
+        Topology t(perm[postcond.get_from_param()], perm[postcond.get_to_param()], dir, prop, op, val);
+		postconds_t.push_back(t);
     }
 
     return make_tuple(postconds_q, postconds_t);

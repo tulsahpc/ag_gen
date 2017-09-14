@@ -21,14 +21,14 @@ union EncodedTopology {
 class Topology {
     int from_asset_id;
     int to_asset_id;
-    std::string& property;
-	std::string& op;
-	std::string& value;
-	std::string& dir;
+    std::string property;
+	std::string op;
+	std::string value;
+	std::string dir;
 
 public:
     Topology(int f_asset, int t_asset, std::string& dir, std::string& property, std::string& op, std::string& val);
-	Topology(size_t fact);
+	explicit Topology(size_t fact);
 
     int get_from_asset_id() const;
     int get_to_asset_id() const;
