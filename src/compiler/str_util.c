@@ -9,7 +9,7 @@
 #include "str_util.h"
 
 void* getmem(size_t size) {
-	void* data = malloc(size);
+	void* data = calloc(1, size);
 	if(data == NULL) {
 		fprintf(stderr, "Could not allocate memory.\n");
 		exit(EXIT_FAILURE);

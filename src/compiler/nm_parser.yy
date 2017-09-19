@@ -36,8 +36,13 @@
 
 %parse-param { struct networkmodel* nm }
 
-%type <arr> assetlist assets factlist facts
-%type <string> relop operator direction number value asset fact
+%type <arr> assetlist assets
+%type <arr> factlist facts
+
+%type <string> asset
+%type <string> fact
+%type <string> relop operator direction number value
+
 %type <st> statement
 
 %token <string> IDENTIFIER INT FLOAT
@@ -91,7 +96,7 @@ fact:
     int assetid = get_hashtable(nm->asset_tab, $3);
     char* sql = make_quality(assetid, $5);
 
-    char* typesql = getstr(strlen(sql)+2);
+    char* typesql = getmem(strlen(sql)+3);
     strncat(typesql, "q:", 2);
     strncat(typesql, sql, strlen(sql));
 
@@ -105,7 +110,7 @@ fact:
 
     char* sql = make_topology(fromasset, toasset, "->", st);
 
-    char* typesql = getstr(strlen(sql)+2);
+    char* typesql = getmem(strlen(sql)+3);
     strncat(typesql, "t:", 2);
     strncat(typesql, sql, strlen(sql));
 
@@ -181,9 +186,7 @@ int main(int argc, char** argv) {
         yyparse(&nm);
     } while(!feof(yyin));
 
-    //printf("%s : %d\n", "flowmeter", get_hashtable(nm.asset_tab, "flowmeter"));
-    //print_str_array(nm.assets);
-    //print_str_array(nm.facts);
+    print_str_array(nm.assets);
 
     str_array* qualities = new_str_array();
     str_array* topologies = new_str_array();

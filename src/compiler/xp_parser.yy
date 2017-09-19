@@ -9,32 +9,23 @@
 
     #define YYDEBUG 0
 
-    struct networkmodel {
-        str_array* assets;
-
-        hashtable* asset_tab;
-        int numassets;
-
-        str_array* facts;
+    struct exploitpattern {
     };
 
     int yylex();
-    void yyerror(struct networkmodel* nm, char const *s);
+    void yyerror(struct exploitpattern* nm, char const *s);
     extern FILE* yyin;
     extern int yylineno;
-
-    extern int assetcount;
-    extern int factcount;
 %}
 
 %union {
     struct str_array* arr;
-    struct networkmodel* model;
+    struct exploitpattern* model;
     struct statement* st;
     char* string;
 }
 
-%parse-param { struct networkmodel* nm }
+%parse-param { struct exploitpattern* nm }
 
 %type <arr> assetlist assets factlist facts
 %type <string> relop operator direction number value asset fact
@@ -47,69 +38,8 @@
 
 %%
 
-root: NETWORK IDENTIFIER EQ assets facts PERIOD {
-    nm->assets = $4;
-    nm->facts = $5;
-  }
-;
+root: exploitlist exploit {
 
-assets: ASSETS COLON assetlist { $$ = $3; }
-
-assetlist: { $$ = NULL; }
-| assetlist asset {
-    if($1 == NULL) {
-        add_hashtable(nm->asset_tab, $2, assetcount);
-        $$ = new_str_array();
-        char* sql = make_asset($2);
-        add_str($$, sql);
-    } else {
-        add_hashtable(nm->asset_tab, $2, assetcount);
-        char* sql = make_asset($2);
-        add_str($1, sql);
-        $$ = $1;
-    }
-  }
-
-asset: IDENTIFIER SEMI { $$ = $1; }
-
-facts: FACTS COLON factlist { $$ = $3; }
-
-factlist: { $$ = NULL; }
-| factlist fact {
-    if($1 == NULL) {
-        $$ = new_str_array();
-        add_str($$, $2);
-    } else {
-        add_str($$, $2);
-        $$ = $1;
-    }
-  }
-;
-
-fact:
-  QUALITY COLON IDENTIFIER COMMA statement SEMI {
-    int assetid = get_hashtable(nm->asset_tab, $3);
-    char* sql = make_quality(assetid, $5);
-
-    char* typesql = getstr(strlen(sql)+2);
-    strncat(typesql, "q:", 2);
-    strncat(typesql, sql, strlen(sql));
-
-    $$ = typesql;
-  }
-| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {
-    int fromasset = get_hashtable(nm->asset_tab, $3);
-    int toasset = get_hashtable(nm->asset_tab, $5);
-
-    struct statement* st = $7;
-
-    char* sql = make_topology(fromasset, toasset, "->", st);
-
-    char* typesql = getstr(strlen(sql)+2);
-    strncat(typesql, "t:", 2);
-    strncat(typesql, sql, strlen(sql));
-
-    $$ = typesql;
   }
 ;
 

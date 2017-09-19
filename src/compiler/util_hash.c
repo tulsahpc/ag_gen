@@ -30,7 +30,7 @@ void add_hashtable(hashtable* t, char* key, void* val) {
      if(should_rehash(t))
          rehash(t);
     uint64_t idx = hash(key) % t->size;
-    printf("hashing: %s with size %d\n", key, t->size);
+//    printf("hashing: %s with size %d\n", key, t->size);
 
     hashnode* newnode = (hashnode*) getmem(sizeof(hashnode));
     newnode->key = key;
@@ -57,7 +57,7 @@ void add_hashtable(hashtable* t, char* key, void* val) {
 void* get_hashtable(hashtable* t, char* str) {
     uint64_t idx = hash(str) % t->size;
     hashnode* currnode = t->arr[idx];
-    printf("Looking up %s with size %d\n", str, t->size);
+//    printf("Looking up %s with size %d\n", str, t->size);
     while(currnode != NULL) {
         if(strcmp(currnode->key, str) == 0)
             return currnode->val;
