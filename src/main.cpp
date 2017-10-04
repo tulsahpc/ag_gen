@@ -66,8 +66,16 @@ int main(int argc, char *argv[])
 	Config config("config.txt");
     db = make_shared<DB>(config.db_string());
 
-    NetworkState initial_state;
-	initial_state.init();
+    Factbase fb;
+    fb.populate();
+    fb.save();
+
+    NetworkState initial_state(fb);
+
+//    const Factbase& newfb = initial_state.get_factbase();
+//    cout << fb.get_id() << endl;
+//    cout << newfb.get_id() << endl;
+
 	AGGen generator(initial_state);
     generator.generate();
 

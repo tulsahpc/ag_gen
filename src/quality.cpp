@@ -9,7 +9,7 @@
 
 using namespace std;
 
-Quality::Quality(int asset, const string &qualName, const string &op, const string &qualValue) : asset_id(asset), name(qualName), value(qualValue) {}
+Quality::Quality(int asset, string qualName, string op, string qualValue) : asset_id(asset), name(qualName), value(qualValue) {}
 
 Quality::Quality(size_t fact) {
 	EncodedQuality eQual;
@@ -21,15 +21,15 @@ Quality::Quality(size_t fact) {
 	value = eQual.dec.val;
 }
 
-string Quality::get_name() const {
+string Quality::get_name() {
 	return name;
 }
 
-string Quality::get_op() const {
+string Quality::get_op() {
 	return op;
 }
 
-EncodedQuality Quality::encode() const {
+EncodedQuality Quality::encode() {
     vector<string> attrs = fetch_all_attributes();
     vector<string> vals = fetch_all_values();
 
@@ -42,11 +42,12 @@ EncodedQuality Quality::encode() const {
     qual.dec.val = vals_kv[value];
 
 //    cout << asset_id << " " << attrs_kv[name] << " " << vals_kv[value] << " - " << qual.enc << endl;
+//	cout << attrs.size() << " " << vals.size() << endl;
 
 	return qual;
 }
 
-void Quality::print() const {
+void Quality::print() {
     std::cout << to_string(asset_id) + ": " + name + " => " + value << std::endl;
 }
 
@@ -54,7 +55,7 @@ vector<Quality> Quality::fetch_all() {
 	vector<Quality> qualities;
 	vector<DB::Row> rows = db->exec("SELECT * FROM quality;");
 
-	for(auto& row : rows) {
+	for(auto row : rows) {
 		int asset_id = stoi(row[0]);
 		string property = row[1];
 		string op = row[2];
@@ -69,29 +70,41 @@ vector<Quality> Quality::fetch_all() {
 
 vector<string> Quality::fetch_all_attributes() {
 	vector<string> attrs;
-	vector<DB::Row> rows = db->exec("SELECT DISTINCT property FROM quality;");
+	vector<DB::Row> qrows = db->exec("SELECT DISTINCT property FROM quality;");
+    vector<DB::Row> erows = db->exec("SELECT DISTINCT property FROM exploit_postcondition;");
 
-	for(auto& row : rows) {
+	for(auto row : qrows) {
 		string prop = row[0];
 		attrs.push_back(prop);
 	}
+
+    for(auto row : erows) {
+        string prop = row[0];
+        attrs.push_back(prop);
+    }
 
 	return attrs;
 }
 
 vector<string> Quality::fetch_all_values() {
 	vector<string> vals;
-	vector<DB::Row> rows = db->exec("SELECT DISTINCT value FROM quality;");
+	vector<DB::Row> qrows = db->exec("SELECT DISTINCT value FROM quality;");
+    vector<DB::Row> erows = db->exec("SELECT DISTINCT value FROM exploit_postcondition;");
 
-	for(auto& row : rows) {
+	for(auto row : qrows) {
 		string val = row[0];
 		vals.push_back(val);
 	}
 
+    for(auto row : erows) {
+        string val = row[0];
+        vals.push_back(val);
+    }
+
 	return vals;
 }
 
-bool Quality::operator==(const Quality& rhs) const {
+bool Quality::operator==(Quality rhs) const {
 	if(this->asset_id != rhs.asset_id)
 		return false;
 	if(this->name != rhs.name)

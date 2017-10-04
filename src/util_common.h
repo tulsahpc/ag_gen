@@ -12,6 +12,12 @@
 #include <vector>
 #include <unordered_map>
 
+#ifdef DEBUG_BUILD
+#define DEBUG(x) do { std::cerr << x << endl; } while (0)
+#else
+#define DEBUG(x)
+#endif
+
 static char alphabet[35] = {
 	'0', '1', '2', '3',
 	'4', '5', '6', '7',

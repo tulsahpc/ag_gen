@@ -19,7 +19,7 @@ class Keyvalue {
     std::vector<std::string> str_vector;
 
     void populate(std::vector<T>& list) {
-		size = 0;
+		size = list.size();
 		for(T& item : list) {
 			insert(item);
 		}

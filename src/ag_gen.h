@@ -11,11 +11,11 @@
 #include "network_state.h"
 
 class AGGen {
-    Keyvalue<Asset> assets;
-    Keyvalue<std::string> attrs;
-    Keyvalue<std::string> vals;
+    Keyvalue<Asset> assets; // Simple hashtable that stores the asset id with its name. Holds all assets in a network.
+    Keyvalue<std::string> attrs; // All possible attributes used in the network.
+    Keyvalue<std::string> vals; // All possible values used in the network.
 
-    std::vector<NetworkState> frontier;
+    std::vector<NetworkState> frontier; // The newly generated states to go through next
     std::vector<size_t> hash_list;
 
     std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(NetworkState&);

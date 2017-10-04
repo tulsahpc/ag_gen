@@ -25,15 +25,15 @@ class Quality {
 
     friend class Factbase;
 public:
-    Quality(int assetId, const std::string &qualName, const std::string &op, const std::string &qualValue);
+    Quality(int assetId, std::string qualName, std::string op, std::string qualValue);
 	explicit Quality(size_t fact);
 
-    std::string get_name() const;
-    std::string get_op() const;
+    std::string get_name();
+    std::string get_op();
 
-    void print() const;
-    EncodedQuality encode() const;
-    bool operator==(const Quality &rhs) const;
+    void print();
+    EncodedQuality encode();
+    bool operator==(Quality rhs) const;
 
     static std::vector<Quality> fetch_all();
     static std::vector<std::string> fetch_all_attributes();

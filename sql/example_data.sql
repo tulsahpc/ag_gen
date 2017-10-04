@@ -98,64 +98,64 @@ INSERT INTO quality VALUES
   (24, 'type', '=', 'internet');
 
 INSERT INTO topology VALUES
-  (1, 2, 'connected'),
-  (2, 3, 'connected'),
-  (1, 3, 'connected'),
-  (1, 2, 'trusted'),
-  (2, 3, 'trusted'),
-  (1, 3, 'trusted'),
+  (1, 2, '->', 'connected', NULL, NULL),
+  (2, 3, '->','connected', NULL, NULL),
+  (1, 3, '->', 'connected', NULL, NULL),
+  (1, 2, '->', 'trusted', NULL, NULL),
+  (2, 3, '->', 'trusted', NULL, NULL),
+  (1, 3, '->', 'trusted', NULL, NULL),
 
-  (1, 24, 'connected'),
-  (2, 24, 'connected'),
-  (3, 24, 'connected'),
-  (1, 24, 'trusted'),
-  (2, 24, 'trusted'),
-  (3, 24, 'trusted'),
+  (1, 24, '->', 'connected', NULL, NULL),
+  (2, 24, '->', 'connected', NULL, NULL),
+  (3, 24, '->', 'connected', NULL, NULL),
+  (1, 24, '->', 'trusted', NULL, NULL),
+  (2, 24, '->', 'trusted', NULL, NULL),
+  (3, 24, '->', 'trusted', NULL, NULL),
 
-  (1, 4, 'connected'),
-  (1, 4, 'trusted'),
+  (1, 4, '->', 'connected', NULL, NULL),
+  (1, 4, '->', 'trusted', NULL, NULL),
 
-  (1, 7, 'connected'),
-  (1, 10, 'connected'),
-  (1, 13, 'connected'),
-  (1, 16, 'connected'),
-  (1, 19, 'connected'),
+  (1, 7, '->', 'connected', NULL, NULL),
+  (1, 10, '->', 'connected', NULL, NULL),
+  (1, 13, '->', 'connected', NULL, NULL),
+  (1, 16, '->', 'connected', NULL, NULL),
+  (1, 19, '->', 'connected', NULL, NULL),
 
-  (1, 22, 'connected'),
-  (1, 23, 'connected'),
-  (1, 22, 'trusted'),
-  (1, 23, 'trusted'),
+  (1, 22, '->', 'connected', NULL, NULL),
+  (1, 23, '->', 'connected', NULL, NULL),
+  (1, 22, '->', 'trusted', NULL, NULL),
+  (1, 23, '->', 'trusted', NULL, NULL),
 
-  (2, 5, 'connected'),
-  (2, 8, 'connected'),
-  (2, 11, 'connected'),
-  (2, 14, 'connected'),
-  (2, 17, 'connected'),
-  (2, 20, 'connected'),
+  (2, 5, '->', 'connected', NULL, NULL),
+  (2, 8, '->', 'connected', NULL, NULL),
+  (2, 11, '->', 'connected', NULL, NULL),
+  (2, 14, '->', 'connected', NULL, NULL),
+  (2, 17, '->', 'connected', NULL, NULL),
+  (2, 20, '->', 'connected', NULL, NULL),
 
-  (2, 22, 'connected'),
-  (2, 23, 'connected'),
-  (2, 22, 'trusted'),
-  (2, 23, 'trusted'),
+  (2, 22, '->', 'connected', NULL, NULL),
+  (2, 23, '->', 'connected', NULL, NULL),
+  (2, 22, '->', 'trusted', NULL, NULL),
+  (2, 23, '->', 'trusted', NULL, NULL),
 
-  (3, 6, 'connected'),
-  (3, 9, 'connected'),
-  (3, 12, 'connected'),
-  (3, 15, 'connected'),
-  (3, 18, 'connected'),
-  (3, 21, 'connected'),
+  (3, 6, '->', 'connected', NULL, NULL),
+  (3, 9, '->', 'connected', NULL, NULL),
+  (3, 12, '->', 'connected', NULL, NULL),
+  (3, 15, '->', 'connected', NULL, NULL),
+  (3, 18, '->', 'connected', NULL, NULL),
+  (3, 21, '->', 'connected', NULL, NULL),
 
-  (3, 22, 'connected'),
-  (3, 23, 'connected'),
-  (3, 22, 'trusted'),
-  (3, 23, 'trusted'),
+  (3, 22, '->', 'connected', NULL, NULL),
+  (3, 23, '->', 'connected', NULL, NULL),
+  (3, 22, '->', 'trusted', NULL, NULL),
+  (3, 23, '->', 'trusted', NULL, NULL),
 
-  (10, 24, 'connected'),
-  (11, 24, 'connected'),
-  (12, 24, 'connected')
-  (10, 24, 'trusted'),
-  (11, 24, 'trusted'),
-  (12, 24, 'trusted');
+  (10, 24, '->', 'connected', NULL, NULL),
+  (11, 24, '->', 'connected', NULL, NULL),
+  (12, 24, '->', 'connected', NULL, NULL),
+  (10, 24, '->', 'trusted', NULL, NULL),
+  (11, 24, '->', 'trusted', NULL, NULL),
+  (12, 24, '->', 'trusted', NULL, NULL);
 
 INSERT INTO exploit VALUES
   (DEFAULT, 'router_vuln', 1),
@@ -163,14 +163,15 @@ INSERT INTO exploit VALUES
   (DEFAULT, 'adobereader_vuln', 1),
   (DEFAULT, 'photoshop_vuln', 1),
   (DEFAULT, 'kindle_vuln', 1),
-  (DEFAULT, 'light_vuln', 1);
+  (DEFAULT, 'light_vuln', 1),
+  (DEFAULT, 'hacked', 1);
 
 INSERT INTO exploit_precondition VALUES
   (DEFAULT, 1, 0, 1, NULL, 'type', 'router', '=', NULL),
   (DEFAULT, 1, 0, 1, NULL, 'version', '1.6', '=', NULL),
 
   (DEFAULT, 2, 0, 1, NULL, 'type', 'printer', '=', NULL),
-  (DEFAULT, 2, 0, 1, NULL, 'model', '456', '=', NULL),
+  (DEFAULT, 2, 0, 1, NULL, 'model', 'hp456', '=', NULL),
 
   (DEFAULT, 3, 0, 1, NULL, 'type', 'laptop', '=', NULL),
   (DEFAULT, 3, 0, 1, NULL, 'os', 'winxp', '=', NULL),
@@ -185,7 +186,9 @@ INSERT INTO exploit_precondition VALUES
 
   (DEFAULT, 6, 0, 1, NULL, 'type',' smartphone', '=', NULL),
   (DEFAULT, 6, 0, 1, NULL, 'os', 'ios', '=', NULL),
-  (DEFAULT, 6, 0, 1, NULL, 'light', 'off', '=', NULL);
+  (DEFAULT, 6, 0, 1, NULL, 'light', 'off', '=', NULL),
+
+  (DEFAULT, 7, 0, 1, NULL, 'access', 'root', '=', NULL);
 
 INSERT INTO exploit_postcondition VALUES
   (DEFAULT, 1, 0, 1, NULL, 'access', 'root', '=', NULL),
@@ -193,4 +196,5 @@ INSERT INTO exploit_postcondition VALUES
   (DEFAULT, 3, 0, 1, NULL, 'access', 'root', '=', NULL),
   (DEFAULT, 4, 0, 1, NULL, 'access', 'root', '=', NULL),
   (DEFAULT, 5, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 6, 0, 1, NULL, 'light', 'on', '=', NULL);
+  (DEFAULT, 6, 0, 1, NULL, 'light', 'on', '=', NULL),
+  (DEFAULT, 7, 0, 1, NULL, 'planet', 'hacked', '=', NULL);

@@ -7,20 +7,20 @@ INSERT INTO asset VALUES
   (DEFAULT, 'attacker', (SELECT id FROM network WHERE name = 'home'));
 
 INSERT INTO quality VALUES
-  (1, 'type', 'router'),
-  (1, 'version', '1.6');
+  (1, 'type', '=', 'router'),
+  (1, 'version', '=', '1.6');
 
 INSERT INTO topology VALUES
-  (3, 1, 'connected_web'),
-  (2, 1, 'connected');
+  (3, 1, '->', 'connected_web', NULL, NULL),
+  (2, 1, '->', 'connected', NULL, NULL);
 
 INSERT INTO exploit VALUES
-  (DEFAULT, 'router_vuln', 3);
+  (DEFAULT, 'router_vuln', 1);
 
 INSERT INTO exploit_precondition VALUES
-  (1, 1, 'type', 'router'),
-  (1, 1, 'version', '1.6');
+  (DEFAULT, 1, 0, 1, NULL, 'type', 'router', '=', NULL),
+  (DEFAULT, 1, 0, 1, NULL, 'version', '1.6', '=', NULL);
 
 INSERT INTO exploit_postcondition VALUES
-  (1, 1, 'access', 'root'),
-  (1, 1, 'light', 'on');
+  (DEFAULT, 1, 0, 1, NULL, 'access', 'root', '=', NULL),
+  (DEFAULT, 1, 0, 1, NULL, 'light', 'on', '=', NULL);

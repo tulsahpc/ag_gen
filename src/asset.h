@@ -15,12 +15,12 @@ class Asset {
 
 public:
     Asset(int id, int network_id, std::string asset_name);
-    int get_network_id(void);
-    std::string get_name(void);
+    int get_network_id();
+    std::string get_name();
 
-    void fetch_qualities(void);
+    void fetch_qualities();
 
-    static std::vector<Asset> fetch_all(const std::string& network);
+    static std::vector<Asset> fetch_all(std::string network);
 };
 
 #endif //ASSET_HPP

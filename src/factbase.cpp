@@ -8,17 +8,20 @@
 
 #include "factbase.h"
 #include "util_db.h"
+#include "util_common.h"
 
 using namespace std;
 
 // The default Factbase constructor creates a factbase object with all of the qualities and topologies
 // currently on the database
-Factbase::Factbase(void) : qualities(), topologies() {
+Factbase::Factbase() : qualities(), topologies() {
 	id = 0;
 }
 
-Factbase::Factbase(const Factbase& fb) : qualities(fb.qualities), topologies(fb.topologies) {
+Factbase::Factbase(const Factbase& fb) : qualities(), topologies() {
     id = 0;
+    copy(fb.qualities.begin(), fb.qualities.end(), back_inserter(qualities));
+    copy(fb.topologies.begin(), fb.topologies.end(), back_inserter(topologies));
 }
 
 Factbase::Factbase(int iId) {
@@ -61,32 +64,15 @@ void Factbase::populate() {
     topologies = Topology::fetch_all();
 }
 
-int Factbase::new_id() {
-	size_t newhash = hash();
-	// Should only be one result.
-	if(exists_in_db()) {
-		vector<DB::Row> rows = db->exec("SELECT id FROM factbase WHERE hash = '" + to_string(newhash) + "';");
-		id = stoi(rows[0][0]);
-		return id;
-	} else { // Else, get a new id from the db
-		vector<DB::Row> rows = db->exec("SELECT new_factbase('" + to_string(newhash) + "');");
-		int factbase_id = stoi(rows[0][0]);
-		id = factbase_id;
-		return factbase_id;
-	}
-}
-
-int Factbase::get_id() {
-	if(id != 0) {
-		return id;
-	} else {
-		return new_id();
-	}
+int Factbase::get_id() const {
+	return id;
 }
 
 bool Factbase::exists_in_db() {
-	vector<DB::Row> rows = db->exec("SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';");
+    string sql = "SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';";
+	vector<DB::Row> rows = db->exec(sql);
 	if(rows.size() > 0) {
+        id = stoi(rows[0][0]);
 		return true;
 	} else {
 		return false;
@@ -112,33 +98,63 @@ bool Factbase::find_topology(Topology& t) const {
 }
 
 // add_quality adds a given quality to the factbase's vector of qualities
-void Factbase::add_quality(Quality& q) {
+void Factbase::add_quality(Quality q) {
     qualities.push_back(q);
 }
 
 // add_topology adds a given topology to the factbase's vector of topologies
-void Factbase::add_topology(Topology& t) {
+void Factbase::add_topology(Topology t) {
     topologies.push_back(t);
 }
 
 void Factbase::save() {
-	int myid = get_id();
+    if(exists_in_db()) {
+        return;
+    }
+
+    vector<DB::Row> rows = db->exec("SELECT new_factbase('" + to_string(hash()) + "');");
+    id = stoi(rows[0][0]);
 
     // XXX: There has to be a better way to do this
     string insert_sql = "INSERT INTO factbase_item VALUES ";
-    insert_sql += "(" + to_string(myid) + "," + to_string(qualities[0].encode().enc) + ",'quality')";
+    insert_sql += "(" + to_string(id) + "," + to_string(qualities[0].encode().enc) + ",'quality')";
     for(int i=1; i<qualities.size(); i++) {
-        insert_sql += ",(" + to_string(myid) + "," + to_string(qualities[i].encode().enc) + ",'quality')";
+        insert_sql += ",(" + to_string(id) + "," + to_string(qualities[i].encode().enc) + ",'quality')";
     }
 	for(int i=0; i<topologies.size(); i++) {
-		insert_sql += ",(" + to_string(myid) + "," + to_string(topologies[i].encode().enc) + ",'topology')";
+		insert_sql += ",(" + to_string(id) + "," + to_string(topologies[i].encode().enc) + ",'topology')";
 	}
     insert_sql += " ON CONFLICT DO NOTHING;";
 
     db->exec(insert_sql);
 }
 
-size_t Factbase::hash() {
-    auto hash = FactbaseHash{}(*this);
+// Shamelessly copied from Boost::hash_combine
+size_t combine(size_t seed) {
+    seed ^= std::hash<size_t>{}(seed) +
+            0x9e3779b97f4a7c15 +
+            (seed << 6) +
+            (seed >> 2);
+    return seed;
+}
+
+size_t Factbase::hash() const {
+    //    size_t hash = 0xf848b64e; // Random seed value
+    size_t hash = 0x0c32a12fe19d2119;
+    for(auto qual : qualities) {
+        EncodedQuality encoded = qual.encode();
+        hash ^= combine(encoded.enc);
+    }
+    for(auto topo : topologies) {
+        EncodedTopology encoded = topo.encode();
+        hash ^= combine(encoded.enc);
+    }
     return hash;
+}
+
+void Factbase::print() const {
+    cout << "ID: " << id << endl;
+    cout << "HASH: " << hash() << endl;
+    cout << "Qualities: " << qualities.size() << endl;
+    cout << "Topologies: " << topologies.size() << endl << endl;
 }
