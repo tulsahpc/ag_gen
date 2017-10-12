@@ -8,20 +8,17 @@ if [[ $OS = 'darwin' ]]; then
     else
         xcode-select --install > /dev/null
         brew cask install postgres
-        brew install postgresql cmake boost redis hiredis cppcheck doxygen valgrind graphviz
+        brew install postgresql cmake boost cppcheck doxygen graphviz
     fi
 elif [[ $OS = 'linux' ]]; then
-    type pacman &> /dev/null
-    if [[ $? ]]; then
-        sudo pacman -S cmake postgresql boost redis hiredis cppcheck clang doxygen graphviz
-    fi
-
-    type apt-get &> /dev/null
-    if [[ $? ]]; then
-        sudo apt-get -y install libboost-graph-dev postgresql postgresql-contrib libpq-dev \
-            redis-server libhiredis-dev cppcheck clang valgrind \
-            doxygen graphviz cmake build-essential bison flex \
-            libssl-dev
+    if [[ `type "pacman"` > /dev/null ]]; then
+        sudo pacman -S cmake postgresql boost cppcheck clang doxygen graphviz
+    elif [[ `type "apt-get"` > /dev/null ]]; then
+        sudo apt-get -y install libboost-graph-dev postgresql postgresql-contrib \
+            libpq-dev cppcheck clang valgrind doxygen graphviz cmake \
+            build-essential bison flex libssl-dev
+    else
+        echo "Your distro is currently not supported."
     fi
 else
     echo "Your operating system is not currently supported."
