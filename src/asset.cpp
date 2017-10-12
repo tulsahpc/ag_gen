@@ -30,7 +30,7 @@ void Asset::fetch_qualities()
 	vector<DB::Row> rows = db->exec("SELECT * FROM quality WHERE asset_id = '" + to_string(id) + "';");
 	vector<Quality> new_qualities;
 
-	for(auto row : rows) {
+	for(auto &row : rows) {
 		int asset_id = stoi(row[0]);
 		string property = row[1];
 		string value = row[2];
@@ -49,7 +49,7 @@ vector<Asset> Asset::fetch_all(string network)
 	vector<DB::Row> rows = db->exec("SELECT * FROM asset WHERE network_id = (SELECT id FROM network WHERE name = '" + network + "');");
 	vector<Asset> new_assets;
 
-	for (auto row : rows) {
+	for (auto &row : rows) {
 		int id = stoi(row[0]);
 		string name = row[1];
 		int network_id = stoi(row[2]);

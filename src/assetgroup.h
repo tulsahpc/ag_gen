@@ -16,6 +16,7 @@ struct AssetGroup {
     std::vector<int> perm;
 
     void print_facts(void);
+
     void print_group(void);
 };
 

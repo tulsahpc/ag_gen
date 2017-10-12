@@ -6,11 +6,13 @@
 #include "factbase.h"
 
 class NetworkState {
-	const Factbase& factbase;
+    const Factbase factbase;
 public:
-	explicit NetworkState(const Factbase& fb);
+    explicit NetworkState(const Factbase &fb);
 
-	const Factbase& get_factbase();
+    explicit NetworkState(Factbase &&fb);
+
+    Factbase get_factbase();
 };
 
 #endif

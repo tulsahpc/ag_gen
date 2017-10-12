@@ -5,14 +5,13 @@
 #include "keyvalue.h"
 #include "topology.h"
 #include "util_db.h"
-#include "util_common.h"
 
 using namespace std;
 
-Topology::Topology(int f_asset, int t_asset, string& dir,
-                   string& property, string& op, string& val) :
-        from_asset_id(f_asset), to_asset_id(t_asset), dir(dir), property(property),
-        op(op), value(val) {}
+Topology::Topology(int f_asset, int t_asset, string &dir,
+                   string &property, string &op, string &val) :
+        from_asset_id(f_asset), to_asset_id(t_asset), property(property),
+        op(op), value(val), dir(dir) {}
 
 Topology::Topology(size_t fact) {
     vector<string> attrs = fetch_all_attributes();
@@ -63,7 +62,7 @@ vector<string> Topology::fetch_all_attributes() {
     vector<string> attrs;
     vector<DB::Row> rows = db->exec("SELECT DISTINCT property FROM topology;");
 
-    for(auto& row : rows) {
+    for (auto &row : rows) {
         string prop = row[0];
         attrs.push_back(prop);
     }
@@ -75,7 +74,7 @@ vector<string> Topology::fetch_all_values() {
     vector<string> vals;
     vector<DB::Row> rows = db->exec("SELECT DISTINCT value FROM topology;");
 
-    for(auto& row : rows) {
+    for (auto &row : rows) {
         string val = row[0];
         vals.push_back(val);
     }
@@ -87,7 +86,7 @@ vector<Topology> Topology::fetch_all() {
     vector<Topology> topologies;
 
     vector<DB::Row> rows = db->exec("SELECT * FROM topology;");
-    for(auto& row : rows) {
+    for (auto &row : rows) {
         int from_asset = stoi(row[0]);
         int to_asset = stoi(row[1]);
         string dir = row[2];
@@ -95,7 +94,7 @@ vector<Topology> Topology::fetch_all() {
         string op = row[4];
         string value = row[5];
 
-		Topology t(from_asset, to_asset, dir, property, op, value);
+        Topology t(from_asset, to_asset, dir, property, op, value);
         topologies.push_back(t);
     }
 
@@ -107,18 +106,38 @@ void Topology::print() const {
             property + " " + op + " " + value << endl;
 }
 
-bool Topology::operator==(const Topology& rhs) const {
-    if(this->from_asset_id != rhs.from_asset_id)
+bool Topology::operator==(const Topology &rhs) const {
+    if (this->from_asset_id != rhs.from_asset_id)
         return false;
-    if(this->to_asset_id != rhs.to_asset_id)
+    if (this->to_asset_id != rhs.to_asset_id)
         return false;
-    if(this->dir != rhs.dir)
+    if (this->dir != rhs.dir)
         return false;
-    if(this->property != rhs.property)
+    if (this->property != rhs.property)
         return false;
-    if(this->op != rhs.op)
+    if (this->op != rhs.op)
         return false;
-    if(this->value != rhs.value)
+    if (this->value != rhs.value)
         return false;
     return true;
+}
+
+bool Topology::operator<(const Topology &rhs) const {
+    return (this->encode().enc < rhs.encode().enc);
+}
+
+const string &Topology::getProperty() const {
+    return property;
+}
+
+const string &Topology::getOp() const {
+    return op;
+}
+
+const string &Topology::getValue() const {
+    return value;
+}
+
+const string &Topology::getDir() const {
+    return dir;
 }

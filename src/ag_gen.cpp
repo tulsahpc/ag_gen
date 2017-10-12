@@ -8,17 +8,15 @@
 #include "util_odometer.h"
 #include "util_db.h"
 #include "edge.h"
-#include "util_common.h"
 
 using namespace std;
 
 // The AGGen constructor creates a new AGGen object and takes the given NetworkState and sets it as the
 // initial network state for generation by pushing it onto the new AGGen object's frontier vector.
-AGGen::AGGen(NetworkState& initial_state) :
+AGGen::AGGen(NetworkState &initial_state) :
         assets(Asset::fetch_all("home")),
         attrs(Quality::fetch_all_attributes()),
-        vals(Quality::fetch_all_values())
-{
+        vals(Quality::fetch_all_values()) {
     frontier.push_back(initial_state);
 }
 
@@ -27,13 +25,13 @@ AGGen::AGGen(NetworkState& initial_state) :
 // and topologies. It then prints out the exploits of the new Network States.
 void AGGen::generate() {
     vector<NetworkState> new_states;
-    int counter = 0;
+    auto counter = 0;
 
-    while(!frontier.empty()) {
+    while (counter < 100) {
         cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
-        NetworkState next_state = frontier.back();
-        const Factbase& current_factbase = next_state.get_factbase();
+        auto next_state = frontier.back();
+        auto current_factbase = next_state.get_factbase();
         frontier.pop_back();
 
         // Save the initial state's hash value
@@ -46,8 +44,8 @@ void AGGen::generate() {
         for (auto e : appl_exploits) {
             // For each applicable exploit, we extract which exploit applies and to which asset group it
             // applies to.
-			auto exploit = get<0>(e);
-			auto assetGroup = get<1>(e);
+            auto exploit = get<0>(e);
+            auto assetGroup = get<1>(e);
 
             // We generate the associated post conditions and extract the new qualities and topologies that
             // will be applied to the current factbase.
@@ -59,18 +57,21 @@ void AGGen::generate() {
             Factbase factbase(current_factbase);
 
             // For each quality, check if it already exists in the factbase. If it does not already exist, we add it.
-            for (auto qual : qualities) {
-				if(!factbase.find_quality(qual)) {
-					factbase.add_quality(qual);
-				}
+            for (auto &qual : qualities) {
+                if (!factbase.find_quality(qual)) {
+                    factbase.add_quality(qual);
+                }
             }
 
             // For each topology, check if it already exists in the factbase. If it does not already exist, we add it.
-            for (auto topo : topologies) {
-				if(!factbase.find_topology(topo)) {
-					factbase.add_topology(topo);
-				}
+            for (auto &topo : topologies) {
+                if (!factbase.find_topology(topo)) {
+                    factbase.add_topology(topo);
+                }
             }
+
+//            cout << "Old Hash: " << current_factbase.hash() << endl;
+//            cout << "New Hash: " << factbase.hash() << endl << endl;
 
             // Save our new factbase to the database. Generate any new edges to the new network state from already
             // existing states.
@@ -78,14 +79,23 @@ void AGGen::generate() {
                 // If the factbase does not already exist, increment our number of new states and save the factbase
                 // to the database. Then we push the new network state onto the frontier. If the factbase does already
                 // exist, we create a new edge from the previous state to this one and move on.
-                counter++;
-                factbase.save();
-                NetworkState ns(factbase);
-                frontier.push_back(ns);
+                if (!factbase.exists_in_db()) {
+                    counter++;
+                    factbase.save();
+                    NetworkState ns(factbase);
+                    frontier.push_back(ns);
 
-                Edge edge(current_factbase.get_id(), factbase.get_id(), exploit, assetGroup);
-                edge.save();
-            } catch (DBException e) {
+                    Edge edge(current_factbase.get_id(), ns.get_factbase().get_id(), exploit, assetGroup);
+                    if (!edge.exists_in_db()) {
+                        edge.save();
+                    }
+                } else {
+                    Edge edge(current_factbase.get_id(), factbase.get_id(), exploit, assetGroup);
+                    if (!edge.exists_in_db()) {
+                        edge.save();
+                    }
+                }
+            } catch (DBException &e) {
                 cerr << e.what() << endl; // If theres an error, just print and quit abruptly.
                 abort();
             }
@@ -96,16 +106,15 @@ void AGGen::generate() {
 }
 
 // Returns all applicable exploits to some given network state.
-vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(NetworkState& s) {
-    vector<Exploit> exploit_list = Exploit::fetch_all();
+vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(NetworkState &s) {
     vector<tuple<Exploit, AssetGroup> > appl_exploit_list;
+    auto exploit_list = Exploit::fetch_all();
 
-    s.get_factbase().print();
-    for(auto e : exploit_list) {
-        vector<AssetGroup> asset_groups = gen_hypo_facts(s, e);
-        for(auto asset_group : asset_groups) {
+    for (auto e : exploit_list) {
+        auto asset_groups = gen_hypo_facts(s, e);
+        for (auto asset_group : asset_groups) {
             // Each quality must exist. If not, discard asset_group entirely.
-            bool applicable = check_assetgroup(s, asset_group);
+            auto applicable = check_assetgroup(s, asset_group);
             if (applicable) {
                 appl_exploit_list.push_back(make_tuple(e, asset_group));
             }
@@ -116,15 +125,15 @@ vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(NetworkState& s) {
 }
 
 // Check if an asset group binding works in the network state.
-bool AGGen::check_assetgroup(NetworkState& s, AssetGroup& assetgroup) {
-    for(auto quality : assetgroup.hypothetical_qualities) {
-        if(!s.get_factbase().find_quality(quality)) {
+bool AGGen::check_assetgroup(NetworkState &s, AssetGroup &assetgroup) {
+    for (auto quality : assetgroup.hypothetical_qualities) {
+        if (!s.get_factbase().find_quality(quality)) {
             return false;
         }
     }
 
-    for(auto topology : assetgroup.hypothetical_topologies) {
-        if(!s.get_factbase().find_topology(topology)) {
+    for (auto topology : assetgroup.hypothetical_topologies) {
+        if (!s.get_factbase().find_topology(topology)) {
             return false;
         }
     }
@@ -134,37 +143,38 @@ bool AGGen::check_assetgroup(NetworkState& s, AssetGroup& assetgroup) {
 
 // Generate all possible permutations with repetition of the asset bindings for the
 // number of parameters needed by the exploit.
-vector<AssetGroup> AGGen::gen_hypo_facts(NetworkState& s, Exploit& e) {
-    int num_assets = assets.length();
-    int num_params = e.get_num_params();
+vector<AssetGroup> AGGen::gen_hypo_facts(NetworkState &s, Exploit &e) {
+    auto num_assets = assets.length();
+    auto num_params = e.get_num_params();
 
-    vector<ParameterizedQuality> preconds_q = e.precond_list_q();
-    vector<ParameterizedTopology> preconds_t = e.precond_list_t();
+    auto preconds_q = e.precond_list_q();
+    auto preconds_t = e.precond_list_t();
+
     Odometer od(num_params, num_assets);
     vector<AssetGroup> asset_groups;
 
-    for(auto j=0; j<od.length(); j++) {
-        vector<int> perm = od.next();
+    for (auto j = 0; j < od.length(); j++) {
+        auto perm = od.next();
 
         vector<Quality> asset_group_quals;
         vector<Topology> asset_group_topos;
 
-        for(auto precond : preconds_q) {
+        for (auto precond : preconds_q) {
             Quality q(perm[precond.get_param_num()], precond.get_name(), "=", precond.get_value());
             asset_group_quals.push_back(q);
         }
 
-        for(auto precond : preconds_t) {
-			auto dir = precond.get_dir();
-			auto prop = precond.get_property();
-			auto op = precond.get_operation();
-			auto val = precond.get_value();
+        for (auto precond : preconds_t) {
+            auto dir = precond.get_dir();
+            auto prop = precond.get_property();
+            auto op = precond.get_operation();
+            auto val = precond.get_value();
 
             Topology t(perm[precond.get_from_param()], perm[precond.get_to_param()], dir, prop, op, val);
             asset_group_topos.push_back(t);
         }
 
-        AssetGroup exploit_asset_group = { asset_group_quals, asset_group_topos, perm };
+        AssetGroup exploit_asset_group = {asset_group_quals, asset_group_topos, perm};
 
         asset_groups.push_back(exploit_asset_group);
     }
@@ -180,30 +190,30 @@ vector<AssetGroup> AGGen::gen_hypo_facts(NetworkState& s, Exploit& e) {
 // group's perm for each item in the list. It returns the postconditions as tuple of a vector of the new
 // qualities and a vector of the new topologies.
 tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(tuple<Exploit, AssetGroup> group) {
-    Exploit ex = get<0>(group);
-    AssetGroup ag = get<1>(group);
+    auto ex = get<0>(group);
+    auto ag = get<1>(group);
 
-    vector<int> perm = ag.perm;
+    auto perm = ag.perm;
 
-    vector<ParameterizedQuality> param_postconds_q = ex.postcond_list_q();
-    vector<ParameterizedTopology> param_postconds_t = ex.postcond_list_t();
+    auto param_postconds_q = ex.postcond_list_q();
+    auto param_postconds_t = ex.postcond_list_t();
 
     vector<Quality> postconds_q;
     vector<Topology> postconds_t;
 
-    for(auto postcond : param_postconds_q) {
+    for (auto postcond : param_postconds_q) {
         Quality q(perm[postcond.get_param_num()], postcond.get_name(), "=", postcond.get_value());
         postconds_q.push_back(q);
     }
 
-    for(auto postcond : param_postconds_t) {
-		auto dir = postcond.get_dir();
-		auto prop = postcond.get_property();
-		auto op = postcond.get_operation();
-		auto val = postcond.get_value();
+    for (auto postcond : param_postconds_t) {
+        auto dir = postcond.get_dir();
+        auto prop = postcond.get_property();
+        auto op = postcond.get_operation();
+        auto val = postcond.get_value();
 
         Topology t(perm[postcond.get_from_param()], perm[postcond.get_to_param()], dir, prop, op, val);
-		postconds_t.push_back(t);
+        postconds_t.push_back(t);
     }
 
     return make_tuple(postconds_q, postconds_t);

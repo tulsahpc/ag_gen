@@ -9,20 +9,22 @@
 #include "assetgroup.h"
 
 class Edge {
-	int id;
-	int from_node;
-	int to_node;
-	Exploit exploit;
-	AssetGroup assetGroup;
+    int id;
+    int from_node;
+    int to_node;
+    Exploit exploit;
+    AssetGroup assetGroup;
 
 public:
-	Edge(int, int, Exploit&, AssetGroup&);
+    Edge(int, int, Exploit &, AssetGroup &);
 
-	void save(void);
+    void save(void);
 
-	int new_id(void);
-	int get_id(void);
-	bool exists_in_db(void);
+    int new_id(void);
+
+    int get_id(void);
+
+    bool exists_in_db(void);
 };
 
 #endif //AG_GEN_EDGE_H

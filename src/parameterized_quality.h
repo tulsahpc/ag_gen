@@ -21,7 +21,9 @@ public:
     ParameterizedQuality(int param, std::string attr, std::string val);
 
     int get_param_num(void);
+
     std::string get_name(void);
+
     std::string get_value(void);
 
     void print(void);

@@ -11,31 +11,42 @@
 struct FactbaseHash;
 
 class Factbase {
-	int id;
-	std::vector<Quality> qualities;
-	std::vector<Topology> topologies;
-    
+    int id;
+    std::vector<Quality> qualities;
+    std::vector<Topology> topologies;
+
 public:
-	Factbase();
-	Factbase(const Factbase&);
-	explicit Factbase(int id);
+    Factbase();
 
-	void populate();
+    Factbase(const Factbase &fb);
 
-	bool find_quality(Quality&) const;
-	void add_quality(Quality);
+    Factbase(Factbase &&fb);
 
-	bool find_topology(Topology&) const;
-	void add_topology(Topology);
+    explicit Factbase(int id);
+
+    Factbase &operator=(const Factbase &fb);
+
+    Factbase &operator=(Factbase &&fb);
+
+    void populate();
+
+    bool find_quality(Quality &) const;
+
+    void add_quality(Quality);
+
+    bool find_topology(Topology &) const;
+
+    void add_topology(Topology);
 
     bool exists_in_db();
-	int get_id() const;
 
-	void save();
+    int get_id() const;
 
-	size_t hash() const;
+    void save();
 
-    void print() const;
+    size_t hash() const;
+
+    void print();
 };
 
 #endif

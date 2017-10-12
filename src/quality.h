@@ -24,19 +24,28 @@ class Quality {
     std::string value;
 
     friend class Factbase;
+
 public:
     Quality(int assetId, std::string qualName, std::string op, std::string qualValue);
-	explicit Quality(size_t fact);
+
+    explicit Quality(size_t fact);
 
     std::string get_name();
+
     std::string get_op();
 
     void print();
-    EncodedQuality encode();
-    bool operator==(Quality rhs) const;
+
+    EncodedQuality encode() const;
+
+    bool operator==(const Quality &rhs) const;
+
+    bool operator<(const Quality &rhs) const;
 
     static std::vector<Quality> fetch_all();
+
     static std::vector<std::string> fetch_all_attributes();
+
     static std::vector<std::string> fetch_all_values();
 };
 

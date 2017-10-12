@@ -4,7 +4,8 @@
 
 using namespace std;
 
-ParameterizedTopology::ParameterizedTopology(int from_param_in, int to_param_in, std::string& dir, std::string& prop, std::string& op, std::string& val) :
+ParameterizedTopology::ParameterizedTopology(int from_param_in, int to_param_in, std::string &dir, std::string &prop,
+                                             std::string &op, std::string &val) :
         from_param(from_param_in), to_param(to_param_in), dir(dir), prop(prop), op(op), val(val) {}
 
 int ParameterizedTopology::get_from_param() {

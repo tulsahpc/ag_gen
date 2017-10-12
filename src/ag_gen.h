@@ -2,6 +2,7 @@
 #define AG_GEN_HPP
 
 #include <vector>
+#include <deque>
 
 #include "asset.h"
 #include "keyvalue.h"
@@ -18,12 +19,18 @@ class AGGen {
     std::vector<NetworkState> frontier; // The newly generated states to go through next
     std::vector<size_t> hash_list;
 
-    std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(NetworkState&);
-    bool check_assetgroup(NetworkState&, AssetGroup&);
-    std::vector<AssetGroup> gen_hypo_facts(NetworkState&, Exploit&);
-    std::tuple<std::vector<Quality>, std::vector<Topology> > createPostConditions(std::tuple<Exploit, AssetGroup> group);
+    std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(NetworkState &);
+
+    bool check_assetgroup(NetworkState &, AssetGroup &);
+
+    std::vector<AssetGroup> gen_hypo_facts(NetworkState &, Exploit &);
+
+    std::tuple<std::vector<Quality>, std::vector<Topology> >
+    createPostConditions(std::tuple<Exploit, AssetGroup> group);
+
 public:
-	AGGen(NetworkState&);
+    explicit AGGen(NetworkState &);
+
     void generate();
 };
 
