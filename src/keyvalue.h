@@ -56,7 +56,7 @@ public:
         return hash_table[str];
     }
 
-    std::string operator[](u_long num) {
+    std::string operator[](unsigned long num) {
         return str_vector.at(num);
     }
 
