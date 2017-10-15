@@ -102,24 +102,24 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    struct networkmodel nm;
-    nm.asset_tab = new_hashtable(101);
+    struct exploitmodel xm;
+    xm.asset_tab = new_hashtable(101);
 
     //yydebug = 1;
     yyin = file;
     do {
-        yyparse(&nm);
+        yyparse(&xm);
     } while(!feof(yyin));
 
-    //printf("%s : %d\n", "flowmeter", get_hashtable(nm.asset_tab, "flowmeter"));
-    //print_str_array(nm.assets);
-    //print_str_array(nm.facts);
+    //printf("%s : %d\n", "flowmeter", get_hashtable(xm.asset_tab, "flowmeter"));
+    //print_str_array(xm.assets);
+    //print_str_array(xm.facts);
 
     str_array* qualities = new_str_array();
     str_array* topologies = new_str_array();
 
-    for(int i=0; i<nm.facts->used; i++) {
-        char* current = nm.facts->arr[i];
+    for(int i=0; i<xm.facts->used; i++) {
+        char* current = xm.facts->arr[i];
         char* copy = getstr(strlen(current));
 
         strncpy(copy, current, strlen(current));
@@ -140,11 +140,11 @@ int main(int argc, char** argv) {
 
     char* assetheader = "INSERT INTO asset VALUES";
     fprintf(fp, "%s\n", assetheader);
-    for(int i=0; i<nm.assets->used-1; i++) {
-        char* nextstring = nm.assets->arr[i];
+    for(int i=0; i<xm.assets->used-1; i++) {
+        char* nextstring = xm.assets->arr[i];
         fprintf(fp, "%s\n", nextstring);
     }
-    char* stripped = nm.assets->arr[nm.assets->used-1];
+    char* stripped = xm.assets->arr[xm.assets->used-1];
     stripped[strlen(stripped)-1] = '\n';
     fprintf(fp, "%s\n", stripped);
 
@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
         char* nextstring = qualities->arr[i];
         fprintf(fp, "%s\n", nextstring);
     }
-    stripped = qualities->arr[nm.assets->used-1];
+    stripped = qualities->arr[xm.assets->used-1];
     stripped[strlen(stripped)-1] = '\n';
     fprintf(fp, "%s\n", stripped);
 
@@ -168,16 +168,16 @@ int main(int argc, char** argv) {
         char* nextstring = topologies->arr[i];
         fprintf(fp, "%s\n", nextstring);
     }
-    stripped = topologies->arr[nm.assets->used-1];
+    stripped = topologies->arr[xm.assets->used-1];
     stripped[strlen(stripped)-1] = '\n';
     fprintf(fp, "%s\n", stripped);
 
     fprintf(fp, "%s\n", "ON CONFLICT DO NOTHING;");
 
-    free_hashtable(nm.asset_tab);
+    free_hashtable(xm.asset_tab);
 }
 
-void yyerror(struct networkmodel* nm, char const *s) {
+void yyerror(struct exploitmodel* xm, char const *s) {
     fprintf(stderr, "Line %d: %s\n", yylineno, s);
     exit(-1);
 }
