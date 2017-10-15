@@ -58,11 +58,10 @@ void Factbase::add_topology(Topology t) {
     topologies.push_back(t);
 }
 
-void Factbase::save() {
-    if (exists_in_db()) {
-        return;
-    }
-
+bool Factbase::save() {
+	if(exists_in_db())
+		return false;
+	
     vector<DB::Row> rows = db->exec("SELECT new_factbase('" + to_string(hash()) + "');");
     id = stoi(rows[0][0]);
 
@@ -75,9 +74,10 @@ void Factbase::save() {
     for (int i = 0; i < topologies.size(); i++) {
         insert_sql += ",(" + to_string(id) + "," + to_string(topologies[i].encode().enc) + ",'topology')";
     }
-    insert_sql += " ON CONFLICT DO NOTHING;";
-
+	insert_sql += ";";
     db->exec(insert_sql);
+	
+	return true;
 }
 
 // Shamelessly copied from Boost::hash_combine

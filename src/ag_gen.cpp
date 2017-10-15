@@ -77,22 +77,12 @@ void AGGen::generate() {
                 // If the factbase does not already exist, increment our number of new states and save the factbase
                 // to the database. Then we push the new network state onto the frontier. If the factbase does already
                 // exist, we create a new edge from the previous state to this one and move on.
-                if (!factbase.exists_in_db()) {
-                    counter++;
-                    factbase.save();
-                    NetworkState ns(factbase);
-                    frontier.push_back(ns);
-
-                    Edge edge(current_factbase.get_id(), ns.get_factbase().get_id(), exploit, assetGroup);
-                    if (!edge.exists_in_db()) {
-                        edge.save();
-                    }
-                } else {
-                    Edge edge(current_factbase.get_id(), factbase.get_id(), exploit, assetGroup);
-                    if (!edge.exists_in_db()) {
-                        edge.save();
-                    }
-                }
+                counter++;
+                if(factbase.save())
+                	frontier.emplace_back(factbase);
+                
+                Edge edge(current_factbase.get_id(), factbase.get_id(), exploit, assetGroup);
+				edge.save();
             } catch (DBException &e) {
                 cerr << e.what() << endl; // If theres an error, just print and quit abruptly.
                 abort();

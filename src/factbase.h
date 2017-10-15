@@ -18,7 +18,7 @@ class Factbase {
 public:
     void populate();
 
-    void save();
+    bool save();
 
     bool find_quality(Quality &) const;
 
