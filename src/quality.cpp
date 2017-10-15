@@ -8,11 +8,11 @@
 
 using namespace std;
 
-Quality::Quality(int asset, string qualName, string op, string qualValue) : asset_id(asset), name(qualName),
-                                                                            value(qualValue) {}
+Quality::Quality(int asset, string qualName, string op, string qualValue) :
+        asset_id(asset), name(move(qualName)), value(move(qualValue)) {}
 
 Quality::Quality(size_t fact) {
-    EncodedQuality eQual;
+    EncodedQuality eQual{};
     eQual.enc = fact;
 
     asset_id = eQual.dec.asset_id;
@@ -47,7 +47,7 @@ EncodedQuality Quality::encode() const {
     return qual;
 }
 
-void Quality::print() {
+void Quality::print() const {
     std::cout << to_string(asset_id) + ": " + name + " => " + value << std::endl;
 }
 

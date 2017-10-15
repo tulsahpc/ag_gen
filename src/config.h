@@ -7,13 +7,11 @@
 class Config {
     std::unordered_map<std::string, std::string> config;
 public:
-    Config(const std::string &filename);
-
-    void print(void);
-
-    std::string db_string(void);
-
+    explicit Config(std::string filename);
     std::string operator[](const std::string &q);
+
+    void print();
+    std::string db_string();
 };
 
 #endif // CONFIG_HPP

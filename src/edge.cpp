@@ -45,9 +45,10 @@ void Edge::save() {
     id = factbase_id;
 
     string sql = "INSERT INTO edge_asset_binding VALUES ";
-    for (auto i = 0; i < assetGroup.perm.size(); i++) {
-        sql += "(" + to_string(id) + "," + to_string(i) + "," + to_string(assetGroup.perm[i] + 1) + ")";
-        if (i == assetGroup.perm.size() - 1) {
+    auto current_perm = assetGroup.get_perm();
+    for (auto i = 0; i < current_perm.size(); i++) {
+        sql += "(" + to_string(id) + "," + to_string(i) + "," + to_string(current_perm[i] + 1) + ")";
+        if (i == current_perm.size() - 1) {
             sql += ";";
         } else {
             sql += ",";

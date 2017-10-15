@@ -19,17 +19,17 @@ class AGGen {
     std::vector<NetworkState> frontier; // The newly generated states to go through next
     std::vector<size_t> hash_list;
 
-    std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(NetworkState &);
+    std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(const NetworkState &s);
 
-    bool check_assetgroup(NetworkState &, AssetGroup &);
+    bool check_assetgroup(const NetworkState &s, const AssetGroup &assetgroup);
 
-    std::vector<AssetGroup> gen_hypo_facts(NetworkState &, Exploit &);
+    std::vector<AssetGroup> gen_hypo_facts(const NetworkState &s, Exploit &e);
 
     std::tuple<std::vector<Quality>, std::vector<Topology> >
     createPostConditions(std::tuple<Exploit, AssetGroup> group);
 
 public:
-    explicit AGGen(NetworkState &);
+    explicit AGGen(NetworkState initial_state);
 
     void generate();
 };

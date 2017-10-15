@@ -5,12 +5,8 @@
 #include "network_state.h"
 
 // default constructor that creates a NetworkState object with a zero-value Factbase
-//NetworkState::NetworkState(void) : factbase() {};
+NetworkState::NetworkState(Factbase &fb) : factbase(fb) {}
 
-NetworkState::NetworkState(const Factbase &fb) : factbase(fb) {};
-
-NetworkState::NetworkState(Factbase &&fb) : factbase(std::move(fb)) {}
-
-Factbase NetworkState::get_factbase() {
+Factbase NetworkState::get_factbase() const {
     return factbase;
 }

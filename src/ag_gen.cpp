@@ -13,20 +13,18 @@ using namespace std;
 
 // The AGGen constructor creates a new AGGen object and takes the given NetworkState and sets it as the
 // initial network state for generation by pushing it onto the new AGGen object's frontier vector.
-AGGen::AGGen(NetworkState &initial_state) :
+AGGen::AGGen(NetworkState initial_state) :
         assets(Asset::fetch_all("home")),
         attrs(Quality::fetch_all_attributes()),
         vals(Quality::fetch_all_values()) {
-    frontier.push_back(initial_state);
+    frontier.push_back(move(initial_state));
 }
 
 // generate iterates through AGGen's frontier vector, back to front, and takes the next Network State,
 // generating all of the possible Network States that it could lead to based on its exploitable qualities
 // and topologies. It then prints out the exploits of the new Network States.
 void AGGen::generate() {
-    vector<NetworkState> new_states;
     auto counter = 0;
-
     while (!frontier.empty()) {
         cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
@@ -106,7 +104,7 @@ void AGGen::generate() {
 }
 
 // Returns all applicable exploits to some given network state.
-vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(NetworkState &s) {
+vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(const NetworkState &s) {
     vector<tuple<Exploit, AssetGroup> > appl_exploit_list;
     auto exploit_list = Exploit::fetch_all();
 
@@ -125,14 +123,14 @@ vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(NetworkState &s) {
 }
 
 // Check if an asset group binding works in the network state.
-bool AGGen::check_assetgroup(NetworkState &s, AssetGroup &assetgroup) {
-    for (auto quality : assetgroup.hypothetical_qualities) {
+bool AGGen::check_assetgroup(const NetworkState &s, const AssetGroup &assetgroup) {
+    for (auto quality : assetgroup.get_hypo_quals()) {
         if (!s.get_factbase().find_quality(quality)) {
             return false;
         }
     }
 
-    for (auto topology : assetgroup.hypothetical_topologies) {
+    for (auto topology : assetgroup.get_hypo_topos()) {
         if (!s.get_factbase().find_topology(topology)) {
             return false;
         }
@@ -143,7 +141,7 @@ bool AGGen::check_assetgroup(NetworkState &s, AssetGroup &assetgroup) {
 
 // Generate all possible permutations with repetition of the asset bindings for the
 // number of parameters needed by the exploit.
-vector<AssetGroup> AGGen::gen_hypo_facts(NetworkState &s, Exploit &e) {
+vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
     auto num_assets = assets.length();
     auto num_params = e.get_num_params();
 
@@ -160,7 +158,7 @@ vector<AssetGroup> AGGen::gen_hypo_facts(NetworkState &s, Exploit &e) {
         vector<Topology> asset_group_topos;
 
         for (auto precond : preconds_q) {
-            Quality q(perm[precond.get_param_num()], precond.get_name(), "=", precond.get_value());
+            Quality q(perm[precond.get_param_num()], precond.name, "=", precond.value);
             asset_group_quals.push_back(q);
         }
 
@@ -174,7 +172,7 @@ vector<AssetGroup> AGGen::gen_hypo_facts(NetworkState &s, Exploit &e) {
             asset_group_topos.push_back(t);
         }
 
-        AssetGroup exploit_asset_group = {asset_group_quals, asset_group_topos, perm};
+        AssetGroup exploit_asset_group {asset_group_quals, asset_group_topos, perm};
 
         asset_groups.push_back(exploit_asset_group);
     }
@@ -193,7 +191,7 @@ tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(tuple<Expl
     auto ex = get<0>(group);
     auto ag = get<1>(group);
 
-    auto perm = ag.perm;
+    auto perm = ag.get_perm();
 
     auto param_postconds_q = ex.postcond_list_q();
     auto param_postconds_t = ex.postcond_list_t();
@@ -202,7 +200,7 @@ tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(tuple<Expl
     vector<Topology> postconds_t;
 
     for (auto postcond : param_postconds_q) {
-        Quality q(perm[postcond.get_param_num()], postcond.get_name(), "=", postcond.get_value());
+        Quality q(perm[postcond.get_param_num()], postcond.name, "=", postcond.value);
         postconds_q.push_back(q);
     }
 

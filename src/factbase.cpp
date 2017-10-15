@@ -3,71 +3,12 @@
 
 #include <iostream>
 #include <vector>
-#include <algorithm>
 
 #include "factbase.h"
 #include "util_db.h"
 #include "util_common.h"
 
 using namespace std;
-
-// The default Factbase constructor creates a factbase object with all of the qualities and topologies
-// currently on the database
-Factbase::Factbase() {
-    id = 0;
-}
-
-Factbase::Factbase(const Factbase &fb) = default;
-
-Factbase::Factbase(Factbase &&fb) :
-        id(fb.id), qualities(fb.qualities), topologies(fb.topologies) {}
-
-Factbase &Factbase::operator=(const Factbase &fb) {
-    qualities = fb.qualities;
-    topologies = fb.topologies;
-    return *this;
-}
-
-Factbase &Factbase::operator=(Factbase &&fb) {
-    qualities = move(fb.qualities);
-    topologies = move(fb.topologies);
-    return *this;
-}
-
-Factbase::Factbase(int iId) {
-    // Check if factbase exists
-    // If it does exist, import all of its data
-    // If it doesn't exist, throw exception
-
-    vector<DB::Row> rows = db->exec("SELECT * FROM factbase WHERE id = " + to_string(iId) + ";");
-    if (rows.size() != 1) {
-        throw DBException("Something went wrong.");
-    }
-
-    // There should only be one row that is returned,
-    // so shortcut with rows[0][0]
-    size_t hash_value;
-    sscanf(rows[0][0].c_str(), "%zu", &hash_value);
-
-    rows = db->exec("SELECT * FROM factbase_item WHERE factbase_id = " + to_string(iId) + ";");
-
-    for (auto &row : rows) {
-        size_t fact;
-        sscanf(row[1].c_str(), "%zu", &fact);
-
-        string type = row[2];
-        if (type == "quality") {
-            Quality qual(fact);
-            add_quality(qual);
-        }
-
-        if (type == "topology") {
-            string options = row[3];
-            Topology topo(fact);
-            add_topology(topo);
-        }
-    }
-}
 
 void Factbase::populate() {
     qualities = Quality::fetch_all();
@@ -160,7 +101,7 @@ size_t Factbase::hash() const {
     return hash;
 }
 
-void Factbase::print() {
+void Factbase::print() const {
     cout << "ID: " << id << endl;
     cout << "HASH: " << hash() << endl;
     cout << "Qualities: " << qualities.size() << endl;

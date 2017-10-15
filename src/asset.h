@@ -12,14 +12,15 @@ class Asset {
 	int network_id;
 	std::string name;
 	std::vector<Quality> qualities;
-
+	
 public:
-    Asset(int id, int network_id, std::string asset_name);
-    int get_network_id();
-    std::string get_name();
-
+	Asset(int iid, int netid, std::string nname);
+	
+	std::string get_name() {
+		return name;
+	}
+	
     void fetch_qualities();
-
     static std::vector<Asset> fetch_all(std::string network);
 };
 

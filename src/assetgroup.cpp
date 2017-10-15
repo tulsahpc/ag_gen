@@ -13,19 +13,19 @@ using namespace std;
 
 // print_facts prints all of the hypothetical qualities of an Asset Group, then prints all of the
 // hypothetical topologies
-void AssetGroup::print_facts(void) {
-    for (auto &quality : this->hypothetical_qualities) {
+void AssetGroup::print_facts() {
+    for (auto &quality : this->get_hypo_quals()) {
         quality.print();
     }
 
-    for (auto &topology : this->hypothetical_topologies) {
+    for (auto &topology : this->get_hypo_topos()) {
         topology.print();
     }
     cout << endl;
 }
 
 // print_group prints each asset to stdout on a single line in a comma seperated list
-void AssetGroup::print_group(void) {
+void AssetGroup::print_group() {
     if(perm.size() == 1) {
         cout << "Asset " + to_string(perm[0]);
     } else {

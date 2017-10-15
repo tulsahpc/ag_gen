@@ -29,7 +29,6 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    int opt_print = 0;
     string opt_network;
 
     int opt;
@@ -40,9 +39,6 @@ int main(int argc, char *argv[]) {
                 return 0;
             case 'n':
                 opt_network = optarg;
-                break;
-            case 'p':
-                opt_print = 1;
                 break;
             case '?':
                 if (optopt == 'c')

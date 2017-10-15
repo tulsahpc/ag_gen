@@ -4,11 +4,11 @@ OS=$(uname | tr 'A-Z' 'a-z')
 
 if [[ $OS = 'darwin' ]]; then
     if hash brew 2>/dev/null; then
-        echo "Please install homebrew first."
-    else
         xcode-select --install > /dev/null
         brew cask install postgres
         brew install postgresql cmake boost cppcheck doxygen graphviz
+    else
+        echo "Please install homebrew first."
     fi
 elif [[ $OS = 'linux' ]]; then
     if hash pacman  2>/dev/null; then

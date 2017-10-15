@@ -37,7 +37,7 @@ public:
 
             perms.push_back(curr_perm);
 
-            while (curr_idx < n && !(curr_perm[curr_idx] < k - 1)) {
+            while (curr_idx < n && curr_perm[curr_idx] >= k - 1) {
                 curr_idx++;
             }
 
@@ -56,7 +56,7 @@ public:
         }
     }
 
-    void print(void) {
+    void print() {
         for (std::vector<int> perm : perms) {
             for (int num : perm) {
                 std::cout << num << " ";
@@ -65,19 +65,19 @@ public:
         }
     }
 
-    const int length(void) {
+    double length() {
         return pow(k, n);
     }
 
-    std::vector<int> next(void) {
+    std::vector<int> next() {
         return perms[idx_state++];
     }
 
-    void reset(void) {
+    void reset() {
         idx_state = 0;
     }
 
-    int perm_length(void) {
+    int perm_length() {
         return n;
     }
 

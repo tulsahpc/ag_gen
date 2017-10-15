@@ -8,15 +8,7 @@
 
 template<typename T>
 class Keyvalue {
-    template<typename U, typename = std::string>
-    struct can_get_name : std::false_type {
-    };
-
-    template<typename U>
-    struct can_get_name<U, decltype(std::declval<U>().get_name())> : std::true_type {
-    };
-
-    int size;
+    int size {0};
     std::unordered_map<std::string, int> hash_table;
     std::vector<std::string> str_vector;
 
@@ -26,13 +18,19 @@ class Keyvalue {
             insert(item);
         }
     }
+    
+    template<typename U, typename = std::string>
+    struct can_get_name : std::false_type {};
+    
+    template<typename U>
+    struct can_get_name<U, decltype(std::declval<U>().get_name())> : std::true_type {};
 
 public:
-    Keyvalue(std::vector<T> &preList) {
+    explicit Keyvalue(std::vector<T> &preList) {
         populate(preList);
     }
 
-    Keyvalue(std::vector<T> &&preList) {
+    explicit Keyvalue(std::vector<T> &&preList) {
         populate(preList);
     }
 
@@ -56,7 +54,7 @@ public:
         return hash_table[str];
     }
 
-    std::string operator[](unsigned long num) {
+    std::string operator[](int num) {
         return str_vector.at(num);
     }
 

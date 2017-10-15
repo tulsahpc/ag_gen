@@ -27,25 +27,20 @@ class Quality {
 
 public:
     Quality(int assetId, std::string qualName, std::string op, std::string qualValue);
-
     explicit Quality(size_t fact);
 
     std::string get_name();
-
     std::string get_op();
 
-    void print();
+    void print() const;
 
     EncodedQuality encode() const;
 
     bool operator==(const Quality &rhs) const;
-
     bool operator<(const Quality &rhs) const;
 
     static std::vector<Quality> fetch_all();
-
     static std::vector<std::string> fetch_all_attributes();
-
     static std::vector<std::string> fetch_all_values();
 };
 

@@ -22,30 +22,37 @@ extern std::shared_ptr<DB> db;
 
 class DBException : public std::runtime_error {
 public:
-    DBException(std::string error_message) : std::runtime_error(error_message) {}
+    explicit DBException(std::string &error_message) : std::runtime_error(error_message) {}
+    explicit DBException(std::string &&error_message) : std::runtime_error(error_message) {}
 };
 
 class DB {
+public:
+    typedef std::vector<std::string> Row;
+private:
     class Connection {
         PGconn *conn_r;
         bool connected = false;
-    public:
-        Connection(void) {}
 
-        Connection(std::string conninfo) {
-            connect(conninfo);
-        }
-
-        void connect(std::string conninfo) {
+        PGconn *create_connection(std::string &conninfo) {
             // Create database connection
-            conn_r = PQconnectdb(conninfo.c_str());
-            if (PQstatus(conn_r) != CONNECTION_OK) {
+            PGconn *conn = PQconnectdb(conninfo.c_str());
+            if (PQstatus(conn) != CONNECTION_OK) {
                 throw DBException("Database connection failed.");
             }
             connected = true;
+            return conn;
+        }
+    public:
+        explicit Connection(std::string &conninfo) {
+            conn_r = create_connection(conninfo);
         }
 
-        bool is_connected(void) {
+        explicit Connection(std::string &&conninfo) {
+            conn_r = create_connection(conninfo);
+        }
+
+        bool is_connected() {
             return connected;
         }
 
@@ -61,14 +68,8 @@ class DB {
     };
 
     Connection conn;
-public:
-    typedef std::vector<std::string> Row;
 
-    DB() {};
-
-    DB(std::string conninfo) : conn(conninfo) {};
-
-    std::vector<Row> exec(std::string sql) {
+    std::vector<Row> execute_query(std::string &sql) {
         if (!conn.is_connected()) {
             throw DBException("Not connected to Database.");
         }
@@ -95,6 +96,17 @@ public:
 
         PQclear(res);
         return rows;
+    }
+public:
+    explicit DB(std::string &conninfo) : conn(conninfo) {};
+    explicit DB(std::string &&conninfo) : conn(conninfo) {};
+
+    std::vector<Row> exec(std::string &sql) {
+        return execute_query(sql);
+    }
+
+    std::vector<Row> exec(std::string &&sql) {
+        return execute_query(sql);
     }
 
     void close() {

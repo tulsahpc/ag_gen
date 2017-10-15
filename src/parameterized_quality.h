@@ -12,23 +12,13 @@
 #include "quality.h"
 #include "keyvalue.h"
 
-class ParameterizedQuality {
+struct ParameterizedQuality {
     int param;
     std::string name;
     std::string value;
-
-public:
-    ParameterizedQuality(int param, std::string attr, std::string val);
-
-    int get_param_num(void);
-
-    std::string get_name(void);
-
-    std::string get_value(void);
-
-    void print(void);
-
-    std::vector<Quality> make_quals(std::vector<int> &asset_ids, Keyvalue<Asset> &assets);
+	
+    int get_param_num();
+    void print();
 };
 
 #endif //AG_GEN_PARAMETERIZED_QUALITY_H

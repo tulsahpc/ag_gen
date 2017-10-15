@@ -16,37 +16,25 @@ class Factbase {
     std::vector<Topology> topologies;
 
 public:
-    Factbase();
-
-    Factbase(const Factbase &fb);
-
-    Factbase(Factbase &&fb);
-
-    explicit Factbase(int id);
-
-    Factbase &operator=(const Factbase &fb);
-
-    Factbase &operator=(Factbase &&fb);
-
     void populate();
+
+    void save();
 
     bool find_quality(Quality &) const;
 
-    void add_quality(Quality);
-
     bool find_topology(Topology &) const;
+
+    void add_quality(Quality);
 
     void add_topology(Topology);
 
     bool exists_in_db();
 
+    void print() const;
+
     int get_id() const;
 
-    void save();
-
     size_t hash() const;
-
-    void print();
 };
 
 #endif

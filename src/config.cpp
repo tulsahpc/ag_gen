@@ -15,7 +15,7 @@ using namespace std;
 //      - login
 //      - password (optional)
 
-Config::Config(const string &filename) {
+Config::Config(string filename) {
     ifstream config_file(filename);
 
     if (!config_file.is_open()) {
@@ -36,9 +36,9 @@ Config::Config(const string &filename) {
     }
 }
 
-string Config::db_string(void) {
+string Config::db_string() {
     string db_string;
-    if (config["password"] == "")
+    if (config["password"].empty())
         db_string = "postgresql://" + config["login"] + "@" + config["server"] + "/" + config["db"];
     else
         db_string = "postgresql://" + config["login"] + ":" + config["password"] + "@" + config["server"] + "/" +
@@ -46,7 +46,7 @@ string Config::db_string(void) {
     return db_string;
 }
 
-void Config::print(void) {
+void Config::print() {
     for (const auto &it : config) {
         cout << it.first << ": " << it.second << endl;
     }
