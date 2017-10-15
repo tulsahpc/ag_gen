@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <deque>
+#include <map>
+#include <set>
 
 #include "asset.h"
 #include "keyvalue.h"
@@ -10,14 +12,16 @@
 #include "factbase.h"
 #include "assetgroup.h"
 #include "network_state.h"
+#include "edge.h"
 
 class AGGen {
     Keyvalue<Asset> assets; // Simple hashtable that stores the asset id with its name. Holds all assets in a network.
     Keyvalue<std::string> attrs; // All possible attributes used in the network.
     Keyvalue<std::string> vals; // All possible values used in the network.
 
-    std::vector<NetworkState> frontier; // The newly generated states to go through next
-    std::vector<size_t> hash_list;
+    std::deque<NetworkState> frontier; // The newly generated states to go through next
+    std::map<size_t, Factbase> fb_list {};
+    std::set<Edge> edge_list{};
 
     std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(const NetworkState &s);
 

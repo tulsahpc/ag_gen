@@ -17,7 +17,7 @@ AGGen::AGGen(NetworkState initial_state) :
         assets(Asset::fetch_all("home")),
         attrs(Quality::fetch_all_attributes()),
         vals(Quality::fetch_all_values()) {
-    frontier.push_back(move(initial_state));
+    frontier.emplace_back(initial_state);
 }
 
 // generate iterates through AGGen's frontier vector, back to front, and takes the next Network State,
@@ -26,14 +26,14 @@ AGGen::AGGen(NetworkState initial_state) :
 void AGGen::generate() {
     auto counter = 0;
     while (!frontier.empty()) {
-        cout << "Frontier Size: " << frontier.size() << endl;
+//        cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
-        auto next_state = frontier.back();
+        auto next_state = frontier.front();
         auto current_factbase = next_state.get_factbase();
-        frontier.pop_back();
-
+        frontier.pop_front();
+		
         // Save the initial state's hash value
-        hash_list.push_back(current_factbase.hash());
+        fb_list[current_factbase.hash()] = current_factbase;
 
         // Get all applicable exploits with this network state
         auto appl_exploits = check_exploits(next_state);
@@ -67,40 +67,38 @@ void AGGen::generate() {
                     factbase.add_topology(topo);
                 }
             }
+			
+			if(fb_list.find(factbase.hash()) != fb_list.end())
+				continue;
 
-//            cout << "Old Hash: " << current_factbase.hash() << endl;
-//            cout << "New Hash: " << factbase.hash() << endl << endl;
+			fb_list[factbase.hash()] = factbase;
+			frontier.emplace_front(factbase);
+//			factbase.print();
+			counter++;
 
             // Save our new factbase to the database. Generate any new edges to the new network state from already
             // existing states.
-            try {
-                // If the factbase does not already exist, increment our number of new states and save the factbase
-                // to the database. Then we push the new network state onto the frontier. If the factbase does already
-                // exist, we create a new edge from the previous state to this one and move on.
-                if (!factbase.exists_in_db()) {
-                    counter++;
-                    factbase.save();
-                    NetworkState ns(factbase);
-                    frontier.push_back(ns);
-
-                    Edge edge(current_factbase.get_id(), ns.get_factbase().get_id(), exploit, assetGroup);
-                    if (!edge.exists_in_db()) {
-                        edge.save();
-                    }
-                } else {
-                    Edge edge(current_factbase.get_id(), factbase.get_id(), exploit, assetGroup);
-                    if (!edge.exists_in_db()) {
-                        edge.save();
-                    }
-                }
-            } catch (DBException &e) {
-                cerr << e.what() << endl; // If theres an error, just print and quit abruptly.
-                abort();
-            }
+//            try {
+//                // If the factbase does not already exist, increment our number of new states and save the factbase
+//                // to the database. Then we push the new network state onto the frontier. If the factbase does already
+//                // exist, we create a new edge from the previous state to this one and move on.
+//				if(hash_list.find(factbase.hash()) == hash_list.end()) {
+//					counter++;
+//					factbase.save();
+//					NetworkState ns(factbase);
+//					frontier.push_back(ns);
+//				}
+//
+//				Edge edge(current_factbase.get_id(), factbase.get_id(), exploit, assetGroup);
+//            } catch (DBException &e) {
+//                cerr << e.what() << endl; // If theres an error, just print and quit abruptly.
+//                abort();
+//            }
         }
     }
 
     cout << "total number of generated states: " << counter << endl;
+	cout << "states in fb_list: " << fb_list.size() << endl;
 }
 
 // Returns all applicable exploits to some given network state.

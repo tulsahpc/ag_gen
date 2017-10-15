@@ -106,4 +106,10 @@ void Factbase::print() const {
     cout << "HASH: " << hash() << endl;
     cout << "Qualities: " << qualities.size() << endl;
     cout << "Topologies: " << topologies.size() << endl << endl;
+    for(auto &qual : qualities) {
+		qual.print();
+	}
+	for(auto &topo : topologies) {
+		topo.print();
+	}
 }

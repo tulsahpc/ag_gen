@@ -59,8 +59,9 @@ int main(int argc, char *argv[]) {
 
     Factbase fb;
     fb.populate();
-    fb.hash();
-    fb.save();
+//    fb.print();
+//    fb.hash();
+//    fb.save();
 
     NetworkState initial_state(fb);
 

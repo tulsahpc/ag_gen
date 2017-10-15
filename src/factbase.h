@@ -17,23 +17,18 @@ class Factbase {
 
 public:
     void populate();
-
     void save();
 
     bool find_quality(Quality &) const;
-
     bool find_topology(Topology &) const;
 
     void add_quality(Quality);
-
     void add_topology(Topology);
 
     bool exists_in_db();
 
     void print() const;
-
     int get_id() const;
-
     size_t hash() const;
 };
 
