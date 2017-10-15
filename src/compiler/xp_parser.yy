@@ -92,7 +92,7 @@ direction:
 int main(int argc, char** argv) {
     FILE* file;
     if(argv[1] == 0) {
-        file = fopen("../examples/SystemV8.nm", "r");
+        file = fopen("../examples/SystemV8.xp", "r");
     } else {
         file = fopen(argv[1], "r");
     }
