@@ -26,7 +26,7 @@ AGGen::AGGen(NetworkState initial_state) :
 void AGGen::generate() {
     auto counter = 0;
     while (!frontier.empty()) {
-//        cout << "Frontier Size: " << frontier.size() << endl;
+        cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
         auto next_state = frontier.front();
         auto current_factbase = next_state.get_factbase();

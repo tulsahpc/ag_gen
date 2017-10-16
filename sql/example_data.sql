@@ -38,7 +38,7 @@ INSERT INTO quality VALUES
   (2, 'type', '=', 'router'),
   (2, 'version', '=', '1.5'),
   (3, 'type', '=', 'router'),
-  (3, 'version', '=', '1.6'),
+  (3, 'version', '=', '1.4'),
 
   (4, 'type', '=', 'laptop'),
   (4, 'os', '=', 'winxp'),
@@ -163,8 +163,8 @@ INSERT INTO exploit VALUES
   (DEFAULT, 'adobereader_vuln', 1),
   (DEFAULT, 'photoshop_vuln', 1),
   (DEFAULT, 'kindle_vuln', 1),
-  (DEFAULT, 'light_vuln', 1);
---   (DEFAULT, 'hacked', 1);
+--   (DEFAULT, 'light_vuln', 1),
+  (DEFAULT, 'hacked', 1);
 
 INSERT INTO exploit_precondition VALUES
   (DEFAULT, 1, 0, 1, NULL, 'type', 'router', '=', NULL),
@@ -184,11 +184,11 @@ INSERT INTO exploit_precondition VALUES
   (DEFAULT, 5, 0, 1, NULL, 'type', 'tablet', '=', NULL),
   (DEFAULT, 5, 0, 1, NULL, 'os', 'kindle', '=', NULL),
 
-  (DEFAULT, 6, 0, 1, NULL, 'type','smartphone', '=', NULL),
-  (DEFAULT, 6, 0, 1, NULL, 'os', 'ios', '=', NULL),
-  (DEFAULT, 6, 0, 1, NULL, 'light', 'off', '=', NULL);
+--   (DEFAULT, 6, 0, 1, NULL, 'type','smartphone', '=', NULL),
+--   (DEFAULT, 6, 0, 1, NULL, 'os', 'ios', '=', NULL),
+--   (DEFAULT, 6, 0, 1, NULL, 'light', 'off', '=', NULL),
 
---   (DEFAULT, 7, 0, 1, NULL, 'access', 'root', '=', NULL);
+  (DEFAULT, 6, 0, 1, NULL, 'access', 'root', '=', NULL);
 
 INSERT INTO exploit_postcondition VALUES
   (DEFAULT, 1, 0, 1, NULL, 'access', 'root', '=', NULL),
@@ -196,5 +196,5 @@ INSERT INTO exploit_postcondition VALUES
   (DEFAULT, 3, 0, 1, NULL, 'access', 'root', '=', NULL),
   (DEFAULT, 4, 0, 1, NULL, 'access', 'root', '=', NULL),
   (DEFAULT, 5, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 6, 0, 1, NULL, 'light', 'on', '=', NULL);
---   (DEFAULT, 7, 0, 1, NULL, 'planet', 'hacked', '=', NULL);
+--   (DEFAULT, 6, 0, 1, NULL, 'light', 'on', '=', NULL),
+  (DEFAULT, 6, 0, 1, NULL, 'planet', 'hacked', '=', NULL);
