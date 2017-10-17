@@ -18,14 +18,15 @@ class Keyvalue {
             insert(item);
         }
     }
-    
+
     template<typename U, typename = std::string>
     struct can_get_name : std::false_type {};
-    
+
     template<typename U>
     struct can_get_name<U, decltype(std::declval<U>().get_name())> : std::true_type {};
 
 public:
+	Keyvalue() : size(0) {}
     explicit Keyvalue(std::vector<T> &preList) {
         populate(preList);
     }

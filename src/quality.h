@@ -7,6 +7,9 @@
 
 #include <string>
 
+#include "network_state.h"
+#include "keyvalue.h"
+
 union EncodedQuality {
     struct {
         int asset_id : 16;
@@ -18,6 +21,8 @@ union EncodedQuality {
 };
 
 class Quality {
+	const NetworkState &parent;
+
     int asset_id;
     std::string name;
     std::string op;
@@ -26,8 +31,8 @@ class Quality {
     friend class Factbase;
 
 public:
-    Quality(int assetId, std::string qualName, std::string op, std::string qualValue);
-    explicit Quality(size_t fact);
+    Quality(const NetworkState &ns, int assetId, std::string qualName, std::string op, std::string qualValue);
+	Quality(const NetworkState &ns, size_t fact);
 
     std::string get_name();
     std::string get_op();
@@ -39,9 +44,7 @@ public:
     bool operator==(const Quality &rhs) const;
     bool operator<(const Quality &rhs) const;
 
-    static std::vector<Quality> fetch_all();
-    static std::vector<std::string> fetch_all_attributes();
-    static std::vector<std::string> fetch_all_values();
+    static std::vector<Quality> fetch_all(const NetworkState &ns);
 };
 
 #endif //AG_GEN_QUALITY_H

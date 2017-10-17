@@ -8,18 +8,20 @@
 #include "quality.h"
 
 class Asset {
+	const NetworkState &parent;
+
 	int id;
 	int network_id;
 	std::string name;
 	std::vector<Quality> qualities;
-	
+
 public:
-	Asset(int iid, int netid, std::string nname);
-	
+	Asset(const NetworkState &ns, int iid, int netid, std::string nname);
+
 	std::string get_name() {
 		return name;
 	}
-	
+
     void fetch_qualities();
     static std::vector<Asset> fetch_all(std::string network);
 };

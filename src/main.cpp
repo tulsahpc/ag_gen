@@ -57,13 +57,7 @@ int main(int argc, char *argv[]) {
     Config config("config.txt");
     db = make_shared<DB>(config.db_string());
 
-    Factbase fb;
-    fb.populate();
-//    fb.print();
-//    fb.hash();
-//    fb.save();
-
-    NetworkState initial_state(fb);
+    NetworkState initial_state {};
 
     AGGen generator(initial_state);
     generator.generate();

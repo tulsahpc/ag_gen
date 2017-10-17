@@ -8,18 +8,18 @@
 
 using namespace std;
 
+vector<string> Topology::all_attrs {};
+vector<string> Topology::all_vals {};
+
+//Keyvalue<string> Topology::attrs_kv;
+//Keyvalue<string> Topology::vals_kv;
+
 Topology::Topology(int f_asset, int t_asset, string &dir,
                    string &property, string &op, string &val) :
         from_asset_id(f_asset), to_asset_id(t_asset), property(property),
         op(op), value(val), dir(dir) {}
 
 Topology::Topology(size_t fact) {
-    vector<string> attrs = fetch_all_attributes();
-    vector<string> vals = fetch_all_values();
-
-    Keyvalue<string> attrs_kv(attrs);
-    Keyvalue<string> vals_kv(vals);
-
     EncodedTopology eTopo;
     eTopo.enc = fact;
 
@@ -40,13 +40,7 @@ int Topology::get_to_asset_id() const {
 }
 
 const EncodedTopology Topology::encode() const {
-    vector<string> attrs = fetch_all_attributes();
-    vector<string> vals = fetch_all_values();
-
-    Keyvalue<string> attrs_kv(attrs);
-    Keyvalue<string> vals_kv(vals);
-
-    EncodedTopology topo;
+	EncodedTopology topo;
 
     topo.dec.from_asset = from_asset_id;
     topo.dec.to_asset = to_asset_id;
@@ -58,28 +52,26 @@ const EncodedTopology Topology::encode() const {
     return topo;
 }
 
-vector<string> Topology::fetch_all_attributes() {
-    vector<string> attrs;
+void Topology::fetch_all_attributes() {
     vector<DB::Row> rows = db->exec("SELECT DISTINCT property FROM topology;");
 
     for (auto &row : rows) {
         string prop = row[0];
-        attrs.push_back(prop);
+        all_attrs.push_back(prop);
     }
 
-    return attrs;
+	attrs_kv = Keyvalue<string> {all_attrs};
 }
 
-vector<string> Topology::fetch_all_values() {
-    vector<string> vals;
+void Topology::fetch_all_values() {
     vector<DB::Row> rows = db->exec("SELECT DISTINCT value FROM topology;");
 
     for (auto &row : rows) {
         string val = row[0];
-        vals.push_back(val);
+        all_vals.push_back(val);
     }
 
-    return vals;
+	vals_kv = Keyvalue<string> {all_vals};
 }
 
 vector<Topology> Topology::fetch_all() {
@@ -126,18 +118,18 @@ bool Topology::operator<(const Topology &rhs) const {
     return (this->encode().enc < rhs.encode().enc);
 }
 
-const string &Topology::getProperty() const {
+string Topology::getProperty() const {
     return property;
 }
 
-const string &Topology::getOp() const {
+string Topology::getOp() const {
     return op;
 }
 
-const string &Topology::getValue() const {
+string Topology::getValue() const {
     return value;
 }
 
-const string &Topology::getDir() const {
+string Topology::getDir() const {
     return dir;
 }

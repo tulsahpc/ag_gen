@@ -3,11 +3,12 @@ project(ag_gen)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG_BUILD")
-
 find_package(BISON)
 find_package(FLEX)
+
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -DDEBUG_BUILD")
 
 BISON_TARGET(nm_parser src/compiler/nm_parser.yy
     ${CMAKE_CURRENT_BINARY_DIR}/nm_parser.c
@@ -16,7 +17,9 @@ FLEX_TARGET(nm_scanner src/compiler/nm_scanner.l
     ${CMAKE_CURRENT_BINARY_DIR}/nm_scanner.c)
 ADD_FLEX_BISON_DEPENDENCY(nm_scanner nm_parser)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/src/compiler)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_SOURCE_DIR}/src/compiler)
+
 add_executable(nm_test
     ${FLEX_nm_scanner_OUTPUTS}
     ${BISON_nm_parser_OUTPUTS}

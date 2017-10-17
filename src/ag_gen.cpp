@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <mutex>
 
 #include "ag_gen.h"
 #include "util_odometer.h"
@@ -14,9 +15,7 @@ using namespace std;
 // The AGGen constructor creates a new AGGen object and takes the given NetworkState and sets it as the
 // initial network state for generation by pushing it onto the new AGGen object's frontier vector.
 AGGen::AGGen(NetworkState initial_state) :
-        assets(Asset::fetch_all("home")),
-        attrs(Quality::fetch_all_attributes()),
-        vals(Quality::fetch_all_values()) {
+        assets(Asset::fetch_all("home")) {
     frontier.emplace_back(initial_state);
 }
 
@@ -31,7 +30,7 @@ void AGGen::generate() {
         auto next_state = frontier.front();
         auto current_factbase = next_state.get_factbase();
         frontier.pop_front();
-		
+
         // Save the initial state's hash value
         fb_list[current_factbase.hash()] = current_factbase;
 
@@ -47,7 +46,7 @@ void AGGen::generate() {
 
             // We generate the associated post conditions and extract the new qualities and topologies that
             // will be applied to the current factbase.
-            auto postconditions = createPostConditions(e);
+            auto postconditions = createPostConditions(next_state, e);
             auto qualities = get<0>(postconditions);
             auto topologies = get<1>(postconditions);
 
@@ -67,7 +66,7 @@ void AGGen::generate() {
                     factbase.add_topology(topo);
                 }
             }
-			
+
 			if(fb_list.find(factbase.hash()) != fb_list.end())
 				continue;
 
@@ -106,13 +105,19 @@ vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(const NetworkState &s)
     vector<tuple<Exploit, AssetGroup> > appl_exploit_list;
     auto exploit_list = Exploit::fetch_all();
 
-    for (auto e : exploit_list) {
-        auto asset_groups = gen_hypo_facts(s, e);
+//	mutex deque_lock;
+
+//#pragma omp parallel for
+    for (auto e = exploit_list.begin(); e < exploit_list.end(); e++) {
+        auto asset_groups = gen_hypo_facts(s, *e);
         for (auto asset_group : asset_groups) {
             // Each quality must exist. If not, discard asset_group entirely.
             auto applicable = check_assetgroup(s, asset_group);
             if (applicable) {
-                appl_exploit_list.push_back(make_tuple(e, asset_group));
+				{
+//					lock_guard<mutex> lock(deque_lock);
+					appl_exploit_list.push_back(make_tuple(*e, asset_group));
+				}
             }
         }
     }
@@ -156,7 +161,7 @@ vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
         vector<Topology> asset_group_topos;
 
         for (auto precond : preconds_q) {
-            Quality q(perm[precond.get_param_num()], precond.name, "=", precond.value);
+            Quality q(s, perm[precond.get_param_num()], precond.name, "=", precond.value);
             asset_group_quals.push_back(q);
         }
 
@@ -185,7 +190,7 @@ vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
 // list of the given exploit and creates a new quality/topology from the current one and the given asset
 // group's perm for each item in the list. It returns the postconditions as tuple of a vector of the new
 // qualities and a vector of the new topologies.
-tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(tuple<Exploit, AssetGroup> group) {
+tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(const NetworkState &s, tuple<Exploit, AssetGroup> group) {
     auto ex = get<0>(group);
     auto ag = get<1>(group);
 
@@ -198,7 +203,7 @@ tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(tuple<Expl
     vector<Topology> postconds_t;
 
     for (auto postcond : param_postconds_q) {
-        Quality q(perm[postcond.get_param_num()], postcond.name, "=", postcond.value);
+        Quality q(s, perm[postcond.get_param_num()], postcond.name, "=", postcond.value);
         postconds_q.push_back(q);
     }
 
