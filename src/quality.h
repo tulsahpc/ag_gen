@@ -5,10 +5,7 @@
 #ifndef AG_GEN_QUALITY_H
 #define AG_GEN_QUALITY_H
 
-#include <string>
-
 #include "network_state.h"
-#include "keyvalue.h"
 
 union EncodedQuality {
     struct {
@@ -21,18 +18,19 @@ union EncodedQuality {
 };
 
 class Quality {
-	const NetworkState &parent;
+	NetworkState parent;
 
     int asset_id;
     std::string name;
     std::string op;
     std::string value;
 
-    friend class Factbase;
-
 public:
-    Quality(const NetworkState &ns, int assetId, std::string qualName, std::string op, std::string qualValue);
-	Quality(const NetworkState &ns, size_t fact);
+	
+    Quality(const NetworkState &ns, int asset, std::string qualName,
+			std::string op, std::string qualValue);
+
+	//Quality(const NetworkState &ns, size_t fact);
 
     std::string get_name();
     std::string get_op();
@@ -40,6 +38,7 @@ public:
     void print() const;
 
     EncodedQuality encode() const;
+	void decode(size_t fact);
 
     bool operator==(const Quality &rhs) const;
     bool operator<(const Quality &rhs) const;

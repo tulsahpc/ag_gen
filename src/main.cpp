@@ -5,8 +5,8 @@
 #include <getopt.h>
 
 #include "ag_gen.h"
-#include "util_db.h"
 #include "config.h"
+#include "util_db.h"
 
 using namespace std;
 

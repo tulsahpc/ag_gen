@@ -14,15 +14,15 @@ Edge::Edge(int iFrom, int iTo, Exploit &ex, AssetGroup &ag) : from_node(iFrom), 
     id = 0;
 }
 
-int Edge::get_id() {
+int Edge::get_id() const {
     return id;
 }
 
-bool Edge::exists_in_db() {
+bool Edge::exists_in_db() const {
     vector<DB::Row> rows = db->exec(
             "SELECT 1 FROM edge WHERE from_node = " + to_string(from_node) + " AND to_node = " + to_string(to_node) +
             " AND exploit_id = " + to_string(exploit.get_id()) + ";");
-    if (rows.size() > 0) {
+    if (!rows.empty()) {
         return true;
     } else {
         return false;

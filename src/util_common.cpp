@@ -49,7 +49,7 @@ vector<int> base_convert_int(int num, int base) {
     return str;
 }
 
-vector<int> base_convert(string num, int from, int to) {
+vector<int> base_convert(string &num, int from, int to) {
     return base_convert_int(base_convert_string(num, from), to);
 }
 
@@ -71,8 +71,8 @@ string trim(string str) {
 // Always free the string when no longer required
 char *dynstr(const char *str) {
     size_t str_len = strlen(str);
-    char *new_str = (char *) malloc(sizeof(char) * (str_len + 1));
-    if (new_str == NULL)
+    auto new_str = (char *) malloc(sizeof(char) * (str_len + 1));
+    if (new_str == nullptr)
         return (char *) -1;
 
     strncpy(new_str, str, str_len);

@@ -9,16 +9,6 @@
 
 using namespace std;
 
-// default constructor that creates a NetworkState object with a zero-value Factbase
-NetworkState::NetworkState() : factbase({}) {
-	factbase.populate();
-	init_qualities();
-}
-
-NetworkState::NetworkState(Factbase &fb) : factbase(fb) {
-	init_qualities();
-}
-
 Factbase NetworkState::get_factbase() const {
     return factbase;
 }

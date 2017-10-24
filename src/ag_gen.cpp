@@ -3,19 +3,18 @@
 
 #include <iostream>
 #include <vector>
-#include <mutex>
 
 #include "ag_gen.h"
+#include "quality.h"
+
 #include "util_odometer.h"
-#include "util_db.h"
-#include "edge.h"
 
 using namespace std;
 
 // The AGGen constructor creates a new AGGen object and takes the given NetworkState and sets it as the
 // initial network state for generation by pushing it onto the new AGGen object's frontier vector.
 AGGen::AGGen(NetworkState initial_state) :
-        assets(Asset::fetch_all("home")) {
+        assets(Asset::fetch_all(initial_state, "home")) {
     frontier.emplace_back(initial_state);
 }
 
@@ -160,8 +159,8 @@ vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
         vector<Quality> asset_group_quals;
         vector<Topology> asset_group_topos;
 
-        for (auto precond : preconds_q) {
-            Quality q(s, perm[precond.get_param_num()], precond.name, "=", precond.value);
+        for (auto &precond : preconds_q) {
+            Quality q {s, perm[precond.get_param_num()], precond.name, "=", precond.value};
             asset_group_quals.push_back(q);
         }
 
@@ -202,8 +201,8 @@ tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(const Netw
     vector<Quality> postconds_q;
     vector<Topology> postconds_t;
 
-    for (auto postcond : param_postconds_q) {
-        Quality q(s, perm[postcond.get_param_num()], postcond.name, "=", postcond.value);
+    for (auto &postcond : param_postconds_q) {
+        Quality q {s, perm[postcond.get_param_num()], postcond.name, "=", postcond.value};
         postconds_q.push_back(q);
     }
 

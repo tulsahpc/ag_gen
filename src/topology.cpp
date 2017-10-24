@@ -1,18 +1,12 @@
 #include <iostream>
 #include <vector>
 
-
-#include "keyvalue.h"
 #include "topology.h"
+#include "keyvalue.h"
+
 #include "util_db.h"
 
 using namespace std;
-
-vector<string> Topology::all_attrs {};
-vector<string> Topology::all_vals {};
-
-//Keyvalue<string> Topology::attrs_kv;
-//Keyvalue<string> Topology::vals_kv;
 
 Topology::Topology(int f_asset, int t_asset, string &dir,
                    string &property, string &op, string &val) :
@@ -20,6 +14,9 @@ Topology::Topology(int f_asset, int t_asset, string &dir,
         op(op), value(val), dir(dir) {}
 
 Topology::Topology(size_t fact) {
+    Keyvalue<string> attrs_kv {fetch_all_attributes()};
+	Keyvalue<string> vals_kv {fetch_all_values()};
+	
     EncodedTopology eTopo;
     eTopo.enc = fact;
 
@@ -40,6 +37,9 @@ int Topology::get_to_asset_id() const {
 }
 
 const EncodedTopology Topology::encode() const {
+	Keyvalue<string> attrs_kv {fetch_all_attributes()};
+	Keyvalue<string> vals_kv {fetch_all_values()};
+	
 	EncodedTopology topo;
 
     topo.dec.from_asset = from_asset_id;
@@ -52,26 +52,28 @@ const EncodedTopology Topology::encode() const {
     return topo;
 }
 
-void Topology::fetch_all_attributes() {
+vector<string> Topology::fetch_all_attributes() {
     vector<DB::Row> rows = db->exec("SELECT DISTINCT property FROM topology;");
-
+	vector<string> all_attrs;
+	
     for (auto &row : rows) {
         string prop = row[0];
         all_attrs.push_back(prop);
     }
-
-	attrs_kv = Keyvalue<string> {all_attrs};
+	
+	return all_attrs;
 }
 
-void Topology::fetch_all_values() {
+vector<string> Topology::fetch_all_values() {
     vector<DB::Row> rows = db->exec("SELECT DISTINCT value FROM topology;");
-
-    for (auto &row : rows) {
+	vector<string> all_vals;
+ 
+	for (auto &row : rows) {
         string val = row[0];
         all_vals.push_back(val);
     }
 
-	vals_kv = Keyvalue<string> {all_vals};
+	return all_vals;
 }
 
 vector<Topology> Topology::fetch_all() {

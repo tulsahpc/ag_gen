@@ -83,7 +83,7 @@ private:
             int numrows = PQntuples(res);
             int numfields = PQnfields(res);
             for (auto i = 0; i < numrows; i++) {
-                Row new_row;
+                Row new_row(numfields);
                 for (auto j = 0; j < numfields; j++) {
                     new_row.push_back(PQgetvalue(res, i, j));
                 }

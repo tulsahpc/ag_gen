@@ -41,6 +41,8 @@ public:
     const EncodedTopology encode() const;
 
     static std::vector<Topology> fetch_all();
+	static std::vector<std::string> fetch_all_attributes();
+	static std::vector<std::string> fetch_all_values();
 };
 
 #endif //AG_GEN_TOPOLOGY_H

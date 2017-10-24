@@ -2,23 +2,13 @@
 #include <vector>
 
 #include "quality.h"
-#include "util_db.h"
 #include "network_state.h"
+#include "util_db.h"
 
 using namespace std;
 
 Quality::Quality(const NetworkState &ns, int asset, string qualName, string op, string qualValue) :
-        parent(ns), asset_id(asset), name(move(qualName)), value(move(qualValue)) {}
-
-Quality::Quality(const NetworkState &ns, size_t fact) : parent(ns) {
-    EncodedQuality eQual{};
-    eQual.enc = fact;
-
-    asset_id = eQual.dec.asset_id;
-    name = eQual.dec.attr;
-    op = eQual.dec.op;
-    value = eQual.dec.val;
-}
+        parent(ns), asset_id(asset), name(move(qualName)), op(move(op)), value(move(qualValue)) {}
 
 string Quality::get_name() {
     return name;
@@ -28,8 +18,18 @@ string Quality::get_op() {
     return op;
 }
 
+void Quality::decode(size_t fact) {
+    EncodedQuality eQual{};
+    eQual.enc = fact;
+    
+    asset_id = eQual.dec.asset_id;
+    name = eQual.dec.attr;
+    op = eQual.dec.op;
+    value = eQual.dec.val;
+}
+
 EncodedQuality Quality::encode() const {
-    EncodedQuality qual;
+    EncodedQuality qual {};
     qual.dec.asset_id = asset_id;
     qual.dec.attr = parent.attrs_kv[name];
     qual.dec.val = parent.vals_kv[value];

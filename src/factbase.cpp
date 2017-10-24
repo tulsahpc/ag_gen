@@ -3,16 +3,14 @@
 
 #include <iostream>
 #include <vector>
-#include <algorithm>
 
 #include "factbase.h"
 #include "util_db.h"
-#include "util_common.h"
 
 using namespace std;
 
-void Factbase::populate() {
-    qualities = Quality::fetch_all();
+void Factbase::populate(const NetworkState &ns) {
+    qualities = Quality::fetch_all(ns);
     topologies = Topology::fetch_all();
 }
 

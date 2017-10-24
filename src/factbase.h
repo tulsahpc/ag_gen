@@ -2,13 +2,13 @@
 #define FACTBASE_HPP
 
 #include <vector>
-#include <functional>
-#include <cstdint>
 
+#include "network_state.h"
 #include "quality.h"
 #include "topology.h"
 
-struct FactbaseHash;
+class Quality;
+class NetworkState;
 
 class Factbase {
     int id;
@@ -16,19 +16,19 @@ class Factbase {
     std::vector<Topology> topologies;
 
 public:
-    void populate();
+    void populate(const NetworkState &ns);
     void save();
 
     bool find_quality(Quality &) const;
     bool find_topology(Topology &) const;
 
-    void add_quality(Quality);
-    void add_topology(Topology);
+    void add_quality(Quality q);
+    void add_topology(Topology t);
+	bool exists_in_db();
+	
+	void print() const;
+	int get_id() const;
 
-    bool exists_in_db();
-
-    void print() const;
-    int get_id() const;
     size_t hash() const;
 };
 

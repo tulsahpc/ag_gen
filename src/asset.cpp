@@ -36,7 +36,7 @@ void Asset::fetch_qualities()
 
 // fetch_all grabs all of the Assets in the database under the network given in the argument and returns a
 // vector of those Assets
-vector<Asset> Asset::fetch_all(string network) {
+vector<Asset> Asset::fetch_all(const NetworkState &s, string network) {
 	vector<DB::Row> rows = db->exec("SELECT * FROM asset WHERE network_id = (SELECT id FROM network WHERE name = '" + network + "');");
 	vector<Asset> new_assets;
 
@@ -45,7 +45,7 @@ vector<Asset> Asset::fetch_all(string network) {
 		string name = row[1];
 		int network_id = stoi(row[2]);
 
-		Asset asset(id, network_id, name);
+		Asset asset {s, id, network_id, name};
 		asset.fetch_qualities();
 
 		new_assets.push_back(asset);

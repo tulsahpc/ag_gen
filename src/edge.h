@@ -17,14 +17,10 @@ class Edge {
 
 public:
     Edge(int, int, Exploit &, AssetGroup &);
-
-    void save(void);
-
-    int new_id(void);
-
-    int get_id(void);
-
-    bool exists_in_db(void);
+	int get_id() const;
+	bool exists_in_db() const;
+	
+    void save();
 };
 
 #endif //AG_GEN_EDGE_H
