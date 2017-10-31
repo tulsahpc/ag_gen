@@ -29,13 +29,7 @@ string Quality::get_op() {
     return op;
 }
 
-EncodedQuality Quality::encode() const {
-    vector<string> attrs = fetch_all_attributes();
-    vector<string> vals = fetch_all_values();
-
-    Keyvalue<string> attrs_kv(attrs);
-    Keyvalue<string> vals_kv(vals);
-
+EncodedQuality Quality::encode(const Keyvalue &attrs_kv, const Keyvalue &vals_key) const {
     EncodedQuality qual;
     qual.dec.asset_id = asset_id;
     qual.dec.attr = attrs_kv[name];

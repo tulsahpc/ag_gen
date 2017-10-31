@@ -6,18 +6,10 @@
 #include <vector>
 #include <memory>
 
-template<typename T>
 class Keyvalue {
-    int size {0};
+    int length {0};
     std::unordered_map<std::string, int> hash_table;
     std::vector<std::string> str_vector;
-
-    void populate(std::vector<T> &list) {
-        size = list.size();
-        for (T &item : list) {
-            insert(item);
-        }
-    }
     
     template<typename U, typename = std::string>
     struct can_get_name : std::false_type {};
@@ -26,28 +18,21 @@ class Keyvalue {
     struct can_get_name<U, decltype(std::declval<U>().get_name())> : std::true_type {};
 
 public:
-    explicit Keyvalue(std::vector<T> &preList) {
-        populate(preList);
-    }
-
-    explicit Keyvalue(std::vector<T> &&preList) {
-        populate(preList);
-    }
 
     template<typename U>
     typename std::enable_if<can_get_name<U>::value, void>::type
     insert(U &target) {
-        hash_table[target.get_name()] = size;
+        hash_table[target.get_name()] = length;
         str_vector.push_back(target.get_name());
-        size++;
+        length++;
     }
 
     template<typename U>
     typename std::enable_if<!can_get_name<U>::value, void>::type
     insert(U &target) {
-        hash_table[target] = size;
+        hash_table[target] = length;
         str_vector.push_back(target);
-        size++;
+        length++;
     }
 
     int operator[](const std::string &str) {
@@ -58,8 +43,8 @@ public:
         return str_vector.at(num);
     }
 
-    int length() {
-        return size;
+    int size() const {
+        return length;
     }
 };
 

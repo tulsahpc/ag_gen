@@ -3,13 +3,27 @@
 #ifndef NETWORK_STATE_H
 #define NETWORK_STATE_H
 
+#include "quality.h"
+#include "topology.h"
 #include "factbase.h"
+#include "keyvalue.h"
 
 class NetworkState {
     Factbase factbase;
+
+    Keyvalue assets;
+    std::vector<std::string> all_attrs;
+    std::vector<std::string> all_vals;
+
+    Keyvalue kv_qual;
+    Keyvalue kv_topo;
 public:
-    explicit NetworkState(Factbase &fb);
     Factbase get_factbase() const;
+    size_t get_num_assets() const;
+    size_t get_hash() const;
+
+    void add_qualities(std::vector<Quality> q);
+    void add_topologies(std::vector<Topology> t);
 };
 
 #endif

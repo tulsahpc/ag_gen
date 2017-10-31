@@ -6,6 +6,7 @@
 #define AG_GEN_QUALITY_H
 
 #include <string>
+#include "keyvalue.h"
 
 union EncodedQuality {
     struct {
@@ -34,7 +35,7 @@ public:
 
     void print() const;
 
-    EncodedQuality encode() const;
+    EncodedQuality encode(const Keyvalue &kv_attrs, const Keyvalue &kv_vals) const;
 
     bool operator==(const Quality &rhs) const;
     bool operator<(const Quality &rhs) const;

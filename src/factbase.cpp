@@ -5,15 +5,17 @@
 #include <vector>
 #include <algorithm>
 
+#include "network_state.h"
 #include "factbase.h"
 #include "util_db.h"
 #include "util_common.h"
 
 using namespace std;
 
-void Factbase::populate() {
-    qualities = Quality::fetch_all();
-    topologies = Topology::fetch_all();
+Factbase::Factbase() : qualities(Quality::fetch_all()), topologies(Topology::fetch_all()) {}
+
+void Factbase::set_parent(const NetworkState &ns) {
+    parent = &ns;
 }
 
 int Factbase::get_id() const {
@@ -69,9 +71,9 @@ void Factbase::save() {
 
     // XXX: There has to be a better way to do this
     string insert_sql = "INSERT INTO factbase_item VALUES ";
-    insert_sql += "(" + to_string(id) + "," + to_string(qualities[0].encode().enc) + ",'quality')";
+    insert_sql += "(" + to_string(id) + "," + to_string(qualities[0].encode(parent->kv_qual).enc) + ",'quality')";
     for (int i = 1; i < qualities.size(); i++) {
-        insert_sql += ",(" + to_string(id) + "," + to_string(qualities[i].encode().enc) + ",'quality')";
+        insert_sql += ",(" + to_string(id) + "," + to_string(qualities[i].encode(parent->kv_attrs, parent->kv_vals).enc) + ",'quality')";
     }
     for (int i = 0; i < topologies.size(); i++) {
         insert_sql += ",(" + to_string(id) + "," + to_string(topologies[i].encode().enc) + ",'topology')";
@@ -94,7 +96,7 @@ size_t Factbase::hash() const {
     //  size_t hash = 0xf848b64e; // Random seed value
     size_t hash = 0x0c32a12fe19d2119;
     for (auto &qual : qualities) {
-        hash ^= combine(qual.encode().enc);
+        hash ^= combine(qual.encode(parent->kv_attrs, parent->kv_vals).enc);
     }
     for (auto &topo : topologies) {
         hash ^= combine(topo.encode().enc);

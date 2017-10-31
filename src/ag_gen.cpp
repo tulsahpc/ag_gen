@@ -14,10 +14,7 @@ using namespace std;
 
 // The AGGen constructor creates a new AGGen object and takes the given NetworkState and sets it as the
 // initial network state for generation by pushing it onto the new AGGen object's frontier vector.
-AGGen::AGGen(NetworkState initial_state) :
-        assets(Asset::fetch_all("home")),
-        attrs(Quality::fetch_all_attributes()),
-        vals(Quality::fetch_all_values()) {
+AGGen::AGGen(NetworkState initial_state) {
     frontier.emplace_back(initial_state);
 }
 
@@ -29,15 +26,14 @@ void AGGen::generate() {
     while (!frontier.empty()) {
         cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
-        auto next_state = frontier.front();
-        auto current_factbase = next_state.get_factbase();
+        auto current_state = frontier.front();
         frontier.pop_front();
 		
         // Save the initial state's hash value
-        fb_list[current_factbase.hash()] = current_factbase;
+        // state_list[current_state.hash()] = current_state;
 
         // Get all applicable exploits with this network state
-        auto appl_exploits = check_exploits(next_state);
+        auto appl_exploits = check_exploits(current_state);
 
         // Apply each exploit to the network state to generate new network states
         for (auto e : appl_exploits) {
@@ -53,28 +49,16 @@ void AGGen::generate() {
             auto topologies = get<1>(postconditions);
 
             // Deep copy the factbase so we can create a new network state
-            Factbase factbase(current_factbase);
+            NetworkState new_state {current_state};
 
-            // For each quality, check if it already exists in the factbase. If it does not already exist, we add it.
-            for (auto &qual : qualities) {
-                if (!factbase.find_quality(qual)) {
-                    factbase.add_quality(qual);
-                }
-            }
-
-            // For each topology, check if it already exists in the factbase. If it does not already exist, we add it.
-            for (auto &topo : topologies) {
-                if (!factbase.find_topology(topo)) {
-                    factbase.add_topology(topo);
-                }
-            }
+            new_state.add_qualities(qualities);
+            new_state.add_topologies(topologies);
 			
-			if(fb_list.find(factbase.hash()) != fb_list.end())
+			if(state_list.find(new_state.get_hash()) != state_list.end())
 				continue;
 
-			fb_list[factbase.hash()] = factbase;
-			frontier.emplace_front(factbase);
-//			factbase.print();
+			state_list[new_state.get_hash()] = new_state;
+			frontier.emplace_front(new_state);
 			counter++;
 
             // Save our new factbase to the database. Generate any new edges to the new network state from already
@@ -99,7 +83,7 @@ void AGGen::generate() {
     }
 
     cout << "total number of generated states: " << counter << endl;
-	cout << "states in fb_list: " << fb_list.size() << endl;
+	cout << "states in state_list: " << state_list.size() << endl;
 }
 
 // Returns all applicable exploits to some given network state.
@@ -141,7 +125,7 @@ bool AGGen::check_assetgroup(const NetworkState &s, const AssetGroup &assetgroup
 // Generate all possible permutations with repetition of the asset bindings for the
 // number of parameters needed by the exploit.
 vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
-    auto num_assets = assets.length();
+    auto num_assets = s.get_num_assets();
     auto num_params = e.get_num_params();
 
     auto preconds_q = e.precond_list_q();

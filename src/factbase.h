@@ -8,13 +8,18 @@
 #include "quality.h"
 #include "topology.h"
 
-struct FactbaseHash;
-
+class NetworkState;
 class Factbase {
+    const NetworkState *parent;
+
     int id;
     std::vector<Quality> qualities;
     std::vector<Topology> topologies;
 
+    Factbase();
+    void set_parent(const NetworkState &ns);
+
+    friend class NetworkState;
 public:
     void populate();
     void save();
