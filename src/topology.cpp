@@ -8,28 +8,22 @@
 
 using namespace std;
 
-Topology::Topology(int f_asset, int t_asset, string &dir,
-                   string &property, string &op, string &val) :
-        from_asset_id(f_asset), to_asset_id(t_asset), property(property),
-        op(op), value(val), dir(dir) {}
+Topology::Topology(int f_asset, int t_asset, string dir,
+                   string property, string op, string val) :
+        from_asset_id(f_asset), to_asset_id(t_asset), property(move(property)),
+        op(move(op)), value(move(val)), dir(move(dir)) {}
 
-Topology::Topology(size_t fact) {
-    vector<string> attrs = fetch_all_attributes();
-    vector<string> vals = fetch_all_values();
+// Topology::Topology(size_t fact) {
+//     EncodedTopology eTopo;
+//     eTopo.enc = fact;
 
-    Keyvalue<string> attrs_kv(attrs);
-    Keyvalue<string> vals_kv(vals);
-
-    EncodedTopology eTopo;
-    eTopo.enc = fact;
-
-    from_asset_id = eTopo.dec.from_asset;
-    to_asset_id = eTopo.dec.to_asset;
-    property = attrs_kv[eTopo.dec.property];
-    op = "=";
-    value = vals_kv[eTopo.dec.value];
-    dir = "->";
-}
+//     from_asset_id = eTopo.dec.from_asset;
+//     to_asset_id = eTopo.dec.to_asset;
+//     property = attrs_kv[eTopo.dec.property];
+//     op = "=";
+//     value = vals_kv[eTopo.dec.value];
+//     dir = "->";
+// }
 
 int Topology::get_from_asset_id() const {
     return from_asset_id;
@@ -39,24 +33,59 @@ int Topology::get_to_asset_id() const {
     return to_asset_id;
 }
 
-const EncodedTopology Topology::encode() const {
-    vector<string> attrs = fetch_all_attributes();
-    vector<string> vals = fetch_all_values();
+string Topology::get_property() const {
+    return property;
+}
 
-    Keyvalue<string> attrs_kv(attrs);
-    Keyvalue<string> vals_kv(vals);
+string Topology::get_op() const {
+    return op;
+}
 
+string Topology::get_value() const {
+    return value;
+}
+
+string Topology::get_dir() const {
+    return dir;
+}
+
+void Topology::print() const {
+    cout << to_string(from_asset_id) + " " + dir + " " + to_string(to_asset_id) + ": " +
+            property + " " + op + " " + value << endl;
+}
+
+const EncodedTopology Topology::encode(const Keyvalue &kv_facts) const {
     EncodedTopology topo;
 
     topo.dec.from_asset = from_asset_id;
     topo.dec.to_asset = to_asset_id;
     topo.dec.dir = 0; // Assuming only one direction for now
-    topo.dec.property = attrs_kv[property];
+    topo.dec.property = kv_facts[property];
     topo.dec.op = 0; //Assuming only one operation for now
-    topo.dec.value = vals_kv[value];
+    topo.dec.value = kv_facts[value];
 
     return topo;
 }
+
+bool Topology::operator==(const Topology &rhs) const {
+    if (this->from_asset_id != rhs.from_asset_id)
+        return false;
+    if (this->to_asset_id != rhs.to_asset_id)
+        return false;
+    if (this->dir != rhs.dir)
+        return false;
+    if (this->property != rhs.property)
+        return false;
+    if (this->op != rhs.op)
+        return false;
+    if (this->value != rhs.value)
+        return false;
+    return true;
+}
+
+// bool Topology::operator<(const Topology &rhs) const {
+//     return (this->encode().enc < rhs.encode().enc);
+// }
 
 vector<string> Topology::fetch_all_attributes() {
     vector<string> attrs;
@@ -99,45 +128,4 @@ vector<Topology> Topology::fetch_all() {
     }
 
     return topologies;
-}
-
-void Topology::print() const {
-    cout << to_string(from_asset_id) + " " + dir + " " + to_string(to_asset_id) + ": " +
-            property + " " + op + " " + value << endl;
-}
-
-bool Topology::operator==(const Topology &rhs) const {
-    if (this->from_asset_id != rhs.from_asset_id)
-        return false;
-    if (this->to_asset_id != rhs.to_asset_id)
-        return false;
-    if (this->dir != rhs.dir)
-        return false;
-    if (this->property != rhs.property)
-        return false;
-    if (this->op != rhs.op)
-        return false;
-    if (this->value != rhs.value)
-        return false;
-    return true;
-}
-
-bool Topology::operator<(const Topology &rhs) const {
-    return (this->encode().enc < rhs.encode().enc);
-}
-
-const string &Topology::getProperty() const {
-    return property;
-}
-
-const string &Topology::getOp() const {
-    return op;
-}
-
-const string &Topology::getValue() const {
-    return value;
-}
-
-const string &Topology::getDir() const {
-    return dir;
 }

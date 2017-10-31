@@ -71,12 +71,12 @@ void Factbase::save() {
 
     // XXX: There has to be a better way to do this
     string insert_sql = "INSERT INTO factbase_item VALUES ";
-    insert_sql += "(" + to_string(id) + "," + to_string(qualities[0].encode(parent->kv_qual).enc) + ",'quality')";
+    insert_sql += "(" + to_string(id) + "," + to_string(qualities[0].encode(parent->kv_facts).enc) + ",'quality')";
     for (int i = 1; i < qualities.size(); i++) {
-        insert_sql += ",(" + to_string(id) + "," + to_string(qualities[i].encode(parent->kv_attrs, parent->kv_vals).enc) + ",'quality')";
+        insert_sql += ",(" + to_string(id) + "," + to_string(qualities[i].encode(parent->kv_facts).enc) + ",'quality')";
     }
     for (int i = 0; i < topologies.size(); i++) {
-        insert_sql += ",(" + to_string(id) + "," + to_string(topologies[i].encode().enc) + ",'topology')";
+        insert_sql += ",(" + to_string(id) + "," + to_string(topologies[i].encode(parent->kv_facts).enc) + ",'topology')";
     }
     insert_sql += " ON CONFLICT DO NOTHING;";
 
@@ -96,10 +96,10 @@ size_t Factbase::hash() const {
     //  size_t hash = 0xf848b64e; // Random seed value
     size_t hash = 0x0c32a12fe19d2119;
     for (auto &qual : qualities) {
-        hash ^= combine(qual.encode(parent->kv_attrs, parent->kv_vals).enc);
+        hash ^= combine(qual.encode(parent->kv_facts).enc);
     }
     for (auto &topo : topologies) {
-        hash ^= combine(topo.encode().enc);
+        hash ^= combine(topo.encode(parent->kv_facts).enc);
     }
     return hash;
 }

@@ -28,14 +28,14 @@ class Quality {
 
 public:
     Quality(int assetId, std::string qualName, std::string op, std::string qualValue);
-    explicit Quality(size_t fact);
+    // explicit Quality(size_t fact);
 
-    std::string get_name();
-    std::string get_op();
+    std::string get_name() const;
+    std::string get_op() const;
 
     void print() const;
 
-    EncodedQuality encode(const Keyvalue &kv_attrs, const Keyvalue &kv_vals) const;
+    EncodedQuality encode(const Keyvalue &kv_facts) const;
 
     bool operator==(const Quality &rhs) const;
     bool operator<(const Quality &rhs) const;

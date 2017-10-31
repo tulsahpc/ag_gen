@@ -11,29 +11,33 @@ using namespace std;
 Quality::Quality(int asset, string qualName, string op, string qualValue) :
         asset_id(asset), name(move(qualName)), value(move(qualValue)) {}
 
-Quality::Quality(size_t fact) {
-    EncodedQuality eQual{};
-    eQual.enc = fact;
+// Quality::Quality(size_t fact) {
+//     EncodedQuality eQual{};
+//     eQual.enc = fact;
 
-    asset_id = eQual.dec.asset_id;
-    name = eQual.dec.attr;
-    op = eQual.dec.op;
-    value = eQual.dec.val;
-}
+//     asset_id = eQual.dec.asset_id;
+//     name = eQual.dec.attr;
+//     op = eQual.dec.op;
+//     value = eQual.dec.val;
+// }
 
-string Quality::get_name() {
+string Quality::get_name() const {
     return name;
 }
 
-string Quality::get_op() {
+string Quality::get_op() const {
     return op;
 }
 
-EncodedQuality Quality::encode(const Keyvalue &attrs_kv, const Keyvalue &vals_key) const {
+void Quality::print() const {
+    std::cout << to_string(asset_id) + ": " + name + " => " + value << std::endl;
+}
+
+EncodedQuality Quality::encode(const Keyvalue &kv_facts) const {
     EncodedQuality qual;
     qual.dec.asset_id = asset_id;
-    qual.dec.attr = attrs_kv[name];
-    qual.dec.val = vals_kv[value];
+    qual.dec.attr = kv_facts[name];
+    qual.dec.val = kv_facts[value];
 
 //    cout << asset_id << " " << attrs_kv[name] << " " << vals_kv[value] << " - " << qual.enc << endl;
 //	cout << attrs.size() << " " << vals.size() << endl;
@@ -41,9 +45,19 @@ EncodedQuality Quality::encode(const Keyvalue &attrs_kv, const Keyvalue &vals_ke
     return qual;
 }
 
-void Quality::print() const {
-    std::cout << to_string(asset_id) + ": " + name + " => " + value << std::endl;
+bool Quality::operator==(const Quality &rhs) const {
+    if (this->asset_id != rhs.asset_id)
+        return false;
+    if (this->name != rhs.name)
+        return false;
+    if (this->value != rhs.value)
+        return false;
+    return true;
 }
+
+// bool Quality::operator<(const Quality &rhs) const {
+//     return (this->encode().enc < rhs.encode().enc);
+// }
 
 vector<Quality> Quality::fetch_all() {
     vector<Quality> qualities;
@@ -96,18 +110,4 @@ vector<string> Quality::fetch_all_values() {
     }
 
     return vals;
-}
-
-bool Quality::operator==(const Quality &rhs) const {
-    if (this->asset_id != rhs.asset_id)
-        return false;
-    if (this->name != rhs.name)
-        return false;
-    if (this->value != rhs.value)
-        return false;
-    return true;
-}
-
-bool Quality::operator<(const Quality &rhs) const {
-    return (this->encode().enc < rhs.encode().enc);
 }

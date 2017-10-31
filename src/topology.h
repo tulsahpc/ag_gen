@@ -22,19 +22,22 @@ class Topology {
     std::string value;
     std::string dir;
 
+    friend class Factbase;
+
 public:
-    Topology(int f_asset, int t_asset, std::string &dir, std::string &property, std::string &op, std::string &val);
-    explicit Topology(size_t fact);
+    Topology(int f_asset, int t_asset, std::string dir, std::string property, std::string op, std::string val);
+    // explicit Topology(size_t fact);
 
     int get_from_asset_id() const;
     int get_to_asset_id() const;
-    std::string getProperty() const;
-    std::string getOp() const;
-    std::string getValue() const;
-    std::string getDir() const;
+    std::string get_property() const;
+    std::string get_op() const;
+    std::string get_value() const;
+    std::string get_dir() const;
 
     void print() const;
-    const EncodedTopology encode() const;
+
+    const EncodedTopology encode(const Keyvalue &kv_facts) const;
 
     bool operator==(const Topology &rhs) const;
     bool operator<(const Topology &rhs) const;

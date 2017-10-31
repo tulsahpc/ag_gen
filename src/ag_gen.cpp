@@ -141,8 +141,7 @@ vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
         vector<Topology> asset_group_topos;
 
         for (auto precond : preconds_q) {
-            Quality q(perm[precond.get_param_num()], precond.name, "=", precond.value);
-            asset_group_quals.push_back(q);
+            asset_group_quals.emplace_back(perm[precond.get_param_num()], precond.name, "=", precond.value);
         }
 
         for (auto precond : preconds_t) {
@@ -151,14 +150,12 @@ vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
             auto op = precond.get_operation();
             auto val = precond.get_value();
 
-            Topology t(perm[precond.get_from_param()], perm[precond.get_to_param()], dir, prop, op, val);
-            asset_group_topos.push_back(t);
+            asset_group_topos.emplace_back(perm[precond.get_from_param()], perm[precond.get_to_param()], dir, prop, op, val);
         }
 
-        AssetGroup exploit_asset_group {asset_group_quals, asset_group_topos, perm};
-
-        asset_groups.push_back(exploit_asset_group);
+        asset_groups.emplace_back(asset_group_quals, asset_group_topos, perm);
     }
+    
     od.reset();
 
     return asset_groups;

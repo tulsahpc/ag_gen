@@ -21,7 +21,7 @@ public:
 	}
 	
     void fetch_qualities();
-    static std::vector<Asset> fetch_all(std::string network);
+    static std::vector<Asset> fetch_all(const std::string &network);
 };
 
 #endif //ASSET_HPP

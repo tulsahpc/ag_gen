@@ -27,16 +27,16 @@ void Asset::fetch_qualities()
 		string property = row[1];
 		string value = row[2];
 		
-		Quality qual(asset_id, property, "=", value);
-		qualities.push_back(qual);
+		// Quality qual(asset_id, property, "=", value);
+		// qualities.push_back(qual);
 		
-//		qualities.emplace_back(asset_id, property, "=", value);
+		qualities.emplace_back(asset_id, property, "=", value);
 	}
 }
 
 // fetch_all grabs all of the Assets in the database under the network given in the argument and returns a
 // vector of those Assets
-vector<Asset> Asset::fetch_all(string network) {
+vector<Asset> Asset::fetch_all(const string &network) {
 	vector<DB::Row> rows = db->exec("SELECT * FROM asset WHERE network_id = (SELECT id FROM network WHERE name = '" + network + "');");
 	vector<Asset> new_assets;
 	
@@ -44,13 +44,9 @@ vector<Asset> Asset::fetch_all(string network) {
 		int id = stoi(row[0]);
 		string name = row[1];
 		int network_id = stoi(row[2]);
-		
-		Asset asset(id, network_id, name);
-		asset.fetch_qualities();
 
-		new_assets.push_back(asset);
-		
-//		new_assets.emplace_back(id, network_id, name);
+		// new_assets.push_back(asset);
+		new_assets.emplace_back(id, network_id, name);
 	}
 	
 	return new_assets;

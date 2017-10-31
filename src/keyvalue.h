@@ -10,14 +10,22 @@ class Keyvalue {
     int length {0};
     std::unordered_map<std::string, int> hash_table;
     std::vector<std::string> str_vector;
-    
+
     template<typename U, typename = std::string>
     struct can_get_name : std::false_type {};
-    
+
     template<typename U>
     struct can_get_name<U, decltype(std::declval<U>().get_name())> : std::true_type {};
 
 public:
+
+    Keyvalue() =default;
+
+    void populate(std::vector<std::string> v) {
+        for(auto &s : v) {
+            insert<std::string>(s);
+        }
+    }
 
     template<typename U>
     typename std::enable_if<can_get_name<U>::value, void>::type
@@ -35,11 +43,11 @@ public:
         length++;
     }
 
-    int operator[](const std::string &str) {
-        return hash_table[str];
+    int operator[](const std::string &str) const {
+		return hash_table.at(str);
     }
 
-    std::string operator[](int num) {
+    std::string operator[](int num) const {
         return str_vector.at(num);
     }
 
