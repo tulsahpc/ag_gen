@@ -11,12 +11,15 @@ if [[ $OS = 'darwin' ]]; then
         echo "Please install homebrew first."
     fi
 elif [[ $OS = 'linux' ]]; then
-    if hash pacman  2>/dev/null; then
+    if hash pacman 2>/dev/null; then
         sudo pacman -S cmake postgresql boost cppcheck clang doxygen graphviz
     elif hash apt-get 2>/dev/null; then
         sudo apt-get -y install libboost-graph-dev postgresql postgresql-contrib \
             libpq-dev cppcheck clang valgrind doxygen graphviz cmake \
             build-essential bison flex libssl-dev
+    elif hash yum 2>/dev/null; then
+        sudo yum install cmake epel-release postgresql-devel boost-devel \
+            openssl-devel graphviz-devel bison-devel flex-devel cppcheck valgrind
     else
         echo "Your distro is currently not supported."
     fi

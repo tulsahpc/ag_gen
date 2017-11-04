@@ -36,7 +36,10 @@ void AGGen::generate() {
         auto appl_exploits = check_exploits(current_state);
 
         // Apply each exploit to the network state to generate new network states
-        for (auto e : appl_exploits) {
+        #pragma omp parallel for schedule(dynamic) num_threads(4) shared(counter) shared(state_list) shared(frontier)
+        for (int i=0; i<appl_exploits.size(); i++) {
+            auto e = appl_exploits.at(i);
+
             // For each applicable exploit, we extract which exploit applies and to which asset group it
             // applies to.
             auto exploit = get<0>(e);
@@ -56,6 +59,7 @@ void AGGen::generate() {
 			
 			if(state_list.find(new_state.get_hash()) != state_list.end())
 				continue;
+
 
 			state_list[new_state.get_hash()] = new_state;
 			frontier.emplace_front(new_state);
@@ -91,7 +95,9 @@ vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(const NetworkState &s)
     vector<tuple<Exploit, AssetGroup> > appl_exploit_list;
     auto exploit_list = Exploit::fetch_all();
 
-    for (auto e : exploit_list) {
+    //#pragma omp parallel for schedule(dynamic) num_threads(4) shared(appl_exploit_list)
+    for(int i=0; i<exploit_list.size(); i++) {
+        auto e = exploit_list.at(i);
         auto asset_groups = gen_hypo_facts(s, e);
         for (auto asset_group : asset_groups) {
             // Each quality must exist. If not, discard asset_group entirely.
@@ -103,23 +109,6 @@ vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(const NetworkState &s)
     }
 
     return appl_exploit_list;
-}
-
-// Check if an asset group binding works in the network state.
-bool AGGen::check_assetgroup(const NetworkState &s, const AssetGroup &assetgroup) {
-    for (auto quality : assetgroup.get_hypo_quals()) {
-        if (!s.get_factbase().find_quality(quality)) {
-            return false;
-        }
-    }
-
-    for (auto topology : assetgroup.get_hypo_topos()) {
-        if (!s.get_factbase().find_topology(topology)) {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 // Generate all possible permutations with repetition of the asset bindings for the
@@ -159,6 +148,23 @@ vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
     od.reset();
 
     return asset_groups;
+}
+
+// Check if an asset group binding works in the network state.
+bool AGGen::check_assetgroup(const NetworkState &s, const AssetGroup &assetgroup) {
+    for (auto quality : assetgroup.get_hypo_quals()) {
+        if (!s.get_factbase().find_quality(quality)) {
+            return false;
+        }
+    }
+
+    for (auto topology : assetgroup.get_hypo_topos()) {
+        if (!s.get_factbase().find_topology(topology)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 // createPostConditions takes a tuple of an Exploit and an AssetGroup. The function assumes the given
