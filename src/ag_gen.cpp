@@ -36,7 +36,6 @@ void AGGen::generate() {
         auto appl_exploits = check_exploits(current_state);
 
         // Apply each exploit to the network state to generate new network states
-        #pragma omp parallel for schedule(dynamic) num_threads(4) shared(counter) shared(state_list) shared(frontier)
         for (int i=0; i<appl_exploits.size(); i++) {
             auto e = appl_exploits.at(i);
 
@@ -95,7 +94,6 @@ vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(const NetworkState &s)
     vector<tuple<Exploit, AssetGroup> > appl_exploit_list;
     auto exploit_list = Exploit::fetch_all();
 
-    //#pragma omp parallel for schedule(dynamic) num_threads(4) shared(appl_exploit_list)
     for(int i=0; i<exploit_list.size(); i++) {
         auto e = exploit_list.at(i);
         auto asset_groups = gen_hypo_facts(s, e);
