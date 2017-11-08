@@ -10,6 +10,8 @@
 #include "util_db.h"
 #include "edge.h"
 
+#include "tbb/concurrent_vector.h"
+
 using namespace std;
 
 // The AGGen constructor creates a new AGGen object and takes the given NetworkState and sets it as the
@@ -59,7 +61,6 @@ void AGGen::generate() {
 			if(state_list.find(new_state.get_hash()) != state_list.end())
 				continue;
 
-
 			state_list[new_state.get_hash()] = new_state;
 			frontier.emplace_front(new_state);
 			counter++;
@@ -93,14 +94,18 @@ void AGGen::generate() {
 vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(const NetworkState &s) {
     vector<tuple<Exploit, AssetGroup> > appl_exploit_list;
     auto exploit_list = Exploit::fetch_all();
+    int esize = exploit_list.size();
+    // cout << "Exploit List Size: " << esize << endl;
 
-    for(int i=0; i<exploit_list.size(); i++) {
+    //#pragma omp parallel for schedule(dynamic) num_threads(4)
+    for(int i=0; i<esize; i++) {
         auto e = exploit_list.at(i);
         auto asset_groups = gen_hypo_facts(s, e);
         for (auto asset_group : asset_groups) {
             // Each quality must exist. If not, discard asset_group entirely.
             auto applicable = check_assetgroup(s, asset_group);
             if (applicable) {
+                //#pragma omp critical
                 appl_exploit_list.push_back(make_tuple(e, asset_group));
             }
         }
@@ -111,7 +116,7 @@ vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(const NetworkState &s)
 
 // Generate all possible permutations with repetition of the asset bindings for the
 // number of parameters needed by the exploit.
-vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
+tbb::concurrent_vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
     auto num_assets = s.get_num_assets();
     auto num_params = e.get_num_params();
 
@@ -119,7 +124,7 @@ vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
     auto preconds_t = e.precond_list_t();
 
     Odometer od(num_params, num_assets);
-    vector<AssetGroup> asset_groups;
+    tbb::concurrent_vector<AssetGroup> asset_groups;
 
     for (auto j = 0; j < od.length(); j++) {
         auto perm = od.next();

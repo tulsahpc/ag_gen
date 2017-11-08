@@ -24,7 +24,7 @@ public:
 
     NetworkState();
 
-    Factbase get_factbase() const;
+    const Factbase &get_factbase() const;
     size_t get_num_assets() const;
     size_t get_hash() const;
 

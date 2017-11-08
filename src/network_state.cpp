@@ -14,7 +14,7 @@ NetworkState::NetworkState() :
     kv_facts.populate(all_vals);
 }
 
-Factbase NetworkState::get_factbase() const {
+const Factbase &NetworkState::get_factbase() const {
     return factbase;
 }
 
