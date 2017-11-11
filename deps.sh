@@ -6,7 +6,7 @@ if [[ $OS = 'darwin' ]]; then
     if hash brew 2>/dev/null; then
         xcode-select --install > /dev/null
         brew cask install postgres
-        brew install postgresql cmake boost cppcheck doxygen graphviz
+        brew install postgresql cmake boost cppcheck doxygen graphviz tbb
     else
         echo "Please install homebrew first."
     fi
@@ -19,7 +19,8 @@ elif [[ $OS = 'linux' ]]; then
             build-essential bison flex libssl-dev
     elif hash yum 2>/dev/null; then
         sudo yum install cmake epel-release postgresql-devel boost-devel \
-            openssl-devel graphviz-devel bison-devel flex-devel cppcheck valgrind
+            openssl-devel graphviz-devel bison-devel flex-devel cppcheck valgrind \
+            tbb
     else
         echo "Your distro is currently not supported."
     fi

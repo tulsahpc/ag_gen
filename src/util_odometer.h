@@ -73,6 +73,10 @@ public:
         return perms[idx_state++];
     }
 
+    const std::vector<int> &operator[](int idx) const {
+        return perms[idx];
+    }
+
     void reset() {
         idx_state = 0;
     }
