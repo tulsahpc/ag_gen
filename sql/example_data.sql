@@ -163,30 +163,6 @@ INSERT INTO exploit VALUES
   (DEFAULT, 'adobereader_vuln', 1),
   (DEFAULT, 'photoshop_vuln', 1),
   (DEFAULT, 'kindle_vuln', 1),
-  (DEFAULT, 'hacked', 1),
-  (DEFAULT, 'router_vuln', 1),
-  (DEFAULT, 'printer_vuln', 1),
-  (DEFAULT, 'adobereader_vuln', 1),
-  (DEFAULT, 'photoshop_vuln', 1),
-  (DEFAULT, 'kindle_vuln', 1),
-  (DEFAULT, 'hacked', 1),
-  (DEFAULT, 'router_vuln', 1),
-  (DEFAULT, 'printer_vuln', 1),
-  (DEFAULT, 'adobereader_vuln', 1),
-  (DEFAULT, 'photoshop_vuln', 1),
-  (DEFAULT, 'kindle_vuln', 1),
-  (DEFAULT, 'hacked', 1),
-  (DEFAULT, 'router_vuln', 1),
-  (DEFAULT, 'printer_vuln', 1),
-  (DEFAULT, 'adobereader_vuln', 1),
-  (DEFAULT, 'photoshop_vuln', 1),
-  (DEFAULT, 'kindle_vuln', 1),
-  (DEFAULT, 'hacked', 1),
-  (DEFAULT, 'router_vuln', 1),
-  (DEFAULT, 'printer_vuln', 1),
-  (DEFAULT, 'adobereader_vuln', 1),
-  (DEFAULT, 'photoshop_vuln', 1),
-  (DEFAULT, 'kindle_vuln', 1),
   (DEFAULT, 'hacked', 1);
 
 INSERT INTO exploit_precondition VALUES
@@ -207,103 +183,7 @@ INSERT INTO exploit_precondition VALUES
   (DEFAULT, 5, 0, 1, NULL, 'type', 'tablet', '=', NULL),
   (DEFAULT, 5, 0, 1, NULL, 'os', 'kindle', '=', NULL),
 
-  (DEFAULT, 6, 0, 1, NULL, 'type','smartphone', '=', NULL),
-  (DEFAULT, 6, 0, 1, NULL, 'os', 'ios', '=', NULL),
-  (DEFAULT, 6, 0, 1, NULL, 'light', 'off', '=', NULL),
-
-  (DEFAULT, 6, 0, 1, NULL, 'access', 'root', '=', NULL),
-
-  (DEFAULT, 7, 0, 1, NULL, 'type', 'router', '=', NULL),
-  (DEFAULT, 7, 0, 1, NULL, 'version', '1.6', '=', NULL),
-
-  (DEFAULT, 8, 0, 1, NULL, 'type', 'printer', '=', NULL),
-  (DEFAULT, 8, 0, 1, NULL, 'model', 'hp456', '=', NULL),
-
-  (DEFAULT, 9, 0, 1, NULL, 'type', 'laptop', '=', NULL),
-  (DEFAULT, 9, 0, 1, NULL, 'os', 'winxp', '=', NULL),
-  (DEFAULT, 9, 0, 1, NULL, 'adobereader', '4', '=', NULL),
-
-  (DEFAULT, 10, 0, 1, NULL, 'type', 'desktop', '=', NULL),
-  (DEFAULT, 10, 0, 1, NULL, 'os', 'macosx', '=', NULL),
-  (DEFAULT, 10, 0, 1, NULL, 'photoshop', '5', '=', NULL),
-
-  (DEFAULT, 11, 0, 1, NULL, 'type', 'tablet', '=', NULL),
-  (DEFAULT, 11, 0, 1, NULL, 'os', 'kindle', '=', NULL),
-
-  (DEFAULT, 12, 0, 1, NULL, 'type','smartphone', '=', NULL),
-  (DEFAULT, 12, 0, 1, NULL, 'os', 'ios', '=', NULL),
-  (DEFAULT, 12, 0, 1, NULL, 'light', 'off', '=', NULL),
-
-  (DEFAULT, 12, 0, 1, NULL, 'access', 'root', '=', NULL),
-
-  (DEFAULT, 13, 0, 1, NULL, 'type', 'router', '=', NULL),
-  (DEFAULT, 13, 0, 1, NULL, 'version', '1.6', '=', NULL),
-
-  (DEFAULT, 14, 0, 1, NULL, 'type', 'printer', '=', NULL),
-  (DEFAULT, 14, 0, 1, NULL, 'model', 'hp456', '=', NULL),
-
-  (DEFAULT, 15, 0, 1, NULL, 'type', 'laptop', '=', NULL),
-  (DEFAULT, 15, 0, 1, NULL, 'os', 'winxp', '=', NULL),
-  (DEFAULT, 15, 0, 1, NULL, 'adobereader', '4', '=', NULL),
-
-  (DEFAULT, 16, 0, 1, NULL, 'type', 'desktop', '=', NULL),
-  (DEFAULT, 16, 0, 1, NULL, 'os', 'macosx', '=', NULL),
-  (DEFAULT, 16, 0, 1, NULL, 'photoshop', '5', '=', NULL),
-
-  (DEFAULT, 17, 0, 1, NULL, 'type', 'tablet', '=', NULL),
-  (DEFAULT, 17, 0, 1, NULL, 'os', 'kindle', '=', NULL),
-
-  (DEFAULT, 18, 0, 1, NULL, 'type','smartphone', '=', NULL),
-  (DEFAULT, 18, 0, 1, NULL, 'os', 'ios', '=', NULL),
-  (DEFAULT, 18, 0, 1, NULL, 'light', 'off', '=', NULL),
-
-  (DEFAULT, 18, 0, 1, NULL, 'access', 'root', '=', NULL),
-
-  (DEFAULT, 19, 0, 1, NULL, 'type', 'router', '=', NULL),
-  (DEFAULT, 19, 0, 1, NULL, 'version', '1.6', '=', NULL),
-
-  (DEFAULT, 20, 0, 1, NULL, 'type', 'printer', '=', NULL),
-  (DEFAULT, 20, 0, 1, NULL, 'model', 'hp456', '=', NULL),
-
-  (DEFAULT, 21, 0, 1, NULL, 'type', 'laptop', '=', NULL),
-  (DEFAULT, 21, 0, 1, NULL, 'os', 'winxp', '=', NULL),
-  (DEFAULT, 21, 0, 1, NULL, 'adobereader', '4', '=', NULL),
-
-  (DEFAULT, 22, 0, 1, NULL, 'type', 'desktop', '=', NULL),
-  (DEFAULT, 22, 0, 1, NULL, 'os', 'macosx', '=', NULL),
-  (DEFAULT, 22, 0, 1, NULL, 'photoshop', '5', '=', NULL),
-
-  (DEFAULT, 23, 0, 1, NULL, 'type', 'tablet', '=', NULL),
-  (DEFAULT, 23, 0, 1, NULL, 'os', 'kindle', '=', NULL),
-
-  (DEFAULT, 24, 0, 1, NULL, 'type','smartphone', '=', NULL),
-  (DEFAULT, 24, 0, 1, NULL, 'os', 'ios', '=', NULL),
-  (DEFAULT, 24, 0, 1, NULL, 'light', 'off', '=', NULL),
-
-  (DEFAULT, 24, 0, 1, NULL, 'access', 'root', '=', NULL),
-
-  (DEFAULT, 25, 0, 1, NULL, 'type', 'router', '=', NULL),
-  (DEFAULT, 25, 0, 1, NULL, 'version', '1.6', '=', NULL),
-
-  (DEFAULT, 26, 0, 1, NULL, 'type', 'printer', '=', NULL),
-  (DEFAULT, 26, 0, 1, NULL, 'model', 'hp456', '=', NULL),
-
-  (DEFAULT, 27, 0, 1, NULL, 'type', 'laptop', '=', NULL),
-  (DEFAULT, 27, 0, 1, NULL, 'os', 'winxp', '=', NULL),
-  (DEFAULT, 27, 0, 1, NULL, 'adobereader', '4', '=', NULL),
-
-  (DEFAULT, 28, 0, 1, NULL, 'type', 'desktop', '=', NULL),
-  (DEFAULT, 28, 0, 1, NULL, 'os', 'macosx', '=', NULL),
-  (DEFAULT, 28, 0, 1, NULL, 'photoshop', '5', '=', NULL),
-
-  (DEFAULT, 29, 0, 1, NULL, 'type', 'tablet', '=', NULL),
-  (DEFAULT, 29, 0, 1, NULL, 'os', 'kindle', '=', NULL),
-
-  (DEFAULT, 30, 0, 1, NULL, 'type','smartphone', '=', NULL),
-  (DEFAULT, 30, 0, 1, NULL, 'os', 'ios', '=', NULL),
-  (DEFAULT, 30, 0, 1, NULL, 'light', 'off', '=', NULL),
-
-  (DEFAULT, 30, 0, 1, NULL, 'access', 'root', '=', NULL);
+  (DEFAULT, 6, 0, 1, NULL, 'access', 'root', '=', NULL);
 
 INSERT INTO exploit_postcondition VALUES
   (DEFAULT, 1, 0, 1, NULL, 'access', 'root', '=', NULL),
@@ -311,28 +191,4 @@ INSERT INTO exploit_postcondition VALUES
   (DEFAULT, 3, 0, 1, NULL, 'access', 'root', '=', NULL),
   (DEFAULT, 4, 0, 1, NULL, 'access', 'root', '=', NULL),
   (DEFAULT, 5, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 6, 0, 1, NULL, 'planet', 'hacked', '=', NULL),
-  (DEFAULT, 7, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 8, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 9, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 10, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 11, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 12, 0, 1, NULL, 'planet', 'hacked', '=', NULL),
-  (DEFAULT, 13, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 14, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 15, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 16, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 17, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 18, 0, 1, NULL, 'planet', 'hacked', '=', NULL),
-  (DEFAULT, 19, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 20, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 21, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 22, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 23, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 24, 0, 1, NULL, 'planet', 'hacked', '=', NULL),
-  (DEFAULT, 25, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 26, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 27, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 28, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 29, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 30, 0, 1, NULL, 'planet', 'hacked', '=', NULL);
+  (DEFAULT, 6, 0, 1, NULL, 'planet', 'hacked', '=', NULL);

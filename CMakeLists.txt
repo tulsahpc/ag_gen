@@ -3,6 +3,7 @@ project(ag_gen)
 
 # Add FindTBB (from github)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/extra")
+message(STATUS ${CMAKE_MODULE_PATH})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11 -g")
 
@@ -16,9 +17,9 @@ endif()
 find_package(BISON)
 find_package(FLEX)
 find_package(TBB REQUIRED)
-find_package(POSTGRESQL REQUIRED)
-find_package(OPENSSL)
-find_package(BOOST)
+find_package(PostgreSQL REQUIRED)
+find_package(OpenSSL)
+find_package(Boost)
 
 if(BISON_FOUND)
     BISON_TARGET(nm_parser src/compiler/nm_parser.yy ${CMAKE_CURRENT_BINARY_DIR}/nm_parser.c DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/nm_parser.tab.h)
