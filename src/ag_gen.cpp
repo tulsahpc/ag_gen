@@ -4,13 +4,13 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <omp.h>
+
 
 #include "ag_gen.h"
 #include "util_odometer.h"
 #include "util_db.h"
 #include "edge.h"
-
-#include "tbb/concurrent_vector.h"
 
 using namespace std;
 
@@ -113,7 +113,7 @@ vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(const NetworkState &s)
 
 // Generate all possible permutations with repetition of the asset bindings for the
 // number of parameters needed by the exploit.
-tbb::concurrent_vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
+std::vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
     auto num_assets = s.get_num_assets();
     auto num_params = e.get_num_params();
 
@@ -121,7 +121,7 @@ tbb::concurrent_vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, 
     auto preconds_t = e.precond_list_t();
 
     Odometer od(num_params, num_assets);
-    tbb::concurrent_vector<AssetGroup> asset_groups;
+    std::vector<AssetGroup> asset_groups;
     int len = od.length();
 
     for (int j = 0; j<len; j++) {

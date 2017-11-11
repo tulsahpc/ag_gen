@@ -24,7 +24,7 @@ class AGGen {
     std::vector<std::tuple<Exploit, AssetGroup> > check_exploits(const NetworkState &s);
     bool check_assetgroup(const NetworkState &s, const AssetGroup &assetgroup);
 
-    tbb::concurrent_vector<AssetGroup> gen_hypo_facts(const NetworkState &s, Exploit &e);
+    std::vector<AssetGroup> gen_hypo_facts(const NetworkState &s, Exploit &e);
     std::tuple<std::vector<Quality>, std::vector<Topology> > createPostConditions(std::tuple<Exploit, AssetGroup> group);
 
 public:
