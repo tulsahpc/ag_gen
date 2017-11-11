@@ -88,8 +88,10 @@ bool Topology::operator==(const Topology &rhs) const {
 // }
 
 vector<string> Topology::fetch_all_attributes() {
+    auto conn = db->new_connection();
+
     vector<string> attrs;
-    vector<DB::Row> rows = db->exec("SELECT DISTINCT property FROM topology;");
+    vector<DB::Row> rows = conn.exec("SELECT DISTINCT property FROM topology;");
 
     for (auto &row : rows) {
         string prop = row[0];
@@ -100,8 +102,10 @@ vector<string> Topology::fetch_all_attributes() {
 }
 
 vector<string> Topology::fetch_all_values() {
+    auto conn = db->new_connection();
+
     vector<string> vals;
-    vector<DB::Row> rows = db->exec("SELECT DISTINCT value FROM topology;");
+    vector<DB::Row> rows = conn.exec("SELECT DISTINCT value FROM topology;");
 
     for (auto &row : rows) {
         string val = row[0];
@@ -112,9 +116,11 @@ vector<string> Topology::fetch_all_values() {
 }
 
 vector<Topology> Topology::fetch_all() {
+    auto conn = db->new_connection();
+
     vector<Topology> topologies;
 
-    vector<DB::Row> rows = db->exec("SELECT * FROM topology;");
+    vector<DB::Row> rows = conn.exec("SELECT * FROM topology;");
     for (auto &row : rows) {
         int from_asset = stoi(row[0]);
         int to_asset = stoi(row[1]);

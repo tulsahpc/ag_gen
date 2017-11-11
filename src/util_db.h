@@ -17,6 +17,7 @@
 #include <libpq-fe.h>
 
 class DB;
+class Connection;
 
 extern std::shared_ptr<DB> db;
 
@@ -30,33 +31,27 @@ class DB {
 public:
     typedef std::vector<std::string> Row;
 private:
-    class Connection {
-        PGconn *conn_r;
-        bool connected = false;
+    std::string conninfo;
+    std::vector<Connection> idle_conns;
+    std::vector<Connection> active_conns;
 
-        PGconn *create_connection(std::string &conninfo) {
+    class Connection {
+        std::string conninfo;
+        bool connected = false;
+        bool idle = true;
+
+        PGconn *conn_r;
+    public:
+        Connection() {
             // Create database connection
-            PGconn *conn = PQconnectdb(conninfo.c_str());
-            if (PQstatus(conn) != CONNECTION_OK) {
+            conn_r = PQconnectdb(conninfo.c_str());
+            if (PQstatus(conn_r) != CONNECTION_OK) {
                 throw DBException("Database connection failed.");
             }
             connected = true;
-            return conn;
-        }
-    public:
-        explicit Connection(std::string &conninfo) {
-            conn_r = create_connection(conninfo);
         }
 
-        explicit Connection(std::string &&conninfo) {
-            conn_r = create_connection(conninfo);
-        }
-
-        bool is_connected() {
-            return connected;
-        }
-
-        void close() {
+        ~Connection() {
             // Close connection before exiting
             if (conn_r) {
                 PQfinish(conn_r);
@@ -64,54 +59,41 @@ private:
             connected = false;
         }
 
-        friend class DB;
-    };
-
-    Connection conn;
-
-    std::vector<Row> execute_query(std::string &sql) {
-        if (!conn.is_connected()) {
-            throw DBException("Not connected to Database.");
+        bool is_connected() {
+            return connected;
         }
 
-        std::vector<Row> rows;
-        PGresult *res = PQexec(conn.conn_r, sql.c_str());
-        if (PQresultStatus(res) == PGRES_COMMAND_OK) {
-            // No return
-        } else if (PQresultStatus(res) == PGRES_TUPLES_OK) {
-            // Return rows
-            int numrows = PQntuples(res);
-            int numfields = PQnfields(res);
-            for (auto i = 0; i < numrows; i++) {
-                Row new_row;
-                for (auto j = 0; j < numfields; j++) {
-                    new_row.push_back(PQgetvalue(res, i, j));
-                }
-                rows.push_back(new_row);
+        std::vector<Row> exec(const std::string &sql) {
+            if (!is_connected()) {
+                throw DBException("Not connected to Database.");
             }
-        } else {
-            // DB Error
-            throw DBException(PQerrorMessage(conn.conn_r));
+
+            std::vector<Row> rows;
+            PGresult *res = PQexec(conn_r, sql.c_str());
+            if (PQresultStatus(res) == PGRES_COMMAND_OK) {
+                // No return
+            } else if (PQresultStatus(res) == PGRES_TUPLES_OK) {
+                // Return rows
+                int numrows = PQntuples(res);
+                int numfields = PQnfields(res);
+                for (auto i = 0; i < numrows; i++) {
+                    Row new_row;
+                    for (auto j = 0; j < numfields; j++) {
+                        new_row.push_back(PQgetvalue(res, i, j));
+                    }
+                    rows.push_back(new_row);
+                }
+            } else {
+                // DB Error
+                throw DBException(PQerrorMessage(conn_r));
+            }
+
+            PQclear(res);
+            return rows;
         }
-
-        PQclear(res);
-        return rows;
-    }
+    };
 public:
-    explicit DB(std::string &conninfo) : conn(conninfo) {};
-    explicit DB(std::string &&conninfo) : conn(conninfo) {};
-
-    std::vector<Row> exec(std::string &sql) {
-        return execute_query(sql);
-    }
-
-    std::vector<Row> exec(std::string &&sql) {
-        return execute_query(sql);
-    }
-
-    void close() {
-        conn.close();
-    }
+    DB(const std::string &conninfo) : conninfo(conninfo), idle_conns(20) {}
 };
 
 #endif //UTIL_DB_HPP

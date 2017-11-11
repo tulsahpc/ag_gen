@@ -18,42 +18,45 @@ int Edge::get_id() {
     return id;
 }
 
-bool Edge::exists_in_db() {
-    vector<DB::Row> rows = db->exec(
-            "SELECT 1 FROM edge WHERE from_node = " + to_string(from_node) + " AND to_node = " + to_string(to_node) +
-            " AND exploit_id = " + to_string(exploit.get_id()) + ";");
-    if (rows.size() > 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
+// bool Edge::exists_in_db() {
+//     auto conn = db->new_connection();
 
-void Edge::save() {
-    if (exists_in_db()) {
-        vector<DB::Row> rows = db->exec(
-                "SELECT 1 FROM edge WHERE from_node = " + to_string(from_node) + " AND to_node = " +
-                to_string(to_node) + " AND exploit_id = " + to_string(exploit.get_id()) + ";");
-        id = stoi(rows[0][0]);
-        return;
-    }
+//     vector<DB::Row> rows = conn.exec(
+//             "SELECT 1 FROM edge WHERE from_node = " + to_string(from_node) + " AND to_node = " + to_string(to_node) +
+//             " AND exploit_id = " + to_string(exploit.get_id()) + ";");
+//     if (rows.size() > 0) {
+//         return true;
+//     } else {
+//         return false;
+//     }
+// }
 
-    vector<DB::Row> rows = db->exec(
-            "SELECT new_edge(" + to_string(from_node) + "," + to_string(to_node) + "," + to_string(exploit.get_id()) +
-            ");");
-    int factbase_id = stoi(rows[0][0]);
-    id = factbase_id;
+// void Edge::save() {
+//     auto conn = db->new_connection();
+//     if (exists_in_db()) {
+//         vector<DB::Row> rows = conn.exec(
+//                 "SELECT 1 FROM edge WHERE from_node = " + to_string(from_node) + " AND to_node = " +
+//                 to_string(to_node) + " AND exploit_id = " + to_string(exploit.get_id()) + ";");
+//         id = stoi(rows[0][0]);
+//         return;
+//     }
 
-    string sql = "INSERT INTO edge_asset_binding VALUES ";
-    auto current_perm = assetGroup.get_perm();
-    for (auto i = 0; i < current_perm.size(); i++) {
-        sql += "(" + to_string(id) + "," + to_string(i) + "," + to_string(current_perm[i] + 1) + ")";
-        if (i == current_perm.size() - 1) {
-            sql += ";";
-        } else {
-            sql += ",";
-        }
-    }
+//     vector<DB::Row> rows = conn.exec(
+//             "SELECT new_edge(" + to_string(from_node) + "," + to_string(to_node) + "," + to_string(exploit.get_id()) +
+//             ");");
+//     int factbase_id = stoi(rows[0][0]);
+//     id = factbase_id;
 
-    db->exec(sql);
-}
+//     string sql = "INSERT INTO edge_asset_binding VALUES ";
+//     auto current_perm = assetGroup.get_perm();
+//     for (auto i = 0; i < current_perm.size(); i++) {
+//         sql += "(" + to_string(id) + "," + to_string(i) + "," + to_string(current_perm[i] + 1) + ")";
+//         if (i == current_perm.size() - 1) {
+//             sql += ";";
+//         } else {
+//             sql += ",";
+//         }
+//     }
+
+//     conn.exec(sql);
+// }

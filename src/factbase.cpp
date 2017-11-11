@@ -23,8 +23,9 @@ int Factbase::get_id() const {
 }
 
 bool Factbase::exists_in_db() {
+    auto conn = db->new_connection();
     string sql = "SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';";
-    vector<DB::Row> rows = db->exec(sql);
+    vector<DB::Row> rows = conn.exec(sql);
     if (!rows.empty()) {
         id = stoi(rows[0][0]);
         return true;
@@ -66,7 +67,8 @@ void Factbase::save() {
         return;
     }
 
-    vector<DB::Row> rows = db->exec("SELECT new_factbase('" + to_string(hash()) + "');");
+    auto conn = db->new_connection();
+    vector<DB::Row> rows = conn.exec("SELECT new_factbase('" + to_string(hash()) + "');");
     id = stoi(rows[0][0]);
 
     // XXX: There has to be a better way to do this
@@ -80,7 +82,7 @@ void Factbase::save() {
     }
     insert_sql += " ON CONFLICT DO NOTHING;";
 
-    db->exec(insert_sql);
+    conn.exec(insert_sql);
 }
 
 // Shamelessly copied from Boost::hash_combine

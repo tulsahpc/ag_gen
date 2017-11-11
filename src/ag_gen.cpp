@@ -4,8 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <omp.h>
-
+// #include <omp.h>
 
 #include "ag_gen.h"
 #include "util_odometer.h"
@@ -35,35 +34,107 @@ void AGGen::generate() {
         // state_list[current_state.hash()] = current_state;
 
         // Get all applicable exploits with this network state
-        auto appl_exploits = check_exploits(current_state);
 
-        // Apply each exploit to the network state to generate new network states
-        for (int i=0; i<appl_exploits.size(); i++) {
-            auto e = appl_exploits.at(i);
+        auto exploit_list = Exploit::fetch_all();
+        int esize = exploit_list.size();
 
-            // For each applicable exploit, we extract which exploit applies and to which asset group it
-            // applies to.
-            auto exploit = get<0>(e);
-            auto assetGroup = get<1>(e);
+        #pragma omp parallel num_threads(2)
+        {
+            vector<tuple<Exploit, AssetGroup> > appl_exploits;
 
-            // We generate the associated post conditions and extract the new qualities and topologies that
-            // will be applied to the current factbase.
-            auto postconditions = createPostConditions(e);
-            auto qualities = get<0>(postconditions);
-            auto topologies = get<1>(postconditions);
+            #pragma omp for
+            for(int i=0; i<esize; i++) {
+                auto e = exploit_list.at(i);
 
-            // Deep copy the factbase so we can create a new network state
-            NetworkState new_state {current_state};
+                auto num_assets = current_state.get_num_assets();
+                auto num_params = e.get_num_params();
 
-            new_state.add_qualities(qualities);
-            new_state.add_topologies(topologies);
-			
-			if(state_list.find(new_state.get_hash()) != state_list.end())
-				continue;
+                auto preconds_q = e.precond_list_q();
+                auto preconds_t = e.precond_list_t();
 
-			state_list[new_state.get_hash()] = new_state;
-			frontier.emplace_front(new_state);
-			counter++;
+                Odometer od(num_params, num_assets);
+                int len = od.length();
+
+                std::vector<AssetGroup> asset_groups;
+
+                for (int j = 0; j<len; j++) {
+                    auto perm = od[j];
+
+                    vector<Quality> asset_group_quals;
+                    vector<Topology> asset_group_topos;
+
+                    for (auto precond : preconds_q) {
+                        asset_group_quals.emplace_back(perm[precond.get_param_num()], precond.name, "=", precond.value);
+                    }
+
+                    for (auto precond : preconds_t) {
+                        auto dir = precond.get_dir();
+                        auto prop = precond.get_property();
+                        auto op = precond.get_operation();
+                        auto val = precond.get_value();
+
+                        asset_group_topos.emplace_back(perm[precond.get_from_param()], perm[precond.get_to_param()], dir, prop, op, val);
+                    }
+
+                    asset_groups.emplace_back(asset_group_quals, asset_group_topos, perm);
+                }
+
+                for (auto asset_group : asset_groups) {
+                    bool applicable;
+
+                    // Each quality must exist. If not, discard asset_group entirely.
+                    for (auto quality : asset_group.get_hypo_quals()) {
+                        if (!current_state.get_factbase().find_quality(quality)) {
+                            continue;
+                            // goto LOOPCONTINUE;
+                        }
+                    }
+
+                    for (auto topology : asset_group.get_hypo_topos()) {
+                        if (!current_state.get_factbase().find_topology(topology)) {
+                            continue;
+                            // goto LOOPCONTINUE;
+                        }
+                    }
+
+                    #pragma omp critical
+                    appl_exploits.push_back(make_tuple(e, asset_group));
+    // LOOPCONTINUE:
+                }
+            }
+
+            // Apply each exploit to the network state to generate new network states
+            #pragma omp for
+            for (int i=0; i<appl_exploits.size(); i++) {
+                auto e = appl_exploits.at(i);
+
+                // For each applicable exploit, we extract which exploit applies and to which asset group it
+                // applies to.
+                auto exploit = get<0>(e);
+                auto assetGroup = get<1>(e);
+
+                // We generate the associated post conditions and extract the new qualities and topologies that
+                // will be applied to the current factbase.
+                auto postconditions = createPostConditions(e);
+                auto qualities = get<0>(postconditions);
+                auto topologies = get<1>(postconditions);
+
+                // Deep copy the factbase so we can create a new network state
+                NetworkState new_state {current_state};
+
+                new_state.add_qualities(qualities);
+                new_state.add_topologies(topologies);
+    			
+    			if(state_list.find(new_state.get_hash()) != state_list.end())
+    				continue;
+
+    			state_list[new_state.get_hash()] = new_state;
+                #pragma omp critical
+    			frontier.emplace_front(new_state);
+    			counter++;
+            }
+        }
+    }
 
             // Save our new factbase to the database. Generate any new edges to the new network state from already
             // existing states.
@@ -83,89 +154,9 @@ void AGGen::generate() {
 //                cerr << e.what() << endl; // If theres an error, just print and quit abruptly.
 //                abort();
 //            }
-        }
-    }
 
     cout << "total number of generated states: " << counter << endl;
 	cout << "states in state_list: " << state_list.size() << endl;
-}
-
-// Returns all applicable exploits to some given network state.
-vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(const NetworkState &s) {
-    vector<tuple<Exploit, AssetGroup> > appl_exploit_list;
-    auto exploit_list = Exploit::fetch_all();
-    int esize = exploit_list.size();
-
-    for(int i=0; i<esize; i++) {
-        auto e = exploit_list.at(i);
-        auto asset_groups = gen_hypo_facts(s, e);
-        for (auto asset_group : asset_groups) {
-            // Each quality must exist. If not, discard asset_group entirely.
-            auto applicable = check_assetgroup(s, asset_group);
-            if (applicable) {
-                appl_exploit_list.push_back(make_tuple(e, asset_group));
-            }
-        }
-    }
-
-    return appl_exploit_list;
-}
-
-// Generate all possible permutations with repetition of the asset bindings for the
-// number of parameters needed by the exploit.
-std::vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, Exploit &e) {
-    auto num_assets = s.get_num_assets();
-    auto num_params = e.get_num_params();
-
-    auto preconds_q = e.precond_list_q();
-    auto preconds_t = e.precond_list_t();
-
-    Odometer od(num_params, num_assets);
-    std::vector<AssetGroup> asset_groups;
-    int len = od.length();
-
-    for (int j = 0; j<len; j++) {
-        auto perm = od[j];
-
-        vector<Quality> asset_group_quals;
-        vector<Topology> asset_group_topos;
-
-        for (auto precond : preconds_q) {
-            asset_group_quals.emplace_back(perm[precond.get_param_num()], precond.name, "=", precond.value);
-        }
-
-        for (auto precond : preconds_t) {
-            auto dir = precond.get_dir();
-            auto prop = precond.get_property();
-            auto op = precond.get_operation();
-            auto val = precond.get_value();
-
-            asset_group_topos.emplace_back(perm[precond.get_from_param()], perm[precond.get_to_param()], dir, prop, op, val);
-        }
-
-        asset_groups.emplace_back(asset_group_quals, asset_group_topos, perm);
-    }
-    
-    od.reset();
-
-    return asset_groups;
-}
-
-// Check if an asset group binding works in the network state.
-bool AGGen::check_assetgroup(const NetworkState &s, const AssetGroup &assetgroup) {
-    for (auto quality : assetgroup.get_hypo_quals()) {
-        if (!s.get_factbase().find_quality(quality)) {
-            return false;
-        }
-    }
-
-    for (auto topology : assetgroup.get_hypo_topos()) {
-        if (!s.get_factbase().find_topology(topology)) {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 // createPostConditions takes a tuple of an Exploit and an AssetGroup. The function assumes the given

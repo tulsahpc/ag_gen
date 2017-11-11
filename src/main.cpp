@@ -61,6 +61,4 @@ int main(int argc, char *argv[]) {
 
     AGGen generator(initial_state);
     generator.generate();
-
-    db->close();
 }
