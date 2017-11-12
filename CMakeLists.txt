@@ -3,8 +3,10 @@ project(ag_gen)
 
 # Add FindTBB (from github)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/extra")
+message(STATUS ${CMAKE_MODULE_PATH})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11 -g")
+<<<<<<< HEAD
 
 file(COPY "${PROJECT_SOURCE_DIR}/config_default.txt" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(RENAME "${CMAKE_CURRENT_BINARY_DIR}/config_default.txt" "${CMAKE_CURRENT_BINARY_DIR}/config.txt")

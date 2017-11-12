@@ -95,9 +95,7 @@ vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(const NetworkState &s)
     vector<tuple<Exploit, AssetGroup> > appl_exploit_list;
     auto exploit_list = Exploit::fetch_all();
     int esize = exploit_list.size();
-    // cout << "Exploit List Size: " << esize << endl;
 
-    //#pragma omp parallel for schedule(dynamic) num_threads(4)
     for(int i=0; i<esize; i++) {
         auto e = exploit_list.at(i);
         auto asset_groups = gen_hypo_facts(s, e);
@@ -105,7 +103,6 @@ vector<tuple<Exploit, AssetGroup> > AGGen::check_exploits(const NetworkState &s)
             // Each quality must exist. If not, discard asset_group entirely.
             auto applicable = check_assetgroup(s, asset_group);
             if (applicable) {
-                //#pragma omp critical
                 appl_exploit_list.push_back(make_tuple(e, asset_group));
             }
         }
@@ -125,9 +122,10 @@ tbb::concurrent_vector<AssetGroup> AGGen::gen_hypo_facts(const NetworkState &s, 
 
     Odometer od(num_params, num_assets);
     tbb::concurrent_vector<AssetGroup> asset_groups;
+    int len = od.length();
 
-    for (auto j = 0; j < od.length(); j++) {
-        auto perm = od.next();
+    for (int j = 0; j<len; j++) {
+        auto perm = od[j];
 
         vector<Quality> asset_group_quals;
         vector<Topology> asset_group_topos;
