@@ -95,12 +95,21 @@ size_t combine(size_t seed) {
 size_t Factbase::hash() const {
     //  size_t hash = 0xf848b64e; // Random seed value
     size_t hash = 0x0c32a12fe19d2119;
-    for (auto &qual : qualities) {
+
+    int qualities_length = qualities.size();
+    #pragma omp parallel for schedule(dynamic,16) reduction(^: hash)
+    for (int i=0; i<qualities_length; i++) {
+        auto &qual = qualities.at(i);
         hash ^= combine(qual.encode(parent->kv_facts).enc);
     }
-    for (auto &topo : topologies) {
+
+    int topologies_length = topologies.size();
+    #pragma omp parallel for schedule(dynamic,16) reduction(^: hash)
+    for (int i=0; i<topologies_length; i++) {
+        auto &topo = topologies.at(i);
         hash ^= combine(topo.encode(parent->kv_facts).enc);
     }
+
     return hash;
 }
 

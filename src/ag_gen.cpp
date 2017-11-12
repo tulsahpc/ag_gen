@@ -27,6 +27,9 @@ AGGen::AGGen(NetworkState initial_state) {
 void AGGen::generate() {
     auto counter = 0;
     auto start = std::chrono::system_clock::now();
+
+    auto exploit_list = Exploit::fetch_all();
+    int esize = exploit_list.size();
     while (!frontier.empty()) {
         cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
@@ -37,9 +40,6 @@ void AGGen::generate() {
         // state_list[current_state.hash()] = current_state;
 
         // Get all applicable exploits with this network state
-
-        auto exploit_list = Exploit::fetch_all();
-        int esize = exploit_list.size();
 
         vector<tuple<Exploit, AssetGroup> > appl_exploits;
 
@@ -57,7 +57,7 @@ void AGGen::generate() {
 
             int len = od.length();
 
-            #pragma omp parallel for num_threads(8)
+            #pragma omp parallel for
             for (int j = 0; j<len; j++) {
                 auto perm = od[j];
 
@@ -83,18 +83,18 @@ void AGGen::generate() {
 
             int assetgroup_size = asset_groups.size();
 
-            #pragma omp parallel for num_threads(8)
+            #pragma omp parallel for
             for (int j=0; j<assetgroup_size; j++) {
                 auto asset_group = asset_groups.at(j);
                 // Each quality must exist. If not, discard asset_group entirely.
-                for (auto quality : asset_group.get_hypo_quals()) {
+                for (auto &quality : asset_group.get_hypo_quals()) {
                     if (!current_state.get_factbase().find_quality(quality)) {
                         continue;
                         // goto LOOPCONTINUE;
                     }
                 }
 
-                for (auto topology : asset_group.get_hypo_topos()) {
+                for (auto &topology : asset_group.get_hypo_topos()) {
                     if (!current_state.get_factbase().find_topology(topology)) {
                         continue;
                         // goto LOOPCONTINUE;
@@ -115,7 +115,6 @@ LOOPCONTINUE:;
             int appl_expl_size = appl_exploits.size();
 
             // Apply each exploit to the network state to generate new network states
-            #pragma omp parallel for num_threads(1)
             for (int j=0; j<appl_expl_size; j++) {
                 auto e = appl_exploits.at(j);
 
@@ -136,15 +135,14 @@ LOOPCONTINUE:;
                 new_state.add_qualities(qualities);
                 new_state.add_topologies(topologies);
 
-                if(state_list.find(new_state.get_hash()) != state_list.end())
+                auto res = state_list.find(new_state.get_hash());
+
+                if(res != state_list.end())
                     continue;
 
-                #pragma omp critical
-                {
-                    state_list[new_state.get_hash()] = new_state;
-                    frontier.emplace_front(new_state);
-                    counter++;
-                }
+                state_list.insert(new_state.get_hash());
+                frontier.emplace_front(new_state);
+                counter++;
             }
         }
 
