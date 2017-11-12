@@ -60,10 +60,10 @@ bool Quality::operator==(const Quality &rhs) const {
 // }
 
 vector<Quality> Quality::fetch_all() {
-    auto conn = db->new_connection();
+    ;
 
     vector<Quality> qualities;
-    vector<DB::Row> rows = conn.exec("SELECT * FROM quality;");
+    vector<Row> rows = DB::exec("SELECT * FROM quality;");
 
     for (auto &row : rows) {
         int asset_id = stoi(row[0]);
@@ -79,11 +79,11 @@ vector<Quality> Quality::fetch_all() {
 }
 
 vector<string> Quality::fetch_all_attributes() {
-    auto conn = db->new_connection();
+    ;
 
     vector<string> attrs;
-    vector<DB::Row> qrows = conn.exec("SELECT DISTINCT property FROM quality;");
-    vector<DB::Row> erows = conn.exec("SELECT DISTINCT property FROM exploit_postcondition;");
+    vector<Row> qrows = DB::exec("SELECT DISTINCT property FROM quality;");
+    vector<Row> erows = DB::exec("SELECT DISTINCT property FROM exploit_postcondition;");
 
     for (auto &row : qrows) {
         string prop = row[0];
@@ -99,11 +99,11 @@ vector<string> Quality::fetch_all_attributes() {
 }
 
 vector<string> Quality::fetch_all_values() {
-    auto conn = db->new_connection();
+    ;
 
     vector<string> vals;
-    vector<DB::Row> qrows = conn.exec("SELECT DISTINCT value FROM quality;");
-    vector<DB::Row> erows = conn.exec("SELECT DISTINCT value FROM exploit_postcondition;");
+    vector<Row> qrows = DB::exec("SELECT DISTINCT value FROM quality;");
+    vector<Row> erows = DB::exec("SELECT DISTINCT value FROM exploit_postcondition;");
 
     for (auto &row : qrows) {
         string val = row[0];

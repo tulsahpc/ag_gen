@@ -38,7 +38,7 @@ void AGGen::generate() {
         auto exploit_list = Exploit::fetch_all();
         int esize = exploit_list.size();
 
-        #pragma omp parallel num_threads(2)
+        #pragma omp parallel num_threads(1)
         {
             vector<tuple<Exploit, AssetGroup> > appl_exploits;
 
