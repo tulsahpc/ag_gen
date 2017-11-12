@@ -43,63 +43,68 @@ void AGGen::generate() {
 
         vector<tuple<Exploit, AssetGroup> > appl_exploits;
 
-        #pragma omp parallel num_threads(1)
-        {
-            #pragma omp for
-            for(int i=0; i<esize; i++) {
-                auto e = exploit_list.at(i);
+        for(int i=0; i<esize; i++) {
+            auto e = exploit_list.at(i);
 
-                auto num_assets = current_state.get_num_assets();
-                auto num_params = e.get_num_params();
+            auto num_assets = current_state.get_num_assets();
+            auto num_params = e.get_num_params();
 
-                auto preconds_q = e.precond_list_q();
-                auto preconds_t = e.precond_list_t();
+            auto preconds_q = e.precond_list_q();
+            auto preconds_t = e.precond_list_t();
 
-                Odometer od(num_params, num_assets);
-                int len = od.length();
+            Odometer od(num_params, num_assets);
+            std::vector<AssetGroup> asset_groups;
 
-                std::vector<AssetGroup> asset_groups;
+            int len = od.length();
 
-                for (int j = 0; j<len; j++) {
-                    auto perm = od[j];
+            #pragma omp parallel for num_threads(8)
+            for (int j = 0; j<len; j++) {
+                auto perm = od[j];
 
-                    vector<Quality> asset_group_quals;
-                    vector<Topology> asset_group_topos;
+                vector<Quality> asset_group_quals;
+                vector<Topology> asset_group_topos;
 
-                    for (auto precond : preconds_q) {
-                        asset_group_quals.emplace_back(perm[precond.get_param_num()], precond.name, "=", precond.value);
-                    }
-
-                    for (auto precond : preconds_t) {
-                        auto dir = precond.get_dir();
-                        auto prop = precond.get_property();
-                        auto op = precond.get_operation();
-                        auto val = precond.get_value();
-
-                        asset_group_topos.emplace_back(perm[precond.get_from_param()], perm[precond.get_to_param()], dir, prop, op, val);
-                    }
-
-                    asset_groups.emplace_back(asset_group_quals, asset_group_topos, perm);
+                for (auto precond : preconds_q) {
+                    asset_group_quals.emplace_back(perm[precond.get_param_num()], precond.name, "=", precond.value);
                 }
 
-                for (auto asset_group : asset_groups) {
-                    // Each quality must exist. If not, discard asset_group entirely.
-                    for (auto quality : asset_group.get_hypo_quals()) {
-                        if (!current_state.get_factbase().find_quality(quality)) {
-                            // continue;
-                            goto LOOPCONTINUE;
-                        }
-                    }
+                for (auto precond : preconds_t) {
+                    auto dir = precond.get_dir();
+                    auto prop = precond.get_property();
+                    auto op = precond.get_operation();
+                    auto val = precond.get_value();
 
-                    for (auto topology : asset_group.get_hypo_topos()) {
-                        if (!current_state.get_factbase().find_topology(topology)) {
-                            // continue;
-                            goto LOOPCONTINUE;
-                        }
-                    }
+                    asset_group_topos.emplace_back(perm[precond.get_from_param()], perm[precond.get_to_param()], dir, prop, op, val);
+                }
 
-                    #pragma omp critical
-                    appl_exploits.push_back(make_tuple(e, asset_group));
+                #pragma omp critical
+                asset_groups.emplace_back(asset_group_quals, asset_group_topos, perm);
+            }
+
+            int assetgroup_size = asset_groups.size();
+
+            #pragma omp parallel for num_threads(8)
+            for (int j=0; j<assetgroup_size; j++) {
+                auto asset_group = asset_groups.at(j);
+                // Each quality must exist. If not, discard asset_group entirely.
+                for (auto quality : asset_group.get_hypo_quals()) {
+                    if (!current_state.get_factbase().find_quality(quality)) {
+                        continue;
+                        // goto LOOPCONTINUE;
+                    }
+                }
+
+                for (auto topology : asset_group.get_hypo_topos()) {
+                    if (!current_state.get_factbase().find_topology(topology)) {
+                        continue;
+                        // goto LOOPCONTINUE;
+                    }
+                }
+
+                auto new_appl_exploit = make_tuple(e, asset_group);
+
+                #pragma omp critical
+                appl_exploits.push_back(new_appl_exploit);
 LOOPCONTINUE:;
                 }
             }
@@ -110,9 +115,9 @@ LOOPCONTINUE:;
             int appl_expl_size = appl_exploits.size();
 
             // Apply each exploit to the network state to generate new network states
-            #pragma omp for
-            for (int i=0; i<appl_expl_size; i++) {
-                auto e = appl_exploits.at(i);
+            #pragma omp parallel for num_threads(1)
+            for (int j=0; j<appl_expl_size; j++) {
+                auto e = appl_exploits.at(j);
 
                 // For each applicable exploit, we extract which exploit applies and to which asset group it
                 // applies to.
@@ -138,18 +143,15 @@ LOOPCONTINUE:;
                 {
                     state_list[new_state.get_hash()] = new_state;
                     frontier.emplace_front(new_state);
+                    counter++;
                 }
-
-                #pragma omp atomic
-                counter++;
             }
         }
-    }
 
-    auto end = std::chrono::system_clock::now();
- 
-    std::chrono::duration<double> elapsed_seconds = end-start;
-    cout << "Total Time: " << elapsed_seconds.count() << " seconds" << endl;
+        auto end = std::chrono::system_clock::now();
+     
+        std::chrono::duration<double> elapsed_seconds = end-start;
+        cout << "Total Time: " << elapsed_seconds.count() << " seconds" << endl;
 
             // Save our new factbase to the database. Generate any new edges to the new network state from already
             // existing states.
