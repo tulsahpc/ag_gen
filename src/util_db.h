@@ -36,7 +36,8 @@ public:
         // Create database connection
         conn_r = PQconnectdb(conninfo.c_str());
         if (PQstatus(conn_r) != CONNECTION_OK) {
-            throw DBException("Database connection failed: " + conninfo);
+            std::string errormsg(PQerrorMessage(conn_r));
+            throw DBException("Database connection failed: " + conninfo + "\n" + errormsg);
         }
         connected = true;
     }

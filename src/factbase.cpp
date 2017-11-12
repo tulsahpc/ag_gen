@@ -23,7 +23,6 @@ int Factbase::get_id() const {
 }
 
 bool Factbase::exists_in_db() {
-    ;
     string sql = "SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';";
     vector<Row> rows = DB::exec(sql);
     if (!rows.empty()) {
@@ -67,7 +66,6 @@ void Factbase::save() {
         return;
     }
 
-    ;
     vector<Row> rows = DB::exec("SELECT new_factbase('" + to_string(hash()) + "');");
     id = stoi(rows[0][0]);
 

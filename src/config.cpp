@@ -39,10 +39,9 @@ Config::Config(string filename) {
 string Config::db_string() {
     string db_string;
     if (config["password"].empty())
-        db_string = "postgresql://" + config["login"] + "@" + config["server"] + "/" + config["db"];
+        db_string = "postgresql://" + config["login"] + "@" + config["server"] + ":" + config["port"] + "/" + config["db"];
     else
-        db_string = "postgresql://" + config["login"] + ":" + config["password"] + "@" + config["server"] + "/" +
-                    config["db"];
+        db_string = "postgresql://" + config["login"] + ":" + config["password"] + "@" + config["server"] + ":" + config["port"] + "/" + config["db"];
     return db_string;
 }
 

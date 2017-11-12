@@ -19,7 +19,6 @@ Asset::Asset(int iid, int netid, std::string nname) :
 // to the Asset
 void Asset::fetch_qualities()
 {
-	;
 	vector<Row> rows = DB::exec("SELECT * FROM quality WHERE asset_id = '" + to_string(id) + "';");
 
 	for(auto &row : rows) {
@@ -37,7 +36,6 @@ void Asset::fetch_qualities()
 // fetch_all grabs all of the Assets in the database under the network given in the argument and returns a
 // vector of those Assets
 vector<Asset> Asset::fetch_all(const string &network) {
-	;
 	vector<Row> rows = DB::exec("SELECT * FROM asset WHERE network_id = (SELECT id FROM network WHERE name = '" + network + "');");
 	vector<Asset> new_assets;
 	

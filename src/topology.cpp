@@ -88,8 +88,6 @@ bool Topology::operator==(const Topology &rhs) const {
 // }
 
 vector<string> Topology::fetch_all_attributes() {
-    ;
-
     vector<string> attrs;
     vector<Row> rows = DB::exec("SELECT DISTINCT property FROM topology;");
 
@@ -102,8 +100,6 @@ vector<string> Topology::fetch_all_attributes() {
 }
 
 vector<string> Topology::fetch_all_values() {
-    ;
-
     vector<string> vals;
     vector<Row> rows = DB::exec("SELECT DISTINCT value FROM topology;");
 
@@ -116,8 +112,6 @@ vector<string> Topology::fetch_all_values() {
 }
 
 vector<Topology> Topology::fetch_all() {
-    ;
-
     vector<Topology> topologies;
 
     vector<Row> rows = DB::exec("SELECT * FROM topology;");
