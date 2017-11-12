@@ -61,7 +61,7 @@ bool Quality::operator==(const Quality &rhs) const {
 
 vector<Quality> Quality::fetch_all() {
     vector<Quality> qualities;
-    vector<Row> rows = DB::exec("SELECT * FROM quality;");
+    vector<Row> rows = db->exec("SELECT * FROM quality;");
 
     for (auto &row : rows) {
         int asset_id = stoi(row[0]);
@@ -78,8 +78,8 @@ vector<Quality> Quality::fetch_all() {
 
 vector<string> Quality::fetch_all_attributes() {
     vector<string> attrs;
-    vector<Row> qrows = DB::exec("SELECT DISTINCT property FROM quality;");
-    vector<Row> erows = DB::exec("SELECT DISTINCT property FROM exploit_postcondition;");
+    vector<Row> qrows = db->exec("SELECT DISTINCT property FROM quality;");
+    vector<Row> erows = db->exec("SELECT DISTINCT property FROM exploit_postcondition;");
 
     for (auto &row : qrows) {
         string prop = row[0];
@@ -96,8 +96,8 @@ vector<string> Quality::fetch_all_attributes() {
 
 vector<string> Quality::fetch_all_values() {
     vector<string> vals;
-    vector<Row> qrows = DB::exec("SELECT DISTINCT value FROM quality;");
-    vector<Row> erows = DB::exec("SELECT DISTINCT value FROM exploit_postcondition;");
+    vector<Row> qrows = db->exec("SELECT DISTINCT value FROM quality;");
+    vector<Row> erows = db->exec("SELECT DISTINCT value FROM exploit_postcondition;");
 
     for (auto &row : qrows) {
         string val = row[0];

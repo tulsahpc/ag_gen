@@ -18,7 +18,8 @@
 
 typedef std::vector<std::string> Row;
 
-extern std::string conninfo;
+class DB;
+extern DB *db;
 
 class DBException : public std::runtime_error {
 public:
@@ -32,7 +33,7 @@ class Connection {
 
     PGconn *conn_r;
 public:
-    Connection(std::string &conninfo) {
+    Connection(const std::string &conninfo) {
         // Create database connection
         conn_r = PQconnectdb(conninfo.c_str());
         if (PQstatus(conn_r) != CONNECTION_OK) {
@@ -85,14 +86,16 @@ public:
 };
 
 class DB {
+    Connection conn;
 public:
-    static std::vector<Row> exec(const std::string &sql) {
-        Connection conn {conninfo};
+    DB(const std::string &conninfo) : conn(conninfo) {}
+
+    std::vector<Row> exec(const std::string &sql) {
         try {
-            auto results = DB::exec(sql);
+            auto results = conn.exec(sql);
             return results;
         } catch (DBException &e) {
-            std::cerr << e.what() << std::endl;
+            std::cerr << "Database Exception: " << e.what() << std::endl;
             abort();
         }
     }

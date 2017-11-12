@@ -14,6 +14,13 @@ NetworkState::NetworkState() :
     kv_facts.populate(all_vals);
 }
 
+NetworkState::NetworkState(const NetworkState &ns) :
+        all_assets(ns.all_assets), all_attrs(ns.all_attrs),
+        all_vals(ns.all_vals), kv_facts(ns.kv_facts),
+        factbase(ns.factbase) {
+    factbase.set_parent(*this);
+}
+
 const Factbase &NetworkState::get_factbase() const {
     return factbase;
 }

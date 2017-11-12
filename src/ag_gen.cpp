@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <ctime>
+#include <chrono>
 // #include <omp.h>
 
 #include "ag_gen.h"
@@ -24,6 +26,7 @@ AGGen::AGGen(NetworkState initial_state) {
 // and topologies. It then prints out the exploits of the new Network States.
 void AGGen::generate() {
     auto counter = 0;
+    auto start = std::chrono::system_clock::now();
     while (!frontier.empty()) {
         cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
@@ -38,10 +41,10 @@ void AGGen::generate() {
         auto exploit_list = Exploit::fetch_all();
         int esize = exploit_list.size();
 
+        vector<tuple<Exploit, AssetGroup> > appl_exploits;
+
         #pragma omp parallel num_threads(1)
         {
-            vector<tuple<Exploit, AssetGroup> > appl_exploits;
-
             #pragma omp for
             for(int i=0; i<esize; i++) {
                 auto e = exploit_list.at(i);
@@ -80,32 +83,35 @@ void AGGen::generate() {
                 }
 
                 for (auto asset_group : asset_groups) {
-                    bool applicable;
-
                     // Each quality must exist. If not, discard asset_group entirely.
                     for (auto quality : asset_group.get_hypo_quals()) {
                         if (!current_state.get_factbase().find_quality(quality)) {
-                            continue;
-                            // goto LOOPCONTINUE;
+                            // continue;
+                            goto LOOPCONTINUE;
                         }
                     }
 
                     for (auto topology : asset_group.get_hypo_topos()) {
                         if (!current_state.get_factbase().find_topology(topology)) {
-                            continue;
-                            // goto LOOPCONTINUE;
+                            // continue;
+                            goto LOOPCONTINUE;
                         }
                     }
 
                     #pragma omp critical
                     appl_exploits.push_back(make_tuple(e, asset_group));
-    // LOOPCONTINUE:
+LOOPCONTINUE:;
                 }
             }
 
+            // #pragma omp critical
+            // cout << "Applicable Exploits: " << appl_exploits.size() << endl;
+
+            int appl_expl_size = appl_exploits.size();
+
             // Apply each exploit to the network state to generate new network states
             #pragma omp for
-            for (int i=0; i<appl_exploits.size(); i++) {
+            for (int i=0; i<appl_expl_size; i++) {
                 auto e = appl_exploits.at(i);
 
                 // For each applicable exploit, we extract which exploit applies and to which asset group it
@@ -124,17 +130,26 @@ void AGGen::generate() {
 
                 new_state.add_qualities(qualities);
                 new_state.add_topologies(topologies);
-    			
-    			if(state_list.find(new_state.get_hash()) != state_list.end())
-    				continue;
 
-    			state_list[new_state.get_hash()] = new_state;
+                if(state_list.find(new_state.get_hash()) != state_list.end())
+                    continue;
+
                 #pragma omp critical
-    			frontier.emplace_front(new_state);
-    			counter++;
+                {
+                    state_list[new_state.get_hash()] = new_state;
+                    frontier.emplace_front(new_state);
+                }
+
+                #pragma omp atomic
+                counter++;
             }
         }
     }
+
+    auto end = std::chrono::system_clock::now();
+ 
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    cout << "Total Time: " << elapsed_seconds.count() << " seconds" << endl;
 
             // Save our new factbase to the database. Generate any new edges to the new network state from already
             // existing states.

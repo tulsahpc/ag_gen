@@ -10,7 +10,7 @@
 
 using namespace std;
 
-std::string conninfo;
+DB *db;
 
 // print_usage prints to stdout the help menu that corresponds to the ag_gen command
 void print_usage() {
@@ -55,7 +55,8 @@ int main(int argc, char *argv[]) {
     }
 
     Config config("config.txt");
-    conninfo = config.db_string();
+    DB new_db {config.db_string()};
+    db = &new_db;
 
     NetworkState initial_state;
 

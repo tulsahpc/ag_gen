@@ -21,7 +21,7 @@ int Edge::get_id() {
 // bool Edge::exists_in_db() {
 //     ;
 
-//     vector<Row> rows = DB::exec(
+//     vector<Row> rows = db->exec(
 //             "SELECT 1 FROM edge WHERE from_node = " + to_string(from_node) + " AND to_node = " + to_string(to_node) +
 //             " AND exploit_id = " + to_string(exploit.get_id()) + ";");
 //     if (rows.size() > 0) {
@@ -34,14 +34,14 @@ int Edge::get_id() {
 // void Edge::save() {
 //     ;
 //     if (exists_in_db()) {
-//         vector<Row> rows = DB::exec(
+//         vector<Row> rows = db->exec(
 //                 "SELECT 1 FROM edge WHERE from_node = " + to_string(from_node) + " AND to_node = " +
 //                 to_string(to_node) + " AND exploit_id = " + to_string(exploit.get_id()) + ";");
 //         id = stoi(rows[0][0]);
 //         return;
 //     }
 
-//     vector<Row> rows = DB::exec(
+//     vector<Row> rows = db->exec(
 //             "SELECT new_edge(" + to_string(from_node) + "," + to_string(to_node) + "," + to_string(exploit.get_id()) +
 //             ");");
 //     int factbase_id = stoi(rows[0][0]);
@@ -58,5 +58,5 @@ int Edge::get_id() {
 //         }
 //     }
 
-//     DB::exec(sql);
+//     db->exec(sql);
 // }
