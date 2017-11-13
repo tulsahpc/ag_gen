@@ -21,8 +21,8 @@ class NetworkState {
     friend class Factbase;
 
 public:
-
     NetworkState();
+    NetworkState(const NetworkState &ns);
 
     const Factbase &get_factbase() const;
     size_t get_num_assets() const;

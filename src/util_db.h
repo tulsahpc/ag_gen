@@ -16,9 +16,10 @@
 #include <memory>
 #include <libpq-fe.h>
 
-class DB;
+typedef std::vector<std::string> Row;
 
-extern std::shared_ptr<DB> db;
+class DB;
+extern DB *db;
 
 class DBException : public std::runtime_error {
 public:
@@ -26,56 +27,41 @@ public:
     explicit DBException(std::string &&error_message) : std::runtime_error(error_message) {}
 };
 
-class DB {
+class Connection {
+    bool connected = false;
+    bool idle = true;
+
+    PGconn *conn_r;
 public:
-    typedef std::vector<std::string> Row;
-private:
-    class Connection {
-        PGconn *conn_r;
-        bool connected = false;
-
-        PGconn *create_connection(std::string &conninfo) {
-            // Create database connection
-            PGconn *conn = PQconnectdb(conninfo.c_str());
-            if (PQstatus(conn) != CONNECTION_OK) {
-                throw DBException("Database connection failed.");
-            }
-            connected = true;
-            return conn;
+    Connection(const std::string &conninfo) {
+        // Create database connection
+        conn_r = PQconnectdb(conninfo.c_str());
+        if (PQstatus(conn_r) != CONNECTION_OK) {
+            std::string errormsg(PQerrorMessage(conn_r));
+            throw DBException("Database connection failed: " + conninfo + "\n" + errormsg);
         }
-    public:
-        explicit Connection(std::string &conninfo) {
-            conn_r = create_connection(conninfo);
+        connected = true;
+    }
+
+    ~Connection() {
+        // Close connection before exiting
+        if (conn_r) {
+            PQfinish(conn_r);
         }
+        connected = false;
+    }
 
-        explicit Connection(std::string &&conninfo) {
-            conn_r = create_connection(conninfo);
-        }
+    bool is_connected() {
+        return connected;
+    }
 
-        bool is_connected() {
-            return connected;
-        }
-
-        void close() {
-            // Close connection before exiting
-            if (conn_r) {
-                PQfinish(conn_r);
-            }
-            connected = false;
-        }
-
-        friend class DB;
-    };
-
-    Connection conn;
-
-    std::vector<Row> execute_query(std::string &sql) {
-        if (!conn.is_connected()) {
+    std::vector<Row> exec(const std::string &sql) {
+        if (!is_connected()) {
             throw DBException("Not connected to Database.");
         }
 
         std::vector<Row> rows;
-        PGresult *res = PQexec(conn.conn_r, sql.c_str());
+        PGresult *res = PQexec(conn_r, sql.c_str());
         if (PQresultStatus(res) == PGRES_COMMAND_OK) {
             // No return
         } else if (PQresultStatus(res) == PGRES_TUPLES_OK) {
@@ -91,26 +77,27 @@ private:
             }
         } else {
             // DB Error
-            throw DBException(PQerrorMessage(conn.conn_r));
+            throw DBException(PQerrorMessage(conn_r));
         }
 
         PQclear(res);
         return rows;
     }
+};
+
+class DB {
+    Connection conn;
 public:
-    explicit DB(std::string &conninfo) : conn(conninfo) {};
-    explicit DB(std::string &&conninfo) : conn(conninfo) {};
+    DB(const std::string &conninfo) : conn(conninfo) {}
 
-    std::vector<Row> exec(std::string &sql) {
-        return execute_query(sql);
-    }
-
-    std::vector<Row> exec(std::string &&sql) {
-        return execute_query(sql);
-    }
-
-    void close() {
-        conn.close();
+    std::vector<Row> exec(const std::string &sql) {
+        try {
+            auto results = conn.exec(sql);
+            return results;
+        } catch (DBException &e) {
+            std::cerr << "Database Exception: " << e.what() << std::endl;
+            abort();
+        }
     }
 };
 
