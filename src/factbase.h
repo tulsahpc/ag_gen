@@ -24,11 +24,11 @@ public:
     void populate();
     void save();
 
-    bool find_quality(Quality &) const;
-    bool find_topology(Topology &) const;
+    bool find_quality(Quality &q) const;
+    bool find_topology(Topology &t) const;
 
-    void add_quality(Quality);
-    void add_topology(Topology);
+    void add_quality(Quality q);
+    void add_topology(Topology y);
 
     bool exists_in_db();
 
