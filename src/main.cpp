@@ -10,8 +10,6 @@
 
 using namespace std;
 
-DB *db;
-
 // print_usage prints to stdout the help menu that corresponds to the ag_gen command
 void print_usage() {
     cout << "Usage: ag_gen [OPTION...]" << endl << endl;
@@ -55,10 +53,9 @@ int main(int argc, char *argv[]) {
     }
 
     Config config("config.txt");
-
     DB new_db {config.db_string()};
-    db = &new_db;
-
     Network net {opt_network};
+    AGGen gen {net, new_db};
 
+    gen.generate();
 }

@@ -9,14 +9,14 @@
 #include "factbase.h"
 #include "keyvalue.h"
 
+class Network;
 class NetworkState {
+    Network *net;
     Factbase factbase;
-    Keyvalue kv_facts;
-
     friend class Factbase;
 
 public:
-    NetworkState();
+    NetworkState(Network &net);
     NetworkState(const NetworkState &ns);
 
     const Factbase &get_factbase() const;

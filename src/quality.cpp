@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 
+#include "ag_gen.h"
 #include "quality.h"
 #include "util_db.h"
 #include "keyvalue.h"
@@ -61,7 +62,7 @@ bool Quality::operator==(const Quality &rhs) const {
 
 vector<Quality> Quality::fetch_all() {
     vector<Quality> qualities;
-    vector<Row> rows = db->exec("SELECT * FROM quality;");
+    vector<Row> rows = AGGen::db->exec("SELECT * FROM quality;");
 
     for (auto &row : rows) {
         int asset_id = stoi(row[0]);
@@ -78,8 +79,8 @@ vector<Quality> Quality::fetch_all() {
 
 vector<string> Quality::fetch_all_attributes() {
     vector<string> attrs;
-    vector<Row> qrows = db->exec("SELECT DISTINCT property FROM quality;");
-    vector<Row> erows = db->exec("SELECT DISTINCT property FROM exploit_postcondition;");
+    vector<Row> qrows = AGGen::db->exec("SELECT DISTINCT property FROM quality;");
+    vector<Row> erows = AGGen::db->exec("SELECT DISTINCT property FROM exploit_postcondition;");
 
     for (auto &row : qrows) {
         string prop = row[0];
@@ -96,8 +97,8 @@ vector<string> Quality::fetch_all_attributes() {
 
 vector<string> Quality::fetch_all_values() {
     vector<string> vals;
-    vector<Row> qrows = db->exec("SELECT DISTINCT value FROM quality;");
-    vector<Row> erows = db->exec("SELECT DISTINCT value FROM exploit_postcondition;");
+    vector<Row> qrows = AGGen::db->exec("SELECT DISTINCT value FROM quality;");
+    vector<Row> erows = AGGen::db->exec("SELECT DISTINCT value FROM exploit_postcondition;");
 
     for (auto &row : qrows) {
         string val = row[0];

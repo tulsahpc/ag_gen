@@ -1,6 +1,10 @@
 #ifndef AG_GEN_TOPOLOGY_H
 #define AG_GEN_TOPOLOGY_H
 
+#include <vector>
+#include <string>
+#include "keyvalue.h"
+
 union EncodedTopology {
     struct {
         int from_asset : 16;

@@ -5,11 +5,12 @@
 #include "network_state.h"
 #include "asset.h"
 
-NetworkState::NetworkState() {
+NetworkState::NetworkState(Network &net) {
     factbase.set_parent(*this);
+    this->net = &net;
 }
 
-NetworkState::NetworkState(const NetworkState &ns) : factbase(ns.factbase) {
+NetworkState::NetworkState(const NetworkState &ns) : net(ns.net), factbase(ns.factbase) {
     factbase.set_parent(*this);
 }
 

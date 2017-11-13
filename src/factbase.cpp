@@ -5,6 +5,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "ag_gen.h"
+#include "network.h"
 #include "network_state.h"
 #include "factbase.h"
 #include "util_db.h"
@@ -24,7 +26,7 @@ int Factbase::get_id() const {
 
 bool Factbase::exists_in_db() {
     string sql = "SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';";
-    vector<Row> rows = db->exec(sql);
+    vector<Row> rows = AGGen::db->exec(sql);
     if (!rows.empty()) {
         id = stoi(rows[0][0]);
         return true;
@@ -66,21 +68,21 @@ void Factbase::save() {
         return;
     }
 
-    vector<Row> rows = db->exec("SELECT new_factbase('" + to_string(hash()) + "');");
+    vector<Row> rows = AGGen::db->exec("SELECT new_factbase('" + to_string(hash()) + "');");
     id = stoi(rows[0][0]);
 
     // XXX: There has to be a better way to do this
     string insert_sql = "INSERT INTO factbase_item VALUES ";
-    insert_sql += "(" + to_string(id) + "," + to_string(qualities[0].encode(parent->kv_facts).enc) + ",'quality')";
+    insert_sql += "(" + to_string(id) + "," + to_string(qualities[0].encode(parent->net->facts).enc) + ",'quality')";
     for (int i = 1; i < qualities.size(); i++) {
-        insert_sql += ",(" + to_string(id) + "," + to_string(qualities[i].encode(parent->kv_facts).enc) + ",'quality')";
+        insert_sql += ",(" + to_string(id) + "," + to_string(qualities[i].encode(parent->net->facts).enc) + ",'quality')";
     }
     for (int i = 0; i < topologies.size(); i++) {
-        insert_sql += ",(" + to_string(id) + "," + to_string(topologies[i].encode(parent->kv_facts).enc) + ",'topology')";
+        insert_sql += ",(" + to_string(id) + "," + to_string(topologies[i].encode(parent->net->facts).enc) + ",'topology')";
     }
     insert_sql += " ON CONFLICT DO NOTHING;";
 
-    db->exec(insert_sql);
+    AGGen::db->exec(insert_sql);
 }
 
 // Shamelessly copied from Boost::hash_combine
@@ -96,18 +98,19 @@ size_t Factbase::hash() const {
     //  size_t hash = 0xf848b64e; // Random seed value
     size_t hash = 0x0c32a12fe19d2119;
 
+    cout << "Q Size: " << qualities.size() << endl;
+
     int qualities_length = qualities.size();
-    #pragma omp parallel for schedule(dynamic,16) reduction(^: hash)
     for (int i=0; i<qualities_length; i++) {
         auto &qual = qualities.at(i);
-        hash ^= combine(qual.encode(parent->kv_facts).enc);
+        hash ^= combine(qual.encode(parent->net->facts).enc);
     }
 
+    cout << "T Size: " << topologies.size() << endl;
     int topologies_length = topologies.size();
-    #pragma omp parallel for schedule(dynamic,16) reduction(^: hash)
     for (int i=0; i<topologies_length; i++) {
         auto &topo = topologies.at(i);
-        hash ^= combine(topo.encode(parent->kv_facts).enc);
+        hash ^= combine(topo.encode(parent->net->facts).enc);
     }
 
     return hash;

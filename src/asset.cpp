@@ -5,6 +5,7 @@
 #include <string>
 #include <libpq-fe.h>
 
+#include "ag_gen.h"
 #include "asset.h"
 #include "util_db.h"
 
@@ -19,7 +20,7 @@ Asset::Asset(int iid, int netid, std::string nname) :
 // to the Asset
 void Asset::fetch_qualities()
 {
-	vector<Row> rows = db->exec("SELECT * FROM quality WHERE asset_id = '" + to_string(id) + "';");
+	vector<Row> rows = AGGen::db->exec("SELECT * FROM quality WHERE asset_id = '" + to_string(id) + "';");
 
 	for(auto &row : rows) {
 		int asset_id = stoi(row[0]);
@@ -36,7 +37,7 @@ void Asset::fetch_qualities()
 // fetch_all grabs all of the Assets in the database under the network given in the argument and returns a
 // vector of those Assets
 vector<Asset> Asset::fetch_all(const string &network) {
-	vector<Row> rows = db->exec("SELECT * FROM asset WHERE network_id = (SELECT id FROM network WHERE name = '" + network + "');");
+	vector<Row> rows = AGGen::db->exec("SELECT * FROM asset WHERE network_id = (SELECT id FROM network WHERE name = '" + network + "');");
 	vector<Asset> new_assets;
 	
 	for (auto &row : rows) {

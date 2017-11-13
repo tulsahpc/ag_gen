@@ -7,6 +7,7 @@
 #ifndef UTIL_DB_HPP
 #define UTIL_DB_HPP
 
+#include <iostream>
 #include <cstdlib>
 #include <stdexcept>
 #include <string>
@@ -17,9 +18,6 @@
 #include <libpq-fe.h>
 
 typedef std::vector<std::string> Row;
-
-class DB;
-extern DB *db;
 
 class DBException : public std::runtime_error {
 public:

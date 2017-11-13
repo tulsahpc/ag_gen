@@ -18,7 +18,7 @@
 #include "network.h"
 
 class AGGen {
-    Keyvalue facts;
+    Network &net;
 
     std::deque<NetworkState> frontier;
     
@@ -26,12 +26,14 @@ class AGGen {
     std::set<size_t> hash_list {};
     std::set<Edge> edge_list {};
 
-    std::tuple<std::vector<Quality>, std::vector<Topology> > createPostConditions(std::tuple<Exploit, AssetGroup> group);
+    std::tuple<std::vector<Quality>, std::vector<Topology> > createPostConditions(std::tuple<Exploit, AssetGroup> &group);
 
 public:
-    explicit AGGen(NetworkState initial_state);
+    explicit AGGen(Network &net_i, DB &db);
 
     void generate();
+
+    static std::shared_ptr<DB> db;
 };
 
 #endif //AG_GEN_HPP
