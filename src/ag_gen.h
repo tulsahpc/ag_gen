@@ -6,6 +6,7 @@
 #include <deque>
 #include <map>
 #include <set>
+#include <tuple>
 
 #include "asset.h"
 #include "keyvalue.h"
@@ -14,10 +15,15 @@
 #include "assetgroup.h"
 #include "network_state.h"
 #include "edge.h"
+#include "network.h"
 
 class AGGen {
-    std::deque<NetworkState> frontier; // The newly generated states to go through next
-    std::set<size_t> state_list {};
+    Keyvalue facts;
+
+    std::deque<NetworkState> frontier;
+    
+    std::set<NetworkState> state_list {};
+    std::set<size_t> hash_list {};
     std::set<Edge> edge_list {};
 
     std::tuple<std::vector<Quality>, std::vector<Topology> > createPostConditions(std::tuple<Exploit, AssetGroup> group);

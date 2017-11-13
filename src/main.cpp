@@ -55,11 +55,10 @@ int main(int argc, char *argv[]) {
     }
 
     Config config("config.txt");
+
     DB new_db {config.db_string()};
     db = &new_db;
 
-    NetworkState initial_state;
+    Network net {opt_network};
 
-    AGGen generator(initial_state);
-    generator.generate();
 }

@@ -45,8 +45,7 @@ void AGGen::generate() {
 
         for(int i=0; i<esize; i++) {
             auto e = exploit_list.at(i);
-
-            auto num_assets = current_state.get_num_assets();
+            
             auto num_params = e.get_num_params();
 
             auto preconds_q = e.precond_list_q();
