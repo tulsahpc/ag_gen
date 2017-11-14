@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <ctime>
 #include <chrono>
-// #include <omp.h>
 
 #include "ag_gen.h"
 #include "util_odometer.h"
@@ -57,6 +56,7 @@ void AGGen::generate() {
 
             int len = od.length();
 
+            #pragma omp parallel for schedule(dynamic)
             for (int j = 0; j<len; j++) {
                 auto perm = od[j];
 
@@ -76,11 +76,13 @@ void AGGen::generate() {
                     asset_group_topos.emplace_back(perm[precond.get_from_param()], perm[precond.get_to_param()], dir, prop, op, val);
                 }
 
+                #pragma omp critical
                 asset_groups.emplace_back(asset_group_quals, asset_group_topos, perm);
             }
 
             int assetgroup_size = asset_groups.size();
 
+            #pragma omp parallel for schedule(dynamic)
             for (int j=0; j<assetgroup_size; j++) {
                 auto asset_group = asset_groups.at(j);
                 // Each quality must exist. If not, discard asset_group entirely.
@@ -98,9 +100,11 @@ void AGGen::generate() {
                     }
                 }
 
-                auto new_appl_exploit = make_tuple(e, asset_group);
-
-                appl_exploits.push_back(new_appl_exploit);
+                {
+                    auto new_appl_exploit = make_tuple(e, asset_group);
+                    #pragma omp critical
+                    appl_exploits.push_back(new_appl_exploit);
+                }
 LOOPCONTINUE:;
             }
         }

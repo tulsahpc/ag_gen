@@ -16,9 +16,8 @@ public:
     Keyvalue facts;
 
     Network(std::string &name) : assets(Asset::fetch_all(name)) {
-        NetworkState initstate {*this};
-        initial_state = std::make_unique<NetworkState>(std::move(initstate));
-        
+        initial_state = generate_network_state();
+
         facts.populate(Quality::fetch_all_attributes());
         facts.populate(Quality::fetch_all_values());
         facts.populate(Topology::fetch_all_attributes());
@@ -31,6 +30,10 @@ public:
 
     int size() {
         return assets.size();
+    }
+
+    std::unique_ptr<NetworkState> generate_network_state() {
+        return std::unique_ptr<NetworkState>(new NetworkState(*this));
     }
 };
 

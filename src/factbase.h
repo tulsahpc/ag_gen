@@ -27,8 +27,8 @@ public:
     bool find_quality(Quality &q) const;
     bool find_topology(Topology &t) const;
 
-    void add_quality(Quality q);
-    void add_topology(Topology y);
+    void add_quality(Quality &q);
+    void add_topology(Topology &y);
 
     bool exists_in_db();
 

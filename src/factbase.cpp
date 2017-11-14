@@ -54,12 +54,12 @@ bool Factbase::find_topology(Topology &t) const {
 }
 
 // add_quality adds a given quality to the factbase's vector of qualities
-void Factbase::add_quality(Quality q) {
+void Factbase::add_quality(Quality &q) {
     qualities.push_back(q);
 }
 
 // add_topology adds a given topology to the factbase's vector of topologies
-void Factbase::add_topology(Topology t) {
+void Factbase::add_topology(Topology &t) {
     topologies.push_back(t);
 }
 
@@ -99,12 +99,14 @@ size_t Factbase::hash() const {
     size_t hash = 0x0c32a12fe19d2119;
 
     int qualities_length = qualities.size();
+    #pragma omp parallel for schedule(dynamic) reduction(^:hash)
     for (int i=0; i<qualities_length; i++) {
         auto &qual = qualities.at(i);
         hash ^= combine(qual.encode(parent->net->facts).enc);
     }
 
     int topologies_length = topologies.size();
+    #pragma omp parallel for schedule(dynamic) reduction(^:hash)
     for (int i=0; i<topologies_length; i++) {
         auto &topo = topologies.at(i);
         hash ^= combine(topo.encode(parent->net->facts).enc);
