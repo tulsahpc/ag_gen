@@ -29,11 +29,8 @@ class AGGen {
     std::tuple<std::vector<Quality>, std::vector<Topology> > createPostConditions(std::tuple<Exploit, AssetGroup> &group);
 
 public:
-    explicit AGGen(Network &net_i, DB &db);
-
+    explicit AGGen(Network &net_i);
     void generate();
-
-    static std::shared_ptr<DB> db;
 };
 
 #endif //AG_GEN_HPP

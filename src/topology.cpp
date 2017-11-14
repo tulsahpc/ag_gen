@@ -89,7 +89,7 @@ bool Topology::operator==(const Topology &rhs) const {
 
 vector<string> Topology::fetch_all_attributes() {
     vector<string> attrs;
-    vector<Row> rows = AGGen::db->exec("SELECT DISTINCT property FROM topology;");
+    vector<Row> rows = db->exec("SELECT DISTINCT property FROM topology;");
 
     for (auto &row : rows) {
         string prop = row[0];
@@ -101,7 +101,7 @@ vector<string> Topology::fetch_all_attributes() {
 
 vector<string> Topology::fetch_all_values() {
     vector<string> vals;
-    vector<Row> rows = AGGen::db->exec("SELECT DISTINCT value FROM topology;");
+    vector<Row> rows = db->exec("SELECT DISTINCT value FROM topology;");
 
     for (auto &row : rows) {
         string val = row[0];
@@ -114,7 +114,7 @@ vector<string> Topology::fetch_all_values() {
 vector<Topology> Topology::fetch_all() {
     vector<Topology> topologies;
 
-    vector<Row> rows = AGGen::db->exec("SELECT * FROM topology;");
+    vector<Row> rows = db->exec("SELECT * FROM topology;");
     for (auto &row : rows) {
         int from_asset = stoi(row[0]);
         int to_asset = stoi(row[1]);

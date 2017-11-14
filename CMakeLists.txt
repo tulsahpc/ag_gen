@@ -7,7 +7,7 @@ message(STATUS ${CMAKE_MODULE_PATH})
 
 set(CMAKE_C_COMPILER "/usr/local/bin/gcc-6")
 set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-6")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11 -g3 -O0 -ggdb -fPIC -fopenmp")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++14 -g3 -O0 -ggdb -fPIC -fopenmp")
 
 file(COPY "${PROJECT_SOURCE_DIR}/config_default.txt" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(RENAME "${CMAKE_CURRENT_BINARY_DIR}/config_default.txt" "${CMAKE_CURRENT_BINARY_DIR}/config.txt")

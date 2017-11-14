@@ -17,6 +17,9 @@
 #include <memory>
 #include <libpq-fe.h>
 
+class DB;
+extern std::shared_ptr<DB> db;
+
 typedef std::vector<std::string> Row;
 
 class DBException : public std::runtime_error {

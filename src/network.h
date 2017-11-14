@@ -2,6 +2,7 @@
 #define NETWORK_H
 
 #include <vector>
+#include <memory>
 
 #include "network_state.h"
 #include "asset.h"
@@ -16,7 +17,7 @@ public:
 
     Network(std::string &name) : assets(Asset::fetch_all(name)) {
         NetworkState initstate {*this};
-        *initial_state = std::move(initstate);
+        initial_state = std::make_unique<NetworkState>(std::move(initstate));
         
         facts.populate(Quality::fetch_all_attributes());
         facts.populate(Quality::fetch_all_values());

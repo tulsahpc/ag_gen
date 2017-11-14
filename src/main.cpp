@@ -3,12 +3,15 @@
 
 #include <iostream>
 #include <getopt.h>
+#include <memory>
 
 #include "ag_gen.h"
 #include "util_db.h"
 #include "config.h"
 
 using namespace std;
+
+std::shared_ptr<DB> db;
 
 // print_usage prints to stdout the help menu that corresponds to the ag_gen command
 void print_usage() {
@@ -54,8 +57,10 @@ int main(int argc, char *argv[]) {
 
     Config config("config.txt");
     DB new_db {config.db_string()};
+    db = std::make_shared<DB>(new_db);
+
     Network net {opt_network};
-    AGGen gen {net, new_db};
+    AGGen gen {net};
 
     gen.generate();
 }

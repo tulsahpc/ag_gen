@@ -26,7 +26,7 @@ int Factbase::get_id() const {
 
 bool Factbase::exists_in_db() {
     string sql = "SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';";
-    vector<Row> rows = AGGen::db->exec(sql);
+    vector<Row> rows = db->exec(sql);
     if (!rows.empty()) {
         id = stoi(rows[0][0]);
         return true;
@@ -68,7 +68,7 @@ void Factbase::save() {
         return;
     }
 
-    vector<Row> rows = AGGen::db->exec("SELECT new_factbase('" + to_string(hash()) + "');");
+    vector<Row> rows = db->exec("SELECT new_factbase('" + to_string(hash()) + "');");
     id = stoi(rows[0][0]);
 
     // XXX: There has to be a better way to do this
@@ -82,7 +82,7 @@ void Factbase::save() {
     }
     insert_sql += " ON CONFLICT DO NOTHING;";
 
-    AGGen::db->exec(insert_sql);
+    db->exec(insert_sql);
 }
 
 // Shamelessly copied from Boost::hash_combine
@@ -98,15 +98,12 @@ size_t Factbase::hash() const {
     //  size_t hash = 0xf848b64e; // Random seed value
     size_t hash = 0x0c32a12fe19d2119;
 
-    cout << "Q Size: " << qualities.size() << endl;
-
     int qualities_length = qualities.size();
     for (int i=0; i<qualities_length; i++) {
         auto &qual = qualities.at(i);
         hash ^= combine(qual.encode(parent->net->facts).enc);
     }
 
-    cout << "T Size: " << topologies.size() << endl;
     int topologies_length = topologies.size();
     for (int i=0; i<topologies_length; i++) {
         auto &topo = topologies.at(i);

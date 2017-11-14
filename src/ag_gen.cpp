@@ -16,14 +16,9 @@
 
 using namespace std;
 
-std::shared_ptr<DB> AGGen::db;
-
 // The AGGen constructor creates a new AGGen object and takes the given NetworkState and sets it as the
 // initial network state for generation by pushing it onto the new AGGen object's frontier vector.
-AGGen::AGGen(Network &net_i, DB &db_i) : net(net_i) {
-    // Must run first!!!
-    *db = db_i;
-
+AGGen::AGGen(Network &net_i) : net(net_i) {
     frontier.emplace_back(net.get_initial_state());
 }
 
@@ -135,10 +130,7 @@ LOOPCONTINUE:;
             new_state.add_qualities(qualities);
             new_state.add_topologies(topologies);
 
-            cout << "BEFORE" << endl;
-            cout << new_state.get_hash() << endl;
             auto res = hash_list.find(new_state.get_hash());
-            cout << "AFTER" << endl;
 
             if(res != hash_list.end())
                 continue;
@@ -147,11 +139,11 @@ LOOPCONTINUE:;
             frontier.emplace_front(new_state);
             counter++;
         }
-
-        auto end = std::chrono::system_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end-start;
-        cout << "Total Time: " << elapsed_seconds.count() << " seconds" << endl;
     }
+
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    cout << "Total Time: " << elapsed_seconds.count() << " seconds" << endl;
 
     cout << "total number of generated states: " << counter << endl;
     cout << "states in hash_list: " << hash_list.size() << endl;
