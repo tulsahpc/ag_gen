@@ -33,7 +33,7 @@ public:
     }
 
     std::unique_ptr<NetworkState> generate_network_state() {
-        return std::unique_ptr<NetworkState>(new NetworkState(*this));
+        return std::make_unique<NetworkState>(*this);
     }
 };
 

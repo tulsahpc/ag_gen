@@ -4,7 +4,6 @@
 #include <iostream>
 #include <getopt.h>
 #include <memory>
-#include <omp.h>
 
 #include "ag_gen.h"
 #include "util_db.h"
@@ -55,8 +54,6 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
         }
     }
-
-    omp_set_num_threads(4);
 
     Config config("config.txt");
     db = std::make_shared<DB>(config.db_string());

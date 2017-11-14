@@ -1,13 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
 project(ag_gen)
 
-# Add FindTBB (from github)
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/extra")
-message(STATUS ${CMAKE_MODULE_PATH})
-
 #set(CMAKE_C_COMPILER "/usr/local/bin/gcc-6")
 #set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-6")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11 -fopenmp")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fopenmp")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -ggdb -Wall -pedantic")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g -Wall -pedantic -O1")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O1")
 
 file(COPY "${PROJECT_SOURCE_DIR}/config_default.txt" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(RENAME "${CMAKE_CURRENT_BINARY_DIR}/config_default.txt" "${CMAKE_CURRENT_BINARY_DIR}/config.txt")
