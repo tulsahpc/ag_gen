@@ -1,9 +1,9 @@
 #ifndef FACTBASE_HPP
 #define FACTBASE_HPP
 
-#include <vector>
-#include <functional>
 #include <cstdint>
+#include <functional>
+#include <vector>
 
 #include "quality.h"
 #include "topology.h"
@@ -20,7 +20,8 @@ class Factbase {
     void set_parent(const NetworkState &ns);
 
     friend class NetworkState;
-public:
+
+  public:
     void populate();
     void save();
 

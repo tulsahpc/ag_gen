@@ -5,8 +5,8 @@
 #ifndef AG_GEN_PARAMETERIZED_QUALITY_H
 #define AG_GEN_PARAMETERIZED_QUALITY_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "asset.h"
 #include "quality.h"
@@ -16,9 +16,9 @@ struct ParameterizedQuality {
     int param;
     std::string name;
     std::string value;
-	
+
     int get_param_num();
     void print();
 };
 
-#endif //AG_GEN_PARAMETERIZED_QUALITY_H
+#endif // AG_GEN_PARAMETERIZED_QUALITY_H

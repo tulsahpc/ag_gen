@@ -1,21 +1,22 @@
 /** \file db_util.h
  * \author Kyle Cook <kylecook80@gmail.com>
  * \date June 2016
- * \copyright Copyright (C) The University of Tulsa - All Rights Reserved. Unauthorized copying or distribution of this file is strictly prohibited.
+ * \copyright Copyright (C) The University of Tulsa - All Rights Reserved.
+ * Unauthorized copying or distribution of this file is strictly prohibited.
  */
 
 #ifndef UTIL_DB_HPP
 #define UTIL_DB_HPP
 
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
+#include <libpq-fe.h>
+#include <memory>
 #include <stdexcept>
 #include <string>
-#include <vector>
 #include <tuple>
 #include <utility>
-#include <memory>
-#include <libpq-fe.h>
+#include <vector>
 
 class DB;
 extern std::shared_ptr<DB> db;
@@ -23,9 +24,11 @@ extern std::shared_ptr<DB> db;
 typedef std::vector<std::string> Row;
 
 class DBException : public std::runtime_error {
-public:
-    explicit DBException(std::string &error_message) : std::runtime_error(error_message) {}
-    explicit DBException(std::string &&error_message) : std::runtime_error(error_message) {}
+  public:
+    explicit DBException(std::string &error_message)
+        : std::runtime_error(error_message) {}
+    explicit DBException(std::string &&error_message)
+        : std::runtime_error(error_message) {}
 };
 
 class Connection {
@@ -33,13 +36,15 @@ class Connection {
     bool idle = true;
 
     PGconn *conn_r;
-public:
+
+  public:
     Connection(const std::string &conninfo) {
         // Create database connection
         conn_r = PQconnectdb(conninfo.c_str());
         if (PQstatus(conn_r) != CONNECTION_OK) {
             std::string errormsg(PQerrorMessage(conn_r));
-            throw DBException("Database connection failed: " + conninfo + "\n" + errormsg);
+            throw DBException("Database connection failed: " + conninfo + "\n" +
+                              errormsg);
         }
         connected = true;
     }
@@ -52,9 +57,7 @@ public:
         connected = false;
     }
 
-    bool is_connected() {
-        return connected;
-    }
+    bool is_connected() { return connected; }
 
     std::vector<Row> exec(const std::string &sql) {
         if (!is_connected()) {
@@ -88,7 +91,8 @@ public:
 
 class DB {
     Connection conn;
-public:
+
+  public:
     DB(const std::string &conninfo) : conn(conninfo) {}
 
     std::vector<Row> exec(const std::string &sql) {
@@ -102,4 +106,4 @@ public:
     }
 };
 
-#endif //UTIL_DB_HPP
+#endif // UTIL_DB_HPP

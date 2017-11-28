@@ -1,12 +1,14 @@
-// network_state.h implements the Network State class which represents a single state of a network and cotains a factbase of known truths for the Network State
+// network_state.h implements the Network State class which represents a single
+// state of a network and cotains a factbase of known truths for the Network
+// State
 
 #ifndef NETWORK_STATE_H
 #define NETWORK_STATE_H
 
 #include "asset.h"
+#include "factbase.h"
 #include "quality.h"
 #include "topology.h"
-#include "factbase.h"
 
 #include "util/keyvalue.h"
 
@@ -16,7 +18,7 @@ class NetworkState {
     Factbase factbase;
     friend class Factbase;
 
-public:
+  public:
     NetworkState(Network &net);
     NetworkState(const NetworkState &ns);
 

@@ -1,15 +1,16 @@
 /** \file util.c
  * \author Kyle Cook <kylecook80@gmail.com>
  * \date June 2016
- * \copyright Copyright (C) The University of Tulsa - All Rights Reserved. Unauthorized copying or distribution of this file is strictly prohibited.
+ * \copyright Copyright (C) The University of Tulsa - All Rights Reserved.
+ * Unauthorized copying or distribution of this file is strictly prohibited.
  */
 
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
-#include <vector>
-#include <string>
 #include <sstream>
-#include <algorithm>
+#include <string>
+#include <vector>
 
 #include "util/common.h"
 
@@ -20,11 +21,11 @@ unsigned int base_convert_string(string data, int base) {
     for (int i = 0; i < data.size(); i++) {
         unsigned int next_num = 0;
         if (data[i] <= 'z' && data[i] >= 'a') {
-            next_num = (unsigned int) data[i] - 87;
+            next_num = (unsigned int)data[i] - 87;
         } else if (data[i] <= 'Z' && data[i] >= 'A') {
-            next_num = (unsigned int) data[i] - 55;
+            next_num = (unsigned int)data[i] - 55;
         } else if (data[i] <= '9' && data[i] >= '0') {
-            next_num = (unsigned int) data[i] - '0';
+            next_num = (unsigned int)data[i] - '0';
         } else {
             printf("Malformed Input\n");
             exit(1);
@@ -40,7 +41,6 @@ vector<int> base_convert_int(int num, int base) {
         str.push_back(num % base);
         num = num / base;
     }
-
 
     for (int i = 0; i < str.size(); i++) {
         str[i] = alphabet[str[i]];
@@ -64,6 +64,7 @@ vector<string> split(string str, char delim) {
 };
 
 string trim(string str) {
-    str.erase(str.begin(), find_if(str.begin(), str.end(), not1(ptr_fun<int, int>(isspace))));
+    str.erase(str.begin(), find_if(str.begin(), str.end(),
+                                   not1(ptr_fun<int, int>(isspace))));
     return str;
 }

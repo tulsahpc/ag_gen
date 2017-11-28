@@ -8,8 +8,8 @@
 
 using namespace std;
 
-Quality::Quality(int asset, string qualName, string op, string qualValue) :
-        asset_id(asset), name(move(qualName)), value(move(qualValue)) {}
+Quality::Quality(int asset, string qualName, string op, string qualValue)
+    : asset_id(asset), name(move(qualName)), value(move(qualValue)) {}
 
 // Quality::Quality(size_t fact) {
 //     EncodedQuality eQual{};
@@ -21,16 +21,13 @@ Quality::Quality(int asset, string qualName, string op, string qualValue) :
 //     value = eQual.dec.val;
 // }
 
-string Quality::get_name() const {
-    return name;
-}
+string Quality::get_name() const { return name; }
 
-string Quality::get_op() const {
-    return op;
-}
+string Quality::get_op() const { return op; }
 
 void Quality::print() const {
-    std::cout << to_string(asset_id) + ": " + name + " => " + value << std::endl;
+    std::cout << to_string(asset_id) + ": " + name + " => " + value
+              << std::endl;
 }
 
 EncodedQuality Quality::encode(const Keyvalue &kv_facts) const {
@@ -39,8 +36,9 @@ EncodedQuality Quality::encode(const Keyvalue &kv_facts) const {
     qual.dec.attr = kv_facts[name];
     qual.dec.val = kv_facts[value];
 
-//    cout << asset_id << " " << attrs_kv[name] << " " << vals_kv[value] << " - " << qual.enc << endl;
-//	cout << attrs.size() << " " << vals.size() << endl;
+    //    cout << asset_id << " " << attrs_kv[name] << " " << vals_kv[value] <<
+    //    " - " << qual.enc << endl;
+    //	cout << attrs.size() << " " << vals.size() << endl;
 
     return qual;
 }
@@ -79,7 +77,8 @@ vector<Quality> Quality::fetch_all() {
 vector<string> Quality::fetch_all_attributes() {
     vector<string> attrs;
     vector<Row> qrows = db->exec("SELECT DISTINCT property FROM quality;");
-    vector<Row> erows = db->exec("SELECT DISTINCT property FROM exploit_postcondition;");
+    vector<Row> erows =
+        db->exec("SELECT DISTINCT property FROM exploit_postcondition;");
 
     for (auto &row : qrows) {
         string prop = row[0];
@@ -97,7 +96,8 @@ vector<string> Quality::fetch_all_attributes() {
 vector<string> Quality::fetch_all_values() {
     vector<string> vals;
     vector<Row> qrows = db->exec("SELECT DISTINCT value FROM quality;");
-    vector<Row> erows = db->exec("SELECT DISTINCT value FROM exploit_postcondition;");
+    vector<Row> erows =
+        db->exec("SELECT DISTINCT value FROM exploit_postcondition;");
 
     for (auto &row : qrows) {
         string val = row[0];

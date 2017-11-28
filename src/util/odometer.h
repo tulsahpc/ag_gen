@@ -1,20 +1,20 @@
 #ifndef UTIL_ODOMETER_HPP
 #define UTIL_ODOMETER_HPP
 
+#include <cmath>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
-#include <cmath>
-#include <memory>
 
 // N is the width of the permutation
 // K is the number of elements
 class Odometer {
-    std::vector<std::vector<int> > perms;
+    std::vector<std::vector<int>> perms;
     int idx_state = 0;
     int n, k;
 
-public:
+  public:
     Odometer(int in_n, int in_k) {
         n = in_n;
         k = in_k;
@@ -65,29 +65,17 @@ public:
         }
     }
 
-    double length() {
-        return pow(k, n);
-    }
+    double length() { return pow(k, n); }
 
-    std::vector<int> next() {
-        return perms[idx_state++];
-    }
+    std::vector<int> next() { return perms[idx_state++]; }
 
-    const std::vector<int> &operator[](int idx) const {
-        return perms[idx];
-    }
+    const std::vector<int> &operator[](int idx) const { return perms[idx]; }
 
-    void reset() {
-        idx_state = 0;
-    }
+    void reset() { idx_state = 0; }
 
-    int perm_length() {
-        return n;
-    }
+    int perm_length() { return n; }
 
-    std::vector<std::vector<int> > get_all() {
-        return perms;
-    }
+    std::vector<std::vector<int>> get_all() { return perms; }
 };
 
-#endif //UTIL_ODOMETER_HPP
+#endif // UTIL_ODOMETER_HPP

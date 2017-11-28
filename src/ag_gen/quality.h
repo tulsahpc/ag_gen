@@ -5,8 +5,8 @@
 #ifndef AG_GEN_QUALITY_H
 #define AG_GEN_QUALITY_H
 
-#include <string>
 #include "util/keyvalue.h"
+#include <string>
 
 union EncodedQuality {
     struct {
@@ -26,8 +26,9 @@ class Quality {
 
     friend class Factbase;
 
-public:
-    Quality(int assetId, std::string qualName, std::string op, std::string qualValue);
+  public:
+    Quality(int assetId, std::string qualName, std::string op,
+            std::string qualValue);
     // explicit Quality(size_t fact);
 
     std::string get_name() const;
@@ -45,4 +46,4 @@ public:
     static std::vector<std::string> fetch_all_values();
 };
 
-#endif //AG_GEN_QUALITY_H
+#endif // AG_GEN_QUALITY_H

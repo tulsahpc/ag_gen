@@ -1,8 +1,8 @@
 #ifndef AG_GEN_TOPOLOGY_H
 #define AG_GEN_TOPOLOGY_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "util/keyvalue.h"
 
@@ -29,8 +29,9 @@ class Topology {
 
     friend class Factbase;
 
-public:
-    Topology(int f_asset, int t_asset, std::string dir, std::string property, std::string op, std::string val);
+  public:
+    Topology(int f_asset, int t_asset, std::string dir, std::string property,
+             std::string op, std::string val);
     // explicit Topology(size_t fact);
 
     int get_from_asset_id() const;
@@ -52,4 +53,4 @@ public:
     static std::vector<std::string> fetch_all_values();
 };
 
-#endif //AG_GEN_TOPOLOGY_H
+#endif // AG_GEN_TOPOLOGY_H

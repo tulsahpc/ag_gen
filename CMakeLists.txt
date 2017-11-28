@@ -51,15 +51,15 @@ add_executable(nm_test ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS} ${u
 target_include_directories(nm_test PRIVATE ${CMAKE_CURRENT_BINARY_DIR} "${CMAKE_SOURCE_DIR}/src/compiler/nm-parser")
 
 # Coding examples
-add_executable(graph_example "src/examples/graph_example.cpp")
+add_executable(graph_example "${CMAKE_SOURCE_DIR}/src/examples/graph_example.cpp")
 
-add_executable(db_api_example "src/examples/db_api_example.cpp")
+add_executable(db_api_example "${CMAKE_SOURCE_DIR}/src/examples/db_api_example.cpp")
 target_link_libraries(db_api_example ${PostgreSQL_LIBRARIES})
 
 # Tools and Work-in-Progress Ideas
-add_executable(sha256_test "src/tools/sha256_test.cpp")
+add_executable(sha256_test "${CMAKE_SOURCE_DIR}/src/tools/sha256_test.cpp")
 target_include_directories(sha256_test PRIVATE ${OPENSSL_INCLUDE_DIR})
 target_link_libraries(sha256_test ${OPENSSL_LIBRARIES})
 
-add_executable(graphing_db "src/tools/graphing_db.cpp")
+add_executable(graphing_db "${CMAKE_SOURCE_DIR}/src/tools/graphing_db.cpp")
 target_link_libraries(graphing_db ${BOOST_LIBRARIES} ${PostgreSQL_LIBRARIES})

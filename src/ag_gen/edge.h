@@ -5,8 +5,8 @@
 #ifndef AG_GEN_EDGE_H
 #define AG_GEN_EDGE_H
 
-#include "exploit.h"
 #include "assetgroup.h"
+#include "exploit.h"
 
 class Edge {
     int id;
@@ -15,7 +15,7 @@ class Edge {
     Exploit exploit;
     AssetGroup assetGroup;
 
-public:
+  public:
     Edge(int, int, Exploit &, AssetGroup &);
 
     void save(void);
@@ -27,4 +27,4 @@ public:
     bool exists_in_db(void);
 };
 
-#endif //AG_GEN_EDGE_H
+#endif // AG_GEN_EDGE_H

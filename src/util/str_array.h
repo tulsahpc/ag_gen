@@ -10,17 +10,17 @@
 #define INIT_SIZE 20
 
 struct str_array {
-    char** arr;
+    char **arr;
     size_t size;
     size_t used;
 };
 
 typedef struct str_array str_array;
 
-str_array* new_str_array(void);
-void init_str_array(str_array* arr);
-void add_str(str_array* arr, char* str);
-void free_str_array(str_array* arr);
-void print_str_array(str_array* arr);
+str_array *new_str_array(void);
+void init_str_array(str_array *arr);
+void add_str(str_array *arr, char *str);
+void free_str_array(str_array *arr);
+void print_str_array(str_array *arr);
 
-#endif //AG_GEN_STR_UTIL_H
+#endif // AG_GEN_STR_UTIL_H

@@ -14,9 +14,10 @@ class ParameterizedTopology {
     std::string prop;
     std::string op;
     std::string val;
-public:
-    ParameterizedTopology(int from_param, int to_param, std::string &dir, std::string &prop, std::string &op,
-                          std::string &val);
+
+  public:
+    ParameterizedTopology(int from_param, int to_param, std::string &dir,
+                          std::string &prop, std::string &op, std::string &val);
 
     int get_from_param();
 
@@ -33,4 +34,4 @@ public:
     void print();
 };
 
-#endif //AG_GEN_PARAMETERIZED_TOPOLOGY_H
+#endif // AG_GEN_PARAMETERIZED_TOPOLOGY_H

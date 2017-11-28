@@ -4,8 +4,8 @@
 #include <stddef.h>
 
 char *dynstr(const char *str);
-void* getmem(size_t size);
-void clearmem(void* data, size_t size);
-char* getstr(size_t size);
+void *getmem(size_t size);
+void clearmem(void *data, size_t size);
+char *getstr(size_t size);
 
 #endif //_MEM_H

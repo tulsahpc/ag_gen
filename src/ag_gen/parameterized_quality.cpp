@@ -11,6 +11,4 @@ void ParameterizedQuality::print() {
 }
 
 // Parameter numbers are 1-indexed
-int ParameterizedQuality::get_param_num() {
-    return param - 1;
-}
+int ParameterizedQuality::get_param_num() { return param - 1; }
