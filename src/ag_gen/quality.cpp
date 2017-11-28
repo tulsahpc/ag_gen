@@ -3,9 +3,8 @@
 
 #include "ag_gen.h"
 #include "quality.h"
-#include "util_db.h"
-#include "keyvalue.h"
-
+#include "util/db.h"
+#include "util/keyvalue.h"
 
 using namespace std;
 

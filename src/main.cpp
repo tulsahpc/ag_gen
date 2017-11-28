@@ -5,9 +5,10 @@
 #include <getopt.h>
 #include <memory>
 
-#include "ag_gen.h"
-#include "util_db.h"
-#include "config.h"
+#include "ag_gen/ag_gen.h"
+#include "ag_gen/config.h"
+
+#include "util/db.h"
 
 using namespace std;
 

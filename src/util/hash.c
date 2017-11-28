@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "util_hash.h"
-#include "str_util.h"
+
+#include "util/common.h"
+#include "util/hash.h"
 
 /* http://www.cse.yorku.ca/~oz/hash.html */
 uint64_t hash(char* str) {

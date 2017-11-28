@@ -6,33 +6,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "str_util.h"
-
-void* getmem(size_t size) {
-	void* data = calloc(1, size);
-	if(data == NULL) {
-		fprintf(stderr, "Could not allocate memory.\n");
-		exit(EXIT_FAILURE);
-	}
-	return data;
-}
-
-void clearmem(void* data, size_t size) {
-    memset(data, 0, size);
-}
-
-char* getstr(size_t size) {
-	char* mystring = (char*) getmem(size+1);
-	mystring[size] = '\0';
-	return mystring;
-}
-
-char* dynstr(const char* str) {
-	size_t len = strlen(str);
-	char* mystring = getstr(len);
-	memcpy(mystring, str, len);
-	return mystring;
-}
+#include "util/common.h"
+#include "util/str_array.h"
 
 str_array* new_str_array(void) {
     str_array* arr = (str_array*) getmem(sizeof(str_array));

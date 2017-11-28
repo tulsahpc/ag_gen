@@ -9,8 +9,9 @@
 #include "network.h"
 #include "network_state.h"
 #include "factbase.h"
-#include "util_db.h"
-#include "util_common.h"
+
+#include "util/common.h"
+#include "util/db.h"
 
 using namespace std;
 

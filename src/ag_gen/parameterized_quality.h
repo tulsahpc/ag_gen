@@ -10,7 +10,7 @@
 
 #include "asset.h"
 #include "quality.h"
-#include "keyvalue.h"
+#include "util/keyvalue.h"
 
 struct ParameterizedQuality {
     int param;

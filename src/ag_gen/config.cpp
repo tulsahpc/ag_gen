@@ -4,8 +4,8 @@
 #include <vector>
 #include <unordered_map>
 
-#include "config.h"
-#include "util_common.h"
+#include "ag_gen/config.h"
+#include "util/common.h"
 
 using namespace std;
 

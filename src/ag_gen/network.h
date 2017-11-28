@@ -6,7 +6,7 @@
 
 #include "network_state.h"
 #include "asset.h"
-#include "util_db.h"
+#include "util/db.h"
 
 class Network {
     std::vector<Asset> assets;

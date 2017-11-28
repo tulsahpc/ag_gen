@@ -9,13 +9,14 @@
 #include <tuple>
 
 #include "asset.h"
-#include "keyvalue.h"
 #include "exploit.h"
 #include "factbase.h"
 #include "assetgroup.h"
 #include "network_state.h"
 #include "edge.h"
 #include "network.h"
+
+#include "util/keyvalue.h"
 
 class AGGen {
     Network &net;

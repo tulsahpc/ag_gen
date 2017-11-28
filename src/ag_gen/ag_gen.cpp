@@ -8,10 +8,11 @@
 #include <chrono>
 
 #include "ag_gen.h"
-#include "util_odometer.h"
-#include "util_db.h"
 #include "edge.h"
 #include "quality.h"
+
+#include "util/odometer.h"
+#include "util/db.h"
 
 using namespace std;
 
@@ -169,7 +170,7 @@ void AGGen::generate() {
 // list of the given exploit and creates a new quality/topology from the current one and the given asset
 // group's perm for each item in the list. It returns the postconditions as tuple of a vector of the new
 // qualities and a vector of the new topologies.
-tuple<vector<Quality>, vector<Topology> > AGGen::createPostConditions(tuple<Exploit, AssetGroup> &group) {
+std::tuple<std::vector<Quality>, std::vector<Topology> > AGGen::createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
     auto ex = get<0>(group);
     auto ag = get<1>(group);
 

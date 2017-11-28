@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include "build_sql.h"
-#include "str_util.h"
+
+#include "util/common.h"
+#include "util/build_sql.h"
 
 int assetcount = 0;
 

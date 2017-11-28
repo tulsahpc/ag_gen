@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "util_db.h"
+#include "util/db.h"
 #include "edge.h"
 
 using namespace std;

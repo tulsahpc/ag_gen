@@ -7,7 +7,8 @@
 #include "quality.h"
 #include "topology.h"
 #include "factbase.h"
-#include "keyvalue.h"
+
+#include "util/keyvalue.h"
 
 class Network;
 class NetworkState {

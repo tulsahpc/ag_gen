@@ -32,9 +32,7 @@ static char alphabet[35] = {
 
 // Number
 unsigned int base_convert_string(std::string data, int base);
-
 std::vector<int> base_convert_int(int num, int base);
-
 std::vector<int> base_convert(std::string num, int from, int to);
 
 template<class T>
@@ -43,9 +41,11 @@ std::string compare(const T &a, const T &b) {
 }
 
 std::vector<std::string> split(std::string str, char delim);
-
 std::string trim(std::string str);
-
 char *dynstr(const char *str);
+
+void* getmem(size_t size);
+void clearmem(void* data, size_t size);
+char* getstr(size_t size);
 
 #endif //UTIL_COMMON_HPP
