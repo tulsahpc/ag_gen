@@ -1,25 +1,37 @@
 cmake_minimum_required(VERSION 2.8)
 project(ag_gen)
 
-#set(CMAKE_C_COMPILER "/usr/local/bin/gcc-6")
-#set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-6")
+# Common compiler options among built types
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+
+# Specific compiler options for Debug or Release builds
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -ggdb -Wall -pedantic")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g -Wall -pedantic -O1")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O1")
 
+# Copy the config file to the build directory
 file(COPY "${CMAKE_SOURCE_DIR}/config_default.txt" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(RENAME "${CMAKE_CURRENT_BINARY_DIR}/config_default.txt" "${CMAKE_CURRENT_BINARY_DIR}/config.txt")
 
+# Apple has a different openssl directory when using brew
 if(APPLE)
     set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
 endif()
 
+# Find packages
+find_package(PostgreSQL REQUIRED)
+find_package(OpenMP)
+
+# Only required for supplementary tools
 find_package(BISON)
 find_package(FLEX)
-find_package(PostgreSQL REQUIRED)
 find_package(OpenSSL)
 find_package(Boost)
+
+# Enable thread-level parallelization if OpenMP is found.
+if(OpenMP_CXX_FOUND)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
 
 include_directories("${CMAKE_SOURCE_DIR}/src/")
 
