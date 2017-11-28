@@ -19,131 +19,131 @@ using namespace std;
 // The AGGen constructor creates a new AGGen object and takes the given NetworkState and sets it as the
 // initial network state for generation by pushing it onto the new AGGen object's frontier vector.
 AGGen::AGGen(Network &net_i) : net(net_i) {
-    frontier.emplace_back(net.get_initial_state());
+	frontier.emplace_back(net.get_initial_state());
 }
 
 // generate iterates through AGGen's frontier vector, back to front, and takes the next Network State,
 // generating all of the possible Network States that it could lead to based on its exploitable qualities
 // and topologies. It then prints out the exploits of the new Network States.
 void AGGen::generate() {
-    auto counter = 0;
-    auto start = std::chrono::system_clock::now();
+	auto counter = 0;
+	auto start = std::chrono::system_clock::now();
 
-    auto exploit_list = Exploit::fetch_all();
-    int esize = exploit_list.size();
+	auto exploit_list = Exploit::fetch_all();
+	int esize = exploit_list.size();
 
-    while (!frontier.empty()) {
-        cout << "Frontier Size: " << frontier.size() << endl;
-        // Remove the next state from the queue and get its factbase
-        auto current_state = frontier.front();
-        frontier.pop_front();
-        
-        // Save the initial state's hash value
-        // hash_list[current_state.hash()] = current_state;
+	while (!frontier.empty()) {
+		cout << "Frontier Size: " << frontier.size() << endl;
+		// Remove the next state from the queue and get its factbase
+		auto current_state = frontier.front();
+		frontier.pop_front();
 
-        vector<tuple<Exploit, AssetGroup> > appl_exploits;
+		// Save the initial state's hash value
+		// hash_list[current_state.hash()] = current_state;
 
-        // Get all applicable exploits with this network state
-        for(int i=0; i<esize; i++) {
-            auto e = exploit_list.at(i);
-            
-            auto num_params = e.get_num_params();
+		vector<tuple<Exploit, AssetGroup> > appl_exploits;
 
-            auto preconds_q = e.precond_list_q();
-            auto preconds_t = e.precond_list_t();
+		// Get all applicable exploits with this network state
+		for(int i=0; i<esize; i++) {
+			auto e = exploit_list.at(i);
 
-            Odometer od(num_params, net.size());
-            std::vector<AssetGroup> asset_groups;
+			auto num_params = e.get_num_params();
 
-            int len = od.length();
-            for (int j = 0; j<len; j++) {
-                auto perm = od[j];
+			auto preconds_q = e.precond_list_q();
+			auto preconds_t = e.precond_list_t();
 
-                vector<Quality> asset_group_quals;
-                vector<Topology> asset_group_topos;
+			Odometer od(num_params, net.size());
+			std::vector<AssetGroup> asset_groups;
 
-                for (auto precond : preconds_q) {
-                    asset_group_quals.emplace_back(perm[precond.get_param_num()], precond.name, "=", precond.value);
-                }
+			int len = od.length();
+			for (int j = 0; j<len; j++) {
+				auto perm = od[j];
 
-                for (auto precond : preconds_t) {
-                    auto dir = precond.get_dir();
-                    auto prop = precond.get_property();
-                    auto op = precond.get_operation();
-                    auto val = precond.get_value();
+				vector<Quality> asset_group_quals;
+				vector<Topology> asset_group_topos;
 
-                    asset_group_topos.emplace_back(perm[precond.get_from_param()], perm[precond.get_to_param()], dir, prop, op, val);
-                }
+				for (auto precond : preconds_q) {
+					asset_group_quals.emplace_back(perm[precond.get_param_num()], precond.name, "=", precond.value);
+				}
 
-                #pragma omp critical
-                asset_groups.emplace_back(asset_group_quals, asset_group_topos, perm);
-            }
+				for (auto precond : preconds_t) {
+					auto dir = precond.get_dir();
+					auto prop = precond.get_property();
+					auto op = precond.get_operation();
+					auto val = precond.get_value();
 
-            int assetgroup_size = asset_groups.size();
-            for (int j=0; j<assetgroup_size; j++) {
-                auto asset_group = asset_groups.at(j);
-                // Each quality must exist. If not, discard asset_group entirely.
-                for (auto &quality : asset_group.get_hypo_quals()) {
-                    if (!current_state.get_factbase().find_quality(quality)) {
-                        continue;
-                        // goto LOOPCONTINUE;
-                    }
-                }
+					asset_group_topos.emplace_back(perm[precond.get_from_param()], perm[precond.get_to_param()], dir, prop, op, val);
+				}
 
-                for (auto &topology : asset_group.get_hypo_topos()) {
-                    if (!current_state.get_factbase().find_topology(topology)) {
-                        continue;
-                        // goto LOOPCONTINUE;
-                    }
-                }
+				#pragma omp critical
+				asset_groups.emplace_back(asset_group_quals, asset_group_topos, perm);
+			}
 
-                auto new_appl_exploit = make_tuple(e, asset_group);
-                appl_exploits.push_back(new_appl_exploit);
-            }
-        }
+			int assetgroup_size = asset_groups.size();
+			for (int j=0; j<assetgroup_size; j++) {
+				auto asset_group = asset_groups.at(j);
+				// Each quality must exist. If not, discard asset_group entirely.
+				for (auto &quality : asset_group.get_hypo_quals()) {
+					if (!current_state.get_factbase().find_quality(quality)) {
+						continue;
+						// goto LOOPCONTINUE;
+					}
+				}
 
-        // cout << "Applicable Exploits: " << appl_exploits.size() << endl;
+				for (auto &topology : asset_group.get_hypo_topos()) {
+					if (!current_state.get_factbase().find_topology(topology)) {
+						continue;
+						// goto LOOPCONTINUE;
+					}
+				}
 
-        int appl_expl_size = appl_exploits.size();
+				auto new_appl_exploit = make_tuple(e, asset_group);
+				appl_exploits.push_back(new_appl_exploit);
+			}
+		}
 
-        // Apply each exploit to the network state to generate new network states
-        for (int j=0; j<appl_expl_size; j++) {
-            auto e = appl_exploits.at(j);
+		// cout << "Applicable Exploits: " << appl_exploits.size() << endl;
 
-            // For each applicable exploit, we extract which exploit applies and to which asset group it
-            // applies to.
-            auto exploit = get<0>(e);
-            auto assetGroup = get<1>(e);
+		int appl_expl_size = appl_exploits.size();
 
-            // We generate the associated post conditions and extract the new qualities and topologies that
-            // will be applied to the current factbase.
-            auto postconditions = createPostConditions(e);
-            auto qualities = get<0>(postconditions);
-            auto topologies = get<1>(postconditions);
+		// Apply each exploit to the network state to generate new network states
+		for (int j=0; j<appl_expl_size; j++) {
+			auto e = appl_exploits.at(j);
 
-            // Deep copy the factbase so we can create a new network state
-            NetworkState new_state {current_state};
+			// For each applicable exploit, we extract which exploit applies and to which asset group it
+			// applies to.
+			auto exploit = get<0>(e);
+			auto assetGroup = get<1>(e);
 
-            new_state.add_qualities(qualities);
-            new_state.add_topologies(topologies);
+			// We generate the associated post conditions and extract the new qualities and topologies that
+			// will be applied to the current factbase.
+			auto postconditions = createPostConditions(e);
+			auto qualities = get<0>(postconditions);
+			auto topologies = get<1>(postconditions);
 
-            auto res = hash_list.find(new_state.get_hash());
+			// Deep copy the factbase so we can create a new network state
+			NetworkState new_state {current_state};
 
-            if(res != hash_list.end())
-                continue;
+			new_state.add_qualities(qualities);
+			new_state.add_topologies(topologies);
 
-            hash_list.insert(new_state.get_hash());
-            frontier.emplace_front(new_state);
-            counter++;
-        }
-    }
+			auto res = hash_list.find(new_state.get_hash());
 
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end-start;
-    cout << "Total Time: " << elapsed_seconds.count() << " seconds" << endl;
+			if(res != hash_list.end())
+				continue;
 
-    cout << "total number of generated states: " << counter << endl;
-    cout << "states in hash_list: " << hash_list.size() << endl;
+			hash_list.insert(new_state.get_hash());
+			frontier.emplace_front(new_state);
+			counter++;
+		}
+	}
+
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> elapsed_seconds = end-start;
+	cout << "Total Time: " << elapsed_seconds.count() << " seconds" << endl;
+
+	cout << "total number of generated states: " << counter << endl;
+	cout << "states in hash_list: " << hash_list.size() << endl;
 }
 
 // Save our new factbase to the database. Generate any new edges to the new network state from already
@@ -171,31 +171,31 @@ void AGGen::generate() {
 // group's perm for each item in the list. It returns the postconditions as tuple of a vector of the new
 // qualities and a vector of the new topologies.
 std::tuple<std::vector<Quality>, std::vector<Topology> > AGGen::createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
-    auto ex = get<0>(group);
-    auto ag = get<1>(group);
+	auto ex = get<0>(group);
+	auto ag = get<1>(group);
 
-    auto perm = ag.get_perm();
+	auto perm = ag.get_perm();
 
-    auto param_postconds_q = ex.postcond_list_q();
-    auto param_postconds_t = ex.postcond_list_t();
+	auto param_postconds_q = ex.postcond_list_q();
+	auto param_postconds_t = ex.postcond_list_t();
 
-    vector<Quality> postconds_q;
-    vector<Topology> postconds_t;
+	vector<Quality> postconds_q;
+	vector<Topology> postconds_t;
 
-    for (auto postcond : param_postconds_q) {
-        Quality q(perm[postcond.get_param_num()], postcond.name, "=", postcond.value);
-        postconds_q.push_back(q);
-    }
+	for (auto postcond : param_postconds_q) {
+		Quality q(perm[postcond.get_param_num()], postcond.name, "=", postcond.value);
+		postconds_q.push_back(q);
+	}
 
-    for (auto postcond : param_postconds_t) {
-        auto dir = postcond.get_dir();
-        auto prop = postcond.get_property();
-        auto op = postcond.get_operation();
-        auto val = postcond.get_value();
+	for (auto postcond : param_postconds_t) {
+		auto dir = postcond.get_dir();
+		auto prop = postcond.get_property();
+		auto op = postcond.get_operation();
+		auto val = postcond.get_value();
 
-        Topology t(perm[postcond.get_from_param()], perm[postcond.get_to_param()], dir, prop, op, val);
-        postconds_t.push_back(t);
-    }
+		Topology t(perm[postcond.get_from_param()], perm[postcond.get_to_param()], dir, prop, op, val);
+		postconds_t.push_back(t);
+	}
 
-    return make_tuple(postconds_q, postconds_t);
+	return make_tuple(postconds_q, postconds_t);
 }

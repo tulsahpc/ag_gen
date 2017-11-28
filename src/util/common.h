@@ -4,8 +4,8 @@
  * \copyright Copyright (C) The University of Tulsa - All Rights Reserved. Unauthorized copying or distribution of this file is strictly prohibited.
  */
 
-#ifndef UTIL_COMMON_HPP
-#define UTIL_COMMON_HPP
+#ifndef UTIL_COMMON_H
+#define UTIL_COMMON_H
 
 #include <string>
 #include <memory>
@@ -42,10 +42,5 @@ std::string compare(const T &a, const T &b) {
 
 std::vector<std::string> split(std::string str, char delim);
 std::string trim(std::string str);
-char *dynstr(const char *str);
 
-void* getmem(size_t size);
-void clearmem(void* data, size_t size);
-char* getstr(size_t size);
-
-#endif //UTIL_COMMON_HPP
+#endif //UTIL_COMMON_H

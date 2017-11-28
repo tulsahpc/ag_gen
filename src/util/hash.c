@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "util/common.h"
+#include "util/mem.h"
 #include "util/hash.h"
 
 /* http://www.cse.yorku.ca/~oz/hash.html */

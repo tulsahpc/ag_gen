@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "util/common.h"
+#include "util/mem.h"
 #include "util/str_array.h"
 
 str_array* new_str_array(void) {
