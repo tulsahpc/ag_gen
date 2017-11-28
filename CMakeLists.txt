@@ -47,6 +47,7 @@ BISON_TARGET(nm_parser "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_parser.yy" "
 FLEX_TARGET(nm_scanner "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_scanner.l" "${CMAKE_CURRENT_BINARY_DIR}/nm_scanner.c")
 ADD_FLEX_BISON_DEPENDENCY(nm_scanner nm_parser)
 
+# Network Model parser
 add_executable(nm_test ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS} ${utils_src})
 target_include_directories(nm_test PRIVATE ${CMAKE_CURRENT_BINARY_DIR} "${CMAKE_SOURCE_DIR}/src/compiler/nm-parser")
 
@@ -63,3 +64,5 @@ target_link_libraries(sha256_test ${OPENSSL_LIBRARIES})
 
 add_executable(graphing_db "${CMAKE_SOURCE_DIR}/src/tools/graphing_db.cpp")
 target_link_libraries(graphing_db ${BOOST_LIBRARIES} ${PostgreSQL_LIBRARIES})
+
+add_executable(netgen "${CMAKE_SOURCE_DIR}/src/tools/netgen.cpp")
