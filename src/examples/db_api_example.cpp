@@ -6,7 +6,7 @@
 #include <vector>
 #include <string>
 
-#include "../src/util_db.h"
+#include "util/db.h"
 
 using namespace std;
 

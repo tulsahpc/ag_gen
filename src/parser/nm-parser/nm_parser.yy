@@ -3,9 +3,10 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
-    #include "str_util.h"
-    #include "util_hash.h"
-    #include "build_sql.h"
+
+    #include "util/str_array.h"
+    #include "util/hash.h"
+    #include "util/build_sql.h"
 
     #define YYDEBUG 0
 
