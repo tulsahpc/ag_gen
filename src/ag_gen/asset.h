@@ -16,8 +16,6 @@ class Asset {
   public:
     Asset(int iid, int netid, std::string nname);
 
-    std::string get_name() { return name; }
-
     void fetch_qualities();
     static std::vector<Asset> fetch_all(const std::string &network);
 };

@@ -21,7 +21,7 @@ bool Edge::exists_in_db() {
         db->exec("SELECT 1 FROM edge WHERE from_node = " +
                  to_string(from_node) + " AND to_node = " + to_string(to_node) +
                  " AND exploit_id = " + to_string(exploit.get_id()) + ";");
-    if (rows.size() > 0) {
+    if (!rows.empty()) {
         return true;
     } else {
         return false;

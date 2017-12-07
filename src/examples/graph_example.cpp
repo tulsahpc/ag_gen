@@ -8,7 +8,6 @@ struct Ve {
     std::string name;
 };
 struct Ed {
-    int cost;
 };
 
 int main() {

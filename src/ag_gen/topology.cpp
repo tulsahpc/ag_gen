@@ -46,7 +46,7 @@ void Topology::print() const {
 }
 
 const EncodedTopology Topology::encode(const Keyvalue &kv_facts) const {
-    EncodedTopology topo;
+    EncodedTopology topo{};
 
     topo.dec.from_asset = from_asset_id;
     topo.dec.to_asset = to_asset_id;

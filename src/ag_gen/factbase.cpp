@@ -77,9 +77,9 @@ void Factbase::save() {
                       to_string(qualities[i].encode(parent->net->facts).enc) +
                       ",'quality')";
     }
-    for (int i = 0; i < topologies.size(); i++) {
+    for (auto &topologie : topologies) {
         insert_sql += ",(" + to_string(id) + "," +
-                      to_string(topologies[i].encode(parent->net->facts).enc) +
+                      to_string(topologie.encode(parent->net->facts).enc) +
                       ",'topology')";
     }
     insert_sql += " ON CONFLICT DO NOTHING;";
@@ -98,13 +98,13 @@ size_t Factbase::hash() const {
     //  size_t hash = 0xf848b64e; // Random seed value
     size_t hash = 0x0c32a12fe19d2119;
 
-    int qualities_length = qualities.size();
+    ulong qualities_length = qualities.size();
     for (int i = 0; i < qualities_length; i++) {
         auto &qual = qualities.at(i);
         hash = hash ^ combine(qual.encode(parent->net->facts).enc);
     }
 
-    int topologies_length = topologies.size();
+    ulong topologies_length = topologies.size();
     for (int i = 0; i < topologies_length; i++) {
         auto &topo = topologies.at(i);
         hash = hash ^ combine(topo.encode(parent->net->facts).enc);

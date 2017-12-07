@@ -65,7 +65,7 @@ class Odometer {
         }
     }
 
-    double length() { return pow(k, n); }
+    ulong length() { return pow(k, n); }
 
     std::vector<int> next() { return perms[idx_state++]; }
 

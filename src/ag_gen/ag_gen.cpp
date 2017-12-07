@@ -32,10 +32,10 @@ void AGGen::generate() {
     auto start = std::chrono::system_clock::now();
 
     auto exploit_list = Exploit::fetch_all();
-    int esize = exploit_list.size();
+    ulong esize = exploit_list.size();
 
     while (!frontier.empty()) {
-        cout << "Frontier Size: " << frontier.size() << endl;
+//        cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
         auto current_state = frontier.front();
         frontier.pop_front();
@@ -57,7 +57,7 @@ void AGGen::generate() {
             Odometer od(num_params, net.size());
             std::vector<AssetGroup> asset_groups;
 
-            int len = od.length();
+            ulong len = od.length();
             for (int j = 0; j < len; j++) {
                 auto perm = od[j];
 
@@ -86,7 +86,7 @@ void AGGen::generate() {
                                           perm);
             }
 
-            int assetgroup_size = asset_groups.size();
+            ulong assetgroup_size = asset_groups.size();
             for (int j = 0; j < assetgroup_size; j++) {
                 auto asset_group = asset_groups.at(j);
                 // Each quality must exist. If not, discard asset_group
@@ -94,25 +94,27 @@ void AGGen::generate() {
                 for (auto &quality : asset_group.get_hypo_quals()) {
                     if (!current_state.get_factbase().find_quality(quality)) {
                         continue;
-                        // goto LOOPCONTINUE;
+//                         goto LOOPCONTINUE;
                     }
                 }
 
                 for (auto &topology : asset_group.get_hypo_topos()) {
                     if (!current_state.get_factbase().find_topology(topology)) {
                         continue;
-                        // goto LOOPCONTINUE;
+//                         goto LOOPCONTINUE;
                     }
                 }
-
-                auto new_appl_exploit = make_tuple(e, asset_group);
-                appl_exploits.push_back(new_appl_exploit);
+                {
+                    auto new_appl_exploit = make_tuple(e, asset_group);
+                    appl_exploits.push_back(new_appl_exploit);
+                }
+                LOOPCONTINUE:;
             }
         }
 
         // cout << "Applicable Exploits: " << appl_exploits.size() << endl;
 
-        int appl_expl_size = appl_exploits.size();
+        ulong appl_expl_size = appl_exploits.size();
 
         // Apply each exploit to the network state to generate new network
         // states
