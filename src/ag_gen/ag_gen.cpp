@@ -3,15 +3,11 @@
 
 #include <algorithm>
 #include <chrono>
-#include <ctime>
 #include <iostream>
 #include <vector>
 
 #include "ag_gen.h"
-#include "edge.h"
-#include "quality.h"
 
-#include "util/db.h"
 #include "util/odometer.h"
 
 using namespace std;
@@ -32,10 +28,10 @@ void AGGen::generate() {
     auto start = std::chrono::system_clock::now();
 
     auto exploit_list = Exploit::fetch_all();
-    ulong esize = exploit_list.size();
+    unsigned long esize = exploit_list.size();
 
     while (!frontier.empty()) {
-//        cout << "Frontier Size: " << frontier.size() << endl;
+        cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
         auto current_state = frontier.front();
         frontier.pop_front();
@@ -57,8 +53,8 @@ void AGGen::generate() {
             Odometer od(num_params, net.size());
             std::vector<AssetGroup> asset_groups;
 
-            ulong len = od.length();
-            for (int j = 0; j < len; j++) {
+            auto len = od.length();
+            for (auto j = 0; j < len; j++) {
                 auto perm = od[j];
 
                 vector<Quality> asset_group_quals;
@@ -81,13 +77,12 @@ void AGGen::generate() {
                         perm[precond.get_to_param()], dir, prop, op, val);
                 }
 
-#pragma omp critical
                 asset_groups.emplace_back(asset_group_quals, asset_group_topos,
                                           perm);
             }
 
-            ulong assetgroup_size = asset_groups.size();
-            for (int j = 0; j < assetgroup_size; j++) {
+            auto assetgroup_size = asset_groups.size();
+            for (auto j = 0; j < assetgroup_size; j++) {
                 auto asset_group = asset_groups.at(j);
                 // Each quality must exist. If not, discard asset_group
                 // entirely.
@@ -114,7 +109,7 @@ void AGGen::generate() {
 
         // cout << "Applicable Exploits: " << appl_exploits.size() << endl;
 
-        ulong appl_expl_size = appl_exploits.size();
+        auto appl_expl_size = appl_exploits.size();
 
         // Apply each exploit to the network state to generate new network
         // states
