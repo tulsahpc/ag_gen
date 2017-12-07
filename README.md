@@ -14,9 +14,10 @@ See: https://www.postgresql.org/docs/9.5/static/auth-pg-hba-conf.html
 
 #### Populate the database
 
-Use the `db_manage.sh` utility to populate the database. An example use of this is:
+Use the `db_manage.sh` utility to populate the database (this will overwrite anything in the `ag_gen` database).
+An example use of this is:
 
-    ./db_manage.sh -a init -d ag_gen_test -s sql/schema.sql -i sql/test_data.sql
+    ./db_manage.sh -s sql/schema.sql -i sql/test_data.sql -f
 
 ## Building
 

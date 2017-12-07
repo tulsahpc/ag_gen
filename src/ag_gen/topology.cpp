@@ -2,10 +2,6 @@
 #include <vector>
 
 #include "ag_gen.h"
-#include "topology.h"
-
-#include "util/db.h"
-#include "util/keyvalue.h"
 
 using namespace std;
 

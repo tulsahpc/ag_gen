@@ -6,12 +6,6 @@
 #include <vector>
 
 #include "ag_gen.h"
-#include "factbase.h"
-#include "network.h"
-#include "network_state.h"
-
-#include "util/common.h"
-#include "util/db.h"
 
 using namespace std;
 
@@ -98,13 +92,13 @@ size_t Factbase::hash() const {
     //  size_t hash = 0xf848b64e; // Random seed value
     size_t hash = 0x0c32a12fe19d2119;
 
-    ulong qualities_length = qualities.size();
+    unsigned long qualities_length = qualities.size();
     for (int i = 0; i < qualities_length; i++) {
         auto &qual = qualities.at(i);
         hash = hash ^ combine(qual.encode(parent->net->facts).enc);
     }
 
-    ulong topologies_length = topologies.size();
+    unsigned long topologies_length = topologies.size();
     for (int i = 0; i < topologies_length; i++) {
         auto &topo = topologies.at(i);
         hash = hash ^ combine(topo.encode(parent->net->facts).enc);

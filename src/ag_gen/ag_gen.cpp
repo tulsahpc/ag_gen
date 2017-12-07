@@ -30,8 +30,9 @@ void AGGen::generate() {
     auto exploit_list = Exploit::fetch_all();
     unsigned long esize = exploit_list.size();
 
+    cout << "Generating Attack Graph" << endl;
     while (!frontier.empty()) {
-        cout << "Frontier Size: " << frontier.size() << endl;
+//        cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
         auto current_state = frontier.front();
         frontier.pop_front();
@@ -60,13 +61,13 @@ void AGGen::generate() {
                 vector<Quality> asset_group_quals;
                 vector<Topology> asset_group_topos;
 
-                for (auto precond : preconds_q) {
+                for (auto &precond : preconds_q) {
                     asset_group_quals.emplace_back(
                         perm[precond.get_param_num()], precond.name, "=",
                         precond.value);
                 }
 
-                for (auto precond : preconds_t) {
+                for (auto &precond : preconds_t) {
                     auto dir = precond.get_dir();
                     auto prop = precond.get_property();
                     auto op = precond.get_operation();
@@ -153,6 +154,12 @@ void AGGen::generate() {
         }
     }
 
+    cout << "Saving Attack Graph to Database" << endl;
+
+
+
+    cout << "Completed" << endl;
+
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     cout << "Total Time: " << elapsed_seconds.count() << " seconds" << endl;
@@ -182,13 +189,13 @@ AGGen::createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
     vector<Quality> postconds_q;
     vector<Topology> postconds_t;
 
-    for (auto postcond : param_postconds_q) {
+    for (auto &postcond : param_postconds_q) {
         Quality q(perm[postcond.get_param_num()], postcond.name, "=",
                   postcond.value);
         postconds_q.push_back(q);
     }
 
-    for (auto postcond : param_postconds_t) {
+    for (auto &postcond : param_postconds_t) {
         auto dir = postcond.get_dir();
         auto prop = postcond.get_property();
         auto op = postcond.get_operation();

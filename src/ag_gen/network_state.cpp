@@ -3,7 +3,6 @@
 //
 
 #include "network_state.h"
-#include "asset.h"
 
 NetworkState::NetworkState(Network &net) {
     factbase.set_parent(*this);
