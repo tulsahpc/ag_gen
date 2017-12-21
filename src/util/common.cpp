@@ -10,6 +10,7 @@
 #include <cstring>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "util/common.h"
@@ -18,14 +19,14 @@ using namespace std;
 
 unsigned int base_convert_string(string data, int base) {
     unsigned int total = 0;
-    for (int i = 0; i < data.size(); i++) {
+    for (char i : data) {
         unsigned int next_num = 0;
-        if (data[i] <= 'z' && data[i] >= 'a') {
-            next_num = (unsigned int)data[i] - 87;
-        } else if (data[i] <= 'Z' && data[i] >= 'A') {
-            next_num = (unsigned int)data[i] - 55;
-        } else if (data[i] <= '9' && data[i] >= '0') {
-            next_num = (unsigned int)data[i] - '0';
+        if (i <= 'z' && i >= 'a') {
+            next_num = (unsigned int) i - 87;
+        } else if (i <= 'Z' && i >= 'A') {
+            next_num = (unsigned int) i - 55;
+        } else if (i <= '9' && i >= '0') {
+            next_num = (unsigned int) i - '0';
         } else {
             printf("Malformed Input\n");
             exit(1);
@@ -42,15 +43,15 @@ vector<int> base_convert_int(int num, int base) {
         num = num / base;
     }
 
-    for (int i = 0; i < str.size(); i++) {
-        str[i] = alphabet[str[i]];
+    for (int &i : str) {
+        i = alphabet[i];
     }
 
     return str;
 }
 
 vector<int> base_convert(string num, int from, int to) {
-    return base_convert_int(base_convert_string(num, from), to);
+    return base_convert_int(base_convert_string(std::move(num), from), to);
 }
 
 vector<string> split(string str, char delim) {
@@ -61,7 +62,7 @@ vector<string> split(string str, char delim) {
         split_string.push_back(tmp);
     }
     return split_string;
-};
+}
 
 string trim(string str) {
     str.erase(str.begin(), find_if(str.begin(), str.end(),

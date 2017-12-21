@@ -3,15 +3,11 @@
 
 #include <algorithm>
 #include <chrono>
-#include <ctime>
 #include <iostream>
 #include <vector>
 
 #include "ag_gen.h"
-#include "edge.h"
-#include "quality.h"
 
-#include "util/db.h"
 #include "util/odometer.h"
 
 using namespace std;
@@ -32,10 +28,11 @@ void AGGen::generate() {
     auto start = std::chrono::system_clock::now();
 
     auto exploit_list = Exploit::fetch_all();
-    int esize = exploit_list.size();
+    unsigned long esize = exploit_list.size();
 
+    cout << "Generating Attack Graph" << endl;
     while (!frontier.empty()) {
-        cout << "Frontier Size: " << frontier.size() << endl;
+//        cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
         auto current_state = frontier.front();
         frontier.pop_front();
@@ -57,20 +54,20 @@ void AGGen::generate() {
             Odometer od(num_params, net.size());
             std::vector<AssetGroup> asset_groups;
 
-            int len = od.length();
-            for (int j = 0; j < len; j++) {
+            auto len = od.length();
+            for (auto j = 0; j < len; j++) {
                 auto perm = od[j];
 
                 vector<Quality> asset_group_quals;
                 vector<Topology> asset_group_topos;
 
-                for (auto precond : preconds_q) {
+                for (auto &precond : preconds_q) {
                     asset_group_quals.emplace_back(
                         perm[precond.get_param_num()], precond.name, "=",
                         precond.value);
                 }
 
-                for (auto precond : preconds_t) {
+                for (auto &precond : preconds_t) {
                     auto dir = precond.get_dir();
                     auto prop = precond.get_property();
                     auto op = precond.get_operation();
@@ -81,38 +78,39 @@ void AGGen::generate() {
                         perm[precond.get_to_param()], dir, prop, op, val);
                 }
 
-#pragma omp critical
                 asset_groups.emplace_back(asset_group_quals, asset_group_topos,
                                           perm);
             }
 
-            int assetgroup_size = asset_groups.size();
-            for (int j = 0; j < assetgroup_size; j++) {
+            auto assetgroup_size = asset_groups.size();
+            for (auto j = 0; j < assetgroup_size; j++) {
                 auto asset_group = asset_groups.at(j);
                 // Each quality must exist. If not, discard asset_group
                 // entirely.
                 for (auto &quality : asset_group.get_hypo_quals()) {
                     if (!current_state.get_factbase().find_quality(quality)) {
                         continue;
-                        // goto LOOPCONTINUE;
+//                         goto LOOPCONTINUE;
                     }
                 }
 
                 for (auto &topology : asset_group.get_hypo_topos()) {
                     if (!current_state.get_factbase().find_topology(topology)) {
                         continue;
-                        // goto LOOPCONTINUE;
+//                         goto LOOPCONTINUE;
                     }
                 }
-
-                auto new_appl_exploit = make_tuple(e, asset_group);
-                appl_exploits.push_back(new_appl_exploit);
+                {
+                    auto new_appl_exploit = make_tuple(e, asset_group);
+                    appl_exploits.push_back(new_appl_exploit);
+                }
+                LOOPCONTINUE:;
             }
         }
 
         // cout << "Applicable Exploits: " << appl_exploits.size() << endl;
 
-        int appl_expl_size = appl_exploits.size();
+        auto appl_expl_size = appl_exploits.size();
 
         // Apply each exploit to the network state to generate new network
         // states
@@ -156,6 +154,12 @@ void AGGen::generate() {
         }
     }
 
+    cout << "Saving Attack Graph to Database" << endl;
+
+
+
+    cout << "Completed" << endl;
+
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     cout << "Total Time: " << elapsed_seconds.count() << " seconds" << endl;
@@ -185,13 +189,13 @@ AGGen::createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
     vector<Quality> postconds_q;
     vector<Topology> postconds_t;
 
-    for (auto postcond : param_postconds_q) {
+    for (auto &postcond : param_postconds_q) {
         Quality q(perm[postcond.get_param_num()], postcond.name, "=",
                   postcond.value);
         postconds_q.push_back(q);
     }
 
-    for (auto postcond : param_postconds_t) {
+    for (auto &postcond : param_postconds_t) {
         auto dir = postcond.get_dir();
         auto prop = postcond.get_property();
         auto op = postcond.get_operation();

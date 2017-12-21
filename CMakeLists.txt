@@ -9,6 +9,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -ggdb -Wall -pedantic
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g -Wall -pedantic -O1")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O1")
 
+set(PostgreSQL_ADDITIONAL_VERSIONS "10.1" "10")
+
 # Copy the config file to the build directory
 file(COPY "${CMAKE_SOURCE_DIR}/config_default.txt" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(RENAME "${CMAKE_CURRENT_BINARY_DIR}/config_default.txt" "${CMAKE_CURRENT_BINARY_DIR}/config.txt")
@@ -27,6 +29,10 @@ find_package(BISON)
 find_package(FLEX)
 find_package(OpenSSL)
 find_package(Boost)
+
+if(PostgreSQL_FOUND)
+    include_directories("${PostgreSQL_INCLUDE_DIR}")
+endif()
 
 # Enable thread-level parallelization if OpenMP is found.
 if(OpenMP_CXX_FOUND)

@@ -1,10 +1,6 @@
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/graph_traits.hpp>
 #include <boost/graph/graphviz.hpp>
-#include <iostream>
 #include <libpq-fe.h>
-#include <string>
-#include <unordered_map>
 
 struct Attack_Node {
     std::string factbase_id;

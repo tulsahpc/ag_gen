@@ -14,8 +14,9 @@ int sumMapValues(int val, std::pair<const int, int> p) {
 int main(int argc, char** argv) {
     int numAssets = 100;
     int numFacts = 1000;
-    int numQuals = numFacts * 0.7;
-    int numTopos = numFacts - numQuals;
+
+    auto numQuals = static_cast<int>(trunc(numFacts * 0.7));
+    auto numTopos = static_cast<int>(numFacts - numQuals);
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -25,7 +26,7 @@ int main(int argc, char** argv) {
 
     std::vector<int> assetFacts {numAssets};
     for(int i=0; i<numAssets; i++) {
-        assetFacts[i] = std::round(d(gen));
+        assetFacts[i] = static_cast<int>(std::round(d(gen)));
         std::cout << assetFacts[i] << std::endl;
     }
 

@@ -4,12 +4,9 @@
 
 #include <getopt.h>
 #include <iostream>
-#include <memory>
 
 #include "ag_gen/ag_gen.h"
 #include "ag_gen/config.h"
-
-#include "util/db.h"
 
 using namespace std;
 

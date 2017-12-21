@@ -2,10 +2,6 @@
 #include <vector>
 
 #include "ag_gen.h"
-#include "topology.h"
-
-#include "util/db.h"
-#include "util/keyvalue.h"
 
 using namespace std;
 
@@ -46,7 +42,7 @@ void Topology::print() const {
 }
 
 const EncodedTopology Topology::encode(const Keyvalue &kv_facts) const {
-    EncodedTopology topo;
+    EncodedTopology topo{};
 
     topo.dec.from_asset = from_asset_id;
     topo.dec.to_asset = to_asset_id;

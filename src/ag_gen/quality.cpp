@@ -2,9 +2,6 @@
 #include <vector>
 
 #include "ag_gen.h"
-#include "quality.h"
-#include "util/db.h"
-#include "util/keyvalue.h"
 
 using namespace std;
 
@@ -31,7 +28,7 @@ void Quality::print() const {
 }
 
 EncodedQuality Quality::encode(const Keyvalue &kv_facts) const {
-    EncodedQuality qual;
+    EncodedQuality qual{};
     qual.dec.asset_id = asset_id;
     qual.dec.attr = kv_facts[name];
     qual.dec.val = kv_facts[value];

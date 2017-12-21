@@ -23,9 +23,7 @@ class AGGen {
 
     std::deque<NetworkState> frontier;
 
-    std::set<NetworkState> state_list{};
     std::set<size_t> hash_list{};
-    std::set<Edge> edge_list{};
 
     std::tuple<std::vector<Quality>, std::vector<Topology>>
     createPostConditions(std::tuple<Exploit, AssetGroup> &group);

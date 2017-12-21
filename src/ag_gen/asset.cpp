@@ -7,9 +7,6 @@
 #include <vector>
 
 #include "ag_gen.h"
-#include "asset.h"
-
-#include "util/db.h"
 
 using namespace std;
 
