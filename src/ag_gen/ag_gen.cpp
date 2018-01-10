@@ -12,17 +12,31 @@
 
 using namespace std;
 
-// The AGGen constructor creates a new AGGen object and takes the given
-// NetworkState and sets it as the initial network state for generation by
-// pushing it onto the new AGGen object's frontier vector.
+/**
+ * @brief Constructor for generator
+ * @details Builds a generator for creating attack graphs.
+ *
+ * @param net_i The network to build the attack graph for
+ */
 AGGen::AGGen(Network &net_i) : net(net_i) {
     frontier.emplace_back(net.get_initial_state());
 }
 
-// generate iterates through AGGen's frontier vector, back to front, and takes
-// the next Network State, generating all of the possible Network States that it
-// could lead to based on its exploitable qualities and topologies. It then
-// prints out the exploits of the new Network States.
+/**
+ * @brief Generate attack graph
+ * @details Begin the generation of the attack graph. The algorithm is as follows:
+ *
+ *      1. Fetch next factbase to expand from the frontier
+ *      2. Fetch all exploits
+ *      3. Loop over each exploit to determine if it is applicable.
+ *          a. Fetch preconditions of the exploit
+ *          b. Generate all permutations of assets using the Odometer utility
+ *          c. Apply each permutation of the assets to the preconditions.
+ *          d. Check if ALL generated preconditions are present in the current factbase.
+ *      4a. If all preconditions are found, apply the matching asset group to the postconditions of the exploit.
+ *      4b. If not all preconditions are found, break and continue checking with the next exploit.
+ *      5. Push the new network state onto the frontier to be expanded later.
+ */
 void AGGen::generate() {
     auto counter = 0;
     auto start = std::chrono::system_clock::now();
@@ -32,7 +46,7 @@ void AGGen::generate() {
 
     cout << "Generating Attack Graph" << endl;
     while (!frontier.empty()) {
-//        cout << "Frontier Size: " << frontier.size() << endl;
+        // cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
         auto current_state = frontier.front();
         frontier.pop_front();

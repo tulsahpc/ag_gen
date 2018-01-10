@@ -29,6 +29,7 @@ find_package(BISON)
 find_package(FLEX)
 find_package(OpenSSL)
 find_package(Boost)
+find_package(Doxygen)
 
 if(PostgreSQL_FOUND)
     include_directories("${PostgreSQL_INCLUDE_DIR}")
@@ -38,6 +39,14 @@ endif()
 if(OpenMP_CXX_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
+
+if(DOXYGEN_FOUND)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    add_custom_target(doc ALL ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM)
+endif(DOXYGEN_FOUND)
 
 include_directories("${CMAKE_SOURCE_DIR}/src/")
 

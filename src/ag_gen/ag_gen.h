@@ -18,16 +18,17 @@
 
 #include "util/keyvalue.h"
 
+/** AGGen class
+ * @brief Generate attack graph
+ * @details Main generator class that stores state for the entire graph generation process.
+ */
 class AGGen {
-    Network &net;
+    Network &net; //!< Network we are generating from
+    std::deque<NetworkState> frontier; //!< Unexplored states
+    std::set<size_t> hash_list{}; //!< List of hashes of known states
+    std::tuple<std::vector<Quality>, std::vector<Topology>> //!< Initial quality and topology list
 
-    std::deque<NetworkState> frontier;
-
-    std::set<size_t> hash_list{};
-
-    std::tuple<std::vector<Quality>, std::vector<Topology>>
     createPostConditions(std::tuple<Exploit, AssetGroup> &group);
-
   public:
     explicit AGGen(Network &net_i);
     void generate();

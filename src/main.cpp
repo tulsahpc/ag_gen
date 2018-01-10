@@ -1,6 +1,7 @@
-// main.cpp contains the main fuction that runs the program including flag
-// handling and calls to functions that access the database and generate the
-// attack graph.
+//! main.cpp contains the main fuction that runs the program including flag
+//! handling and calls to functions that access the database and generate the
+//! attack graph.
+//!
 
 #include <getopt.h>
 #include <iostream>
