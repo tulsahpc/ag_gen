@@ -2,7 +2,7 @@
 // given certain constraints. More to come...
 
 #include <iostream>
-#include <map>
+#include <vector>
 #include <random>
 #include <numeric>
 #include <cmath>
@@ -22,16 +22,16 @@ int main(int argc, char** argv) {
     std::mt19937 gen(rd());
 
     // Mean of 20 facts, stddev of 7
-    std::uniform_int_distribution<> d(12,7);
+    std::uniform_int_distribution<> d(8,12);
 
-    std::map<int, int> assetFacts;
+    std::vector<int> assetFacts {numAssets};
     for(int i=0; i<numAssets; i++) {
         assetFacts[i] = static_cast<int>(std::round(d(gen)));
         std::cout << assetFacts[i] << std::endl;
     }
 
-    int sum = std::accumulate(assetFacts.begin(), assetFacts.end(), 0, sumMapValues);
-    std::cout << sum << std::endl;
+    int sum = std::accumulate(assetFacts.begin(), assetFacts.end(), 0);
+    std::cout << "Sum: " << sum << std::endl;
 
     return 0;
 }
