@@ -12,8 +12,11 @@
 
 using namespace std;
 
-// print_facts prints all of the hypothetical qualities of an Asset Group, then
-// prints all of the hypothetical topologies
+/**
+ * @brief Prints information about the Asset Group
+ * @details prints all of the hypothetical qualities of an Asset Group, then
+ *          prints all of the hypothetical topologies
+ */
 void AssetGroup::print_facts() {
     for (auto &quality : this->get_hypo_quals()) {
         quality.print();
@@ -25,8 +28,10 @@ void AssetGroup::print_facts() {
     cout << endl;
 }
 
-// print_group prints each asset to stdout on a single line in a comma seperated
-// list
+/**
+ * @brief Prints every Asset
+ * @details Prints each Asset to stdout on a single line in a comma separated list
+ */
 void AssetGroup::print_group() {
     if (perm.size() == 1) {
         cout << "Asset " + to_string(perm[0]);

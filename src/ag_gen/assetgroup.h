@@ -10,6 +10,13 @@
 #include "quality.h"
 #include "topology.h"
 
+/** AssetGroup class
+ * @brief Holds information about multiple Assets
+ * @details Holds the hypothetical qualities and topologies of
+ *          multiple Assets as well as a vector of the number IDs of the Assets. 
+ *          It also implements a print method for the qualities and topologies 
+ *          and for the Assets.
+ */
 class AssetGroup {
     std::vector<Quality> hypothetical_qualities;
     std::vector<Topology> hypothetical_topologies;
@@ -17,6 +24,14 @@ class AssetGroup {
     std::vector<int> perm;
 
   public:
+    /**
+     * @brief Constructor for AssetGroup
+     * @details Initializes values of AssetGroup
+     *
+     * @param hypo_quals The hypothetical qualities of Assets
+     * @param hypo_topos The hyptothetcial topologies of Assets
+     * @param pperm IDs of the Assets
+     */
     AssetGroup(std::vector<Quality> hypo_quals,
                std::vector<Topology> hypo_topos, std::vector<int> pperm)
         : hypothetical_qualities(move(hypo_quals)),
