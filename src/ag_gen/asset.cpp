@@ -48,6 +48,8 @@ void Asset::fetch_qualities() {
  * @brief Gets all of the Assets under the network
  * @details Grabs all of the Assets in the database under the network given in
  *    	    the argument and returns a vector of those Assets
+ *
+ * @param network Name of the network to grab from
  */
 vector<Asset> Asset::fetch_all(const string &network) {
     vector<Row> rows = db->exec("SELECT * FROM asset WHERE network_id = "
