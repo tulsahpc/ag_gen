@@ -7,6 +7,10 @@
 
 #include "quality.h"
 
+/** Asset class
+ * @brief Fetches and saves assets
+ * @details Fetches the qualities of the assets from the database and stores them in a vector.
+ */
 class Asset {
     int id;
     int network_id;
