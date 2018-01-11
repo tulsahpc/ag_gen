@@ -15,6 +15,12 @@ using namespace std;
 //      - login
 //      - password (optional)
 
+/**
+ * @brief Constructor for Config
+ * @details Reads and parses config file and stores data
+ *
+ * @param filename Path of config file
+ */
 Config::Config(string filename) {
     ifstream config_file(filename);
 
@@ -36,6 +42,9 @@ Config::Config(string filename) {
     }
 }
 
+/**
+ * @brief Builds a string for the database URI
+ */
 string Config::db_string() {
     string db_string;
     if (config["password"].empty())

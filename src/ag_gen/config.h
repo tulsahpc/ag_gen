@@ -4,6 +4,15 @@
 #include <string>
 #include <unordered_map>
 
+/** Config class
+ * @brief Reads and stores information from config file
+ * @details File information:
+ *
+ * - server
+ * - db
+ * - login
+ * - password (optional)
+ */
 class Config {
     std::unordered_map<std::string, std::string> config;
 
