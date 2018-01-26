@@ -13,6 +13,13 @@
 #include "util/keyvalue.h"
 
 class Network;
+
+/** NetworkState class
+ * @brief Manages the current state of the network
+ * @details The current network state is dependent on the Qualities
+ *          and Topologies in the Factbase. NetworkState allows
+ *          for the addition of Qualities and Topologies to the Factbase.
+ */
 class NetworkState {
     Network *net;
     Factbase factbase;
