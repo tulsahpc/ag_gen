@@ -26,9 +26,6 @@ class AGGen {
     Network &net; //!< Network we are generating from
     std::deque<NetworkState> frontier; //!< Unexplored states
     std::set<size_t> hash_list{}; //!< List of hashes of known states
-    std::tuple<std::vector<Quality>, std::vector<Topology>> //!< Initial quality and topology list
-
-    createPostConditions(std::tuple<Exploit, AssetGroup> &group);
   public:
     explicit AGGen(Network &net_i);
     void generate();

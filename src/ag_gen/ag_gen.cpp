@@ -23,6 +23,49 @@ AGGen::AGGen(Network &net_i) : net(net_i) {
 }
 
 /**
+ * @brief Generates exploit postconditions
+ * @details When an exploit is known to apply to a set of assets,
+ * the postconditions must be generated. This is done by iterating
+ * through each parameterized fact and inserting the applicable
+ * assets.
+ *
+ * @param group A tuple containing the exploit and applicable assets
+ * @return A tuple containing the "real" qualities and "real" topologies
+ */
+static std::tuple<std::vector<Quality>, std::vector<Topology>>
+createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
+    auto ex = get<0>(group);
+    auto ag = get<1>(group);
+
+    auto perm = ag.get_perm();
+
+    auto param_postconds_q = ex.postcond_list_q();
+    auto param_postconds_t = ex.postcond_list_t();
+
+    vector<Quality> postconds_q;
+    vector<Topology> postconds_t;
+
+    for (auto &postcond : param_postconds_q) {
+        Quality q(perm[postcond.get_param_num()], postcond.name, "=",
+                  postcond.value);
+        postconds_q.push_back(q);
+    }
+
+    for (auto &postcond : param_postconds_t) {
+        auto dir = postcond.get_dir();
+        auto prop = postcond.get_property();
+        auto op = postcond.get_operation();
+        auto val = postcond.get_value();
+
+        Topology t(perm[postcond.get_from_param()],
+                   perm[postcond.get_to_param()], dir, prop, op, val);
+        postconds_t.push_back(t);
+    }
+
+    return make_tuple(postconds_q, postconds_t);
+}
+
+/**
  * @brief Generate attack graph
  * @details Begin the generation of the attack graph. The algorithm is as follows:
  *
@@ -180,45 +223,4 @@ void AGGen::generate() {
 
     cout << "total number of generated states: " << counter << endl;
     cout << "states in hash_list: " << hash_list.size() << endl;
-}
-
-// createPostConditions takes a tuple of an Exploit and an AssetGroup. The
-// function assumes the given exploit works, therefore it generates the
-// postconditions (both the qualities and toplogies) that will be added to the
-// factbase of a new state. It does this by iterating through the respective
-// postcondition list of the given exploit and creates a new quality/topology
-// from the current one and the given asset group's perm for each item in the
-// list. It returns the postconditions as tuple of a vector of the new qualities
-// and a vector of the new topologies.
-std::tuple<std::vector<Quality>, std::vector<Topology>>
-AGGen::createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
-    auto ex = get<0>(group);
-    auto ag = get<1>(group);
-
-    auto perm = ag.get_perm();
-
-    auto param_postconds_q = ex.postcond_list_q();
-    auto param_postconds_t = ex.postcond_list_t();
-
-    vector<Quality> postconds_q;
-    vector<Topology> postconds_t;
-
-    for (auto &postcond : param_postconds_q) {
-        Quality q(perm[postcond.get_param_num()], postcond.name, "=",
-                  postcond.value);
-        postconds_q.push_back(q);
-    }
-
-    for (auto &postcond : param_postconds_t) {
-        auto dir = postcond.get_dir();
-        auto prop = postcond.get_property();
-        auto op = postcond.get_operation();
-        auto val = postcond.get_value();
-
-        Topology t(perm[postcond.get_from_param()],
-                   perm[postcond.get_to_param()], dir, prop, op, val);
-        postconds_t.push_back(t);
-    }
-
-    return make_tuple(postconds_q, postconds_t);
 }
