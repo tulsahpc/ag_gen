@@ -12,6 +12,9 @@
 #include "quality.h"
 #include "util/keyvalue.h"
 
+/**
+ * @brief Holds information about a Quality and a parameter number.
+ */
 struct ParameterizedQuality {
     int param;
     std::string name;

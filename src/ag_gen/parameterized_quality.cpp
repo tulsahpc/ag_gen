@@ -4,11 +4,17 @@
 
 using namespace std;
 
+/**
+ * @brief Prints Quality information.
+ */
 void ParameterizedQuality::print() {
     cout << "Param: " + to_string(param) << endl;
     cout << "Attribute: " + name << endl;
     cout << "Value: " + value << endl << endl;
 }
 
-// Parameter numbers are 1-indexed
+/**
+ * @brief Gets the current parameter number.
+ * @details Parameter numbers are 1-indexed.
+ */
 int ParameterizedQuality::get_param_num() { return param - 1; }
