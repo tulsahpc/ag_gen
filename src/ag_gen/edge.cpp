@@ -9,13 +9,28 @@
 
 using namespace std;
 
+/**
+ * @brief Constructor for Edge
+ * @details Initializes information with given parameters and initializes id to 0.
+ *
+ * @param iFrom The From Node
+ * @param iTo The To Node
+ * @param ex Exploit associated with the Edge
+ * @param ag AssetGroup associated with the Edge
+ */
 Edge::Edge(int iFrom, int iTo, Exploit &ex, AssetGroup &ag)
     : from_node(iFrom), to_node(iTo), exploit(ex), assetGroup(ag) {
     id = 0;
 }
 
+/**
+ * @brief Returns the Edge ID.
+ */
 int Edge::get_id() { return id; }
 
+/**
+ * @brief Checks if the Edge exists in the database.
+ */
 bool Edge::exists_in_db() {
     vector<Row> rows =
         db->exec("SELECT 1 FROM edge WHERE from_node = " +
@@ -28,6 +43,10 @@ bool Edge::exists_in_db() {
     }
 }
 
+/**
+ * @brief Saves the Edge in the database.
+ * @details Saves the Edge in the database and sets the ID of the Edge to the new ID.
+ */
 void Edge::save() {
     if (exists_in_db()) {
         vector<Row> rows = db->exec(

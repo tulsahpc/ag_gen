@@ -8,6 +8,9 @@
 #include "assetgroup.h"
 #include "exploit.h"
 
+/** Edge class
+ * @brief Edge of the graph.
+ */
 class Edge {
     int id;
     int from_node;
