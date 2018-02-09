@@ -9,6 +9,12 @@
 #include "topology.h"
 
 class NetworkState;
+
+/** Factbase class
+ * @brief Contains known facts in a NetworkState.
+ * @details Contains known facts that are completely true in the
+ *          NetworkState such as Qualities and Topologies.
+ */
 class Factbase {
     const NetworkState *parent;
 

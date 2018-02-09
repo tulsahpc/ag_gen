@@ -9,13 +9,28 @@
 
 using namespace std;
 
+/**
+ * @brief Constructor for Factbase
+ * @details Fetches Qualities and Topologies for the Factbase.
+ */
 Factbase::Factbase()
     : qualities(Quality::fetch_all()), topologies(Topology::fetch_all()) {}
 
+/**
+ * @brief Sets the parent NetworkState.
+ *
+ * @param ns New parent NetworkState
+ */
 void Factbase::set_parent(const NetworkState &ns) { parent = &ns; }
 
+/**
+ * @brief Returns the current Factbase ID.
+ */
 int Factbase::get_id() const { return id; }
 
+/**
+ * @brief Checks if the Factbase exists in the database.
+ */
 bool Factbase::exists_in_db() {
     string sql =
         "SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';";
@@ -28,8 +43,12 @@ bool Factbase::exists_in_db() {
     }
 }
 
-// find_quality searches for a given quality in a factbase. Returns true if the
-// quality is found, otherwise returns false
+/**
+ * @brief Searches for a Quality in the Factbase.
+ * @details Returns true if the Quality is found and false otherwise.
+ *
+ * @param q Quality for which to search.
+ */
 bool Factbase::find_quality(Quality &q) const {
     if (find(qualities.begin(), qualities.end(), q) == qualities.end()) {
         return false;
@@ -37,8 +56,12 @@ bool Factbase::find_quality(Quality &q) const {
     return true;
 }
 
-// find_topology searches for a given topology in a factbase. Returns true if
-// the topology is found, otherwise returns false
+/**
+ * @brief Searches for a Topology in the Factbase.
+ * @details Returns true if the Topology is found and false otherwise.
+ *
+ * @param t Topology for which to search.
+ */
 bool Factbase::find_topology(Topology &t) const {
     if (find(topologies.begin(), topologies.end(), t) == topologies.end()) {
         return false;
@@ -46,12 +69,23 @@ bool Factbase::find_topology(Topology &t) const {
     return true;
 }
 
-// add_quality adds a given quality to the factbase's vector of qualities
+/**
+ * @brief Adds a given Quality to the factbase's vector of Qualities.
+ *
+ * @param q Quality to add
+ */
 void Factbase::add_quality(Quality &q) { qualities.push_back(q); }
 
-// add_topology adds a given topology to the factbase's vector of topologies
+/**
+ * @brief Adds a given Topology to the factbase's vector of Topologies.
+ *
+ * @param t Topology to add
+ */
 void Factbase::add_topology(Topology &t) { topologies.push_back(t); }
 
+/**
+ * @brief Saves the Factbase to the database.
+ */
 void Factbase::save() {
     if (exists_in_db()) {
         return;
@@ -81,13 +115,18 @@ void Factbase::save() {
     db->exec(insert_sql);
 }
 
-// Shamelessly copied from Boost::hash_combine
+/**
+ * @brief Shamelessly copied from Boost::hash_combine
+ */
 size_t combine(size_t seed) {
     seed ^= std::hash<size_t>{}(seed) + 0x9e3779b97f4a7c15 + (seed << 6) +
             (seed >> 2);
     return seed;
 }
 
+/**
+ * @brief Hashes the Factbase
+ */
 size_t Factbase::hash() const {
     //  size_t hash = 0xf848b64e; // Random seed value
     size_t hash = 0x0c32a12fe19d2119;
@@ -107,6 +146,9 @@ size_t Factbase::hash() const {
     return hash;
 }
 
+/**
+ * @brief Prints out the Factbase information.
+ */
 void Factbase::print() const {
     cout << "ID: " << id << endl;
     cout << "HASH: " << hash() << endl;
