@@ -89,7 +89,7 @@ void AGGen::generate() {
 
     cout << "Generating Attack Graph" << endl;
     while (!frontier.empty()) {
-        // cout << "Frontier Size: " << frontier.size() << endl;
+         cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
         auto current_state = frontier.front();
         frontier.pop_front();
