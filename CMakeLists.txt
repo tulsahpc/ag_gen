@@ -12,8 +12,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O1")
 set(PostgreSQL_ADDITIONAL_VERSIONS "10.1" "10")
 
 # Copy the config file to the build directory
-file(COPY "${CMAKE_SOURCE_DIR}/config_default.txt" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(RENAME "${CMAKE_CURRENT_BINARY_DIR}/config_default.txt" "${CMAKE_CURRENT_BINARY_DIR}/config.txt")
+#file(COPY "${CMAKE_SOURCE_DIR}/config_default.txt" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+#file(RENAME "${CMAKE_CURRENT_BINARY_DIR}/config_default.txt" "${CMAKE_CURRENT_BINARY_DIR}/config.txt")
 
 # Apple has a different openssl directory when using brew
 if(APPLE)
@@ -21,6 +21,7 @@ if(APPLE)
 endif()
 
 # Find packages
+find_package(PkgConfig REQUIRED)
 find_package(PostgreSQL REQUIRED)
 find_package(OpenMP)
 
@@ -31,9 +32,7 @@ find_package(OpenSSL)
 find_package(Boost)
 find_package(Doxygen)
 
-if(PostgreSQL_FOUND)
-    include_directories("${PostgreSQL_INCLUDE_DIR}")
-endif()
+pkg_check_modules(CONFIG REQUIRED libconfig++)
 
 # Enable thread-level parallelization if OpenMP is found.
 if(OpenMP_CXX_FOUND)
@@ -54,11 +53,14 @@ file(GLOB ag_gen_src "${CMAKE_SOURCE_DIR}/src/ag_gen/*.cpp")
 file(GLOB utils_src "${CMAKE_SOURCE_DIR}/src/util/*.c" "${CMAKE_SOURCE_DIR}/src/util/*.cpp")
 
 # Main application
-add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp" ${ag_gen_src} ${utils_src})
-target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES})
+#add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp" ${ag_gen_src} ${utils_src})
+add_executable(ag_gen ${CMAKE_SOURCE_DIR}/src/main.cpp)
+target_link_libraries(ag_gen ${CONFIG_LIBRARIES})
 
 # Parser
-BISON_TARGET(nm_parser "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_parser.yy" "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.c" DEFINES_FILE "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.tab.h")
+BISON_TARGET(nm_parser "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_parser.yy"
+    "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.c"
+    DEFINES_FILE "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.tab.h")
 FLEX_TARGET(nm_scanner "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_scanner.l" "${CMAKE_CURRENT_BINARY_DIR}/nm_scanner.c")
 ADD_FLEX_BISON_DEPENDENCY(nm_scanner nm_parser)
 

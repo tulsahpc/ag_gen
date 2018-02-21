@@ -5,13 +5,12 @@
 
 #include <getopt.h>
 #include <iostream>
+#include <libconfig.h++>
 
 #include "ag_gen/ag_gen.h"
-#include "ag_gen/config.h"
 
 using namespace std;
-
-std::shared_ptr<DB> db;
+using namespace libconfig;
 
 // print_usage prints to stdout the help menu that corresponds to the ag_gen
 // command
@@ -59,11 +58,29 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    Config config("config.txt");
-    db = std::make_shared<DB>(config.db_string());
+    Config cfg;
 
-    Network net{opt_network};
-    AGGen gen{net};
+    try {
+        cfg.readFile("test.cfg");
+    } catch(const FileIOException &e) {
+        cerr << "Cannot read file" << endl;
+    } catch(const ParseException &e) {
+        cerr << "Parse error at " << e.getFile() << ":" << e.getLine()
+             << " - " << e.getError() << endl;
+    }
 
-    gen.generate();
+    try {
+        string thing = cfg.lookup("hello.thing");
+        cout << thing << endl;
+    } catch(const SettingNotFoundException &e) {
+        cerr << "Setting not found" << endl;
+    }
+
+//    Config config("config.txt");
+//    db = std::make_shared<DB>(config.db_string());
+
+//    Network net{opt_network};
+//    AGGen gen{net};
+
+//    gen.generate();
 }
