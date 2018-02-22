@@ -12,6 +12,8 @@
 using namespace std;
 using namespace libconfig;
 
+shared_ptr<DB> db;
+
 // print_usage prints to stdout the help menu that corresponds to the ag_gen
 // command
 void print_usage() {
@@ -77,7 +79,7 @@ int main(int argc, char *argv[]) {
     }
 
 //    Config config("config.txt");
-//    db = std::make_shared<DB>(config.db_string());
+    db = std::make_shared<DB>(config.db_string());
 
 //    Network net{opt_network};
 //    AGGen gen{net};
