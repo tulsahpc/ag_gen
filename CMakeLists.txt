@@ -16,9 +16,9 @@ set(PostgreSQL_ADDITIONAL_VERSIONS "10.1" "10")
 #file(RENAME "${CMAKE_CURRENT_BINARY_DIR}/config_default.txt" "${CMAKE_CURRENT_BINARY_DIR}/config.txt")
 
 # Apple has a different openssl directory when using brew
-if(APPLE)
-    set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
-endif()
+#if(APPLE)
+#    set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
+#endif()
 
 # Find packages
 find_package(PkgConfig REQUIRED)
@@ -53,9 +53,8 @@ file(GLOB ag_gen_src "${CMAKE_SOURCE_DIR}/src/ag_gen/*.cpp")
 file(GLOB utils_src "${CMAKE_SOURCE_DIR}/src/util/*.c" "${CMAKE_SOURCE_DIR}/src/util/*.cpp")
 
 # Main application
-#add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp" ${ag_gen_src} ${utils_src})
-add_executable(ag_gen ${CMAKE_SOURCE_DIR}/src/main.cpp)
-target_link_libraries(ag_gen ${CONFIG_LIBRARIES})
+add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp" ${ag_gen_src} ${utils_src})
+target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES} ${OpenSSL_LIBRARIES} ${CONFIG_LIBRARIES})
 
 # Parser
 BISON_TARGET(nm_parser "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_parser.yy"
@@ -76,7 +75,6 @@ target_link_libraries(db_api_example ${PostgreSQL_LIBRARIES})
 
 # Tools and Work-in-Progress Ideas
 add_executable(sha256_test "${CMAKE_SOURCE_DIR}/src/tools/sha256_test.cpp")
-target_include_directories(sha256_test PRIVATE ${OPENSSL_INCLUDE_DIR})
 target_link_libraries(sha256_test ${OPENSSL_LIBRARIES})
 
 add_executable(graphing_db "${CMAKE_SOURCE_DIR}/src/tools/graphing_db.cpp")
