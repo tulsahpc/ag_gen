@@ -1,14 +1,16 @@
+%debug
 %error-verbose
 
 %{
     #include <stdio.h>
     #include <stdlib.h>
 
+    #include "util/mem.h"
     #include "util/str_array.h"
     #include "util/hash.h"
     #include "util/build_sql.h"
 
-    #define YYDEBUG 0
+    #define YYDEBUG 1
 
     struct networkmodel {
         str_array* assets;
@@ -168,7 +170,8 @@ direction:
 int main(int argc, char** argv) {
     FILE* file;
     if(argv[1] == 0) {
-        file = fopen("../examples/SystemV8.nm", "r");
+        printf("Please pass a file to parse as an argument.\n");
+        exit(1);
     } else {
         file = fopen(argv[1], "r");
     }
@@ -199,6 +202,7 @@ int main(int argc, char** argv) {
         strncpy(copy, current, strlen(current));
 
         char* type = strsep(&copy, ":");
+        printf("%s\n", type);
         if(strncmp(type, "q", 1) == 0) {
             add_str(qualities, copy);
         } else {
@@ -230,7 +234,7 @@ int main(int argc, char** argv) {
         char* nextstring = qualities->arr[i];
         fprintf(fp, "%s\n", nextstring);
     }
-    stripped = qualities->arr[nm.assets->used-1];
+    stripped = qualities->arr[qualities->used-1];
     stripped[strlen(stripped)-1] = '\n';
     fprintf(fp, "%s\n", stripped);
 
@@ -242,11 +246,13 @@ int main(int argc, char** argv) {
         char* nextstring = topologies->arr[i];
         fprintf(fp, "%s\n", nextstring);
     }
-    stripped = topologies->arr[nm.assets->used-1];
+    stripped = topologies->arr[topologies->used-1];
     stripped[strlen(stripped)-1] = '\n';
     fprintf(fp, "%s\n", stripped);
 
     fprintf(fp, "%s\n", "ON CONFLICT DO NOTHING;");
+
+    fclose(fp);
 
     free_hashtable(nm.asset_tab);
 }

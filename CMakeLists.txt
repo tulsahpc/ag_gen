@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
 project(ag_gen)
 
+set_source_files_properties(
+    mem.c
+    PROPERTIES
+        COMPILE_DEFINITIONS UNIT_TEST=1
+)
+
 # Common compiler options among built types
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
@@ -11,14 +17,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O1")
 
 set(PostgreSQL_ADDITIONAL_VERSIONS "10.1" "10")
 
-# Copy the config file to the build directory
-#file(COPY "${CMAKE_SOURCE_DIR}/config_default.txt" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-#file(RENAME "${CMAKE_CURRENT_BINARY_DIR}/config_default.txt" "${CMAKE_CURRENT_BINARY_DIR}/config.txt")
-
 # Apple has a different openssl directory when using brew
-#if(APPLE)
-#    set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
-#endif()
+if(APPLE)
+    set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
+endif()
 
 # Find packages
 find_package(PkgConfig REQUIRED)
@@ -33,6 +35,12 @@ find_package(Boost)
 find_package(Doxygen)
 
 pkg_check_modules(CONFIG REQUIRED libconfig++)
+pkg_check_modules(YAML REQUIRED yaml-cpp)
+pkg_check_modules(CMOCKA cmocka)
+
+if(OpenSSL_FOUND)
+    include_directories(${OPENSSL_INCLUDE_DIR})
+endif()
 
 # Enable thread-level parallelization if OpenMP is found.
 if(OpenMP_CXX_FOUND)
@@ -54,13 +62,14 @@ file(GLOB utils_src "${CMAKE_SOURCE_DIR}/src/util/*.c" "${CMAKE_SOURCE_DIR}/src/
 
 # Main application
 add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp" ${ag_gen_src} ${utils_src})
-target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES} ${OpenSSL_LIBRARIES} ${CONFIG_LIBRARIES})
+target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES} ${CONFIG_LIBRARIES} ${YAML_LIBRARIES})
 
 # Parser
 BISON_TARGET(nm_parser "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_parser.yy"
     "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.c"
     DEFINES_FILE "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.tab.h")
-FLEX_TARGET(nm_scanner "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_scanner.l" "${CMAKE_CURRENT_BINARY_DIR}/nm_scanner.c")
+FLEX_TARGET(nm_scanner "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_scanner.l"
+    "${CMAKE_CURRENT_BINARY_DIR}/nm_scanner.c")
 ADD_FLEX_BISON_DEPENDENCY(nm_scanner nm_parser)
 
 # Network Model parser
@@ -81,3 +90,7 @@ add_executable(graphing_db "${CMAKE_SOURCE_DIR}/src/tools/graphing_db.cpp")
 target_link_libraries(graphing_db ${BOOST_LIBRARIES} ${PostgreSQL_LIBRARIES})
 
 add_executable(netgen "${CMAKE_SOURCE_DIR}/src/tools/netgen.cpp")
+
+# Unit Testing
+add_executable(dynstr_test ${CMAKE_SOURCE_DIR}/src/util/mem.c ${CMAKE_SOURCE_DIR}/src/tests/mem_test.c)
+target_link_libraries(dynstr_test ${CMOCKA_LIBRARIES})

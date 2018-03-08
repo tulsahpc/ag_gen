@@ -1,0 +1,55 @@
+---
+name: Test Network 1
+assets:
+  - name: Client 1
+    OS: Windows 7
+    IP: 192.168.2.10
+  - name: Client 2
+    OS: Windows 10
+    IP: 192.168.2.11
+  - name: Client 3
+    OS: Windows XP
+    IP: 192.168.2.12
+  - name: DNS Server
+    OS: Debian 8
+    Ports: 53
+  - name: Web Server
+    OS: CentOS 6
+    Ports:
+      - 80
+      - 443
+  - name: Domain Controller
+    OS: Windows Server 2008 R2
+    Ports:
+      - 139
+  - name: Virtualization Node 1
+  - name: Virtualization Node 2
+  - name: Virtualization Node 3
+  - name: Virtualization Node 4
+  - name: Router
+    IP:
+      - 192.168.0.1
+      - 192.168.1.1
+      - 192.168.2.1
+  - name: Switch 1
+    broadcast: 192.168.0.255
+  - name: Switch 2
+    broadcast: 192.168.1.255
+  - name: Switch 3
+    broadcast: 192.168.2.255
+subnets:
+  - subnet: 192.168.0.0/24
+  - subnet: 192.168.1.0/24
+  - subnet: 192.168.2.0/24
+exploits:
+  - exploit: ms08-067
+    cve: CVE-2008-4250
+    os:
+    - Windows XP
+    - Windows Vista
+    - Windows 2000
+    - Windows Server 2003
+    - Windows Server 2008
+    result:
+    - Remote Access
+    - Pivot

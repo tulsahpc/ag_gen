@@ -10,7 +10,6 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <libpq-fe.h>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -18,9 +17,10 @@
 #include <utility>
 #include <vector>
 
+#include <libpq-fe.h>
+
 class DB;
 extern std::shared_ptr<DB> db;
-
 typedef std::vector<std::string> Row;
 
 class DBException : public std::runtime_error {
@@ -33,7 +33,6 @@ class DBException : public std::runtime_error {
 
 class Connection {
     bool connected = false;
-    bool idle = true;
 
     PGconn *conn_r;
 
@@ -92,8 +91,12 @@ class Connection {
 class DB {
     Connection conn;
 
-  public:
+public:
     DB(const std::string &conninfo) : conn(conninfo) {}
+
+    bool connect(const std::string &conninfo) {
+        conn = Connection {conninfo};
+    }
 
     std::vector<Row> exec(const std::string &sql) {
         try {

@@ -5,7 +5,10 @@
 
 #include <getopt.h>
 #include <iostream>
+#include <string>
+
 #include <libconfig.h++>
+#include <yaml-cpp/yaml.h>
 
 #include "ag_gen/ag_gen.h"
 
@@ -23,6 +26,21 @@ void print_usage() {
     cout << "\t-p\tPrint information about the network specified by -n."
          << endl;
     cout << "\t-h\tThis help menu." << endl;
+}
+
+struct Client {
+    string Name;
+    string OS;
+    vector<string> IP;
+};
+
+int yaml_test() {
+    YAML::Node file = YAML::LoadFile("test.yaml");
+    string networkName = file["name"].as<string>();
+    Client client1 {};
+    YAML::Node client1yaml = file["assets"][0];
+    client1.Name = client1yaml["name"].as<string>();
+    client1.OS = client1yaml["os"].as<string>();
 }
 
 // the main function executes the command according to the given flag and throws
@@ -63,7 +81,7 @@ int main(int argc, char *argv[]) {
     Config cfg;
 
     try {
-        cfg.readFile("test.cfg");
+        cfg.readFile("ag_gen.cfg");
     } catch(const FileIOException &e) {
         cerr << "Cannot read file" << endl;
     } catch(const ParseException &e) {
@@ -71,18 +89,26 @@ int main(int argc, char *argv[]) {
              << " - " << e.getError() << endl;
     }
 
-    try {
-        string thing = cfg.lookup("hello.thing");
-        cout << thing << endl;
-    } catch(const SettingNotFoundException &e) {
-        cerr << "Setting not found" << endl;
-    }
+    string new_db_string;
 
-//    Config config("config.txt");
-    db = std::make_shared<DB>(config.db_string());
+    string host {"localhost"};
+    string port {"5432"};
+    string dbName {"ag_gen"};
+    string username {};
+    string password {};
 
-//    Network net{opt_network};
-//    AGGen gen{net};
+    cfg.lookupValue("database.host", host);
+    cfg.lookupValue("database.port", port);
+    cfg.lookupValue("database.db", dbName);
+    cfg.lookupValue("database.username", username);
+    cfg.lookupValue("database.password", password);
+
+    db = make_shared<DB>("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
+
+    yaml_test();
+
+    Network net{opt_network};
+    AGGen gen{net};
 
 //    gen.generate();
 }

@@ -36,6 +36,6 @@ topology  { return TOPOLOGY; }
 "<->"  { yylval.string = strdup(yytext); return BIDIR; }
 [ \t\r\n]+ {}
 
-. { return yytext[0]; }
+. { return strdup(yytext[0]); }
 
 %%

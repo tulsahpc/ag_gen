@@ -25,7 +25,7 @@ Asset::Asset(int iid, int netid, std::string nname)
 
 /**
  * @brief Gets all of the qualities for the Asset
- * @details Grabs all of the qualities in the database associated with 
+ * @details Grabs all of the qualities in the database associated with
  *          the Asset's ID and gives them to the Asset
  */
 void Asset::fetch_qualities() {
