@@ -43,6 +43,114 @@ int yaml_test() {
     client1.OS = client1yaml["os"].as<string>();
 }
 
+vector<Asset> fetch_all_assets(const string net_name)
+{
+
+    vector<Row> rows = db->exec("SELECT * FROM asset WHERE network_id = "
+                                "(SELECT id FROM network WHERE name = '" +
+                                net_name + "');");
+    vector<Asset> new_assets;
+
+    for (auto &row : rows) {
+        int id = stoi(row[0]);
+        string name = row[1];
+        int network_id = stoi(row[2]);
+
+        new_assets.emplace_back(id, network_id, name);
+    }
+
+    return new_assets;
+
+}
+
+vector<string> fetch_quality_attributes()
+{
+
+    vector<string> attrs;
+    vector<Row> qrows = db->exec("SELECT DISTINCT property FROM quality;");
+    vector<Row> erows =
+        db->exec("SELECT DISTINCT property FROM exploit_postcondition;");
+
+    for (auto &row : qrows) {
+        string prop = row[0];
+        attrs.push_back(prop);
+    }
+
+    for (auto &row : erows) {
+        string prop = row[0];
+        attrs.push_back(prop);
+    }
+
+    return attrs;
+
+}
+
+vector<string> fetch_quality_values()
+{
+
+    vector<string> vals;
+    vector<Row> qrows = db->exec("SELECT DISTINCT value FROM quality;");
+    vector<Row> erows =
+        db->exec("SELECT DISTINCT value FROM exploit_postcondition;");
+
+    for (auto &row : qrows) {
+        string val = row[0];
+        vals.push_back(val);
+    }
+
+    for (auto &row : erows) {
+        string val = row[0];
+        vals.push_back(val);
+    }
+
+    return vals;
+
+}
+
+vector<string> fetch_topology_attributes()
+{
+
+    vector<string> attrs;
+    vector<Row> rows = db->exec("SELECT DISTINCT property FROM topology;");
+
+    for (auto &row : rows) {
+        string prop = row[0];
+        attrs.push_back(prop);
+    }
+
+    return attrs;
+
+}
+
+vector<string> fetch_topology_values()
+{
+
+    vector<string> vals;
+    vector<Row> rows = db->exec("SELECT DISTINCT value FROM topology;");
+
+    for (auto &row : rows) {
+        string val = row[0];
+        vals.push_back(val);
+    }
+
+    return vals;
+
+}
+
+Keyvalue fetch_facts()
+{
+
+    Keyvalue initfacts;
+
+    initfacts.populate(fetch_quality_attributes());
+    initfacts.populate(fetch_quality_values());
+    initfacts.populate(fetch_topology_attributes());
+    initfacts.populate(fetch_topology_values());
+
+    return initfacts;
+
+}
+
 // the main function executes the command according to the given flag and throws
 // and error if an unknown flag is provided. It then uses the database given in
 // the "config.txt" file to generate an attack graph.
@@ -105,9 +213,9 @@ int main(int argc, char *argv[]) {
 
     db = make_shared<DB>("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
 
-    yaml_test();
+    // yaml_test();
 
-    Network net{opt_network};
+    Network net{fetch_all_assets(opt_network), fetch_facts()};
     AGGen gen{net};
 
 //    gen.generate();
