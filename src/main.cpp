@@ -105,10 +105,10 @@ int main(int argc, char *argv[]) {
 
     db = make_shared<DB>("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
 
-    yaml_test();
+    //yaml_test();
 
     Network net{opt_network};
     AGGen gen{net};
 
-//    gen.generate();
+    gen.generate();
 }

@@ -76,6 +76,56 @@ class Odometer {
     int perm_length() { return n; }
 
     std::vector<std::vector<int>> get_all() { return perms; }
+
+    size_t get_size() { return perms.size(); }
 };
+
+class Odometer_iterator
+{
+
+    size_t index;
+    Odometer od;
+
+  public:
+    Odometer_iterator(Odometer _od, size_t const i) : od(_od), index(i) {}
+
+    bool operator!= (Odometer_iterator const & other) const
+    {
+
+        return index != other.index;
+
+    }
+
+    std::vector<int> const & operator* () const
+    {
+
+        return od[index];
+
+    }
+
+    Odometer_iterator const & operator++ ()
+    {
+
+        ++index;
+        return *this;
+
+    }
+
+};
+
+inline Odometer_iterator begin(Odometer od)
+{
+
+    return Odometer_iterator(od, 0);
+
+}
+
+inline Odometer_iterator end(Odometer od)
+{
+
+    return Odometer_iterator(od, od.get_size());
+
+}
+
 
 #endif // UTIL_ODOMETER_HPP
