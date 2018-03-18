@@ -78,6 +78,15 @@ class Odometer {
     std::vector<std::vector<int>> get_all() { return perms; }
 
     size_t get_size() { return perms.size(); }
+
+    std::vector<int> const & GetAt(size_t i) const
+    {
+
+        if (i < perms.size()) return perms[i];
+        throw std::out_of_range("index out of range");
+
+    }
+
 };
 
 class Odometer_iterator
@@ -99,7 +108,7 @@ class Odometer_iterator
     std::vector<int> const & operator* () const
     {
 
-        return od[index];
+        return od.GetAt(index);
 
     }
 
