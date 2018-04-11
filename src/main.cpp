@@ -203,9 +203,9 @@ int main(int argc, char *argv[]) {
 
     db = make_shared<DB>("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
 
-    //Network net{opt_network};
+    Network net{opt_network};
 
-    Network net{fetch_all_assets(opt_network), fetch_facts()};
+    //Network net{fetch_all_assets(opt_network), fetch_facts()};
     AGGen gen{net};
 
    gen.generate();
