@@ -35,7 +35,6 @@ find_package(Boost)
 find_package(Doxygen)
 
 pkg_check_modules(CONFIG REQUIRED libconfig++)
-pkg_check_modules(YAML REQUIRED yaml-cpp)
 pkg_check_modules(CMOCKA cmocka)
 
 if(OpenSSL_FOUND)
@@ -62,7 +61,7 @@ file(GLOB utils_src "${CMAKE_SOURCE_DIR}/src/util/*.c" "${CMAKE_SOURCE_DIR}/src/
 
 # Main application
 add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp" ${ag_gen_src} ${utils_src})
-target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES} ${CONFIG_LIBRARIES} ${YAML_LIBRARIES})
+target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES} ${CONFIG_LIBRARIES})
 
 # Parser
 BISON_TARGET(nm_parser "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_parser.yy"
