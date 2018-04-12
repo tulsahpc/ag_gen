@@ -94,7 +94,7 @@ class DB {
 public:
     DB(const std::string &conninfo) : conn(conninfo) {}
 
-    bool connect(const std::string &conninfo) {
+    void connect(const std::string &conninfo) {
         conn = Connection {conninfo};
     }
 
