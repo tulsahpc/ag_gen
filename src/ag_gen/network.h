@@ -28,13 +28,13 @@ class Network {
      *
      * @param name Name of the network
      */
-    Network(std::string &name) : assets(Asset::fetch_all(name)) {
+    Network(std::string &name, std::vector<Asset> a, Keyvalue f) : assets(a), facts(f) {
         initial_state = generate_network_state();
 
-        facts.populate(Quality::fetch_all_attributes());
-        facts.populate(Quality::fetch_all_values());
-        facts.populate(Topology::fetch_all_attributes());
-        facts.populate(Topology::fetch_all_values());
+        // facts.populate(Quality::fetch_all_attributes());
+        // facts.populate(Quality::fetch_all_values());
+        // facts.populate(Topology::fetch_all_attributes());
+        // facts.populate(Topology::fetch_all_values());
     }
 
     /**

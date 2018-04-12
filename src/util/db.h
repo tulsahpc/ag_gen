@@ -37,6 +37,8 @@ class Connection {
     PGconn *conn_r;
 
   public:
+    //Connection() {}
+
     Connection(const std::string &conninfo) {
         // Create database connection
         conn_r = PQconnectdb(conninfo.c_str());
@@ -92,8 +94,9 @@ class DB {
     Connection conn;
 
 public:
+    // DB() {}
     DB(const std::string &conninfo) : conn(conninfo) {}
-
+    
     void connect(const std::string &conninfo) {
         conn = Connection {conninfo};
     }

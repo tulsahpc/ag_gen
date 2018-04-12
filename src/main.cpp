@@ -16,7 +16,7 @@
 using namespace std;
 using namespace libconfig;
 
-shared_ptr<DB> db;
+std::shared_ptr<DB> db;
 
 // print_usage prints to stdout the help menu that corresponds to the ag_gen
 // command
@@ -34,26 +34,6 @@ struct Client {
     string OS;
     vector<string> IP;
 };
-
-vector<Asset> fetch_all_assets(const string net_name)
-{
-
-    vector<Row> rows = db->exec("SELECT * FROM asset WHERE network_id = "
-                                "(SELECT id FROM network WHERE name = '" +
-                                net_name + "');");
-    vector<Asset> new_assets;
-
-    for (auto &row : rows) {
-        int id = stoi(row[0]);
-        string name = row[1];
-        int network_id = stoi(row[2]);
-
-        new_assets.emplace_back(id, network_id, name);
-    }
-
-    return new_assets;
-
-}
 
 vector<string> fetch_quality_attributes()
 {
@@ -278,6 +258,77 @@ vector<Exploit> fetch_all_exploits() {
     return exploits;
 }
 
+/**
+ * @brief Gets all of the qualities for the Asset
+ * @details Grabs all of the qualities in the database associated with
+ *          the Asset's ID and gives them to the Asset
+ */
+unordered_map<int, vector<Quality>> fetch_asset_qualities() {
+    vector<Row> rows = db->exec("SELECT * FROM quality");
+
+    unordered_map<int, vector<Quality>> qmap;
+
+    int curr_id = -1;
+    vector<Quality> qualities;
+    for (auto &row : rows) {
+        int asset_id = stoi(row[0]);
+        string property = row[1];
+        string value = row[2];
+
+        if (asset_id != curr_id)
+        {
+
+            if (curr_id != -1)
+            {
+
+                qmap[curr_id] = qualities;
+                qualities.clear();
+
+            }
+
+            curr_id = asset_id;
+
+        }
+        // Quality qual(asset_id, property, "=", value);
+        // qualities.push_back(qual);
+
+        qualities.emplace_back(asset_id, property, "=", value);
+    }
+
+    qmap[curr_id] = qualities;
+
+    return qmap;
+}
+
+/**
+ * @brief Gets all of the Assets under the network
+ * @details Grabs all of the Assets in the database under the network given in
+ *          the argument and returns a vector of those Assets
+ *
+ * @param network Name of the network to grab from
+ */
+vector<Asset> fetch_all_assets(const string &network) {
+    vector<Row> rows = db->exec("SELECT * FROM asset WHERE network_id = "
+                                "(SELECT id FROM network WHERE name = '" +
+                                network + "');");
+    vector<Asset> new_assets;
+
+    auto qmap = fetch_asset_qualities();
+
+    for (auto &row : rows) {
+        int id = stoi(row[0]);
+        string name = row[1];
+        int network_id = stoi(row[2]);
+
+        auto q = qmap[id];
+
+        // new_assets.push_back(asset);
+        new_assets.emplace_back(id, network_id, name, q);
+    }
+
+    return new_assets;
+}
+
 Keyvalue fetch_facts()
 {
 
@@ -362,7 +413,9 @@ int main(int argc, char *argv[]) {
 
     db = make_shared<DB>("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
 
-    Network net{opt_network};
+    //db.connect("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
+
+    Network net{opt_network, fetch_all_assets(opt_network), fetch_facts()};
 
     /*
     auto m = fetch_exploit_preconds();
