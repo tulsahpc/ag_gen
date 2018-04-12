@@ -6,6 +6,8 @@
 #include <getopt.h>
 #include <iostream>
 #include <string>
+#include <unordered_map>
+#include <tuple>
 
 #include <libconfig.h++>
 
@@ -127,6 +129,155 @@ vector<string> fetch_topology_values()
 
 }
 
+/**
+ * @brief Fetches the preconditions of an Exploit from the database.
+ */
+unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> fetch_exploit_preconds() {
+    vector<Row> rows =
+        db->exec("SELECT * FROM exploit_precondition");
+
+    unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> precond_map;
+    
+    int curr_id = -1;
+    vector<ParameterizedQuality> preconds_q;
+    vector<ParameterizedTopology> preconds_t;
+    for (auto &row : rows) {
+        int type = stoi(row[2]);
+        int exploit_id = stoi(row[1]);
+        cout << "ID: " << exploit_id << endl;
+        if (exploit_id != curr_id)
+        {
+
+            if (curr_id != -1)
+            {
+                tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>> tup{preconds_q, preconds_t};
+                precond_map[curr_id] = tup;
+
+                preconds_q.clear();
+                preconds_t.clear();
+                // vector<ParameterizedQuality> preconds_q;
+                // vector<ParameterizedTopology> preconds_t;
+
+            }
+
+            curr_id = exploit_id;
+
+        }
+
+        if (type == 0) {
+            int param1 = stoi(row[3]);
+            string property = row[5];
+            string value = row[6];
+
+            ParameterizedQuality qual{param1, property, value};
+            preconds_q.push_back(qual);
+        } else {
+            int param1 = stoi(row[3]);
+            int param2 = stoi(row[4]);
+            string property = row[5];
+            string value = row[6];
+            string op = row[7];
+            string dir = row[8];
+
+            ParameterizedTopology topo(param1, param2, dir, property, op,
+                                       value);
+            preconds_t.push_back(topo);
+        }
+    }
+
+    tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>> tup{preconds_q, preconds_t};
+    precond_map[curr_id] = tup;
+
+    return precond_map;
+}
+
+/**
+ * @brief Fetches the postconditions of an Exploit from the database.
+ */
+unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> fetch_exploit_postconds() {
+    vector<Row> rows =
+        db->exec("SELECT * FROM exploit_postcondition");
+
+    cout << "LENGTH: " << rows.size() << endl;
+    unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> postcond_map;
+
+    int curr_id = -1;
+    vector<ParameterizedQuality> postconds_q;
+    vector<ParameterizedTopology> postconds_t;
+    for (auto &row : rows) {
+        int type = stoi(row[2]);
+        int exploit_id = stoi(row[1]);
+
+        if (exploit_id != curr_id)
+        {
+
+            if (curr_id != -1)
+            {
+
+                tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>> tup{postconds_q, postconds_t};
+                postcond_map[curr_id] = tup;
+
+                postconds_q.clear();
+                postconds_t.clear();
+                // vector<ParameterizedQuality> postconds_q;
+                // vector<ParameterizedTopology> postconds_t;
+
+            }
+
+            curr_id = exploit_id;
+
+        }
+
+        if (type == 0) {
+            int param1 = stoi(row[3]);
+            string property = row[5];
+            string value = row[6];
+
+            ParameterizedQuality qual{param1, property, value};
+            postconds_q.push_back(qual);
+        } else {
+            int param1 = stoi(row[3]);
+            int param2 = stoi(row[4]);
+            string property = row[5];
+            string value = row[6];
+            string op = row[7];
+            string dir = row[8];
+
+            ParameterizedTopology topo(param1, param2, dir, property, op,
+                                       value);
+            postconds_t.push_back(topo);
+        }
+    }
+   
+    tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>> tup{postconds_q, postconds_t};
+    postcond_map[curr_id] = tup;
+
+    return postcond_map;
+    
+}
+
+vector<Exploit> fetch_all_exploits() {
+    vector<Exploit> exploits;
+    vector<Row> rows = db->exec("SELECT * FROM exploit;");
+
+    auto pre = fetch_exploit_preconds();
+    auto post = fetch_exploit_postconds();
+
+    for (auto &row : rows) {
+        int id = stoi(row[0]);
+        string name = row[1];
+        int num_params = stoi(row[2]);
+
+        auto preconds = pre[id];
+        auto postconds = post[id];
+
+        Exploit exploit(id, name, num_params, preconds, postconds);
+        exploits.push_back(exploit);
+    }
+
+    return exploits;
+}
+
 Keyvalue fetch_facts()
 {
 
@@ -138,6 +289,14 @@ Keyvalue fetch_facts()
     initfacts.populate(fetch_topology_values());
 
     return initfacts;
+
+}
+
+AGGenInstance build_pre_instance(const string net_name)
+{
+
+    
+    Keyvalue facts = fetch_facts();    
 
 }
 
@@ -205,8 +364,50 @@ int main(int argc, char *argv[]) {
 
     Network net{opt_network};
 
-    //Network net{fetch_all_assets(opt_network), fetch_facts()};
-    AGGen gen{net};
+    /*
+    auto m = fetch_exploit_preconds();
 
-   gen.generate();
+    cout << endl << endl << "Preconds" << endl;
+    for (auto mi : m)
+    {
+
+        cout << "exploit_id: " << mi.first << endl;
+        cout << "Qualities" << endl;
+        vector<ParameterizedQuality> mq = get<0>(mi.second);
+        for (auto mqi : mq)
+            mqi.print();
+
+        cout << "Topologies" << endl;
+        vector<ParameterizedTopology> mt = get<1>(mi.second);
+        for (auto mti : mt)
+            mti.print();
+
+    }
+
+    auto m2 = fetch_exploit_postconds();
+
+    cout << endl << endl << "Postconds" << endl;
+    for (auto mi : m2)
+    {
+
+        cout << "exploit_id: " << mi.first << endl;
+        cout << "Qualities" << endl;
+        vector<ParameterizedQuality> mq = get<0>(mi.second);
+        for (auto mqi : mq)
+            mqi.print();
+
+        cout << "Topologies" << endl;
+        vector<ParameterizedTopology> mt = get<1>(mi.second);
+        for (auto mti : mt)
+            mti.print();
+
+    }*/
+
+    //Network net{fetch_all_assets(opt_network), fetch_facts()};
+    auto ex = fetch_all_exploits();
+    AGGen gen{net};
+    //AGGenInstance preinst = build_pre_instance(opt_network);
+    //AGGen gen{preinst};
+
+   gen.generate(ex);
 }

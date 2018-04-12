@@ -80,11 +80,11 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
  *      4b. If not all preconditions are found, break and continue checking with the next exploit.
  *      5. Push the new network state onto the frontier to be expanded later.
  */
-void AGGen::generate() {
+void AGGen::generate(std::vector<Exploit> exploit_list) {
     auto counter = 0;
     auto start = std::chrono::system_clock::now();
 
-    auto exploit_list = Exploit::fetch_all();
+    //auto exploit_list = Exploit::fetch_all();
     unsigned long esize = exploit_list.size();
 
     cout << "Generating Attack Graph" << endl;
