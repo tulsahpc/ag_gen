@@ -16,7 +16,8 @@
 using namespace std;
 using namespace libconfig;
 
-std::shared_ptr<DB> db;
+//std::shared_ptr<DB> db;
+DB db;
 
 // print_usage prints to stdout the help menu that corresponds to the ag_gen
 // command
@@ -39,9 +40,9 @@ vector<string> fetch_quality_attributes()
 {
 
     vector<string> attrs;
-    vector<Row> qrows = db->exec("SELECT DISTINCT property FROM quality;");
+    vector<Row> qrows = db.exec("SELECT DISTINCT property FROM quality;");
     vector<Row> erows =
-        db->exec("SELECT DISTINCT property FROM exploit_postcondition;");
+        db.exec("SELECT DISTINCT property FROM exploit_postcondition;");
 
     for (auto &row : qrows) {
         string prop = row[0];
@@ -61,9 +62,9 @@ vector<string> fetch_quality_values()
 {
 
     vector<string> vals;
-    vector<Row> qrows = db->exec("SELECT DISTINCT value FROM quality;");
+    vector<Row> qrows = db.exec("SELECT DISTINCT value FROM quality;");
     vector<Row> erows =
-        db->exec("SELECT DISTINCT value FROM exploit_postcondition;");
+        db.exec("SELECT DISTINCT value FROM exploit_postcondition;");
 
     for (auto &row : qrows) {
         string val = row[0];
@@ -83,7 +84,7 @@ vector<string> fetch_topology_attributes()
 {
 
     vector<string> attrs;
-    vector<Row> rows = db->exec("SELECT DISTINCT property FROM topology;");
+    vector<Row> rows = db.exec("SELECT DISTINCT property FROM topology;");
 
     for (auto &row : rows) {
         string prop = row[0];
@@ -98,7 +99,7 @@ vector<string> fetch_topology_values()
 {
 
     vector<string> vals;
-    vector<Row> rows = db->exec("SELECT DISTINCT value FROM topology;");
+    vector<Row> rows = db.exec("SELECT DISTINCT value FROM topology;");
 
     for (auto &row : rows) {
         string val = row[0];
@@ -114,7 +115,7 @@ vector<string> fetch_topology_values()
  */
 unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> fetch_exploit_preconds() {
     vector<Row> rows =
-        db->exec("SELECT * FROM exploit_precondition");
+        db.exec("SELECT * FROM exploit_precondition");
 
     unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> precond_map;
     
@@ -176,7 +177,7 @@ unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopol
  */
 unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> fetch_exploit_postconds() {
     vector<Row> rows =
-        db->exec("SELECT * FROM exploit_postcondition");
+        db.exec("SELECT * FROM exploit_postcondition");
 
     // cout << "LENGTH: " << rows.size() << endl;
     unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> postcond_map;
@@ -238,7 +239,7 @@ unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopol
 
 vector<Exploit> fetch_all_exploits() {
     vector<Exploit> exploits;
-    vector<Row> rows = db->exec("SELECT * FROM exploit;");
+    vector<Row> rows = db.exec("SELECT * FROM exploit;");
 
     auto pre = fetch_exploit_preconds();
     auto post = fetch_exploit_postconds();
@@ -264,7 +265,7 @@ vector<Exploit> fetch_all_exploits() {
  *          the Asset's ID and gives them to the Asset
  */
 unordered_map<int, vector<Quality>> fetch_asset_qualities() {
-    vector<Row> rows = db->exec("SELECT * FROM quality");
+    vector<Row> rows = db.exec("SELECT * FROM quality");
 
     unordered_map<int, vector<Quality>> qmap;
 
@@ -310,7 +311,7 @@ unordered_map<int, vector<Quality>> fetch_asset_qualities() {
  * @param network Name of the network to grab from
  */
 vector<Asset> fetch_all_assets(const string &network) {
-    vector<Row> rows = db->exec("SELECT * FROM asset WHERE network_id = "
+    vector<Row> rows = db.exec("SELECT * FROM asset WHERE network_id = "
                                 "(SELECT id FROM network WHERE name = '" +
                                 network + "');");
     vector<Asset> new_assets;
@@ -333,7 +334,7 @@ vector<Asset> fetch_all_assets(const string &network) {
 
 vector<Quality> fetch_all_qualities() {
     vector<Quality> qualities;
-    vector<Row> rows = db->exec("SELECT * FROM quality;");
+    vector<Row> rows = db.exec("SELECT * FROM quality;");
 
     for (auto &row : rows) {
         int asset_id = stoi(row[0]);
@@ -351,7 +352,7 @@ vector<Quality> fetch_all_qualities() {
 vector<Topology> fetch_all_topologies() {
     vector<Topology> topologies;
 
-    vector<Row> rows = db->exec("SELECT * FROM topology;");
+    vector<Row> rows = db.exec("SELECT * FROM topology;");
     for (auto &row : rows) {
         int from_asset = stoi(row[0]);
         int to_asset = stoi(row[1]);
@@ -451,7 +452,9 @@ int main(int argc, char *argv[]) {
     cfg.lookupValue("database.username", username);
     cfg.lookupValue("database.password", password);
 
-    db = make_shared<DB>("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
+    // db = make_shared<DB>("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
+    db.connect("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
+    // db = DB {"postgresql://" + username + "@" + host + ":" + port + "/" + dbName};
 
     //db.connect("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
 

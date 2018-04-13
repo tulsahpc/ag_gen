@@ -32,15 +32,16 @@ int Factbase::get_id() const { return id; }
  * @brief Checks if the Factbase exists in the database.
  */
 bool Factbase::exists_in_db() {
-    string sql =
-        "SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';";
-    vector<Row> rows = db->exec(sql);
-    if (!rows.empty()) {
-        id = stoi(rows[0][0]);
-        return true;
-    } else {
-        return false;
-    }
+    return false;
+    // string sql =
+    //     "SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';";
+    // vector<Row> rows = db->exec(sql);
+    // if (!rows.empty()) {
+    //     id = stoi(rows[0][0]);
+    //     return true;
+    // } else {
+    //     return false;
+    // }
 }
 
 /**
@@ -87,32 +88,32 @@ void Factbase::add_topology(Topology &t) { topologies.push_back(t); }
  * @brief Saves the Factbase to the database.
  */
 void Factbase::save() {
-    if (exists_in_db()) {
-        return;
-    }
+    // if (exists_in_db()) {
+    //     return;
+    // }
 
-    vector<Row> rows =
-        db->exec("SELECT new_factbase('" + to_string(hash()) + "');");
-    id = stoi(rows[0][0]);
+    // vector<Row> rows =
+    //     db->exec("SELECT new_factbase('" + to_string(hash()) + "');");
+    // id = stoi(rows[0][0]);
 
-    // XXX: There has to be a better way to do this
-    string insert_sql = "INSERT INTO factbase_item VALUES ";
-    insert_sql += "(" + to_string(id) + "," +
-                  to_string(qualities[0].encode(parent->net->facts).enc) +
-                  ",'quality')";
-    for (int i = 1; i < qualities.size(); i++) {
-        insert_sql += ",(" + to_string(id) + "," +
-                      to_string(qualities[i].encode(parent->net->facts).enc) +
-                      ",'quality')";
-    }
-    for (auto &topologie : topologies) {
-        insert_sql += ",(" + to_string(id) + "," +
-                      to_string(topologie.encode(parent->net->facts).enc) +
-                      ",'topology')";
-    }
-    insert_sql += " ON CONFLICT DO NOTHING;";
+    // // XXX: There has to be a better way to do this
+    // string insert_sql = "INSERT INTO factbase_item VALUES ";
+    // insert_sql += "(" + to_string(id) + "," +
+    //               to_string(qualities[0].encode(parent->net->facts).enc) +
+    //               ",'quality')";
+    // for (int i = 1; i < qualities.size(); i++) {
+    //     insert_sql += ",(" + to_string(id) + "," +
+    //                   to_string(qualities[i].encode(parent->net->facts).enc) +
+    //                   ",'quality')";
+    // }
+    // for (auto &topologie : topologies) {
+    //     insert_sql += ",(" + to_string(id) + "," +
+    //                   to_string(topologie.encode(parent->net->facts).enc) +
+    //                   ",'topology')";
+    // }
+    // insert_sql += " ON CONFLICT DO NOTHING;";
 
-    db->exec(insert_sql);
+    // db->exec(insert_sql);
 }
 
 /**
