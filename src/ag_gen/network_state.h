@@ -26,7 +26,7 @@ class NetworkState {
     friend class Factbase;
 
   public:
-    NetworkState(Network &net);
+    NetworkState(Network &net, std::vector<Quality> q, std::vector<Topology> t);
     NetworkState(const NetworkState &ns);
 
     const Factbase &get_factbase() const;

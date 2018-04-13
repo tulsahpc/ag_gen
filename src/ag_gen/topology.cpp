@@ -74,45 +74,45 @@ bool Topology::operator==(const Topology &rhs) const {
 //     return (this->encode().enc < rhs.encode().enc);
 // }
 
-vector<string> Topology::fetch_all_attributes() {
-    vector<string> attrs;
-    vector<Row> rows = db->exec("SELECT DISTINCT property FROM topology;");
+// vector<string> Topology::fetch_all_attributes() {
+//     vector<string> attrs;
+//     vector<Row> rows = db->exec("SELECT DISTINCT property FROM topology;");
 
-    for (auto &row : rows) {
-        string prop = row[0];
-        attrs.push_back(prop);
-    }
+//     for (auto &row : rows) {
+//         string prop = row[0];
+//         attrs.push_back(prop);
+//     }
 
-    return attrs;
-}
+//     return attrs;
+// }
 
-vector<string> Topology::fetch_all_values() {
-    vector<string> vals;
-    vector<Row> rows = db->exec("SELECT DISTINCT value FROM topology;");
+// vector<string> Topology::fetch_all_values() {
+//     vector<string> vals;
+//     vector<Row> rows = db->exec("SELECT DISTINCT value FROM topology;");
 
-    for (auto &row : rows) {
-        string val = row[0];
-        vals.push_back(val);
-    }
+//     for (auto &row : rows) {
+//         string val = row[0];
+//         vals.push_back(val);
+//     }
 
-    return vals;
-}
+//     return vals;
+// }
 
-vector<Topology> Topology::fetch_all() {
-    vector<Topology> topologies;
+// vector<Topology> Topology::fetch_all() {
+//     vector<Topology> topologies;
 
-    vector<Row> rows = db->exec("SELECT * FROM topology;");
-    for (auto &row : rows) {
-        int from_asset = stoi(row[0]);
-        int to_asset = stoi(row[1]);
-        string dir = row[2];
-        string property = row[3];
-        string op = row[4];
-        string value = row[5];
+//     vector<Row> rows = db->exec("SELECT * FROM topology;");
+//     for (auto &row : rows) {
+//         int from_asset = stoi(row[0]);
+//         int to_asset = stoi(row[1]);
+//         string dir = row[2];
+//         string property = row[3];
+//         string op = row[4];
+//         string value = row[5];
 
-        Topology t(from_asset, to_asset, dir, property, op, value);
-        topologies.push_back(t);
-    }
+//         Topology t(from_asset, to_asset, dir, property, op, value);
+//         topologies.push_back(t);
+//     }
 
-    return topologies;
-}
+//     return topologies;
+// }

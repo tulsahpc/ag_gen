@@ -5,8 +5,8 @@
 
 using namespace std;
 
-Quality::Quality(int asset, string qualName, string op, string qualValue)
-    : asset_id(asset), name(move(qualName)), value(move(qualValue)) {}
+Quality::Quality(int asset, string qualName, string o, string qualValue)
+    : asset_id(asset), name(move(qualName)), op(o), value(move(qualValue)) {}
 
 // Quality::Quality(size_t fact) {
 //     EncodedQuality eQual{};
@@ -23,7 +23,7 @@ string Quality::get_name() const { return name; }
 string Quality::get_op() const { return op; }
 
 void Quality::print() const {
-    std::cout << to_string(asset_id) + ": " + name + " => " + value
+    std::cout << to_string(asset_id) << ": " << name << op << value
               << std::endl;
 }
 
@@ -35,7 +35,7 @@ EncodedQuality Quality::encode(const Keyvalue &kv_facts) const {
 
     //    cout << asset_id << " " << attrs_kv[name] << " " << vals_kv[value] <<
     //    " - " << qual.enc << endl;
-    //	cout << attrs.size() << " " << vals.size() << endl;
+    //  cout << attrs.size() << " " << vals.size() << endl;
 
     return qual;
 }
@@ -54,23 +54,24 @@ bool Quality::operator==(const Quality &rhs) const {
 //     return (this->encode().enc < rhs.encode().enc);
 // }
 
-vector<Quality> Quality::fetch_all() {
-    vector<Quality> qualities;
-    vector<Row> rows = db->exec("SELECT * FROM quality;");
+// vector<Quality> Quality::fetch_all() {
+//     vector<Quality> qualities;
+//     vector<Row> rows = db->exec("SELECT * FROM quality;");
 
-    for (auto &row : rows) {
-        int asset_id = stoi(row[0]);
-        string property = row[1];
-        string op = row[2];
-        string value = row[3];
+//     for (auto &row : rows) {
+//         int asset_id = stoi(row[0]);
+//         string property = row[1];
+//         string op = row[2];
+//         string value = row[3];
 
-        Quality qual(asset_id, property, op, value);
-        qualities.push_back(qual);
-    }
+//         Quality qual(asset_id, property, op, value);
+//         qualities.push_back(qual);
+//     }
 
-    return qualities;
-}
+//     return qualities;
+// }
 
+/*
 vector<string> Quality::fetch_all_attributes() {
     vector<string> attrs;
     vector<Row> qrows = db->exec("SELECT DISTINCT property FROM quality;");
@@ -108,3 +109,4 @@ vector<string> Quality::fetch_all_values() {
 
     return vals;
 }
+*/

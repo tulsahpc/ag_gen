@@ -13,8 +13,8 @@ using namespace std;
  * @brief Constructor for Factbase
  * @details Fetches Qualities and Topologies for the Factbase.
  */
-Factbase::Factbase()
-    : qualities(Quality::fetch_all()), topologies(Topology::fetch_all()) {}
+Factbase::Factbase(std::vector<Quality> q, std::vector<Topology> t)
+    : qualities(q), topologies(t) {}
 
 /**
  * @brief Sets the parent NetworkState.

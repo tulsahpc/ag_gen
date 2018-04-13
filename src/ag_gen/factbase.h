@@ -22,7 +22,7 @@ class Factbase {
     std::vector<Quality> qualities;
     std::vector<Topology> topologies;
 
-    Factbase();
+    Factbase(std::vector<Quality> q, std::vector<Topology> t);
     void set_parent(const NetworkState &ns);
 
     friend class NetworkState;

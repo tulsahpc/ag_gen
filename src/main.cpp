@@ -124,7 +124,7 @@ unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopol
     for (auto &row : rows) {
         int type = stoi(row[2]);
         int exploit_id = stoi(row[1]);
-        cout << "ID: " << exploit_id << endl;
+        // cout << "ID: " << exploit_id << endl;
         if (exploit_id != curr_id)
         {
 
@@ -178,7 +178,7 @@ unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopol
     vector<Row> rows =
         db->exec("SELECT * FROM exploit_postcondition");
 
-    cout << "LENGTH: " << rows.size() << endl;
+    // cout << "LENGTH: " << rows.size() << endl;
     unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> postcond_map;
 
     int curr_id = -1;
@@ -273,7 +273,9 @@ unordered_map<int, vector<Quality>> fetch_asset_qualities() {
     for (auto &row : rows) {
         int asset_id = stoi(row[0]);
         string property = row[1];
-        string value = row[2];
+        string op = row[2];
+        string value = row[3];
+        // cout << "op: " << op << endl;
 
         if (asset_id != curr_id)
         {
@@ -292,7 +294,7 @@ unordered_map<int, vector<Quality>> fetch_asset_qualities() {
         // Quality qual(asset_id, property, "=", value);
         // qualities.push_back(qual);
 
-        qualities.emplace_back(asset_id, property, "=", value);
+        qualities.emplace_back(asset_id, property, op, value);
     }
 
     qmap[curr_id] = qualities;
@@ -329,6 +331,42 @@ vector<Asset> fetch_all_assets(const string &network) {
     return new_assets;
 }
 
+vector<Quality> fetch_all_qualities() {
+    vector<Quality> qualities;
+    vector<Row> rows = db->exec("SELECT * FROM quality;");
+
+    for (auto &row : rows) {
+        int asset_id = stoi(row[0]);
+        string property = row[1];
+        string op = row[2];
+        string value = row[3];
+
+        Quality qual(asset_id, property, op, value);
+        qualities.push_back(qual);
+    }
+
+    return qualities;
+}
+
+vector<Topology> fetch_all_topologies() {
+    vector<Topology> topologies;
+
+    vector<Row> rows = db->exec("SELECT * FROM topology;");
+    for (auto &row : rows) {
+        int from_asset = stoi(row[0]);
+        int to_asset = stoi(row[1]);
+        string dir = row[2];
+        string property = row[3];
+        string op = row[4];
+        string value = row[5];
+
+        Topology t(from_asset, to_asset, dir, property, op, value);
+        topologies.push_back(t);
+    }
+
+    return topologies;
+}
+
 Keyvalue fetch_facts()
 {
 
@@ -343,6 +381,7 @@ Keyvalue fetch_facts()
 
 }
 
+/* TODO
 AGGenInstance build_pre_instance(const string net_name)
 {
 
@@ -350,6 +389,7 @@ AGGenInstance build_pre_instance(const string net_name)
     Keyvalue facts = fetch_facts();    
 
 }
+*/
 
 // the main function executes the command according to the given flag and throws
 // and error if an unknown flag is provided. It then uses the database given in
@@ -415,7 +455,24 @@ int main(int argc, char *argv[]) {
 
     //db.connect("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
 
-    Network net{opt_network, fetch_all_assets(opt_network), fetch_facts()};
+    /*
+    auto a = fetch_asset_qualities();
+
+    for (auto ai : a)
+    {
+
+        cout << "Asset ID: " << ai.first << endl;
+        for (auto aiq : ai.second)
+        {
+
+            aiq.print();
+
+        }
+
+    }
+    */
+
+    Network net{opt_network, fetch_all_qualities(), fetch_all_topologies(), fetch_all_assets(opt_network), fetch_facts()};
 
     /*
     auto m = fetch_exploit_preconds();

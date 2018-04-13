@@ -11,7 +11,8 @@
  *
  * @param net The Network for which to create a state
  */
-NetworkState::NetworkState(Network &net) {
+NetworkState::NetworkState(Network &net, std::vector<Quality> q, std::vector<Topology> t)
+    : factbase(Factbase(q, t)) {
     factbase.set_parent(*this);
     this->net = &net;
 }

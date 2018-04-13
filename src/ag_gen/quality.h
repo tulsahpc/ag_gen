@@ -41,9 +41,9 @@ class Quality {
     bool operator==(const Quality &rhs) const;
     bool operator<(const Quality &rhs) const;
 
-    static std::vector<Quality> fetch_all();
-    static std::vector<std::string> fetch_all_attributes();
-    static std::vector<std::string> fetch_all_values();
+    // static std::vector<Quality> fetch_all();
+    // static std::vector<std::string> fetch_all_attributes();
+    // static std::vector<std::string> fetch_all_values();
 };
 
 #endif // AG_GEN_QUALITY_H

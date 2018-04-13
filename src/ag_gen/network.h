@@ -28,8 +28,8 @@ class Network {
      *
      * @param name Name of the network
      */
-    Network(std::string &name, std::vector<Asset> a, Keyvalue f) : assets(a), facts(f) {
-        initial_state = generate_network_state();
+    Network(std::string &name, std::vector<Quality> q, std::vector<Topology> t, std::vector<Asset> a, Keyvalue f) : assets(a), facts(f) {
+        initial_state = generate_network_state(q, t);
 
         // facts.populate(Quality::fetch_all_attributes());
         // facts.populate(Quality::fetch_all_values());
@@ -50,8 +50,8 @@ class Network {
     /**
      * @brief Generates a NetworkState
      */
-    std::unique_ptr<NetworkState> generate_network_state() {
-        return std::make_unique<NetworkState>(*this);
+    std::unique_ptr<NetworkState> generate_network_state(std::vector<Quality> q, std::vector<Topology> t) {
+        return std::make_unique<NetworkState>(*this, q, t);
     }
 };
 
