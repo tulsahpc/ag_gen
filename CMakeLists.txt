@@ -15,11 +15,27 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -ggdb -Wall -pedantic
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g -Wall -pedantic -O1")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O1")
 
-set(PostgreSQL_ADDITIONAL_VERSIONS "10.1" "10")
+set(PostgreSQL_TYPE_INCLUDE_DIR "9.5")
+set(PostgreSQL_ADDITIONAL_VERSIONS "10.1" "10" "9.5")
 
 # Apple has a different openssl directory when using brew
 if(APPLE)
     set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
+endif()
+
+find_program(LSB_RELEASE lsb_release)
+execute_process(COMMAND ${LSB_RELEASE} -is
+    OUTPUT_VARIABLE LSB_RELEASE_ID_SHORT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+message(STATUS ${LSB_RELEASE_ID_SHORT})
+
+#if((${LSB_RELEASE_ID_SHORT} EQUAL "Ubuntu") OR (${LSB_RELEASE_ID_SHORT} EQUAL "LinuxMint"))
+#if(${LSB_RELEASE_ID_SHORT} EQUAL "LinuxMint")
+if(true)
+    message(STATUS "HEEEEEEEEEEEEEEEY")
+    include_directories("/usr/include/postgresql")
 endif()
 
 # Find packages
