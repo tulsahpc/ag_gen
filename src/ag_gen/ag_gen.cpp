@@ -18,8 +18,17 @@ using namespace std;
  *
  * @param net_i The network to build the attack graph for
  */
-AGGen::AGGen(Network &net_i) : net(net_i) {
+AGGen::AGGen(AGGenInstance &_instance) : instance(_instance), net(build_network(_instance)) {
+    
     frontier.emplace_back(net.get_initial_state());
+}
+
+Network build_network(AGGenInstance &_instance)
+{
+
+    Network _net{_instance.opt_network, _instance.qualities, _instance.topologies, _instance.assets, _instance.facts};
+    return _net;
+
 }
 
 /**
@@ -80,7 +89,9 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
  *      4b. If not all preconditions are found, break and continue checking with the next exploit.
  *      5. Push the new network state onto the frontier to be expanded later.
  */
-void AGGen::generate(std::vector<Exploit> exploit_list) {
+AGGenInstance& AGGen::generate() {
+
+    std::vector<Exploit> exploit_list = instance.exploits;
     auto counter = 0;
     auto start = std::chrono::system_clock::now();
 
@@ -187,6 +198,9 @@ void AGGen::generate(std::vector<Exploit> exploit_list) {
             auto qualities = get<0>(postconditions);
             auto topologies = get<1>(postconditions);
 
+            instance.qualities.insert(instance.qualities.end(), qualities.begin(), qualities.end());
+            instance.topologies.insert(instance.topologies.end(), topologies.begin(), topologies.end());
+
             // Deep copy the factbase so we can create a new network state
             NetworkState new_state{current_state};
 
@@ -224,4 +238,6 @@ void AGGen::generate(std::vector<Exploit> exploit_list) {
 
     cout << "total number of generated states: " << counter << endl;
     cout << "states in hash_list: " << hash_list.size() << endl;
+
+    return instance;
 }
