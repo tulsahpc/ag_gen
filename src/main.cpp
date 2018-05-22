@@ -8,7 +8,6 @@
 #include <string>
 
 #include <libconfig.h++>
-#include <yaml-cpp/yaml.h>
 
 #include "ag_gen/ag_gen.h"
 
@@ -33,15 +32,6 @@ struct Client {
     string OS;
     vector<string> IP;
 };
-
-int yaml_test() {
-    YAML::Node file = YAML::LoadFile("test.yaml");
-    string networkName = file["name"].as<string>();
-    Client client1 {};
-    YAML::Node client1yaml = file["assets"][0];
-    client1.Name = client1yaml["name"].as<string>();
-    client1.OS = client1yaml["os"].as<string>();
-}
 
 // the main function executes the command according to the given flag and throws
 // and error if an unknown flag is provided. It then uses the database given in
@@ -105,10 +95,8 @@ int main(int argc, char *argv[]) {
 
     db = make_shared<DB>("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
 
-    yaml_test();
-
     Network net{opt_network};
     AGGen gen{net};
 
-//    gen.generate();
+   gen.generate();
 }

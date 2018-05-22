@@ -29,14 +29,7 @@ execute_process(COMMAND ${LSB_RELEASE} -is
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-message(STATUS ${LSB_RELEASE_ID_SHORT})
-
-#if((${LSB_RELEASE_ID_SHORT} EQUAL "Ubuntu") OR (${LSB_RELEASE_ID_SHORT} EQUAL "LinuxMint"))
-#if(${LSB_RELEASE_ID_SHORT} EQUAL "LinuxMint")
-if(true)
-    message(STATUS "HEEEEEEEEEEEEEEEY")
-    include_directories("/usr/include/postgresql")
-endif()
+include_directories("/usr/include/postgresql")
 
 # Find packages
 find_package(PkgConfig REQUIRED)
