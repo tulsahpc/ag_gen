@@ -475,7 +475,16 @@ int main(int argc, char *argv[]) {
     }
     */
 
-    Network net{opt_network, fetch_all_qualities(), fetch_all_topologies(), fetch_all_assets(opt_network), fetch_facts()};
+    AGGenInstance _instance;
+
+    _instance.opt_network = opt_network;
+    _instance.qualities = fetch_all_qualities();
+    _instance.topologies = fetch_all_topologies();
+    _instance.assets = fetch_all_assets(opt_network);
+    _instance.exploits = fetch_all_exploits();
+    _instance.facts = fetch_facts();
+
+    // Network net{opt_network, fetch_all_qualities(), fetch_all_topologies(), fetch_all_assets(opt_network), fetch_facts()};
 
     /*
     auto m = fetch_exploit_preconds();
@@ -518,9 +527,9 @@ int main(int argc, char *argv[]) {
 
     //Network net{fetch_all_assets(opt_network), fetch_facts()};
     auto ex = fetch_all_exploits();
-    AGGen gen{net};
+    AGGen gen(_instance);
     //AGGenInstance preinst = build_pre_instance(opt_network);
     //AGGen gen{preinst};
 
-   gen.generate(ex);
+    AGGenInstance postinstance = gen.generate();
 }

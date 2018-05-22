@@ -21,6 +21,7 @@
 struct AGGenInstance
 {
 
+	std::string opt_network;
 	std::vector<Asset> assets;
 	std::vector<Factbase> factbases;
 	std::vector<Quality> qualities;
@@ -31,18 +32,20 @@ struct AGGenInstance
 
 };
 
+Network build_network(AGGenInstance &_instance);
+
 /** AGGen class
  * @brief Generate attack graph
  * @details Main generator class that stores state for the entire graph generation process.
  */
 class AGGen {
 	AGGenInstance instance;
-    Network &net; //!< Network we are generating from
+    Network net; //!< Network we are generating from
     std::deque<NetworkState> frontier; //!< Unexplored states
     std::set<size_t> hash_list{}; //!< List of hashes of known states
   public:
-    explicit AGGen(Network &net_i);
-    void generate(std::vector<Exploit> exploit_list);
+    explicit AGGen(AGGenInstance &_instance);
+    AGGenInstance& generate();
 };
 
 #endif // AG_GEN_HPP
