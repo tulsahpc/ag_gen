@@ -147,15 +147,15 @@ void AGGen::generate() {
                 // entirely.
                 for (auto &quality : asset_group.get_hypo_quals()) {
                     if (!current_state.get_factbase().find_quality(quality)) {
-//                        continue;
-                         goto LOOPCONTINUE;
+                        // continue;
+                        goto LOOPCONTINUE;
                     }
                 }
 
                 for (auto &topology : asset_group.get_hypo_topos()) {
                     if (!current_state.get_factbase().find_topology(topology)) {
-//                        continue;
-                         goto LOOPCONTINUE;
+                        // continue;
+                        goto LOOPCONTINUE;
                     }
                 }
                 {
