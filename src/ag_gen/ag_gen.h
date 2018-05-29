@@ -13,7 +13,6 @@
 #include "edge.h"
 #include "exploit.h"
 #include "factbase.h"
-#include "network.h"
 #include "network_state.h"
 
 #include "util/keyvalue.h"
@@ -32,15 +31,12 @@ struct AGGenInstance
 
 };
 
-Network build_network(AGGenInstance &_instance);
-
 /** AGGen class
  * @brief Generate attack graph
  * @details Main generator class that stores state for the entire graph generation process.
  */
 class AGGen {
 	AGGenInstance instance;
-    Network net; //!< Network we are generating from
     std::deque<NetworkState> frontier; //!< Unexplored states
     std::set<size_t> hash_list{}; //!< List of hashes of known states
   public:

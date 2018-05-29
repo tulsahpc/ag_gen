@@ -128,20 +128,20 @@ size_t combine(size_t seed) {
 /**
  * @brief Hashes the Factbase
  */
-size_t Factbase::hash() const {
+size_t Factbase::hash(Keyvalue &factlist) const {
     //  size_t hash = 0xf848b64e; // Random seed value
     size_t hash = 0x0c32a12fe19d2119;
 
     unsigned long qualities_length = qualities.size();
     for (int i = 0; i < qualities_length; i++) {
         auto &qual = qualities.at(i);
-        hash = hash ^ combine(qual.encode(parent->net->facts).enc);
+        hash = hash ^ combine(qual.encode(factlist).enc);
     }
 
     unsigned long topologies_length = topologies.size();
     for (int i = 0; i < topologies_length; i++) {
         auto &topo = topologies.at(i);
-        hash = hash ^ combine(topo.encode(parent->net->facts).enc);
+        hash = hash ^ combine(topo.encode(factlist).enc);
     }
 
     return hash;
@@ -152,7 +152,7 @@ size_t Factbase::hash() const {
  */
 void Factbase::print() const {
     cout << "ID: " << id << endl;
-    cout << "HASH: " << hash() << endl;
+//    cout << "HASH: " << hash() << endl;
     cout << "Qualities: " << qualities.size() << endl;
     cout << "Topologies: " << topologies.size() << endl << endl;
     for (auto &qual : qualities) {

@@ -18,17 +18,8 @@ using namespace std;
  *
  * @param net_i The network to build the attack graph for
  */
-AGGen::AGGen(AGGenInstance &_instance) : instance(_instance), net(build_network(_instance)) {
-    
-    frontier.emplace_back(net.get_initial_state());
-}
-
-Network build_network(AGGenInstance &_instance)
-{
-
-    Network _net{_instance.opt_network, _instance.qualities, _instance.topologies, _instance.assets, _instance.facts};
-    return _net;
-
+AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
+    frontier.emplace_back(instance.qualities, instance.topologies);
 }
 
 /**
@@ -119,7 +110,7 @@ AGGenInstance& AGGen::generate() {
             auto preconds_q = e.precond_list_q();
             auto preconds_t = e.precond_list_t();
 
-            Odometer od(num_params, net.size());
+            Odometer od(num_params, instance.facts.size());
             std::vector<AssetGroup> asset_groups;
 
             auto len = od.length();
@@ -211,7 +202,7 @@ AGGenInstance& AGGen::generate() {
 
             // Store nodes in global list here
 
-            auto res = hash_list.find(new_state.get_hash());
+            auto res = hash_list.find(new_state.get_hash(instance.facts));
 
             //    If the factbase does not already exist, increment our
             //    number of new states and save the factbase to the
@@ -223,7 +214,7 @@ AGGenInstance& AGGen::generate() {
                 // exploit, assetGroup);
                 continue;
             } else {
-                hash_list.insert(new_state.get_hash());
+                hash_list.insert(new_state.get_hash(instance.facts));
                 frontier.emplace_front(new_state);
                 counter++;
             }

@@ -1,0 +1,50 @@
+network enterprise:
+    assets:
+        # Router
+        border_router;
+
+        # DMZ
+        website;
+        public_api;
+
+        # Internal
+        storage_server;
+        active_directory;
+        icehrm;
+        splunk;
+
+        # Workstations
+        workstation1;
+        workstation2;
+        workstation3;
+
+        # Wifi
+        ap;
+        personal_laptop;
+        personal_phone;
+
+    facts:
+        quality:border_router,vendor=paloalto;
+        quality:border_router,os=panos;
+        quality:border_router,version=8;
+
+        quality:website,os=ubuntu;
+        quality:website,version=12.04;
+        quality:website,webserver=apache;
+        quality:website,webserver_version=2.2;
+        topology:website<-border_router,connected;
+
+        quality:public_api,os=ubuntu;
+        quality:public_api,version=12.04;
+        quality:public_api,backend=flask;
+        quality:public_api,backend_version=6;
+        topology:public_api<-border_router,connected;
+
+        quality:storage_server,os=rhel;
+        quality:storage_server,version=7;
+        quality:storage_server,smb=enabled;
+        quality:storage_server,nfs=enabled;
+        topology:storage_server<-border_router,connected;
+
+        
+        

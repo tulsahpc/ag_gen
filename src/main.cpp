@@ -12,6 +12,7 @@
 #include <libconfig.h++>
 
 #include "ag_gen/ag_gen.h"
+#include "util/db.h"
 
 using namespace std;
 using namespace libconfig;

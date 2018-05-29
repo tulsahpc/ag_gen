@@ -28,7 +28,6 @@ class Factbase {
     friend class NetworkState;
 
   public:
-    void populate();
     void save();
 
     bool find_quality(Quality &q) const;
@@ -41,7 +40,7 @@ class Factbase {
 
     void print() const;
     int get_id() const;
-    size_t hash() const;
+    size_t hash(Keyvalue &factlist) const;
 };
 
 #endif
