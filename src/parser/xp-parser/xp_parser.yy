@@ -13,6 +13,9 @@
     #define YYDEBUG 1
 
     struct exploitpattern {
+        str_array* options;
+        str_array* preconditions;
+        str_array* postconditions;
     };
 
     int yylex();
@@ -23,47 +26,83 @@
 
 %union {
     struct str_array* arr;
-    struct exploitpattern* model;
+    struct exploitpattern* xp;
     struct statement* st;
     char* string;
 }
 
-%parse-param { struct exploitpattern* nm }
+%parse-param { struct exploitpattern* xp }
 
-%type <arr> exploitlist
+%type <arr> exploitlist exploitdecl
+%type <string> exploitgroup
 %type <string> relop addop equality operator direction number value
 %type <st> statement
+
+%type <xp> exploit
+
 
 %token <string> IDENTIFIER INT FLOAT
 %token <string> EQ NEQ GT LT GEQ LEQ PLUSEQ SUBEQ
 %token <string> ONEDIR ONEDIRBACK BIDIR
-%token EXPLOIT GLOBAL PRECONDITIONS POSTCONDITIONS INSERT UPDATE DELETE GROUP COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE LPAREN RPAREN;
+%token <string> INSERT UPDATE DELETE
+%token EXPLOIT GLOBAL PRECONDITIONS POSTCONDITIONS
+        GROUP COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE LPAREN RPAREN;
 
 %%
 
 root: exploitlist {}
 ;
 
-exploitlist: exploitlist exploit {}
-| exploit {}
+exploitlist: { $$ = NULL; }
+| exploitlist exploit {
+    if($1 == NULL) {
+        $$ = new_str_array();
+        char* sql = make_exploit($2);
+        add_str($$, sql);
+    } else {
+        char* sql = make_exploit($2);
+        add_str($1, sql);
+        $$ = $1;
+    }
+}
 ;
 
-exploit: exploitdecl EXPLOIT IDENTIFIER LPAREN parameterlist RPAREN EQ options preconditions postconditions PERIOD {}
+exploit: exploitdecl EXPLOIT IDENTIFIER LPAREN parameterlist RPAREN EQ options preconditions postconditions PERIOD {
+    str_array* exploitopt = $1;
+    char* exploitname = $3;
+
+    str_array* params
+}
 ;
 
-exploitdecl: GLOBAL exploitgroup;
-| {}
+exploitdecl: GLOBAL exploitgroup {
+    $$ = new_str_array();
+    add_str($$, $1);
+    add_str($$, $2);
+}
+| exploitgroup {
+    $$ = new_str_array();
+    add_str($$, $1);
+}
 ;
 
-exploitgroup: GROUP LPAREN IDENTIFIER RPAREN {}
-| {}
+exploitgroup: GROUP LPAREN IDENTIFIER RPAREN { $$ = $3; }
+| { $$ = NULL; }
 ;
 
-parameterlist: parameters {}
-| {}
+parameterlist: parameters { $$ = $1; }
+| { $$ = NULL; }
 ;
 
-parameters: IDENTIFIER COMMA parameters {}
+parameters: IDENTIFIER COMMA parameters {
+    if($3 == NULL) {
+        $$ = new_str_array();
+        add_str($$, $1);
+    } else {
+        $$ = $3;
+        add_str($$, $1);
+    }
+}
 | IDENTIFIER {}
 ;
 

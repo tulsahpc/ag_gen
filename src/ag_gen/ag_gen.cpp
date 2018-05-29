@@ -193,6 +193,10 @@ void AGGen::generate() {
             new_state.add_qualities(qualities);
             new_state.add_topologies(topologies);
 
+            // ADD/UPDATE/DELETE code goes here
+
+            // Store nodes in global list here
+
             auto res = hash_list.find(new_state.get_hash());
 
             //    If the factbase does not already exist, increment our
