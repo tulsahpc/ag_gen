@@ -12,4 +12,8 @@ char *make_quality(int assetid, struct statement *st);
 char *make_topology(int fromasset, int toasset, char *dir,
                     struct statement *st);
 
+char *make_exploit();
+char *make_precondition();
+char *make_postcondition();
+
 #endif //_BUILD_SQL_H

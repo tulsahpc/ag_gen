@@ -15,12 +15,21 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -ggdb -Wall -pedantic
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g -Wall -pedantic -O1")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O1")
 
-set(PostgreSQL_ADDITIONAL_VERSIONS "10.1" "10")
+set(PostgreSQL_TYPE_INCLUDE_DIR "9.5")
+set(PostgreSQL_ADDITIONAL_VERSIONS "10.1" "10" "9.5")
 
 # Apple has a different openssl directory when using brew
 if(APPLE)
     set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
 endif()
+
+find_program(LSB_RELEASE lsb_release)
+execute_process(COMMAND ${LSB_RELEASE} -is
+    OUTPUT_VARIABLE LSB_RELEASE_ID_SHORT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+include_directories("/usr/include/postgresql")
 
 # Find packages
 find_package(PkgConfig REQUIRED)
@@ -63,7 +72,7 @@ file(GLOB utils_src "${CMAKE_SOURCE_DIR}/src/util/*.c" "${CMAKE_SOURCE_DIR}/src/
 add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp" ${ag_gen_src} ${utils_src})
 target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES} ${CONFIG_LIBRARIES})
 
-# Parser
+# Network Model Parser
 BISON_TARGET(nm_parser "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_parser.yy"
     "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.c"
     DEFINES_FILE "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.tab.h")
@@ -71,9 +80,19 @@ FLEX_TARGET(nm_scanner "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_scanner.l"
     "${CMAKE_CURRENT_BINARY_DIR}/nm_scanner.c")
 ADD_FLEX_BISON_DEPENDENCY(nm_scanner nm_parser)
 
-# Network Model parser
 add_executable(nm_test ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS} ${utils_src})
 target_include_directories(nm_test PRIVATE ${CMAKE_CURRENT_BINARY_DIR} "${CMAKE_SOURCE_DIR}/src/compiler/nm-parser")
+
+# Exploit Pattern Parser
+BISON_TARGET(xp_parser "${CMAKE_SOURCE_DIR}/src/parser/xp-parser/xp_parser.yy"
+    "${CMAKE_CURRENT_BINARY_DIR}/xp_parser.c"
+    DEFINES_FILE "${CMAKE_CURRENT_BINARY_DIR}/xp_parser.tab.h")
+FLEX_TARGET(xp_scanner "${CMAKE_SOURCE_DIR}/src/parser/xp-parser/xp_scanner.l"
+    "${CMAKE_CURRENT_BINARY_DIR}/xp_scanner.c")
+ADD_FLEX_BISON_DEPENDENCY(xp_scanner xp_parser)
+
+add_executable(xp_test ${FLEX_xp_scanner_OUTPUTS} ${BISON_xp_parser_OUTPUTS} ${utils_src})
+target_include_directories(xp_test PRIVATE ${CMAKE_CURRENT_BINARY_DIR} "${CMAKE_SOURCE_DIR}/src/compiler/xp-parser")
 
 # Coding examples
 add_executable(graph_example "${CMAKE_SOURCE_DIR}/src/examples/graph_example.cpp")

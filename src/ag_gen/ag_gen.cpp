@@ -158,15 +158,15 @@ AGGenInstance& AGGen::generate() {
                 // entirely.
                 for (auto &quality : asset_group.get_hypo_quals()) {
                     if (!current_state.get_factbase().find_quality(quality)) {
-//                        continue;
-                         goto LOOPCONTINUE;
+                        // continue;
+                        goto LOOPCONTINUE;
                     }
                 }
 
                 for (auto &topology : asset_group.get_hypo_topos()) {
                     if (!current_state.get_factbase().find_topology(topology)) {
-//                        continue;
-                         goto LOOPCONTINUE;
+                        // continue;
+                        goto LOOPCONTINUE;
                     }
                 }
                 {
@@ -206,6 +206,10 @@ AGGenInstance& AGGen::generate() {
 
             new_state.add_qualities(qualities);
             new_state.add_topologies(topologies);
+
+            // ADD/UPDATE/DELETE code goes here
+
+            // Store nodes in global list here
 
             auto res = hash_list.find(new_state.get_hash());
 
