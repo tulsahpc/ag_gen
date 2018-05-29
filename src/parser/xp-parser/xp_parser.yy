@@ -1,13 +1,16 @@
+%debug
 %error-verbose
 
 %{
     #include <stdio.h>
     #include <stdlib.h>
-    #include "str_util.h"
-    #include "util_hash.h"
-    #include "build_sql.h"
 
-    #define YYDEBUG 0
+    #include "util/mem.h"
+    #include "util/str_array.h"
+    #include "util/hash.h"
+    #include "util/build_sql.h"
+
+    #define YYDEBUG 1
 
     struct exploitpattern {
     };
@@ -27,20 +30,75 @@
 
 %parse-param { struct exploitpattern* nm }
 
-%type <arr> assetlist assets factlist facts
-%type <string> relop operator direction number value asset fact
+%type <arr> exploitlist
+%type <string> relop addop equality operator direction number value
 %type <st> statement
 
 %token <string> IDENTIFIER INT FLOAT
-%token <string> EQ GT LT GEQ LEQ
-%token <string> ONEDIR BIDIR
-%token NETWORK MODEL ASSETS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE;
+%token <string> EQ NEQ GT LT GEQ LEQ PLUSEQ SUBEQ
+%token <string> ONEDIR ONEDIRBACK BIDIR
+%token EXPLOIT GLOBAL PRECONDITIONS POSTCONDITIONS INSERT UPDATE DELETE GROUP COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE LPAREN RPAREN;
 
 %%
 
-root: exploitlist exploit {
+root: exploitlist {}
+;
 
-  }
+exploitlist: exploitlist exploit {}
+| exploit {}
+;
+
+exploit: exploitdecl EXPLOIT IDENTIFIER LPAREN parameterlist RPAREN EQ options preconditions postconditions PERIOD {}
+;
+
+exploitdecl: GLOBAL exploitgroup;
+| {}
+;
+
+exploitgroup: GROUP LPAREN IDENTIFIER RPAREN {}
+| {}
+;
+
+parameterlist: parameters {}
+| {}
+;
+
+parameters: IDENTIFIER COMMA parameters {}
+| IDENTIFIER {}
+;
+
+options: options statement SEMI {}
+| statement SEMI {}
+| {}
+;
+
+preconditions: PRECONDITIONS COLON preconditionslist {}
+;
+
+preconditionslist: preconditionslist precondition {}
+| precondition {}
+;
+
+precondition: fact {}
+;
+
+postconditions: POSTCONDITIONS COLON postconditionslist {}
+;
+
+postconditionslist: postconditionslist postcondition {}
+| postcondition {}
+;
+
+postcondition: operation fact {}
+;
+
+operation: INSERT {}
+| DELETE {}
+| UPDATE {}
+;
+
+fact: QUALITY COLON IDENTIFIER COMMA statement SEMI {}
+| TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {}
 ;
 
 statement:
@@ -60,30 +118,36 @@ statement:
   }
 ;
 
-value:
-  IDENTIFIER
+value: IDENTIFIER
 | number
 ;
 
-number:
-  INT
+number: INT
 | FLOAT
 ;
 
-operator:
-  relop
-| EQ { $$ = dynstr("="); }
+operator: relop
+| addop
+| equality
+| ONEDIRBACK
 ;
 
-relop:
-  GT
+equality: EQ
+| NEQ
+;
+
+relop: GT
 | LT
 | GEQ
 | LEQ
 ;
 
-direction:
-  ONEDIR
+addop: PLUSEQ
+| SUBEQ
+;
+
+direction: ONEDIR
+| ONEDIRBACK
 | BIDIR
 ;
 
@@ -92,7 +156,7 @@ direction:
 int main(int argc, char** argv) {
     FILE* file;
     if(argv[1] == 0) {
-        file = fopen("../examples/SystemV8.nm", "r");
+        file = fopen("../examples/SystemV8.xp", "r");
     } else {
         file = fopen(argv[1], "r");
     }
@@ -102,82 +166,20 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    struct networkmodel nm;
-    nm.asset_tab = new_hashtable(101);
+    struct exploitpattern xp;
 
     //yydebug = 1;
     yyin = file;
     do {
-        yyparse(&nm);
+        yyparse(&xp);
     } while(!feof(yyin));
 
     //printf("%s : %d\n", "flowmeter", get_hashtable(nm.asset_tab, "flowmeter"));
     //print_str_array(nm.assets);
     //print_str_array(nm.facts);
-
-    str_array* qualities = new_str_array();
-    str_array* topologies = new_str_array();
-
-    for(int i=0; i<nm.facts->used; i++) {
-        char* current = nm.facts->arr[i];
-        char* copy = getstr(strlen(current));
-
-        strncpy(copy, current, strlen(current));
-
-        char* type = strsep(&copy, ":");
-        if(strncmp(type, "q", 1) == 0) {
-            add_str(qualities, copy);
-        } else {
-            add_str(topologies, copy);
-        }
-    }
-
-    FILE* fp = fopen("test.sql", "w");
-    if(fp == NULL) {
-        printf("Error creating file.\n");
-        exit(1);
-    }
-
-    char* assetheader = "INSERT INTO asset VALUES";
-    fprintf(fp, "%s\n", assetheader);
-    for(int i=0; i<nm.assets->used-1; i++) {
-        char* nextstring = nm.assets->arr[i];
-        fprintf(fp, "%s\n", nextstring);
-    }
-    char* stripped = nm.assets->arr[nm.assets->used-1];
-    stripped[strlen(stripped)-1] = '\n';
-    fprintf(fp, "%s\n", stripped);
-
-    fprintf(fp, "%s\n", "ON CONFLICT DO NOTHING;");
-
-    char* qualityheader = "\nINSERT INTO quality VALUES";
-    fprintf(fp, "%s\n", qualityheader);
-    for(int i=0; i<qualities->used-1; i++) {
-        char* nextstring = qualities->arr[i];
-        fprintf(fp, "%s\n", nextstring);
-    }
-    stripped = qualities->arr[nm.assets->used-1];
-    stripped[strlen(stripped)-1] = '\n';
-    fprintf(fp, "%s\n", stripped);
-
-    fprintf(fp, "%s\n", "ON CONFLICT DO NOTHING;");
-
-    char* topologyheader = "\nINSERT INTO topology VALUES";
-    fprintf(fp, "%s\n", topologyheader);
-    for(int i=0; i<topologies->used-1; i++) {
-        char* nextstring = topologies->arr[i];
-        fprintf(fp, "%s\n", nextstring);
-    }
-    stripped = topologies->arr[nm.assets->used-1];
-    stripped[strlen(stripped)-1] = '\n';
-    fprintf(fp, "%s\n", stripped);
-
-    fprintf(fp, "%s\n", "ON CONFLICT DO NOTHING;");
-
-    free_hashtable(nm.asset_tab);
 }
 
-void yyerror(struct networkmodel* nm, char const *s) {
+void yyerror(struct exploitpattern* xp, char const *s) {
     fprintf(stderr, "Line %d: %s\n", yylineno, s);
     exit(-1);
 }

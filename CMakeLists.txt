@@ -72,7 +72,7 @@ file(GLOB utils_src "${CMAKE_SOURCE_DIR}/src/util/*.c" "${CMAKE_SOURCE_DIR}/src/
 add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp" ${ag_gen_src} ${utils_src})
 target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES} ${CONFIG_LIBRARIES})
 
-# Parser
+# Network Model Parser
 BISON_TARGET(nm_parser "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_parser.yy"
     "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.c"
     DEFINES_FILE "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.tab.h")
@@ -80,9 +80,19 @@ FLEX_TARGET(nm_scanner "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_scanner.l"
     "${CMAKE_CURRENT_BINARY_DIR}/nm_scanner.c")
 ADD_FLEX_BISON_DEPENDENCY(nm_scanner nm_parser)
 
-# Network Model parser
 add_executable(nm_test ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS} ${utils_src})
 target_include_directories(nm_test PRIVATE ${CMAKE_CURRENT_BINARY_DIR} "${CMAKE_SOURCE_DIR}/src/compiler/nm-parser")
+
+# Exploit Pattern Parser
+BISON_TARGET(xp_parser "${CMAKE_SOURCE_DIR}/src/parser/xp-parser/xp_parser.yy"
+    "${CMAKE_CURRENT_BINARY_DIR}/xp_parser.c"
+    DEFINES_FILE "${CMAKE_CURRENT_BINARY_DIR}/xp_parser.tab.h")
+FLEX_TARGET(xp_scanner "${CMAKE_SOURCE_DIR}/src/parser/xp-parser/xp_scanner.l"
+    "${CMAKE_CURRENT_BINARY_DIR}/xp_scanner.c")
+ADD_FLEX_BISON_DEPENDENCY(xp_scanner xp_parser)
+
+add_executable(xp_test ${FLEX_xp_scanner_OUTPUTS} ${BISON_xp_parser_OUTPUTS} ${utils_src})
+target_include_directories(xp_test PRIVATE ${CMAKE_CURRENT_BINARY_DIR} "${CMAKE_SOURCE_DIR}/src/compiler/xp-parser")
 
 # Coding examples
 add_executable(graph_example "${CMAKE_SOURCE_DIR}/src/examples/graph_example.cpp")
