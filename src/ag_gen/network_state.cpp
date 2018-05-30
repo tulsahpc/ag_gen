@@ -28,6 +28,13 @@ NetworkState::NetworkState(const NetworkState &ns)
     factbase.set_parent(*this);
 }
 
+void NetworkState::set_id()
+{
+
+    factbase.set_id();
+
+}
+
 /**
  * @brief Returns the Factbase for the NetworkState
  */

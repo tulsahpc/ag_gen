@@ -31,6 +31,7 @@ class NetworkState {
     const Factbase &get_factbase() const;
     size_t get_hash(Keyvalue &factlist) const;
 
+    void set_id();
     void add_qualities(std::vector<Quality> q);
     void add_topologies(std::vector<Topology> t);
 };

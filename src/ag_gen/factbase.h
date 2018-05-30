@@ -16,6 +16,7 @@ class NetworkState;
  *          NetworkState such as Qualities and Topologies.
  */
 class Factbase {
+    static int current_id;
     const NetworkState *parent;
 
     int id;
@@ -28,6 +29,7 @@ class Factbase {
     friend class NetworkState;
 
   public:
+
     void save();
 
     bool find_quality(Quality &q) const;
@@ -39,6 +41,7 @@ class Factbase {
     bool exists_in_db();
 
     void print() const;
+    void set_id();
     int get_id() const;
     size_t hash(Keyvalue &factlist) const;
 };

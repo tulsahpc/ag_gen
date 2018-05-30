@@ -19,7 +19,7 @@ using namespace std;
  * @param net_i The network to build the attack graph for
  */
 AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
-    frontier.emplace_back(instance.qualities, instance.topologies);
+    frontier.emplace_back(instance.initial_qualities, instance.initial_topologies);
 }
 
 /**
@@ -189,9 +189,6 @@ AGGenInstance& AGGen::generate() {
             auto qualities = get<0>(postconditions);
             auto topologies = get<1>(postconditions);
 
-            instance.qualities.insert(instance.qualities.end(), qualities.begin(), qualities.end());
-            instance.topologies.insert(instance.topologies.end(), topologies.begin(), topologies.end());
-
             // Deep copy the factbase so we can create a new network state
             NetworkState new_state{current_state};
 
@@ -201,6 +198,10 @@ AGGenInstance& AGGen::generate() {
             // ADD/UPDATE/DELETE code goes here
 
             // Store nodes in global list here
+
+            FactbaseItems new_items = make_tuple(make_tuple(qualities, topologies), new_state.get_factbase().get_id());
+
+            instance.factbase_items.push_back(new_items);
 
             auto res = hash_list.find(new_state.get_hash(instance.facts));
 
@@ -214,10 +215,15 @@ AGGenInstance& AGGen::generate() {
                 // exploit, assetGroup);
                 continue;
             } else {
+                new_state.set_id();
+                instance.factbases.push_back(new_state.get_factbase());
                 hash_list.insert(new_state.get_hash(instance.facts));
                 frontier.emplace_front(new_state);
                 counter++;
             }
+            instance.edges.emplace_back(current_state.get_factbase().get_id(),
+                                        new_state.get_factbase().get_id(),
+                                        exploit, assetGroup);
         }
     }
 

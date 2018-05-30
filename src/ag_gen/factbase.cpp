@@ -9,12 +9,14 @@
 
 using namespace std;
 
+int Factbase::current_id = 0;
+
 /**
  * @brief Constructor for Factbase
  * @details Fetches Qualities and Topologies for the Factbase.
  */
 Factbase::Factbase(std::vector<Quality> q, std::vector<Topology> t)
-    : qualities(q), topologies(t) {}
+    : qualities(q), topologies(t) { id = 0; }
 
 /**
  * @brief Sets the parent NetworkState.
@@ -22,6 +24,13 @@ Factbase::Factbase(std::vector<Quality> q, std::vector<Topology> t)
  * @param ns New parent NetworkState
  */
 void Factbase::set_parent(const NetworkState &ns) { parent = &ns; }
+
+void Factbase::set_id()
+{
+
+    id = current_id++;
+
+}
 
 /**
  * @brief Returns the current Factbase ID.

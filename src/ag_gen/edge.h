@@ -12,6 +12,7 @@
  * @brief Edge of the graph.
  */
 class Edge {
+    static int edge_current_id;
     int id;
     int from_node;
     int to_node;
@@ -21,9 +22,13 @@ class Edge {
   public:
     Edge(int, int, Exploit &, AssetGroup &);
 
+    std::string get_query();
+    std::string get_asset_query();
+
     void save();
 
     int get_id();
+    int set_id();
 
     bool exists_in_db();
 };

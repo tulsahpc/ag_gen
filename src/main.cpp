@@ -8,6 +8,7 @@
 #include <string>
 #include <unordered_map>
 #include <tuple>
+#include <algorithm>
 
 #include <libconfig.h++>
 
@@ -383,15 +384,125 @@ Keyvalue fetch_facts()
 
 }
 
-/* TODO
-AGGenInstance build_pre_instance(const string net_name)
+inline string to_query(Edge edge){ return edge.get_query(); }
+
+void save_ag_to_db(std::vector<FactbaseItems> &factbase_items, std::vector<Factbase> &factbases, 
+                   std::vector<Edge> &edges, Keyvalue &factlist)
 {
 
-    
-    Keyvalue facts = fetch_facts();    
+    string factbase_sql_query = "INSERT INTO factbase VALUES ";
+
+    for (int i = 0; i < factbases.size(); ++i)
+    {
+
+        if (i == 0)
+            factbase_sql_query += "(" + to_string(factbases[i].get_id()) + ",'" + to_string(factbases[i].hash(factlist)) + "')";
+
+        else
+            factbase_sql_query += ",(" + to_string(factbases[i].get_id()) + ",'" + to_string(factbases[i].hash(factlist)) + "')";
+
+    }
+
+    factbase_sql_query += " ON CONFLICT DO NOTHING;";
+
+    // cout << factbase_sql_query << endl;
+
+    db.exec(factbase_sql_query);
+
+    string item_sql_query = "INSERT INTO factbase_item VALUES ";
+
+    string quality_sql_query = "";
+    string topology_sql_query = "";
+
+    for (int j = 0; j < factbase_items.size(); ++j)
+    {
+
+        auto fbi = factbase_items[j];
+
+        int id = get<1>(fbi);
+        auto items = get<0>(fbi);
+
+        auto quals = get<0>(items);
+        auto topo = get<1>(items);
+
+        for (auto qi : quals)
+        {
+
+            if (j == 0)
+                quality_sql_query += "(" + to_string(id) + "," + to_string(qi.encode(factlist).enc) + ",'quality')";
+
+            else
+                quality_sql_query += ",(" + to_string(id) + "," + to_string(qi.encode(factlist).enc) + ",'quality')";
+
+        }
+
+        for (auto ti : topo)
+        {
+
+            if (j == 0)
+                topology_sql_query += "(" + to_string(id) + "," + to_string(ti.encode(factlist).enc) + ",'topology')";
+
+            else
+                topology_sql_query += ",(" + to_string(id) + "," + to_string(ti.encode(factlist).enc) + ",'topology')";
+
+        }
+
+    }
+
+    if (topology_sql_query != "")
+        item_sql_query += quality_sql_query + "," + topology_sql_query + " ON CONFLICT DO NOTHING;";
+    else
+        item_sql_query += quality_sql_query + " ON CONFLICT DO NOTHING;";
+
+    db.exec(item_sql_query);
+
+    string edge_sql_query = "INSERT INTO edge VALUES ";
+    string edge_assets_sql_query = "INSERT INTO edge_asset_binding VALUES ";
+
+    vector<string> edge_queries;
+    edge_queries.resize(edges.size());
+
+    transform(edges.begin(), edges.end(), edge_queries.begin(), to_query);
+
+    // map edge queries to index in edge vector
+    unordered_map<string, int> eq;
+    auto ei = edge_queries.begin();
+    for (int i = 0; ei != edge_queries.end(); i++, ei++)
+        eq.insert(make_tuple(*ei, i));
+
+    int ii = 0;
+    for (auto ei : eq)
+    {
+
+        int i = get<1>(ei);
+
+        int eid = edges[i].set_id();
+
+        if (ii == 0)
+        {
+            edge_sql_query += "(" + to_string(eid) + "," + get<0>(ei);
+            edge_assets_sql_query += edges[i].get_asset_query();
+        }
+        else
+        {
+            edge_sql_query += ",(" + to_string(eid) + "," + get<0>(ei);
+            edge_assets_sql_query += "," + edges[i].get_asset_query();
+        }
+
+        ++ii;
+
+    }
+
+    edge_sql_query += " ON CONFLICT DO NOTHING;";
+    edge_assets_sql_query += " ON CONFLICT DO NOTHING;";
+
+    // cout << edge_sql_query << endl << endl;
+    // cout << edge_assets_sql_query << endl << endl;
+
+    db.exec(edge_sql_query);
+    db.exec(edge_assets_sql_query);
 
 }
-*/
 
 // the main function executes the command according to the given flag and throws
 // and error if an unknown flag is provided. It then uses the database given in
@@ -479,8 +590,8 @@ int main(int argc, char *argv[]) {
     AGGenInstance _instance;
 
     _instance.opt_network = opt_network;
-    _instance.qualities = fetch_all_qualities();
-    _instance.topologies = fetch_all_topologies();
+    _instance.initial_qualities = fetch_all_qualities();
+    _instance.initial_topologies = fetch_all_topologies();
     _instance.assets = fetch_all_assets(opt_network);
     _instance.exploits = fetch_all_exploits();
     _instance.facts = fetch_facts();
@@ -533,4 +644,13 @@ int main(int argc, char *argv[]) {
     //AGGen gen{preinst};
 
     AGGenInstance postinstance = gen.generate();
+
+    auto factbase_items = postinstance.factbase_items;
+    auto factbases = postinstance.factbases;
+    auto edges = postinstance.edges;
+    auto factlist = postinstance.facts;
+
+    save_ag_to_db(factbase_items, factbases, edges, factlist);
+
+
 }
