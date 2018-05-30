@@ -25,12 +25,12 @@ class Edge {
     std::string get_query();
     std::string get_asset_query();
 
-    void save();
+    // void save();
 
     int get_id();
     int set_id();
 
-    bool exists_in_db();
+    // bool exists_in_db();
 };
 
 #endif // AG_GEN_EDGE_H

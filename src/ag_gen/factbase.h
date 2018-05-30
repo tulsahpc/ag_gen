@@ -30,7 +30,7 @@ class Factbase {
 
   public:
 
-    void save();
+    // void save();
 
     bool find_quality(Quality &q) const;
     bool find_topology(Topology &t) const;
@@ -38,7 +38,7 @@ class Factbase {
     void add_quality(Quality &q);
     void add_topology(Topology &y);
 
-    bool exists_in_db();
+    // bool exists_in_db();
 
     void print() const;
     void set_id();

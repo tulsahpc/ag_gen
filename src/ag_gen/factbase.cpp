@@ -40,8 +40,8 @@ int Factbase::get_id() const { return id; }
 /**
  * @brief Checks if the Factbase exists in the database.
  */
-bool Factbase::exists_in_db() {
-    return false;
+// bool Factbase::exists_in_db() {
+    // return false;
     // string sql =
     //     "SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';";
     // vector<Row> rows = db->exec(sql);
@@ -51,7 +51,7 @@ bool Factbase::exists_in_db() {
     // } else {
     //     return false;
     // }
-}
+// }
 
 /**
  * @brief Searches for a Quality in the Factbase.
@@ -96,7 +96,7 @@ void Factbase::add_topology(Topology &t) { topologies.push_back(t); }
 /**
  * @brief Saves the Factbase to the database.
  */
-void Factbase::save() {
+// void Factbase::save() {
     // if (exists_in_db()) {
     //     return;
     // }
@@ -123,7 +123,7 @@ void Factbase::save() {
     // insert_sql += " ON CONFLICT DO NOTHING;";
 
     // db->exec(insert_sql);
-}
+// }
 
 /**
  * @brief Shamelessly copied from Boost::hash_combine

@@ -30,7 +30,7 @@ int Edge::get_id() { return id; }
 /**
  * @brief Checks if the Edge exists in the database.
  */
-bool Edge::exists_in_db() {
+// bool Edge::exists_in_db() {
     // vector<Row> rows =
     //     db->exec("SELECT 1 FROM edge WHERE from_node = " +
     //              to_string(from_node) + " AND to_node = " + to_string(to_node) +
@@ -40,7 +40,7 @@ bool Edge::exists_in_db() {
     // } else {
     //     return false;
     // }
-}
+// }
 
 string Edge::get_query()
 {
@@ -85,7 +85,7 @@ string Edge::get_asset_query()
  * @brief Saves the Edge in the database.
  * @details Saves the Edge in the database and sets the ID of the Edge to the new ID.
  */
-void Edge::save() {
+// void Edge::save() {
     // if (exists_in_db()) {
     //     vector<Row> rows = db->exec(
     //         "SELECT 1 FROM edge WHERE from_node = " + to_string(from_node) +
@@ -114,4 +114,4 @@ void Edge::save() {
     // }
 
     // db->exec(sql);
-}
+// }
