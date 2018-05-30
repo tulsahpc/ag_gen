@@ -468,24 +468,24 @@ void save_ag_to_db(std::vector<FactbaseItems> &factbase_items, std::vector<Factb
     unordered_map<string, int> eq;
     auto ei = edge_queries.begin();
     for (int i = 0; ei != edge_queries.end(); i++, ei++)
-        eq.insert(make_tuple(*ei, i));
+        eq.insert({*ei, i});
 
     int ii = 0;
     for (auto ei : eq)
     {
 
-        int i = get<1>(ei);
+        int i = ei.second;
 
         int eid = edges[i].set_id();
 
         if (ii == 0)
         {
-            edge_sql_query += "(" + to_string(eid) + "," + get<0>(ei);
+            edge_sql_query += "(" + to_string(eid) + "," + ei.first;
             edge_assets_sql_query += edges[i].get_asset_query();
         }
         else
         {
-            edge_sql_query += ",(" + to_string(eid) + "," + get<0>(ei);
+            edge_sql_query += ",(" + to_string(eid) + "," + ei.first;
             edge_assets_sql_query += "," + edges[i].get_asset_query();
         }
 
