@@ -3,6 +3,7 @@
 
 #include "util/build_sql.h"
 #include "util/mem.h"
+#include "util/list.h"
 
 int assetcount = 0;
 
@@ -37,4 +38,8 @@ char *make_topology(int fromasset, int toasset, char *dir,
     char *mystring = getstr(mystringlen);
     sprintf(mystring, sqlTopology, fromasset, toasset, dir, prop, op, val);
     return mystring;
+}
+
+char *make_exploit(char *xp) {
+    return "";
 }

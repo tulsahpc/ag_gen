@@ -5,6 +5,7 @@
 
 char *dynstr(const char *str);
 void *getmem(size_t size);
+void *getcmem(size_t size);
 void clearmem(void *data, size_t size);
 char *getstr(size_t size);
 

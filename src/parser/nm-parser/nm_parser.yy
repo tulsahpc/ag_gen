@@ -150,7 +150,7 @@ number:
 
 operator:
   relop
-| EQ { $$ = dynstr("="); }
+| EQ
 ;
 
 relop:
