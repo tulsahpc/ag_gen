@@ -121,7 +121,7 @@ void graph_db(const char *conninfo) {
 
 int main() {
     const char *conninfo;
-    conninfo = "postgresql://kyle@localhost/ag_gen";
+    conninfo = "postgresql://localhost/ag_gen";
     graph_db(conninfo);
 
     return 0;

@@ -30,6 +30,10 @@ class Edge {
     int get_id();
     int set_id();
 
+    int get_from_id();
+    int get_to_id();
+    int get_exploit_id();
+
     // bool exists_in_db();
 };
 
