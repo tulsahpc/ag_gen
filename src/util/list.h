@@ -17,6 +17,7 @@ struct node {
 
 struct list *list_new();
 void list_add(struct list *l, void* ptr);
+void *list_get_idx(struct list *l, size_t idx);
 void list_rem_idx(struct list *l, size_t idx);
 
 #endif

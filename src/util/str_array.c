@@ -37,6 +37,6 @@ void free_str_array(str_array *arr) {
 
 void print_str_array(str_array *arr) {
     for (int i = 0; i < arr->used; i++) {
-        printf("%s\n", arr->arr[i]);
+        printf("\t%s\n", arr->arr[i]);
     }
 }

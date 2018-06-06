@@ -15,11 +15,17 @@
 
     struct exploitpattern {
         char* name;
-        str_array* exploitdecl;
+        char global;
+        char* group;
         str_array* params;
         str_array* options;
         str_array* preconditions;
         struct list* postconditions;
+    };
+
+    struct exploitdecl {
+        char global;
+        char* group;
     };
 
     struct postcondition {
@@ -37,6 +43,7 @@
     struct str_array* arr;
     struct list* list;
     struct exploitpattern* xp;
+    struct exploitdecl* ed;
     struct statement* st;
     struct postcondition* pc;
     char* string;
@@ -44,8 +51,9 @@
 
 %parse-param { struct list *xplist }
 
-%type <arr> exploitdecl parameters options preconditions preconditionslist
+%type <arr> parameters options preconditions preconditionslist
 %type <list> exploitlist postconditions postconditionslist
+%type <ed> exploitdecl
 %type <string> exploitgroup
 %type <string> relop addop equality operator direction number value operation
 %type <string> fact precondition
@@ -58,8 +66,7 @@
 %token <string> ONEDIR ONEDIRBACK BIDIR
 %token <string> INSERT UPDATE DELETE
 %token <string> GLOBAL
-%token EXPLOIT PRECONDITIONS POSTCONDITIONS
-        GROUP COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE LPAREN RPAREN;
+%token EXPLOIT PRECONDITIONS POSTCONDITIONS GROUP COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE LPAREN RPAREN;
 
 %%
 
@@ -75,7 +82,8 @@ exploitlist:
 exploit: exploitdecl EXPLOIT IDENTIFIER LPAREN parameters RPAREN EQ options preconditions postconditions PERIOD {
     struct exploitpattern* xp = getmem(sizeof(struct exploitpattern));
     xp->name = $3;
-    xp->exploitdecl = $1;
+    xp->global = $1->global;
+    xp->group = $1->group;
     xp->params = $5;
     xp->options = $8;
     xp->preconditions = $9;
@@ -85,17 +93,24 @@ exploit: exploitdecl EXPLOIT IDENTIFIER LPAREN parameters RPAREN EQ options prec
 ;
 
 exploitdecl: GLOBAL exploitgroup {
-    $$ = new_str_array();
-    add_str($$, $1);
+    struct exploitdecl *ed = getmem(sizeof(struct exploitdecl));
+    ed->global = 1;
     if($2 != NULL) {
-        add_str($$, $2);
+        ed->group = dynstr($2);
+    } else {
+        ed->group = NULL;
     }
+    $$ = ed;
 }
 | exploitgroup {
+    struct exploitdecl *ed = getmem(sizeof(struct exploitdecl));
+    ed->global = 0;
     if($1 != NULL) {
-        $$ = new_str_array();
-        add_str($$, $1);
+        ed->group = dynstr($1);
+    } else {
+        ed->group = NULL;
     }
+    $$ = ed;
 }
 ;
 
@@ -283,7 +298,20 @@ int main(int argc, char** argv) {
         yyparse(xplist);
     } while(!feof(yyin));
 
-    printf("size:%d\n", xplist->size);
+    for(int i=0; i<xplist->size; i++) {
+        struct exploitpattern *xp = list_get_idx(xplist, i);
+        printf("Exploit: %s\n", xp->name);
+
+        if(xp->global == 1) {
+            printf("\tglobal: true\n");
+        }
+
+        if(xp->group != NULL) {
+            printf("\tgroup: %s\n", xp->group);
+        }
+
+
+    }
 }
 
 void yyerror(struct list *xplist, char const *s) {

@@ -12,16 +12,16 @@ ID      [a-zA-Z][a-zA-Z0-9_\.]*
 
 #.*\n {}
 
-global { return GLOBAL; }
-group { return GROUP; }
-exploit { return EXPLOIT; }
-preconditions { return PRECONDITIONS; }
-postconditions { return POSTCONDITIONS; }
-quality  { return QUALITY; }
-topology  { return TOPOLOGY; }
-insert { return INSERT; }
-update { return UPDATE; }
-delete { return DELETE; }
+global { yylval.string = strdup(yytext); return GLOBAL; }
+group { yylval.string = strdup(yytext); return GROUP; }
+exploit { yylval.string = strdup(yytext); return EXPLOIT; }
+preconditions { yylval.string = strdup(yytext); return PRECONDITIONS; }
+postconditions { yylval.string = strdup(yytext); return POSTCONDITIONS; }
+quality  { yylval.string = strdup(yytext); return QUALITY; }
+topology  { yylval.string = strdup(yytext); return TOPOLOGY; }
+insert { yylval.string = strdup(yytext); return INSERT; }
+update { yylval.string = strdup(yytext); return UPDATE; }
+delete { yylval.string = strdup(yytext); return DELETE; }
 
 {DIGIT}+ { yylval.string = strdup(yytext); return INT; }
 {DIGIT}*"."{DIGIT}+ { yylval.string = strdup(yytext); return FLOAT; }

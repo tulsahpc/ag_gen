@@ -19,6 +19,7 @@ void list_add(struct list *l, void *ptr) {
         struct node *lastnode = l->tail;
         lastnode->next = newnode;
         newnode->prev = lastnode;
+        l->tail = newnode;
     }
 
     l->size++;
@@ -28,6 +29,8 @@ void *list_get_idx(struct list *l, size_t idx) {
     size_t count = 0;
     struct node *curr = l->head;
     while(count < idx) {
+        if(curr->next == NULL)
+            break;
         curr = curr->next;
         count++;
     }
