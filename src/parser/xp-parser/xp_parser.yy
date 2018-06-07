@@ -13,26 +13,6 @@
 
     #define YYDEBUG 1
 
-    struct exploitpattern {
-        char* name;
-        char global;
-        char* group;
-        str_array* params;
-        str_array* options;
-        str_array* preconditions;
-        struct list* postconditions;
-    };
-
-    struct exploitdecl {
-        char global;
-        char* group;
-    };
-
-    struct postcondition {
-        char *op;
-        char *fact;
-    };
-
     int yylex();
     void yyerror(struct list *xplist, char const *s);
     extern FILE* yyin;

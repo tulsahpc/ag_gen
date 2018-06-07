@@ -218,8 +218,6 @@ void AGGen::generate() {
 
     cout << "Saving Attack Graph to Database" << endl;
 
-
-
     cout << "Completed" << endl;
 
     auto end = std::chrono::system_clock::now();
