@@ -186,9 +186,9 @@ INSERT INTO exploit_precondition VALUES
   (DEFAULT, 6, 0, 1, NULL, 'access', 'root', '=', NULL);
 
 INSERT INTO exploit_postcondition VALUES
-  (DEFAULT, 1, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 2, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 3, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 4, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 5, 0, 1, NULL, 'access', 'root', '=', NULL),
-  (DEFAULT, 6, 0, 1, NULL, 'planet', 'hacked', '=', NULL);
+  (DEFAULT, 1, 0, 1, NULL, 'access', 'root', '=', NULL, 'add'),
+  (DEFAULT, 2, 0, 1, NULL, 'access', 'root', '=', NULL, 'add'),
+  (DEFAULT, 3, 0, 1, NULL, 'access', 'root', '=', NULL, 'add'),
+  (DEFAULT, 4, 0, 1, NULL, 'access', 'root', '=', NULL, 'add'),
+  (DEFAULT, 5, 0, 1, NULL, 'access', 'root', '=', NULL, 'add'),
+  (DEFAULT, 6, 0, 1, NULL, 'planet', 'hacked', '=', NULL, 'add');

@@ -28,6 +28,10 @@ void add_str(str_array *arr, char *str) {
     arr->arr[arr->used++] = dynstr(str);
 }
 
+char *get_str_idx(str_array *arr, int idx) {
+    return arr->arr[idx];
+}
+
 void free_str_array(str_array *arr) {
     for (int i = 0; i < arr->used; i++) {
         free(arr->arr[i]);

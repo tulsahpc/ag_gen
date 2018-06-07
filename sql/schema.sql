@@ -66,7 +66,8 @@ CREATE TABLE exploit_postcondition (
   property TEXT,
   value TEXT,
   op TEXT,
-  dir TEXT
+  dir TEXT,
+  action TEXT
 );
 
 CREATE TABLE edge (

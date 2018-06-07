@@ -277,6 +277,44 @@ direction: ONEDIR
 
 %%
 
+void print_xp_list(struct list *xplist) {
+    for(int i=0; i<xplist->size; i++) {
+        struct exploitpattern *xp = list_get_idx(xplist, i);
+        printf("Exploit: %s\n", xp->name);
+
+        if(xp->global == 1) {
+            printf("\tglobal: true\n");
+        }
+
+        if(xp->group != NULL) {
+            printf("\tgroup: %s\n", xp->group);
+        }
+
+        printf("\tParams:\n");
+        for(int j=0; j<xp->params->used; j++) {
+            printf("\t\t%s\n", get_str_idx(xp->params, j));
+        }
+
+        if(xp->options != NULL) {
+            printf("\tOptions:\n");
+            for(int j=0; j<xp->options->used; j++) {
+                printf("\t\t%s\n", get_str_idx(xp->options, j));
+            }
+        }
+
+        printf("\tPreconditions:\n");
+        for(int j=0; j<xp->preconditions->used; j++) {
+            printf("\t\t%s\n", get_str_idx(xp->preconditions, j));
+        }
+
+        printf("\tPostconditions:\n");
+        for(int j=0; j<xp->postconditions->size; j++) {
+            struct postcondition *pc = list_get_idx(xp->postconditions, j);
+            printf("\t\t%s %s\n", pc->op, pc->fact);
+        }
+    }
+}
+
 int main(int argc, char** argv) {
     FILE* file;
     if(argv[1] == 0) {
@@ -298,20 +336,7 @@ int main(int argc, char** argv) {
         yyparse(xplist);
     } while(!feof(yyin));
 
-    for(int i=0; i<xplist->size; i++) {
-        struct exploitpattern *xp = list_get_idx(xplist, i);
-        printf("Exploit: %s\n", xp->name);
-
-        if(xp->global == 1) {
-            printf("\tglobal: true\n");
-        }
-
-        if(xp->group != NULL) {
-            printf("\tgroup: %s\n", xp->group);
-        }
-
-
-    }
+    print_xp_list(xplist);
 }
 
 void yyerror(struct list *xplist, char const *s) {
