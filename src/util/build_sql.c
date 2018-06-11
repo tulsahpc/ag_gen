@@ -5,6 +5,7 @@
 #include "util/build_sql.h"
 #include "util/mem.h"
 #include "util/list.h"
+#include "util/vector.h"
 
 int assetcount = 0;
 int exploitcount = 0;
@@ -44,9 +45,11 @@ char *make_topology(int fromasset, int toasset, char *dir,
 }
 
 char *make_exploit(struct list *xplist) {
+    struct vector sqllist;
+    vectorInit(&sqllist);
     size_t exploit_count = 0;
     for(size_t i=0; i<xplist->size; i++) {
-        char *buf[1000];
+        char buf[1000];
         struct exploitpattern *xp = list_get_idx(xplist, i);
 
         char exploit_count_str[100];
@@ -55,10 +58,11 @@ char *make_exploit(struct list *xplist) {
         char params_used_str[100];
         itoa(xp->params->used, params_used_str);
 
-        size_t stringsize = strlen(sqlExploit) + strlen(exploit_count_str) + strlen(xp->name) +
-            strlen(params_used_str) + GLOBAL_SIZE + strlen(xp->group);
-        sprintf(buf, sqlExploit, exploit_count, xp->name, xp->params->used, xp->global, xp->group);
-
+        char *groupname = "NULL";
+        if(xp->group != NULL) {
+            groupname = xp->group;
+        }
+        sprintf(buf, sqlExploit, exploit_count, xp->name, xp->params->used, xp->global, groupname);
         for(int j=0; j<xp->params->used; j++) {
         }
 
@@ -73,5 +77,8 @@ char *make_exploit(struct list *xplist) {
         for(size_t j=0; j<xp->postconditions->size; j++) {
             struct postcondition *pc = list_get_idx(xp->postconditions, j);
         }
+
+        exploit_count++;
+        printf("%s\n", buf);
     }
 }

@@ -13,7 +13,7 @@
 struct vector {
     size_t size;
     size_t capacity;
-    void *data;
+    void **data;
 };
 
 void vectorInit(struct vector *vec);

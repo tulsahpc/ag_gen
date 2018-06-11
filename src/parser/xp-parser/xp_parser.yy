@@ -317,6 +317,7 @@ int main(int argc, char** argv) {
     } while(!feof(yyin));
 
     print_xp_list(xplist);
+    char *sql = make_exploit(xplist);
 }
 
 void yyerror(struct list *xplist, char const *s) {

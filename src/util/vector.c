@@ -12,7 +12,7 @@ void vectorInit(struct vector *vec) {
 
 void *vectorGet(struct vector *vec, int idx) {
     if(idx < vec->size) {
-        return vec->data + idx;
+        return vec->data[idx];
     } else {
         return NULL;
     }
@@ -23,9 +23,9 @@ void vectorDoubleSize(struct vector *vec) {
 }
 
 void vectorSet(struct vector *vec, int idx, void *data) {
-    
+    vec->data[idx] = data;
 }
 
 void vectorFree(struct vector *vec) {
-
+    free(vec);
 }
