@@ -53,7 +53,7 @@ char *dynstr(const char *str) {
     return new_str;
 }
 
-// Shameless stolen from http://clc-wiki.net/wiki/K%26R2_solutions:Chapter_3:Exercise_4
+// Shamelessly stolen from http://clc-wiki.net/wiki/K%26R2_solutions:Chapter_3:Exercise_4
 void itoa(int n, char s[]) {
     int i, sign;
     sign = n;
