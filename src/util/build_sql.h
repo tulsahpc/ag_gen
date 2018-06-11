@@ -4,6 +4,8 @@
 #include "util/list.h"
 #include "util/str_array.h"
 
+#define GLOBAL_SIZE 4
+
 struct exploitpattern {
     char* name;
     char global;
