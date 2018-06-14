@@ -8,17 +8,9 @@
 
 struct exploitpattern {
     char* name;
-    char global;
-    char* group;
     str_array* params;
-    str_array* options;
     str_array* preconditions;
     struct list* postconditions;
-};
-
-struct exploitdecl {
-    char global;
-    char* group;
 };
 
 struct postcondition {
@@ -37,7 +29,7 @@ char *make_quality(int assetid, struct statement *st);
 char *make_topology(int fromasset, int toasset, char *dir,
                     struct statement *st);
 
-char *make_exploit(struct list *xplist);
+char *make_exploit(struct exploitpattern *xp);
 char *make_precondition();
 char *make_postcondition();
 

@@ -7,6 +7,8 @@
 #include "util/list.h"
 #include "util/vector.h"
 
+#define BUFSPACE 64
+
 int assetcount = 0;
 int exploitcount = 0;
 
@@ -14,7 +16,7 @@ const char *sqlAsset =
     "(%d, '%s', (SELECT id FROM network WHERE name = 'home')),";
 const char *sqlQuality = "(%d, '%s', '%s', '%s'),";
 const char *sqlTopology = "(%d, %d, '%s', '%s', '%s', '%s'),";
-const char *sqlExploit = "(%d, '%s', %d, %d, '%s')";
+const char *sqlExploit = "\t(%d, '%s', %d),\n";
 
 char *make_asset(char *as) {
     size_t mystringlen = strlen(sqlAsset) + strlen(as);
@@ -44,41 +46,10 @@ char *make_topology(int fromasset, int toasset, char *dir,
     return mystring;
 }
 
-char *make_exploit(struct list *xplist) {
-    struct vector sqllist;
-    vectorInit(&sqllist);
-    size_t exploit_count = 0;
-    for(size_t i=0; i<xplist->size; i++) {
-        char buf[1000];
-        struct exploitpattern *xp = list_get_idx(xplist, i);
-
-        char exploit_count_str[100];
-        itoa(exploit_count, exploit_count_str);
-
-        char params_used_str[100];
-        itoa(xp->params->used, params_used_str);
-
-        char *groupname = "NULL";
-        if(xp->group != NULL) {
-            groupname = xp->group;
-        }
-        sprintf(buf, sqlExploit, exploit_count, xp->name, xp->params->used, xp->global, groupname);
-        for(int j=0; j<xp->params->used; j++) {
-        }
-
-        if(xp->options != NULL) {
-            for(int j=0; j<xp->options->used; j++) {
-            }
-        }
-
-        for(int j=0; j<xp->preconditions->used; j++) {
-        }
-
-        for(size_t j=0; j<xp->postconditions->size; j++) {
-            struct postcondition *pc = list_get_idx(xp->postconditions, j);
-        }
-
-        exploit_count++;
-        printf("%s\n", buf);
-    }
+static int exploit_count = 0;
+char *make_exploit(struct exploitpattern *xp) {
+    size_t len = strlen(sqlExploit) + strlen(xp->name) + BUFSPACE;
+    char *buf = malloc(len);
+    sprintf(buf, sqlExploit, exploit_count++, xp->name, xp->params->used);
+    return buf;
 }

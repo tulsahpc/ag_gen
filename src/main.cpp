@@ -73,10 +73,12 @@ int main(int argc, char *argv[]) {
     try {
         cfg.readFile("ag_gen.cfg");
     } catch(const FileIOException &e) {
-        cerr << "Cannot read file" << endl;
+        cerr << "Cannot read config file: ./ag_gen.cfg" << endl;
+        exit(1);
     } catch(const ParseException &e) {
         cerr << "Parse error at " << e.getFile() << ":" << e.getLine()
              << " - " << e.getError() << endl;
+        exit(1);
     }
 
     string new_db_string;

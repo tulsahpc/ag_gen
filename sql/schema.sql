@@ -42,9 +42,7 @@ CREATE TABLE topology (
 CREATE TABLE exploit (
   id SERIAL PRIMARY KEY,
   name TEXT,
-  params INTEGER,
-  global INTEGER,
-  group TEXT
+  params INTEGER
 );
 
 CREATE TABLE exploit_precondition (

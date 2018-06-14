@@ -17,7 +17,7 @@ extern void _test_free(void* const ptr, const char* file, const int line);
 
 void *getmem(size_t size) {
     void *buf = malloc(size);
-    if(buf == NULL) {
+    if(!buf) {
         fprintf(stderr, "Could not allocate memory.\n");
         exit(1);
     }
@@ -26,14 +26,16 @@ void *getmem(size_t size) {
 
 void *getcmem(size_t size) {
     void *buf = calloc(1, size);
-    if (buf == NULL) {
+    if (!buf) {
         fprintf(stderr, "Could not allocate memory.\n");
         exit(1);
     }
     return buf;
 }
 
-void clearmem(void *buf, size_t size) {
+int clearmem(void *buf, size_t size) {
+    if(!buf)
+        return 1;
     memset(buf, 0, size);
 }
 
@@ -46,7 +48,7 @@ char *getstr(size_t size) {
 char *dynstr(const char *str) {
     size_t str_len = strlen(str);
     char *new_str = getstr(str_len);
-    if (new_str == NULL)
+    if (!new_str)
         return (char *)-1;
 
     strncpy(new_str, str, str_len);
@@ -77,4 +79,15 @@ void reverse(char s[]) {
         s[i] = s[j];
         s[j] = c;
     }
+}
+
+// This doesn't work
+void strapp(char **str1, char *str2) {
+    size_t length;
+    if(!(*str1))
+        length = strlen(str2) + 1;
+    else
+        length = strlen(*str1) + strlen(str2) + 1;
+    *str1 = realloc(*str1, length);
+    strcat(*str1, str2);
 }

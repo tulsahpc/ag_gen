@@ -6,7 +6,7 @@ if [[ $OS = 'darwin' ]]; then
     if hash brew 2>/dev/null; then
         xcode-select --install > /dev/null
         brew cask install postgres
-        brew install postgresql cmake boost cppcheck doxygen graphviz tbb libconfig
+        brew install postgresql cmake boost cmocka cppcheck doxygen graphviz tbb libconfig
     else
         echo "Please install homebrew first."
     fi

@@ -12,8 +12,6 @@ ID      [a-zA-Z][a-zA-Z0-9_\.]*
 
 #.*\n {}
 
-global { yylval.string = strdup(yytext); return GLOBAL; }
-group { yylval.string = strdup(yytext); return GROUP; }
 exploit { yylval.string = strdup(yytext); return EXPLOIT; }
 preconditions { yylval.string = strdup(yytext); return PRECONDITIONS; }
 postconditions { yylval.string = strdup(yytext); return POSTCONDITIONS; }
@@ -46,6 +44,8 @@ delete { yylval.string = strdup(yytext); return DELETE; }
 "->" { yylval.string = strdup(yytext); return ONEDIR; }
 "<-" { yylval.string = strdup(yytext); return ONEDIRBACK; }
 "<->"  { yylval.string = strdup(yytext); return BIDIR; }
+"!>" { yylval.string = strdup(yytext); return NOTONEDIR; }
+"<!>" { yylval.string = strdup(yytext); return NOTBIDIR; }
 [ \t\r\n]+ {}
 
 . { return yytext[0]; }

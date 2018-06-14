@@ -105,6 +105,7 @@ void Factbase::save() {
                       to_string(qualities[i].encode(parent->net->facts).enc) +
                       ",'quality')";
     }
+
     for (auto &topologie : topologies) {
         insert_sql += ",(" + to_string(id) + "," +
                       to_string(topologie.encode(parent->net->facts).enc) +

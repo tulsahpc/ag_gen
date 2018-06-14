@@ -7,6 +7,7 @@
 #include <setjmp.h>
 #include <cmocka.h>
 #include <stdlib.h>
+#include <string.h>
 
 static void null_test_success(void **state) {
     (void) state;
@@ -18,13 +19,11 @@ static void dynstr_test(void **state) {
 
     char *mystr = dynstr("Hello!");
     char *mystr2 = malloc(7);
-    mystr2 = "Hello!";
+    strcpy(mystr2, "Hello!");
     assert_memory_equal(mystr, mystr2, 7);
 }
 
-static void
-
-int main(void) {
+int main() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(null_test_success),
         cmocka_unit_test(dynstr_test),

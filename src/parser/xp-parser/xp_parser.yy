@@ -4,6 +4,7 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
+    #include <string.h>
 
     #include "util/mem.h"
     #include "util/str_array.h"
@@ -23,7 +24,6 @@
     struct str_array* arr;
     struct list* list;
     struct exploitpattern* xp;
-    struct exploitdecl* ed;
     struct statement* st;
     struct postcondition* pc;
     char* string;
@@ -31,10 +31,8 @@
 
 %parse-param { struct list *xplist }
 
-%type <arr> parameters options preconditions preconditionslist
+%type <arr> parameters preconditions preconditionslist
 %type <list> exploitlist postconditions postconditionslist
-%type <ed> exploitdecl
-%type <string> exploitgroup
 %type <string> relop addop equality operator direction number value operation
 %type <string> fact precondition
 %type <pc> postcondition
@@ -43,59 +41,29 @@
 
 %token <string> IDENTIFIER INT FLOAT
 %token <string> EQ NEQ GT LT GEQ LEQ PLUSEQ SUBEQ
-%token <string> ONEDIR ONEDIRBACK BIDIR
+%token <string> ONEDIR ONEDIRBACK BIDIR NOTONEDIR NOTBIDIR
 %token <string> INSERT UPDATE DELETE
-%token <string> GLOBAL
-%token EXPLOIT PRECONDITIONS POSTCONDITIONS GROUP COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE LPAREN RPAREN;
+%token EXPLOIT PRECONDITIONS POSTCONDITIONS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE LPAREN RPAREN;
 
 %%
 
 root: exploitlist {}
 ;
 
-exploitlist:
+exploitlist: {}
 | exploitlist exploit {
     list_add(xplist, $2);
 }
 ;
 
-exploit: exploitdecl EXPLOIT IDENTIFIER LPAREN parameters RPAREN EQ options preconditions postconditions PERIOD {
+exploit: EXPLOIT IDENTIFIER LPAREN parameters RPAREN EQ preconditions postconditions PERIOD {
     struct exploitpattern* xp = getmem(sizeof(struct exploitpattern));
-    xp->name = $3;
-    xp->global = $1->global;
-    xp->group = $1->group;
-    xp->params = $5;
-    xp->options = $8;
-    xp->preconditions = $9;
-    xp->postconditions = $10;
+    xp->name = $2;
+    xp->params = $4;
+    xp->preconditions = $7;
+    xp->postconditions = $8;
     $$ = xp;
 }
-;
-
-exploitdecl: GLOBAL exploitgroup {
-    struct exploitdecl *ed = getmem(sizeof(struct exploitdecl));
-    ed->global = 1;
-    if($2 != NULL) {
-        ed->group = dynstr($2);
-    } else {
-        ed->group = NULL;
-    }
-    $$ = ed;
-}
-| exploitgroup {
-    struct exploitdecl *ed = getmem(sizeof(struct exploitdecl));
-    ed->global = 0;
-    if($1 != NULL) {
-        ed->group = dynstr($1);
-    } else {
-        ed->group = NULL;
-    }
-    $$ = ed;
-}
-;
-
-exploitgroup: GROUP LPAREN IDENTIFIER RPAREN { $$ = $3; }
-| { $$ = NULL; }
 ;
 
 parameters: IDENTIFIER COMMA parameters {
@@ -110,32 +78,6 @@ parameters: IDENTIFIER COMMA parameters {
 | IDENTIFIER {
     $$ = new_str_array();
     add_str($$, $1);
-}
-| { $$ = NULL; }
-;
-
-options: options statement SEMI {
-    if($1 == NULL) {
-        $$ = new_str_array();
-
-        size_t stringlen = strlen($2->obj) + strlen($2->op) + strlen($2->val);
-        char *statementstr = getstr(stringlen);
-        strncat(statementstr, $2->obj, stringlen);
-        strncat(statementstr, $2->op, stringlen);
-        strncat(statementstr, $2->val, stringlen);
-
-        add_str($$, statementstr);
-    } else {
-        size_t stringlen = strlen($2->obj) + strlen($2->op) + strlen($2->val);
-        char *statementstr = getstr(stringlen);
-        strncat(statementstr, $2->obj, stringlen);
-        strncat(statementstr, $2->op, stringlen);
-        strncat(statementstr, $2->val, stringlen);
-
-        add_str($1, statementstr);
-
-        $$ = $1;
-    }
 }
 | { $$ = NULL; }
 ;
@@ -253,6 +195,8 @@ addop: PLUSEQ
 direction: ONEDIR
 | ONEDIRBACK
 | BIDIR
+| NOTONEDIR
+| NOTBIDIR
 ;
 
 %%
@@ -262,24 +206,9 @@ void print_xp_list(struct list *xplist) {
         struct exploitpattern *xp = list_get_idx(xplist, i);
         printf("Exploit: %s\n", xp->name);
 
-        if(xp->global == 1) {
-            printf("\tglobal: true\n");
-        }
-
-        if(xp->group != NULL) {
-            printf("\tgroup: %s\n", xp->group);
-        }
-
         printf("\tParams:\n");
         for(int j=0; j<xp->params->used; j++) {
             printf("\t\t%s\n", get_str_idx(xp->params, j));
-        }
-
-        if(xp->options != NULL) {
-            printf("\tOptions:\n");
-            for(int j=0; j<xp->options->used; j++) {
-                printf("\t\t%s\n", get_str_idx(xp->options, j));
-            }
         }
 
         printf("\tPreconditions:\n");
@@ -298,7 +227,8 @@ void print_xp_list(struct list *xplist) {
 int main(int argc, char** argv) {
     FILE* file;
     if(argv[1] == 0) {
-        file = fopen("../examples/SystemV8.xp", "r");
+        //file = fopen("../examples/SystemV8.xp", "r");
+        file = fopen("../examples/SystemV12_DIE_PIPE.xp", "r");
     } else {
         file = fopen(argv[1], "r");
     }
@@ -316,8 +246,20 @@ int main(int argc, char** argv) {
         yyparse(xplist);
     } while(!feof(yyin));
 
-    print_xp_list(xplist);
-    char *sql = make_exploit(xplist);
+    //print_xp_list(xplist);
+    size_t bufsize = INITIALBUFSIZE;
+    char *buf = malloc(bufsize);
+    strcat(buf, "INSERT INTO exploit VALUES\n");
+    for(int i=0; i<xplist->size; i++) {
+        struct exploitpattern *xp = list_get_idx(xplist, i);
+        char *sqladd = make_exploit(xp);
+        while(bufsize < strlen(buf) + strlen(sqladd))
+            buf = realloc(buf, (bufsize*=2));
+        strcat(buf, sqladd);
+    }
+    char *last = strrchr(buf, ',');
+    *last = ';';
+    printf("%s\n", buf);
 }
 
 void yyerror(struct list *xplist, char const *s) {
