@@ -9,13 +9,13 @@
 struct exploitpattern {
     char* name;
     str_array* params;
-    str_array* preconditions;
+    struct list* preconditions;
     struct list* postconditions;
 };
 
 struct postcondition {
     char *op;
-    char *fact;
+    struct statement *fact;
 };
 
 struct statement {
@@ -30,7 +30,7 @@ char *make_topology(int fromasset, int toasset, char *dir,
                     struct statement *st);
 
 char *make_exploit(struct exploitpattern *xp);
-char *make_precondition();
-char *make_postcondition();
+char *make_precondition(struct exploitpattern *xp);
+char *make_postcondition(struct exploitpattern *xp);
 
 #endif //_BUILD_SQL_H

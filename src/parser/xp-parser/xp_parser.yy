@@ -34,7 +34,7 @@
 %type <arr> parameters preconditions preconditionslist
 %type <list> exploitlist postconditions postconditionslist
 %type <string> relop addop equality operator direction number value operation
-%type <string> fact precondition
+%type <statement> fact precondition
 %type <pc> postcondition
 %type <st> statement
 %type <xp> exploit
@@ -90,10 +90,10 @@ preconditions: PRECONDITIONS COLON preconditionslist {
 preconditionslist: { $$ = NULL; }
 | preconditionslist precondition {
     if($1 == NULL) {
-        $$ = new_str_array();
-        add_str($$, $2);
+        $$ = list_new();
+        list_add($$, $2);
     } else {
-        add_str($1, $2);
+        list_add($1, $2);
         $$ = $1;
     }
 }
@@ -136,9 +136,16 @@ operation: INSERT { $$ = $1; }
 ;
 
 fact: QUALITY COLON IDENTIFIER COMMA statement SEMI {
-    char buf[100];
-    snprintf(buf, 100, "quality:%s,%s%s%s;", $3, $5->obj, $5->op, $5->val);
-    $$ = dynstr(buf);
+    //char buf[100];
+    //snprintf(buf, 100, "quality:%s,%s%s%s;", $3, $5->obj, $5->op, $5->val);
+    //$$ = dynstr(buf);
+
+    struct statement *new = getmem(sizeof(struct statement));
+    new->obj = $5->obj;
+    new->op = $5->op;
+    new->val = $5->val;
+
+    $$ = new;
 }
 | TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {
     char buf[100];
@@ -246,8 +253,23 @@ int main(int argc, char** argv) {
         yyparse(xplist);
     } while(!feof(yyin));
 
-    //print_xp_list(xplist);
+    // Exploit Table
     size_t bufsize = INITIALBUFSIZE;
+    char *buf = malloc(bufsize);
+    strcat(buf, "INSERT INTO exploit VALUES\n");
+    for(int i=0; i<xplist->size; i++) {
+        struct exploitpattern *xp = list_get_idx(xplist, i);
+        char *sqladd = make_exploit(xp);
+        while(bufsize < strlen(buf) + strlen(sqladd))
+            buf = realloc(buf, (bufsize*=2));
+        strcat(buf, sqladd);
+    }
+    char *last = strrchr(buf, ',');
+    *last = ';';
+    printf("%s\n", buf);
+
+    // Preconditions
+    bufsize = INITIALBUFSIZE;
     char *buf = malloc(bufsize);
     strcat(buf, "INSERT INTO exploit VALUES\n");
     for(int i=0; i<xplist->size; i++) {
