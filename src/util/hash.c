@@ -5,6 +5,10 @@
 #include "util/hash.h"
 #include "util/mem.h"
 
+static double get_loadfactor(hashtable *t);
+static bool should_rehash(hashtable *t);
+static void rehash(hashtable *t);
+
 /* http://www.cse.yorku.ca/~oz/hash.html */
 uint64_t hash(char *str) {
     uint64_t hash = 5381;
@@ -60,6 +64,7 @@ void *get_hashtable(hashtable *t, char *str) {
     hashnode *currnode = t->arr[idx];
     //    printf("Looking up %s with size %d\n", str, t->size);
     while (currnode != NULL) {
+        // printf("%s, %s\n", currnode->key, str);
         if (strcmp(currnode->key, str) == 0)
             return currnode->val;
         currnode = currnode->next;
@@ -82,15 +87,15 @@ void free_hashtable(hashtable *t) {
 }
 
 // Load factor should be below 75%
-double get_loadfactor(hashtable *t) { return ((double)t->used / t->size); }
+static double get_loadfactor(hashtable *t) { return ((double)t->used / t->size); }
 
-bool should_rehash(hashtable *t) {
+static bool should_rehash(hashtable *t) {
     if (get_loadfactor(t) < LOAD_FACTOR)
         return false;
     return true;
 }
 
-void rehash(hashtable *t) {
+static void rehash(hashtable *t) {
     printf("REHASHING\n");
     hashtable *newhashtable = new_hashtable((t->size * 2) + 1);
     for (int i = 0; i < t->size; i++) {

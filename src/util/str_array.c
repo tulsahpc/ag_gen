@@ -44,3 +44,12 @@ void print_str_array(str_array *arr) {
         printf("\t%s\n", arr->arr[i]);
     }
 }
+
+hashtable *str_array_to_hashtable(str_array *arr) {
+    hashtable *ht = new_hashtable(7);
+    for(int i=0; i<arr->used; i++) {
+        //printf("TEST: %s - %d\n", get_str_idx(arr, i), i);
+        add_hashtable(ht, get_str_idx(arr, i), i);
+    }
+    return ht;
+}

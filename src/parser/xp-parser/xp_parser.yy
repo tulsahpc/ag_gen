@@ -15,26 +15,27 @@
     #define YYDEBUG 1
 
     int yylex();
-    void yyerror(struct list *xplist, char const *s);
+    void yyerror(list *xplist, char const *s);
     extern FILE* yyin;
     extern int yylineno;
 %}
 
 %union {
-    struct str_array* arr;
-    struct list* list;
-    struct exploitpattern* xp;
-    struct statement* st;
-    struct postcondition* pc;
-    char* string;
+    struct str_array *arr;
+    struct list *list;
+    struct exploitpattern *xp;
+    struct statement *st;
+    struct postcondition *pc;
+    struct fact *fct;
+    char *string;
 }
 
-%parse-param { struct list *xplist }
+%parse-param { list *xplist }
 
-%type <arr> parameters preconditions preconditionslist
-%type <list> exploitlist postconditions postconditionslist
+%type <arr> parameters
+%type <list> preconditions preconditionslist postconditions postconditionslist
 %type <string> relop addop equality operator direction number value operation
-%type <statement> fact precondition
+%type <fct> fact precondition
 %type <pc> postcondition
 %type <st> statement
 %type <xp> exploit
@@ -57,7 +58,7 @@ exploitlist: {}
 ;
 
 exploit: EXPLOIT IDENTIFIER LPAREN parameters RPAREN EQ preconditions postconditions PERIOD {
-    struct exploitpattern* xp = getmem(sizeof(struct exploitpattern));
+    exploitpattern *xp = getmem(sizeof(exploitpattern));
     xp->name = $2;
     xp->params = $4;
     xp->preconditions = $7;
@@ -122,10 +123,9 @@ postconditionslist: { $$ = NULL; }
 ;
 
 postcondition: operation fact {
-    struct postcondition *pc = getmem(sizeof(struct postcondition));
+    postcondition *pc = getmem(sizeof(postcondition));
     pc->op = $1;
     pc->fact = $2;
-
     $$ = pc;
 }
 ;
@@ -136,34 +136,47 @@ operation: INSERT { $$ = $1; }
 ;
 
 fact: QUALITY COLON IDENTIFIER COMMA statement SEMI {
-    //char buf[100];
-    //snprintf(buf, 100, "quality:%s,%s%s%s;", $3, $5->obj, $5->op, $5->val);
-    //$$ = dynstr(buf);
+    statement *st = getmem(sizeof(struct statement));
+    st->obj = $5->obj;
+    st->op = $5->op;
+    st->val = $5->val;
 
-    struct statement *new = getmem(sizeof(struct statement));
-    new->obj = $5->obj;
-    new->op = $5->op;
-    new->val = $5->val;
+    fact *fct = getmem(sizeof(struct fact));
+    fct->type = QUALITY_T;
+    fct->from = $3;
+    fct->dir = NULL;
+    fct->to = NULL;
+    fct->st = st;
 
-    $$ = new;
+    $$ = fct;
 }
 | TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {
-    char buf[100];
-    snprintf(buf, 100, "topology:%s%s%s,%s%s%s;", $3, $4, $5, $7->obj, $7->op, $7->val);
-    $$ = dynstr(buf);
+    statement *st = getmem(sizeof(statement));
+    st->obj = $7->obj;
+    st->op = $7->op;
+    st->val = $7->val;
+
+    fact *fct = getmem(sizeof(struct fact));
+    fct->type = TOPOLOGY_T;
+    fct->from = $3;
+    fct->dir = $4;
+    fct->to = $5;
+    fct->st = st;
+
+    $$ = fct;
 }
 ;
 
 statement:
   IDENTIFIER {
-    struct statement* st = getmem(sizeof(struct statement));
+    statement* st = getmem(sizeof(statement));
     st->obj = $1;
     st->op = "";
     st->val = "";
     $$ = st;
   }
 | IDENTIFIER operator value {
-    struct statement* st = getmem(sizeof(struct statement));
+    statement* st = getmem(sizeof(statement));
     st->obj = $1;
     st->op = $2;
     st->val = $3;
@@ -210,7 +223,7 @@ direction: ONEDIR
 
 void print_xp_list(struct list *xplist) {
     for(int i=0; i<xplist->size; i++) {
-        struct exploitpattern *xp = list_get_idx(xplist, i);
+        exploitpattern *xp = list_get_idx(xplist, i);
         printf("Exploit: %s\n", xp->name);
 
         printf("\tParams:\n");
@@ -219,20 +232,20 @@ void print_xp_list(struct list *xplist) {
         }
 
         printf("\tPreconditions:\n");
-        for(int j=0; j<xp->preconditions->used; j++) {
-            printf("\t\t%s\n", get_str_idx(xp->preconditions, j));
+        for(int j=0; j<xp->preconditions->size; j++) {
+            printf("\t\t%s\n", list_get_idx(xp->preconditions, j));
         }
 
         printf("\tPostconditions:\n");
         for(int j=0; j<xp->postconditions->size; j++) {
             struct postcondition *pc = list_get_idx(xp->postconditions, j);
-            printf("\t\t%s %s\n", pc->op, pc->fact);
+            printf("\t\t%s %s %s %s\n", pc->op, pc->fact->from, pc->fact->dir, pc->fact->to);
         }
     }
 }
 
 int main(int argc, char** argv) {
-    FILE* file;
+    FILE *file;
     if(argv[1] == 0) {
         //file = fopen("../examples/SystemV8.xp", "r");
         file = fopen("../examples/SystemV12_DIE_PIPE.xp", "r");
@@ -245,7 +258,7 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    struct list *xplist = list_new();
+    list *xplist = list_new();
 
     //yydebug = 1;
     yyin = file;
@@ -253,35 +266,52 @@ int main(int argc, char** argv) {
         yyparse(xplist);
     } while(!feof(yyin));
 
-    // Exploit Table
-    size_t bufsize = INITIALBUFSIZE;
-    char *buf = malloc(bufsize);
-    strcat(buf, "INSERT INTO exploit VALUES\n");
-    for(int i=0; i<xplist->size; i++) {
-        struct exploitpattern *xp = list_get_idx(xplist, i);
-        char *sqladd = make_exploit(xp);
-        while(bufsize < strlen(buf) + strlen(sqladd))
-            buf = realloc(buf, (bufsize*=2));
-        strcat(buf, sqladd);
-    }
-    char *last = strrchr(buf, ',');
-    *last = ';';
-    printf("%s\n", buf);
+    //print_xp_list(xplist);
 
-    // Preconditions
-    bufsize = INITIALBUFSIZE;
-    char *buf = malloc(bufsize);
+    // Exploit Table
+
+    hashtable *exploit_ids = new_hashtable(101);
+
+    // Preload buffer with SQL prelude
+    size_t bufsize = INITIALBUFSIZE;
+    char *buf = getmem(bufsize);
     strcat(buf, "INSERT INTO exploit VALUES\n");
+
+    // Iterate over each exploit in the list
+    // Generate an "exploit_instance" which contains
+    // the generated exploit id and the sql for
+    // for the exploit.
     for(int i=0; i<xplist->size; i++) {
         struct exploitpattern *xp = list_get_idx(xplist, i);
-        char *sqladd = make_exploit(xp);
-        while(bufsize < strlen(buf) + strlen(sqladd))
+        exploit_instance *ei = make_exploit(xp);
+        add_hashtable(exploit_ids, xp->name, ei->id);
+        printf("%s - %d\n", xp->name, get_hashtable(exploit_ids, xp->name));
+        while(bufsize < strlen(buf) + strlen(ei->sql))
             buf = realloc(buf, (bufsize*=2));
-        strcat(buf, sqladd);
+        strcat(buf, ei->sql);
     }
+
+    // Replace the last comma with a semicolon
     char *last = strrchr(buf, ',');
     *last = ';';
-    printf("%s\n", buf);
+    //printf("%s\n", buf);
+
+    // Preload buffer with SQL prelude
+    bufsize = INITIALBUFSIZE;
+    buf = getmem(bufsize);
+    strcat(buf, "INSERT INTO exploit_precondition VALUES\n");
+
+    // Iterate over each exploit. We then iterate
+    // over each fact in the exploit and generate
+    // the sql for it.
+    for(int i=0; i<xplist->size; i++) {
+        exploitpattern *xp = list_get_idx(xplist, i);
+        for(int j=0; j<xp->preconditions->size; j++) {
+            fact *fct = list_get_idx(xp->preconditions, j);
+            printf("%s: %d\n", fct->from, get_hashtable(exploit_ids, fct->from));
+            //char *sqladd = make_precondition(exploit_ids, xp, fct);
+        }
+    }
 }
 
 void yyerror(struct list *xplist, char const *s) {

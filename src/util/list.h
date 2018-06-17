@@ -3,17 +3,17 @@
 
 #include <stddef.h>
 
-struct list {
+typedef struct list {
     struct node *head;
     struct node *tail;
     size_t size;
-};
+} list;
 
-struct node {
+typedef struct node {
     void* data;
     struct node *prev;
     struct node *next;
-};
+} node;
 
 struct list *list_new();
 void list_add(struct list *l, void* ptr);

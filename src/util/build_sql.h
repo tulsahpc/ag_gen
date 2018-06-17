@@ -3,34 +3,53 @@
 
 #include "util/list.h"
 #include "util/str_array.h"
+#include "util/hash.h"
 
-#define GLOBAL_SIZE 4
+typedef enum FACT_T {
+    QUALITY_T,
+    TOPOLOGY_T,
+} FACT_T;
 
-struct exploitpattern {
+typedef struct exploit_instance {
+    int id;
+    char *sql;
+} exploit_instance;
+
+typedef struct exploitpattern {
     char* name;
     str_array* params;
     struct list* preconditions;
     struct list* postconditions;
-};
+} exploitpattern;
 
-struct postcondition {
-    char *op;
-    struct statement *fact;
-};
-
-struct statement {
+typedef struct statement {
     char *obj;
     char *op;
     char *val;
-};
+} statement;
+
+typedef struct fact {
+    FACT_T type;
+    char *from;
+    char *dir;
+    char *to;
+    statement* st;
+} fact;
+
+typedef struct postcondition {
+    char *op;
+    fact *fact;
+} postcondition;
 
 char *make_asset(char *as);
-char *make_quality(int assetid, struct statement *st);
+char *make_quality(int assetid, statement *st);
 char *make_topology(int fromasset, int toasset, char *dir,
-                    struct statement *st);
+                    statement *st);
 
-char *make_exploit(struct exploitpattern *xp);
-char *make_precondition(struct exploitpattern *xp);
-char *make_postcondition(struct exploitpattern *xp);
+void print_fact(fact *fct);
+
+exploit_instance *make_exploit(exploitpattern *xp);
+char *make_precondition(hashtable *exploit_ids, exploitpattern *xp, fact *fct);
+char *make_postcondition(exploitpattern *xp);
 
 #endif //_BUILD_SQL_H

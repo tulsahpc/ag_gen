@@ -47,7 +47,8 @@ char *getstr(size_t size) {
 
 char *dynstr(const char *str) {
     size_t str_len = strlen(str);
-    char *new_str = getstr(str_len);
+    char *new_str = getstr(str_len); // getstr already accounts for
+                                     // null terminator
     if (!new_str)
         return (char *)-1;
 
