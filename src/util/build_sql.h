@@ -10,6 +10,12 @@ typedef enum FACT_T {
     TOPOLOGY_T,
 } FACT_T;
 
+typedef enum ACTION_T {
+    ADD_T,
+    UPDATE_T,
+    DELETE_T,
+} ACTION_T;
+
 typedef struct exploit_instance {
     int id;
     char *sql;
@@ -50,6 +56,6 @@ void print_fact(fact *fct);
 
 exploit_instance *make_exploit(exploitpattern *xp);
 char *make_precondition(hashtable *exploit_ids, exploitpattern *xp, fact *fct);
-char *make_postcondition(exploitpattern *xp);
+char *make_postcondition(hashtable *exploit_ids, exploitpattern *xp, postcondition *pc);
 
 #endif //_BUILD_SQL_H

@@ -62,13 +62,17 @@ void add_hashtable(hashtable *t, char *key, void *val) {
 void *get_hashtable(hashtable *t, char *str) {
     uint64_t idx = hash(str) % t->size;
     hashnode *currnode = t->arr[idx];
-    //    printf("Looking up %s with size %d\n", str, t->size);
+    // printf("Looking for '%s' with size %d\n", str, t->size);
     while (currnode != NULL) {
-        // printf("%s, %s\n", currnode->key, str);
-        if (strcmp(currnode->key, str) == 0)
+        // printf("Have '%s'\n", currnode->key);
+        if (strcmp(currnode->key, str) == 0) {
+            // printf("Found\n\n");
             return currnode->val;
+        }
+        // printf("Next linked node\n");
         currnode = currnode->next;
     }
+    // printf("Not Found\n\n");
     return (void *)-1;
 }
 
@@ -90,8 +94,9 @@ void free_hashtable(hashtable *t) {
 static double get_loadfactor(hashtable *t) { return ((double)t->used / t->size); }
 
 static bool should_rehash(hashtable *t) {
-    if (get_loadfactor(t) < LOAD_FACTOR)
+    if (get_loadfactor(t) < LOAD_FACTOR) {
         return false;
+    }
     return true;
 }
 

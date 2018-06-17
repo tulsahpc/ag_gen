@@ -15,7 +15,7 @@
     #define YYDEBUG 1
 
     int yylex();
-    void yyerror(list *xplist, char const *s);
+    void yyerror(struct list *xplist, char const *s);
     extern FILE* yyin;
     extern int yylineno;
 %}
@@ -30,7 +30,7 @@
     char *string;
 }
 
-%parse-param { list *xplist }
+%parse-param { struct list *xplist }
 
 %type <arr> parameters
 %type <list> preconditions preconditionslist postconditions postconditionslist
@@ -266,15 +266,23 @@ int main(int argc, char** argv) {
         yyparse(xplist);
     } while(!feof(yyin));
 
+    FILE* fp = fopen("exploits.sql", "w");
+    if(fp == NULL) {
+        printf("Error creating file.\n");
+        exit(1);
+    }
+
     //print_xp_list(xplist);
 
-    // Exploit Table
+    /////////////////////////
+    // EXPLOITS
+    /////////////////////////
 
     hashtable *exploit_ids = new_hashtable(101);
 
     // Preload buffer with SQL prelude
     size_t bufsize = INITIALBUFSIZE;
-    char *buf = getmem(bufsize);
+    char *buf = getcmem(bufsize);
     strcat(buf, "INSERT INTO exploit VALUES\n");
 
     // Iterate over each exploit in the list
@@ -285,7 +293,7 @@ int main(int argc, char** argv) {
         struct exploitpattern *xp = list_get_idx(xplist, i);
         exploit_instance *ei = make_exploit(xp);
         add_hashtable(exploit_ids, xp->name, ei->id);
-        printf("%s - %d\n", xp->name, get_hashtable(exploit_ids, xp->name));
+        // printf("%s - %d\n", xp->name, get_hashtable(exploit_ids, xp->name));
         while(bufsize < strlen(buf) + strlen(ei->sql))
             buf = realloc(buf, (bufsize*=2));
         strcat(buf, ei->sql);
@@ -294,11 +302,15 @@ int main(int argc, char** argv) {
     // Replace the last comma with a semicolon
     char *last = strrchr(buf, ',');
     *last = ';';
-    //printf("%s\n", buf);
+    fprintf(fp, "%s\n", buf);
+
+    /////////////////////////
+    // PRECONDITIONS
+    /////////////////////////
 
     // Preload buffer with SQL prelude
     bufsize = INITIALBUFSIZE;
-    buf = getmem(bufsize);
+    buf = getcmem(bufsize);
     strcat(buf, "INSERT INTO exploit_precondition VALUES\n");
 
     // Iterate over each exploit. We then iterate
@@ -308,10 +320,46 @@ int main(int argc, char** argv) {
         exploitpattern *xp = list_get_idx(xplist, i);
         for(int j=0; j<xp->preconditions->size; j++) {
             fact *fct = list_get_idx(xp->preconditions, j);
-            printf("%s: %d\n", fct->from, get_hashtable(exploit_ids, fct->from));
-            //char *sqladd = make_precondition(exploit_ids, xp, fct);
+            // printf("%s: %d\n", fct->from, get_hashtable(exploit_ids, fct->from));
+            char *sqladd = make_precondition(exploit_ids, xp, fct);
+            while(bufsize < strlen(buf) + strlen(sqladd)) {
+                buf = realloc(buf, (bufsize*=2));
+            }
+            strcat(buf, sqladd);
         }
     }
+
+    last = strrchr(buf, ',');
+    *last = ';';
+    fprintf(fp, "%s\n", buf);
+
+    /////////////////////////
+    // POSTCONDITIONS
+    /////////////////////////
+
+    // Preload buffer with SQL prelude
+    bufsize = INITIALBUFSIZE;
+    buf = getcmem(bufsize);
+    strcat(buf, "INSERT INTO exploit_postcondition VALUES\n");
+
+    // Iterate over each exploit. We then iterate
+    // over each fact in the exploit and generate
+    // the sql for it.
+    for(int i=0; i<xplist->size; i++) {
+        exploitpattern *xp = list_get_idx(xplist, i);
+        for(int j=0; j<xp->postconditions->size; j++) {
+            postcondition *pc = list_get_idx(xp->postconditions, j);
+            char *sqladd = make_postcondition(exploit_ids, xp, pc);
+            while(bufsize < strlen(buf) + strlen(sqladd)) {
+                buf = realloc(buf, (bufsize*=2));
+            }
+            strcat(buf, sqladd);
+        }
+    }
+
+    last = strrchr(buf, ',');
+    *last = ';';
+    fprintf(fp, "%s\n", buf);
 }
 
 void yyerror(struct list *xplist, char const *s) {

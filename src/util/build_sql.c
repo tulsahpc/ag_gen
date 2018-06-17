@@ -18,7 +18,8 @@ const char *sqlAsset =
 const char *sqlQuality = "(%d, '%s', '%s', '%s'),";
 const char *sqlTopology = "(%d, %d, '%s', '%s', '%s', '%s'),";
 const char *sqlExploit = "\t(%d, '%s', %d),\n";
-const char *sqlPrecondition = "\t(%d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s')\n";
+const char *sqlPrecondition = "\t(%d, %d, %d, %d, %d, '%s', '%s', '%s', '%s'),\n";
+const char *sqlPostcondition = "\t(%d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s'),\n";
 
 char *make_asset(char *as) {
     size_t mystringlen = strlen(sqlAsset) + strlen(as);
@@ -48,25 +49,66 @@ char *make_topology(int fromasset, int toasset, char *dir,
     return mystring;
 }
 
+static int postcondition_curr_id = 0;
+char *make_postcondition(hashtable *exploit_ids, exploitpattern *xp, postcondition *pc) {
+    char *buf = malloc(1000);
+
+    int exploit_id = (int)get_hashtable(exploit_ids, xp->name);
+    hashtable *params = str_array_to_hashtable(xp->params);
+    char *action = pc->op;
+    ACTION_T action_type;
+
+    if(strcmp(action, "add") == 0)
+        action_type = ADD_T;
+    else if(strcmp(action, "update") == 0)
+        action_type = UPDATE_T;
+    else if(strcmp(action, "delete") == 0)
+        action_type = DELETE_T;
+    else {
+        printf("Unknown action '%s'. Aborting.\n", action);
+        exit(1);
+    }
+
+    if(pc->fact->type == QUALITY_T) {
+        char *obj = pc->fact->st->obj;
+        char *op = pc->fact->st->op;
+        char *val = pc->fact->st->val;
+
+        sprintf(buf, sqlPostcondition, postcondition_curr_id++, exploit_id, QUALITY_T, get_hashtable(params, pc->fact->from), NULL, obj, val, op, NULL, action);
+
+    } else {
+        char *obj = pc->fact->st->obj;
+        char *op = pc->fact->st->op;
+        char *val = pc->fact->st->val;
+        char *dir = pc->fact->dir;
+
+        sprintf(buf, sqlPostcondition, postcondition_curr_id++, exploit_id, TOPOLOGY_T, get_hashtable(params, pc->fact->from), get_hashtable(params, pc->fact->to), obj, val, op, dir, action);
+    }
+
+    return buf;
+}
+
 static int precondition_curr_id = 0;
 char *make_precondition(hashtable *exploit_ids, exploitpattern *xp, fact *fct) {
     char *buf = malloc(1000);
+
+    int exploit_id = (int)get_hashtable(exploit_ids, xp->name);
+    hashtable *params = str_array_to_hashtable(xp->params);
+
     if(fct->type == QUALITY_T) {
-        int from_id = (int)get_hashtable(exploit_ids, fct->from);
         char *obj = fct->st->obj;
         char *op = fct->st->op;
         char *val = fct->st->val;
 
-        hashtable *params = str_array_to_hashtable(xp->params);
-
-        printf("param: %s\n", fct->from);
-        printf("idx: %d\n\n", get_hashtable(exploit_ids, fct->from));
-
-        sprintf(buf, sqlPrecondition, precondition_curr_id, from_id, QUALITY_T, get_hashtable(params, fct->from), NULL, obj, val, op, NULL);
+        sprintf(buf, sqlPrecondition, precondition_curr_id++, exploit_id, QUALITY_T, get_hashtable(params, fct->from), NULL, obj, val, op, NULL);
 
     } else {
-        int from_id = (int)get_hashtable(exploit_ids, fct->from);
-        int to_id = (int)get_hashtable(exploit_ids, fct->to);
+        char *obj = fct->st->obj;
+        char *op = fct->st->op;
+        char *val = fct->st->val;
+        char *dir = fct->dir;
+
+        sprintf(buf, sqlPrecondition, precondition_curr_id++, exploit_id, TOPOLOGY_T, get_hashtable(params, fct->from), get_hashtable(params, fct->to), obj, val, op, dir);
     }
 
     return buf;
