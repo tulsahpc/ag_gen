@@ -64,7 +64,6 @@ class Connection {
     bool is_connected() { return connected; }
 
     std::vector<Row> exec(const std::string &sql) {
-
         if (!is_connected()) {
             throw DBException("Not connected to Database.");
         }

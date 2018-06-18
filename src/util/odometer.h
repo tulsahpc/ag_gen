@@ -88,7 +88,6 @@ class Odometer {
 };
 
 class Odometer_iterator {
-
     size_t index;
     Odometer od;
 

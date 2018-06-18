@@ -26,7 +26,6 @@ void checkSelect(PGconn *conn, PGresult *res) {
 }
 
 void graph_db(const char *conninfo) {
-
     PGconn *conn;
     PGresult *res;
 

@@ -28,13 +28,11 @@ Edge::Edge(int iFrom, int iTo, Exploit &ex, AssetGroup &ag)
 int Edge::get_id() { return id; }
 
 string Edge::get_query() {
-
     return to_string(from_node) + "," + to_string(to_node) + "," +
            to_string(exploit.get_id()) + ")";
 }
 
 int Edge::set_id() {
-
     id = edge_current_id++;
     return id;
 }
