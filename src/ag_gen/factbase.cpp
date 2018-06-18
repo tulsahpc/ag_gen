@@ -16,7 +16,9 @@ int Factbase::current_id = 0;
  * @details Fetches Qualities and Topologies for the Factbase.
  */
 Factbase::Factbase(std::vector<Quality> q, std::vector<Topology> t)
-    : qualities(q), topologies(t) { id = 0; }
+    : qualities(q), topologies(t) {
+    id = 0;
+}
 
 /**
  * @brief Sets the parent NetworkState.
@@ -25,33 +27,15 @@ Factbase::Factbase(std::vector<Quality> q, std::vector<Topology> t)
  */
 void Factbase::set_parent(const NetworkState &ns) { parent = &ns; }
 
-void Factbase::set_id()
-{
-
-    id = current_id++;
-
-}
+/**
+ * @brief Increments the current ID.
+ */
+void Factbase::set_id() { id = current_id++; }
 
 /**
  * @brief Returns the current Factbase ID.
  */
 int Factbase::get_id() const { return id; }
-
-/**
- * @brief Checks if the Factbase exists in the database.
- */
-// bool Factbase::exists_in_db() {
-    // return false;
-    // string sql =
-    //     "SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';";
-    // vector<Row> rows = db->exec(sql);
-    // if (!rows.empty()) {
-    //     id = stoi(rows[0][0]);
-    //     return true;
-    // } else {
-    //     return false;
-    // }
-// }
 
 /**
  * @brief Searches for a Quality in the Factbase.
@@ -94,38 +78,6 @@ void Factbase::add_quality(Quality &q) { qualities.push_back(q); }
 void Factbase::add_topology(Topology &t) { topologies.push_back(t); }
 
 /**
- * @brief Saves the Factbase to the database.
- */
-// void Factbase::save() {
-    // if (exists_in_db()) {
-    //     return;
-    // }
-
-    // vector<Row> rows =
-    //     db->exec("SELECT new_factbase('" + to_string(hash()) + "');");
-    // id = stoi(rows[0][0]);
-
-    // // XXX: There has to be a better way to do this
-    // string insert_sql = "INSERT INTO factbase_item VALUES ";
-    // insert_sql += "(" + to_string(id) + "," +
-    //               to_string(qualities[0].encode(parent->net->facts).enc) +
-    //               ",'quality')";
-    // for (int i = 1; i < qualities.size(); i++) {
-    //     insert_sql += ",(" + to_string(id) + "," +
-    //                   to_string(qualities[i].encode(parent->net->facts).enc) +
-    //                   ",'quality')";
-    // }
-    // for (auto &topologie : topologies) {
-    //     insert_sql += ",(" + to_string(id) + "," +
-    //                   to_string(topologie.encode(parent->net->facts).enc) +
-    //                   ",'topology')";
-    // }
-    // insert_sql += " ON CONFLICT DO NOTHING;";
-
-    // db->exec(insert_sql);
-// }
-
-/**
  * @brief Shamelessly copied from Boost::hash_combine
  */
 size_t combine(size_t seed) {
@@ -161,7 +113,7 @@ size_t Factbase::hash(Keyvalue &factlist) const {
  */
 void Factbase::print() const {
     cout << "ID: " << id << endl;
-//    cout << "HASH: " << hash() << endl;
+    //    cout << "HASH: " << hash() << endl;
     cout << "Qualities: " << qualities.size() << endl;
     cout << "Topologies: " << topologies.size() << endl << endl;
     for (auto &qual : qualities) {

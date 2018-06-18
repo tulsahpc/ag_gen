@@ -22,11 +22,11 @@ unsigned int base_convert_string(string data, int base) {
     for (char i : data) {
         unsigned int next_num = 0;
         if (i <= 'z' && i >= 'a') {
-            next_num = (unsigned int) i - 87;
+            next_num = (unsigned int)i - 87;
         } else if (i <= 'Z' && i >= 'A') {
-            next_num = (unsigned int) i - 55;
+            next_num = (unsigned int)i - 55;
         } else if (i <= '9' && i >= '0') {
-            next_num = (unsigned int) i - '0';
+            next_num = (unsigned int)i - '0';
         } else {
             printf("Malformed Input\n");
             exit(1);

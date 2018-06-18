@@ -15,7 +15,7 @@ string sha256(const string &str) {
 
     stringstream ss;
     for (unsigned char i : hash) {
-        ss << hex << setw(2) << setfill('0') << (int) i;
+        ss << hex << setw(2) << setfill('0') << (int)i;
     }
     ss << " " << dec << ss.str().size();
     return ss.str();

@@ -23,17 +23,11 @@ NetworkState::NetworkState(std::vector<Quality> q, std::vector<Topology> t)
  *
  * @param ns The NetworkState from which to copy
  */
-NetworkState::NetworkState(const NetworkState &ns)
-    : factbase(ns.factbase) {
+NetworkState::NetworkState(const NetworkState &ns) : factbase(ns.factbase) {
     factbase.set_parent(*this);
 }
 
-void NetworkState::set_id()
-{
-
-    factbase.set_id();
-
-}
+void NetworkState::set_id() { factbase.set_id(); }
 
 /**
  * @brief Returns the Factbase for the NetworkState
@@ -43,7 +37,9 @@ const Factbase &NetworkState::get_factbase() const { return factbase; }
 /**
  * @brief Returns the hash of the Factbase
  */
-size_t NetworkState::get_hash(Keyvalue &factlist) const { return factbase.hash(factlist); }
+size_t NetworkState::get_hash(Keyvalue &factlist) const {
+    return factbase.hash(factlist);
+}
 
 /**
  * @brief Adds all unique Quality elements of a vector to the Factbase

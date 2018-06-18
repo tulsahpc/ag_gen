@@ -9,7 +9,8 @@
 
 /** Asset class
  * @brief Fetches and saves assets
- * @details Fetches the qualities of the assets from the database and stores them in a vector.
+ * @details Fetches the qualities of the assets from the database and stores
+ * them in a vector.
  */
 class Asset {
     int id;
@@ -19,9 +20,6 @@ class Asset {
 
   public:
     Asset(int iid, int netid, std::string nname, std::vector<Quality> q);
-
-    // void fetch_qualities();
-    // static std::vector<Asset> fetch_all(const std::string &network);
 };
 
 #endif // ASSET_HPP

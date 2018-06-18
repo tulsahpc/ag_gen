@@ -32,7 +32,6 @@ class Topology {
   public:
     Topology(int f_asset, int t_asset, std::string dir, std::string property,
              std::string op, std::string val);
-    // explicit Topology(size_t fact);
 
     int get_from_asset_id() const;
     int get_to_asset_id() const;
@@ -47,10 +46,6 @@ class Topology {
 
     bool operator==(const Topology &rhs) const;
     bool operator<(const Topology &rhs) const;
-
-    // static std::vector<Topology> fetch_all();
-    // static std::vector<std::string> fetch_all_attributes();
-    // static std::vector<std::string> fetch_all_values();
 };
 
 #endif // AG_GEN_TOPOLOGY_H

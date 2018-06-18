@@ -5,8 +5,8 @@
 #ifndef AG_GEN_STR_UTIL_H
 #define AG_GEN_STR_UTIL_H
 
-#include <string.h>
 #include "util/hash.h"
+#include <string.h>
 
 #define INIT_SIZE 20
 
