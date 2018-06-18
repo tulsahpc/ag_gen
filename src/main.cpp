@@ -120,7 +120,7 @@ unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopol
         db.exec("SELECT * FROM exploit_precondition");
 
     unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> precond_map;
-    
+
     int curr_id = -1;
     vector<ParameterizedQuality> preconds_q;
     vector<ParameterizedTopology> preconds_t;
@@ -162,8 +162,7 @@ unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopol
             string op = row[7];
             string dir = row[8];
 
-            ParameterizedTopology topo(param1, param2, dir, property, op,
-                                       value);
+            ParameterizedTopology topo {param1, param2, dir, property, op, value};
             preconds_t.push_back(topo);
         }
     }
@@ -226,17 +225,16 @@ unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopol
             string op = row[7];
             string dir = row[8];
 
-            ParameterizedTopology topo(param1, param2, dir, property, op,
-                                       value);
+            ParameterizedTopology topo {param1, param2, dir, property, op, value};
             postconds_t.push_back(topo);
         }
     }
-   
+
     tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>> tup{postconds_q, postconds_t};
     postcond_map[curr_id] = tup;
 
     return postcond_map;
-    
+
 }
 
 vector<Exploit> fetch_all_exploits() {
@@ -386,7 +384,7 @@ Keyvalue fetch_facts()
 
 inline string to_query(Edge edge){ return edge.get_query(); }
 
-void save_ag_to_db(std::vector<FactbaseItems> &factbase_items, std::vector<Factbase> &factbases, 
+void save_ag_to_db(std::vector<FactbaseItems> &factbase_items, std::vector<Factbase> &factbases,
                    std::vector<Edge> &edges, Keyvalue &factlist)
 {
 
