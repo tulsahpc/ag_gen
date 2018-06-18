@@ -32,12 +32,6 @@ void print_usage() {
     cout << "\t-h\tThis help menu." << endl;
 }
 
-struct Client {
-    string Name;
-    string OS;
-    vector<string> IP;
-};
-
 /**
  * @brief       Fetches all possible quality attributes.
  *
@@ -489,7 +483,8 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    string opt_network;
+    string opt_nm;
+    string opt_xp;
 
     int opt;
     while ((opt = getopt(argc, argv, "hpn:")) != -1) {
@@ -498,7 +493,10 @@ int main(int argc, char *argv[]) {
             print_usage();
             return 0;
         case 'n':
-            opt_network = optarg;
+            opt_nm = optarg;
+            break;
+        case 'f':
+            opt_xp = optarg;
             break;
         case '?':
             if (optopt == 'c')
@@ -545,10 +543,10 @@ int main(int argc, char *argv[]) {
                dbName);
 
     AGGenInstance _instance;
-    _instance.opt_network = opt_network;
+    _instance.opt_network = opt_nm;
     _instance.initial_qualities = fetch_all_qualities();
     _instance.initial_topologies = fetch_all_topologies();
-    _instance.assets = fetch_all_assets(opt_network);
+    _instance.assets = fetch_all_assets(opt_nm);
     _instance.exploits = fetch_all_exploits();
     _instance.facts = fetch_facts();
     auto ex = fetch_all_exploits();
