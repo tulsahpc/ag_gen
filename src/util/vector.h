@@ -10,6 +10,10 @@
 
 #define VECTOR_INITIAL_CAPACITY 64
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct vector {
     size_t size;
     size_t capacity;
@@ -21,5 +25,9 @@ void *vectorGet(struct vector *vec, int idx);
 void vectorDoubleSize(struct vector *vec);
 void vectorSet(struct vector *vec, int idx, void *data);
 void vectorFree(struct vector *vec);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // AG_GEN_VECTOR_H

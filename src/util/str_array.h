@@ -10,6 +10,10 @@
 
 #define INIT_SIZE 20
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct str_array {
     char **arr;
     size_t size;
@@ -24,5 +28,9 @@ void free_str_array(str_array *arr);
 void print_str_array(str_array *arr);
 
 hashtable *str_array_to_hashtable(str_array *arr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // AG_GEN_STR_UTIL_H

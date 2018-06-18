@@ -1,5 +1,7 @@
-%debug
-%error-verbose
+//%debug
+//%error-verbose
+
+%define api.prefix nm
 
 %{
     #include <stdio.h>
@@ -10,21 +12,13 @@
     #include "util/hash.h"
     #include "util/build_sql.h"
 
-    #define YYDEBUG 1
+    #define YYDEBUG 0
 
-    struct networkmodel {
-        str_array* assets;
-
-        hashtable* asset_tab;
-        int numassets;
-
-        str_array* facts;
-    };
-
-    int yylex();
+    int nmlex();
     void yyerror(struct networkmodel* nm, char const *s);
-    extern FILE* yyin;
-    extern int yylineno;
+
+    extern FILE* nmin;
+    extern int nmlineno;
 
     extern int assetcount;
     extern int factcount;
@@ -167,6 +161,7 @@ direction:
 
 %%
 
+/*
 int main(int argc, char** argv) {
     FILE* file;
     if(argv[1] == 0) {
@@ -256,8 +251,9 @@ int main(int argc, char** argv) {
 
     free_hashtable(nm.asset_tab);
 }
+*/
 
 void yyerror(struct networkmodel* nm, char const *s) {
-    fprintf(stderr, "Line %d: %s\n", yylineno, s);
+    fprintf(stderr, "Line %d: %s\n", nmlineno, s);
     exit(-1);
 }

@@ -5,6 +5,10 @@
 #include "util/list.h"
 #include "util/str_array.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum FACT_T {
     QUALITY_T,
     TOPOLOGY_T,
@@ -15,6 +19,15 @@ typedef enum ACTION_T {
     UPDATE_T,
     DELETE_T,
 } ACTION_T;
+
+typedef struct networkmodel {
+    str_array* assets;
+
+    hashtable* asset_tab;
+    int numassets;
+
+    str_array* facts;
+} networkmodel;
 
 typedef struct exploit_instance {
     int id;
@@ -57,5 +70,9 @@ exploit_instance *make_exploit(exploitpattern *xp);
 char *make_precondition(hashtable *exploit_ids, exploitpattern *xp, fact *fct);
 char *make_postcondition(hashtable *exploit_ids, exploitpattern *xp,
                          postcondition *pc);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_BUILD_SQL_H

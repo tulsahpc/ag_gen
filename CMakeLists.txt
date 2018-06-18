@@ -37,7 +37,8 @@ find_package(PostgreSQL REQUIRED)
 find_package(OpenMP)
 
 # Only required for supplementary tools
-find_package(BISON)
+set(BISON_EXECUTABLE "/usr/local/bin/bison")
+find_package(BISON 3.0 REQUIRED)
 find_package(FLEX)
 find_package(OpenSSL)
 find_package(Boost)
@@ -68,16 +69,13 @@ include_directories("${CMAKE_SOURCE_DIR}/src/")
 file(GLOB ag_gen_src "${CMAKE_SOURCE_DIR}/src/ag_gen/*.cpp")
 file(GLOB utils_src "${CMAKE_SOURCE_DIR}/src/util/*.c" "${CMAKE_SOURCE_DIR}/src/util/*.cpp")
 
-# Main application
-add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp" ${ag_gen_src} ${utils_src})
-target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES} ${CONFIG_LIBRARIES})
-
 # Network Model Parser
 BISON_TARGET(nm_parser "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_parser.yy"
     "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.c"
     DEFINES_FILE "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.tab.h")
 FLEX_TARGET(nm_scanner "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_scanner.l"
-    "${CMAKE_CURRENT_BINARY_DIR}/nm_scanner.c")
+    "${CMAKE_CURRENT_BINARY_DIR}/nm_scanner.c"
+    COMPILE_FLAGS "-Pnm")
 ADD_FLEX_BISON_DEPENDENCY(nm_scanner nm_parser)
 
 add_executable(nm_test ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS} ${utils_src})
@@ -93,6 +91,10 @@ ADD_FLEX_BISON_DEPENDENCY(xp_scanner xp_parser)
 
 add_executable(xp_test ${FLEX_xp_scanner_OUTPUTS} ${BISON_xp_parser_OUTPUTS} ${utils_src})
 target_include_directories(xp_test PRIVATE ${CMAKE_CURRENT_BINARY_DIR} "${CMAKE_SOURCE_DIR}/src/compiler/xp-parser")
+
+# Main application
+add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp" ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS} ${ag_gen_src} ${utils_src})
+target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES} ${CONFIG_LIBRARIES})
 
 # Coding examples
 add_executable(graph_example "${CMAKE_SOURCE_DIR}/src/examples/graph_example.cpp")

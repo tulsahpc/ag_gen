@@ -1,5 +1,7 @@
-%debug
-%error-verbose
+//%debug
+//%error-verbose
+
+%define api.prefix xp
 
 %{
     #include <stdio.h>
@@ -12,7 +14,7 @@
     #include "util/build_sql.h"
     #include "util/list.h"
 
-    #define YYDEBUG 1
+    #define YYDEBUG 0
 
     int yylex();
     void yyerror(struct list *xplist, char const *s);
@@ -244,7 +246,7 @@ void print_xp_list(struct list *xplist) {
     }
 }
 
-int main(int argc, char** argv) {
+/*int main(int argc, char** argv) {
     FILE *file;
     if(argv[1] == 0) {
         //file = fopen("../examples/SystemV8.xp", "r");
@@ -360,7 +362,7 @@ int main(int argc, char** argv) {
     last = strrchr(buf, ',');
     *last = ';';
     fprintf(fp, "%s\n", buf);
-}
+} */
 
 void yyerror(struct list *xplist, char const *s) {
     fprintf(stderr, "Line %d: %s\n", yylineno, s);

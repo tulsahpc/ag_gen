@@ -6,6 +6,10 @@
 
 #define LOAD_FACTOR .75
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct hashnode {
     char *key;
     void *val;
@@ -25,5 +29,9 @@ void init_hashtable(hashtable *t, int size);
 void *get_hashtable(hashtable *t, char *key);
 void add_hashtable(hashtable *t, char *key, void *val);
 void free_hashtable(hashtable *t);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

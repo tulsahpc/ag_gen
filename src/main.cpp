@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <getopt.h>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <tuple>
 #include <stdlib.h>
@@ -17,26 +18,26 @@
 
 #include "ag_gen/ag_gen.h"
 #include "util/db_functions.h"
-
-using namespace std;
-using namespace libconfig;
+#include "util/build_sql.h"
+#include "util/db.h"
+#include "util/hash.h"
+#include "util/list.h"
+#include "util/mem.h"
 
 /**
  * @brief      Prints command line usage information.
  */
 void print_usage() {
-    cout << "Usage: ag_gen [OPTION...]" << endl << endl;
-    cout << "Flags:" << endl;
-    cout << "\t-n\tNetwork model name to generate attack graph on." << endl;
-    cout << "\t-p\tPrint information about the network specified by -n."
-         << endl;
-    cout << "\t-h\tThis help menu." << endl;
+    std::cout << "Usage: ag_gen [OPTION...]" << std::endl << std::endl;
+    std::cout << "Flags:" << std::endl;
+    std::cout << "\t-n\tNetwork model name to generate attack graph on." << std::endl;
+    std::cout << "\t-p\tPrint information about the network specified by -n."
+         << std::endl;
+    std::cout << "\t-h\tThis help menu." << std::endl;
 }
 
-void graph_ag(vector<Edge> edges, vector<Factbase> factbases)
-{
-
-    typedef boost::property<boost::edge_name_t, string> EdgeNameProperty;
+void graph_ag(std::vector<Edge> edges, std::vector<Factbase> factbases) {
+    typedef boost::property<boost::edge_name_t, std::string> EdgeNameProperty;
     typedef boost::property<boost::vertex_name_t, int> VertexNameProperty;
 
     typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
@@ -45,27 +46,21 @@ void graph_ag(vector<Edge> edges, vector<Factbase> factbases)
     Graph g;
 
     boost::property_map<Graph, boost::vertex_name_t>::type Factbase_ID = boost::get(boost::vertex_name, g);
-
     boost::property_map<Graph, boost::edge_name_t>::type Exploit_ID = boost::get(boost::edge_name, g);
 
     typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
     typedef boost::graph_traits<Graph>::edge_descriptor Edge;
 
-    unordered_map<int, Vertex> vertex_map;
+    std::unordered_map<int, Vertex> vertex_map;
 
-    for (auto fbi : factbases)
-    {
-
+    for (auto fbi : factbases) {
         Vertex v = boost::add_vertex(g);
         int fid = fbi.get_id();
         Factbase_ID[v] = fid;
         vertex_map[fid] = v;
-
     }
 
-    for (auto ei : edges)
-    {
-
+    for (auto ei : edges) {
         int from_id = ei.get_from_id();
         int to_id = ei.get_to_id();
         int eid = ei.get_exploit_id();
@@ -74,16 +69,208 @@ void graph_ag(vector<Edge> edges, vector<Factbase> factbases)
         Vertex to_v = vertex_map[to_id];
 
         Edge e = boost::add_edge(from_v, to_v, g).first;
-        Exploit_ID[e] = to_string(eid);
-
+        Exploit_ID[e] = std::to_string(eid);
     }
 
-    ofstream gout;
+    std::ofstream gout;
     gout.open("ag.circo");
     boost::write_graphviz(gout, g, boost::default_writer(), boost::make_label_writer(boost::get(boost::edge_name, g)));
     //boost::write_graphviz(gout, g);
 
 }
+
+extern "C" {
+    extern FILE *nmin;
+    extern int nmparse(networkmodel *nm);
+}
+
+int parse_nm(std::string filename) {
+    FILE *file = fopen(filename.c_str(), "r");
+
+    networkmodel nm;
+    nm.asset_tab = new_hashtable(101);
+
+    nmin = file;
+    do {
+        nmparse(&nm);
+    } while(!feof(nmin));
+
+    str_array* qualities = new_str_array();
+    str_array* topologies = new_str_array();
+
+    for(int i=0; i<nm.facts->used; i++) {
+        char* current = nm.facts->arr[i];
+        char* copy = getstr(strlen(current));
+
+        strncpy(copy, current, strlen(current));
+
+        char* type = strsep(&copy, ":");
+        if(strncmp(type, "q", 1) == 0) {
+            add_str(qualities, copy);
+        } else {
+            add_str(topologies, copy);
+        }
+    }
+
+    FILE *out = stdout;
+
+    char* assetheader = "INSERT INTO asset VALUES";
+    fprintf(out, "%s\n", assetheader);
+    for(int i=0; i<nm.assets->used-1; i++) {
+        char* nextstring = nm.assets->arr[i];
+        fprintf(out, "%s\n", nextstring);
+    }
+    char* stripped = nm.assets->arr[nm.assets->used-1];
+    stripped[strlen(stripped)-1] = '\n';
+    fprintf(out, "%s\n", stripped);
+
+    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
+
+    char* qualityheader = "\nINSERT INTO quality VALUES";
+    fprintf(out, "%s\n", qualityheader);
+    for(int i=0; i<qualities->used-1; i++) {
+        char* nextstring = qualities->arr[i];
+        fprintf(out, "%s\n", nextstring);
+    }
+    stripped = qualities->arr[qualities->used-1];
+    stripped[strlen(stripped)-1] = '\n';
+    fprintf(out, "%s\n", stripped);
+
+    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
+
+    char* topologyheader = "\nINSERT INTO topology VALUES";
+    fprintf(out, "%s\n", topologyheader);
+    for(int i=0; i<topologies->used-1; i++) {
+        char* nextstring = topologies->arr[i];
+        fprintf(out, "%s\n", nextstring);
+    }
+    stripped = topologies->arr[topologies->used-1];
+    stripped[strlen(stripped)-1] = '\n';
+    fprintf(out, "%s\n", stripped);
+
+    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
+
+    fclose(out);
+
+    free_hashtable(nm.asset_tab);
+}
+
+extern "C" {
+    extern FILE *xp;
+    extern int xpparse(list *xpplist);
+}
+
+// int parse_xp(std::string filename) {
+//     FILE *file = fopen(filename.c_str(), "r");
+
+//     if(!file) {
+//         fprintf(stderr, "Cannot open file.\n");
+//         return -1;
+//     }
+
+//     struct list *xplist = list_new();
+
+//     //yydebug = 1;
+//     yyin = file;
+//     do {
+//         xpparse(xplist);
+//     } while(!feof(yyin));
+
+//     FILE* fp = fopen("exploits.sql", "w");
+//     if(fp == NULL) {
+//         printf("Error creating file.\n");
+//         exit(1);
+//     }
+
+//     //print_xp_list(xplist);
+
+//     /////////////////////////
+//     // EXPLOITS
+//     /////////////////////////
+
+//     hashtable *exploit_ids = new_hashtable(101);
+
+//     // Preload buffer with SQL prelude
+//     size_t bufsize = INITIALBUFSIZE;
+//     char *buf = (char *)getcmem(bufsize);
+//     strcat(buf, "INSERT INTO exploit VALUES\n");
+
+//     // Iterate over each exploit in the list
+//     // Generate an "exploit_instance" which contains
+//     // the generated exploit id and the sql for
+//     // for the exploit.
+//     for(int i=0; i<xplist->size; i++) {
+//         struct exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
+//         exploit_instance *ei = make_exploit(xp);
+//         add_hashtable(exploit_ids, xp->name, (void *)ei->id);
+//         // printf("%s - %d\n", xp->name, get_hashtable(exploit_ids, xp->name));
+//         while(bufsize < strlen(buf) + strlen(ei->sql))
+//             buf = (char *)realloc(buf, (bufsize*=2));
+//         strcat(buf, ei->sql);
+//     }
+
+//     // Replace the last comma with a semicolon
+//     char *last = strrchr(buf, ',');
+//     *last = ';';
+//     fprintf(fp, "%s\n", buf);
+
+//     /////////////////////////
+//     // PRECONDITIONS
+//     /////////////////////////
+
+//     // Preload buffer with SQL prelude
+//     bufsize = INITIALBUFSIZE;
+//     buf = (char *)getcmem(bufsize);
+//     strcat(buf, "INSERT INTO exploit_precondition VALUES\n");
+
+//     // Iterate over each exploit. We then iterate
+//     // over each fact in the exploit and generate
+//     // the sql for it.
+//     for(int i=0; i<xplist->size; i++) {
+//         exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
+//         for(int j=0; j<xp->preconditions->size; j++) {
+//             fact *fct = (fact *)list_get_idx(xp->preconditions, j);
+//             // printf("%s: %d\n", fct->from, get_hashtable(exploit_ids, fct->from));
+//             char *sqladd = make_precondition(exploit_ids, xp, fct);
+//             while(bufsize < strlen(buf) + strlen(sqladd)) {
+//                 buf = (char *)realloc(buf, (bufsize*=2));
+//             }
+//             strcat(buf, sqladd);
+//         }
+//     }
+
+//     last = strrchr(buf, ',');
+//     *last = ';';
+//     fprintf(fp, "%s\n", buf);
+
+//     /////////////////////////
+//     // POSTCONDITIONS
+//     /////////////////////////
+
+//     // Preload buffer with SQL prelude
+//     bufsize = INITIALBUFSIZE;
+//     buf = (char *)getcmem(bufsize);
+//     strcat(buf, "INSERT INTO exploit_postcondition VALUES\n");
+
+//     // Iterate over each exploit. We then iterate
+//     // over each fact in the exploit and generate
+//     // the sql for it.
+//     for(int i=0; i<xplist->size; i++) {
+//         exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
+//         for(int j=0; j<xp->postconditions->size; j++) {
+//             postcondition *pc = (postcondition *)list_get_idx(xp->postconditions, j);
+//             char *sqladd = make_postcondition(exploit_ids, xp, pc);
+//             while(bufsize < strlen(buf) + strlen(sqladd)) {
+//                 buf = (char *)realloc(buf, (bufsize*=2));
+//             }
+//             strcat(buf, sqladd);
+//         }
+//     }
+
+//     last = strrchr(buf, ',');
+//     *last = ';';
+//     fprintf(fp, "%s\n", buf);
+// }
 
 // the main function executes the command according to the given flag and throws
 // and error if an unknown flag is provided. It then uses the database given in
@@ -94,8 +281,8 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    string opt_nm;
-    string opt_xp;
+    std::string opt_nm;
+    std::string opt_xp;
 
     bool should_graph = false;
 
@@ -128,26 +315,26 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    Config cfg;
+    libconfig::Config cfg;
 
     try {
         cfg.readFile("ag_gen.cfg");
-    } catch (const FileIOException &e) {
-        cerr << "Cannot read config file: ./ag_gen.cfg" << endl;
+    } catch (const libconfig::FileIOException &e) {
+        std::cerr << "Cannot read config file: ./ag_gen.cfg" << std::endl;
         exit(1);
-    } catch (const ParseException &e) {
-        cerr << "Parse error at " << e.getFile() << ":" << e.getLine() << " - "
-             << e.getError() << endl;
+    } catch (const libconfig::ParseException &e) {
+        std::cerr << "Parse error at " << e.getFile() << ":" << e.getLine() << " - "
+             << e.getError() << std::endl;
         exit(1);
     }
 
-    string new_db_string;
+    std::string new_db_string;
 
-    string host{"localhost"};
-    string port{"5432"};
-    string dbName{"ag_gen"};
-    string username{};
-    string password{};
+    std::string host{"localhost"};
+    std::string port{"5432"};
+    std::string dbName{"ag_gen"};
+    std::string username{};
+    std::string password{};
 
     cfg.lookupValue("database.host", host);
     cfg.lookupValue("database.port", port);
@@ -158,11 +345,21 @@ int main(int argc, char *argv[]) {
     init_db("postgresql://" + username + "@" + host + ":" + port + "/" +
                dbName);
 
+    // Parsing here
+    if(!opt_nm.empty()) {
+        parse_nm(opt_nm);
+    }
+
+    // if(!opt_xp.empty()) {
+    //     parse_xp(opt_xp);
+    // }
+
+
     AGGenInstance _instance;
-    _instance.opt_network = opt_nm;
+    _instance.opt_network = "home";
     _instance.initial_qualities = fetch_all_qualities();
     _instance.initial_topologies = fetch_all_topologies();
-    _instance.assets = fetch_all_assets(opt_nm);
+    _instance.assets = fetch_all_assets("home");
     _instance.exploits = fetch_all_exploits();
     _instance.facts = fetch_facts();
     auto ex = fetch_all_exploits();
