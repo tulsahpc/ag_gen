@@ -11,6 +11,9 @@ std::string ParameterizedTopology::get_property() { return prop; }
 std::string ParameterizedTopology::get_operation() { return op; }
 std::string ParameterizedTopology::get_value() { return val; }
 
+/**
+ * @brief Prints the Parametrized Topology
+ */
 void ParameterizedTopology::print() {
     cout << "From Param: " << to_string(from_param) << endl;
     cout << "To Param: " << to_string(to_param) << endl;

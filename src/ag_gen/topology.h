@@ -19,6 +19,9 @@ union EncodedTopology {
     size_t enc;
 };
 
+/** Topology class
+ * @brief Holds information for the Topology
+ */
 class Topology {
     int from_asset_id;
     int to_asset_id;

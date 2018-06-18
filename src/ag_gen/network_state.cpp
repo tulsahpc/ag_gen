@@ -9,7 +9,8 @@
  * @details Creates a Factbase for a given Network
  *          and sets this as its parent.
  *
- * @param net The Network for which to create a state
+ * @param q A vector of Qualities
+ * @param t A vector of Topologies
  */
 NetworkState::NetworkState(std::vector<Quality> q, std::vector<Topology> t)
     : factbase(Factbase(q, t)) {
@@ -27,15 +28,21 @@ NetworkState::NetworkState(const NetworkState &ns) : factbase(ns.factbase) {
     factbase.set_parent(*this);
 }
 
+/**
+ * @brief Sets the ID of the Factbase
+ */
 void NetworkState::set_id() { factbase.set_id(); }
 
 /**
- * @brief Returns the Factbase for the NetworkState
+ * @return The Factbase for the NetworkState
  */
 const Factbase &NetworkState::get_factbase() const { return factbase; }
 
 /**
  * @brief Returns the hash of the Factbase
+ *
+ * @param factlist The current Keyvalue
+ * @return The hash of the Factbase
  */
 size_t NetworkState::get_hash(Keyvalue &factlist) const {
     return factbase.hash(factlist);

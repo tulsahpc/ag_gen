@@ -16,7 +16,7 @@ using namespace std;
  * @brief Constructor for generator
  * @details Builds a generator for creating attack graphs.
  *
- * @param net_i The network to build the attack graph for
+ * @param _instance The initial information for generating the graph
  */
 AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
     frontier.emplace_back(instance.initial_qualities,

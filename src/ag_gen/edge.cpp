@@ -23,15 +23,23 @@ Edge::Edge(int iFrom, int iTo, Exploit &ex, AssetGroup &ag)
     : from_node(iFrom), to_node(iTo), exploit(ex), assetGroup(ag) {}
 
 /**
- * @brief Returns the Edge ID.
+ * @return The Edge ID
  */
 int Edge::get_id() { return id; }
 
+/**
+ * @return The Edge information as a string for SQL
+ */
 string Edge::get_query() {
     return to_string(from_node) + "," + to_string(to_node) + "," +
            to_string(exploit.get_id()) + ")";
 }
 
+/**
+ * @brief Sets the Edge id to the current id and increments edge_current_id.
+ *
+ * @return The new id
+ */
 int Edge::set_id() {
     id = edge_current_id++;
     return id;
@@ -39,6 +47,9 @@ int Edge::set_id() {
 
 int Edge::edge_current_id = 0;
 
+/**
+ * @return The Assets as a string for SQL
+ */
 string Edge::get_asset_query() {
     auto current_perm = assetGroup.get_perm();
     string sql = "";

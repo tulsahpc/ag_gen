@@ -16,7 +16,8 @@ using namespace std;
  *
  * @param iid The id of the asset to fetch
  * @param netid The id of the network to fetch from
- * @param nname The name of the asset
+ * @param nname The name of the Asset
+ * @param q The vector of qualities to associate with the Asset
  */
 Asset::Asset(int iid, int netid, std::string nname, std::vector<Quality> q)
     : id(iid), network_id(netid), name(move(nname)), qualities(q) {}

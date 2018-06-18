@@ -13,7 +13,9 @@ int Factbase::current_id = 0;
 
 /**
  * @brief Constructor for Factbase
- * @details Fetches Qualities and Topologies for the Factbase.
+ *
+ * @param q A vector of Qualities
+ * @param t A vector of Topologies
  */
 Factbase::Factbase(std::vector<Quality> q, std::vector<Topology> t)
     : qualities(q), topologies(t) {
@@ -33,7 +35,7 @@ void Factbase::set_parent(const NetworkState &ns) { parent = &ns; }
 void Factbase::set_id() { id = current_id++; }
 
 /**
- * @brief Returns the current Factbase ID.
+ * @return The current Factbase ID.
  */
 int Factbase::get_id() const { return id; }
 
@@ -88,6 +90,9 @@ size_t combine(size_t seed) {
 
 /**
  * @brief Hashes the Factbase
+ *
+ * @param factlist The current Keyvalue
+ * @return The hash of the Factbase
  */
 size_t Factbase::hash(Keyvalue &factlist) const {
     //  size_t hash = 0xf848b64e; // Random seed value

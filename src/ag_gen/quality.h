@@ -18,6 +18,9 @@ union EncodedQuality {
     size_t enc;
 };
 
+/** Quality class
+ * @brief Holds information for the Quality
+ */
 class Quality {
     int asset_id;
     std::string name;
