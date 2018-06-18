@@ -27,6 +27,27 @@ Edge::Edge(int iFrom, int iTo, Exploit &ex, AssetGroup &ag)
  */
 int Edge::get_id() { return id; }
 
+int Edge::get_from_id()
+{
+
+    return from_node;
+
+}
+
+int Edge::get_to_id()
+{
+
+    return to_node;
+
+}
+
+int Edge::get_exploit_id()
+{
+
+    return exploit.get_id();
+
+}
+
 /**
  * @return The Edge information as a string for SQL
  */

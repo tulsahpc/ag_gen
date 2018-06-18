@@ -8,7 +8,10 @@
 #include <iostream>
 #include <string>
 #include <tuple>
-#include <unordered_map>
+#include <stdlib.h>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/properties.hpp>
+#include <boost/graph/graphviz.hpp>
 
 #include <libconfig.h++>
 
@@ -30,6 +33,58 @@ void print_usage() {
     cout << "\t-h\tThis help menu." << endl;
 }
 
+void graph_ag(vector<Edge> edges, vector<Factbase> factbases)
+{
+
+    typedef boost::property<boost::edge_name_t, string> EdgeNameProperty;
+    typedef boost::property<boost::vertex_name_t, int> VertexNameProperty;
+
+    typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
+                           VertexNameProperty, EdgeNameProperty> Graph;
+
+    Graph g;
+
+    boost::property_map<Graph, boost::vertex_name_t>::type Factbase_ID = boost::get(boost::vertex_name, g);
+
+    boost::property_map<Graph, boost::edge_name_t>::type Exploit_ID = boost::get(boost::edge_name, g);
+
+    typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
+    typedef boost::graph_traits<Graph>::edge_descriptor Edge;
+
+    unordered_map<int, Vertex> vertex_map;
+
+    for (auto fbi : factbases)
+    {
+
+        Vertex v = boost::add_vertex(g);
+        int fid = fbi.get_id();
+        Factbase_ID[v] = fid;
+        vertex_map[fid] = v;
+
+    }
+
+    for (auto ei : edges)
+    {
+
+        int from_id = ei.get_from_id();
+        int to_id = ei.get_to_id();
+        int eid = ei.get_exploit_id();
+
+        Vertex from_v = vertex_map[from_id];
+        Vertex to_v = vertex_map[to_id];
+
+        Edge e = boost::add_edge(from_v, to_v, g).first;
+        Exploit_ID[e] = to_string(eid);
+
+    }
+
+    ofstream gout;
+    gout.open("ag.circo");
+    boost::write_graphviz(gout, g, boost::default_writer(), boost::make_label_writer(boost::get(boost::edge_name, g)));
+    //boost::write_graphviz(gout, g);
+
+}
+
 // the main function executes the command according to the given flag and throws
 // and error if an unknown flag is provided. It then uses the database given in
 // the "config.txt" file to generate an attack graph.
@@ -42,8 +97,10 @@ int main(int argc, char *argv[]) {
     string opt_nm;
     string opt_xp;
 
+    bool should_graph = false;
+
     int opt;
-    while ((opt = getopt(argc, argv, "hpn:")) != -1) {
+    while ((opt = getopt(argc, argv, "hpf:n:g")) != -1) {
         switch (opt) {
         case 'h':
             print_usage();
@@ -54,6 +111,9 @@ int main(int argc, char *argv[]) {
         case 'f':
             opt_xp = optarg;
             break;
+        case 'g':
+                should_graph = true;
+                break;
         case '?':
             if (optopt == 'c')
                 fprintf(stderr, "Option -%c requires an argument.\n", optopt);
@@ -116,4 +176,7 @@ int main(int argc, char *argv[]) {
     auto factlist = postinstance.facts;
 
     save_ag_to_db(factbase_items, factbases, edges, factlist);
+
+    if (should_graph)
+        graph_ag(edges, factbases);
 }
