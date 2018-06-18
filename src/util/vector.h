@@ -22,4 +22,4 @@ void vectorDoubleSize(struct vector *vec);
 void vectorSet(struct vector *vec, int idx, void *data);
 void vectorFree(struct vector *vec);
 
-#endif //AG_GEN_VECTOR_H
+#endif // AG_GEN_VECTOR_H

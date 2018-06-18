@@ -30,7 +30,8 @@ void AssetGroup::print_facts() {
 
 /**
  * @brief Prints every Asset
- * @details Prints each Asset to stdout on a single line in a comma separated list
+ * @details Prints each Asset to stdout on a single line in a comma separated
+ * list
  */
 void AssetGroup::print_group() {
     if (perm.size() == 1) {

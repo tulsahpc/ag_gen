@@ -19,7 +19,8 @@ using namespace std;
  * @param net_i The network to build the attack graph for
  */
 AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
-    frontier.emplace_back(instance.initial_qualities, instance.initial_topologies);
+    frontier.emplace_back(instance.initial_qualities,
+                          instance.initial_topologies);
 }
 
 /**
@@ -67,7 +68,8 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
 
 /**
  * @brief Generate attack graph
- * @details Begin the generation of the attack graph. The algorithm is as follows:
+ * @details Begin the generation of the attack graph. The algorithm is as
+ * follows:
  *
  *      1. Fetch next factbase to expand from the frontier
  *      2. Fetch all exploits
@@ -75,23 +77,24 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
  *          a. Fetch preconditions of the exploit
  *          b. Generate all permutations of assets using the Odometer utility
  *          c. Apply each permutation of the assets to the preconditions.
- *          d. Check if ALL generated preconditions are present in the current factbase.
- *      4a. If all preconditions are found, apply the matching asset group to the postconditions of the exploit.
- *      4b. If not all preconditions are found, break and continue checking with the next exploit.
+ *          d. Check if ALL generated preconditions are present in the current
+ * factbase. 4a. If all preconditions are found, apply the matching asset group
+ * to the postconditions of the exploit. 4b. If not all preconditions are found,
+ * break and continue checking with the next exploit.
  *      5. Push the new network state onto the frontier to be expanded later.
  */
-AGGenInstance& AGGen::generate() {
+AGGenInstance &AGGen::generate() {
 
     std::vector<Exploit> exploit_list = instance.exploits;
     auto counter = 0;
     auto start = std::chrono::system_clock::now();
 
-    //auto exploit_list = Exploit::fetch_all();
+    // auto exploit_list = Exploit::fetch_all();
     unsigned long esize = exploit_list.size();
 
     cout << "Generating Attack Graph" << endl;
     while (!frontier.empty()) {
-         cout << "Frontier Size: " << frontier.size() << endl;
+        cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
         auto current_state = frontier.front();
         frontier.pop_front();
@@ -114,9 +117,9 @@ AGGenInstance& AGGen::generate() {
             std::vector<AssetGroup> asset_groups;
 
             auto len = od.length();
-            //for (auto j = 0; j < len; j++) {
+            // for (auto j = 0; j < len; j++) {
             for (auto perm : od) {
-                //auto perm = od[j];
+                // auto perm = od[j];
 
                 vector<Quality> asset_group_quals;
                 vector<Topology> asset_group_topos;
@@ -164,7 +167,7 @@ AGGenInstance& AGGen::generate() {
                     auto new_appl_exploit = make_tuple(e, asset_group);
                     appl_exploits.push_back(new_appl_exploit);
                 }
-                LOOPCONTINUE:;
+            LOOPCONTINUE:;
             }
         }
 
@@ -199,7 +202,9 @@ AGGenInstance& AGGen::generate() {
 
             // Store nodes in global list here
 
-            FactbaseItems new_items = make_tuple(make_tuple(qualities, topologies), new_state.get_factbase().get_id());
+            FactbaseItems new_items =
+                make_tuple(make_tuple(qualities, topologies),
+                           new_state.get_factbase().get_id());
 
             instance.factbase_items.push_back(new_items);
 

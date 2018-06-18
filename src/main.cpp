@@ -3,12 +3,12 @@
 //! attack graph.
 //!
 
+#include <algorithm>
 #include <getopt.h>
 #include <iostream>
 #include <string>
-#include <unordered_map>
 #include <tuple>
-#include <algorithm>
+#include <unordered_map>
 
 #include <libconfig.h++>
 
@@ -18,11 +18,11 @@
 using namespace std;
 using namespace libconfig;
 
-//std::shared_ptr<DB> db;
 DB db;
 
-// print_usage prints to stdout the help menu that corresponds to the ag_gen
-// command
+/**
+ * @brief      Prints command line usage information.
+ */
 void print_usage() {
     cout << "Usage: ag_gen [OPTION...]" << endl << endl;
     cout << "Flags:" << endl;
@@ -38,9 +38,12 @@ struct Client {
     vector<string> IP;
 };
 
-vector<string> fetch_quality_attributes()
-{
-
+/**
+ * @brief       Fetches all possible quality attributes.
+ *
+ * @return     Returns a vector of strings with all possible quality attributes.
+ */
+vector<string> fetch_quality_attributes() {
     vector<string> attrs;
     vector<Row> qrows = db.exec("SELECT DISTINCT property FROM quality;");
     vector<Row> erows =
@@ -57,12 +60,14 @@ vector<string> fetch_quality_attributes()
     }
 
     return attrs;
-
 }
 
-vector<string> fetch_quality_values()
-{
-
+/**
+ * @brief      Fetches all possible quality values.
+ *
+ * @return     Returns
+ */
+vector<string> fetch_quality_values() {
     vector<string> vals;
     vector<Row> qrows = db.exec("SELECT DISTINCT value FROM quality;");
     vector<Row> erows =
@@ -79,12 +84,9 @@ vector<string> fetch_quality_values()
     }
 
     return vals;
-
 }
 
-vector<string> fetch_topology_attributes()
-{
-
+vector<string> fetch_topology_attributes() {
     vector<string> attrs;
     vector<Row> rows = db.exec("SELECT DISTINCT property FROM topology;");
 
@@ -94,12 +96,14 @@ vector<string> fetch_topology_attributes()
     }
 
     return attrs;
-
 }
 
-vector<string> fetch_topology_values()
-{
-
+/**
+ * @brief      Fetches all possible topology values.
+ *
+ * @return     Returns a vector of strings with all possible topology values
+ */
+vector<string> fetch_topology_values() {
     vector<string> vals;
     vector<Row> rows = db.exec("SELECT DISTINCT value FROM topology;");
 
@@ -109,17 +113,19 @@ vector<string> fetch_topology_values()
     }
 
     return vals;
-
 }
 
 /**
  * @brief Fetches the preconditions of an Exploit from the database.
  */
-unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> fetch_exploit_preconds() {
-    vector<Row> rows =
-        db.exec("SELECT * FROM exploit_precondition");
+unordered_map<
+    int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>>
+fetch_exploit_preconds() {
+    vector<Row> rows = db.exec("SELECT * FROM exploit_precondition");
 
-    unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> precond_map;
+    unordered_map<
+        int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>>
+        precond_map;
 
     int curr_id = -1;
     vector<ParameterizedQuality> preconds_q;
@@ -127,24 +133,19 @@ unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopol
     for (auto &row : rows) {
         int type = stoi(row[2]);
         int exploit_id = stoi(row[1]);
-        // cout << "ID: " << exploit_id << endl;
-        if (exploit_id != curr_id)
-        {
 
-            if (curr_id != -1)
-            {
-                tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>> tup{preconds_q, preconds_t};
+        if (exploit_id != curr_id) {
+            if (curr_id != -1) {
+                tuple<vector<ParameterizedQuality>,
+                      vector<ParameterizedTopology>>
+                    tup{preconds_q, preconds_t};
                 precond_map[curr_id] = tup;
 
                 preconds_q.clear();
                 preconds_t.clear();
-                // vector<ParameterizedQuality> preconds_q;
-                // vector<ParameterizedTopology> preconds_t;
-
             }
 
             curr_id = exploit_id;
-
         }
 
         if (type == 0) {
@@ -162,12 +163,14 @@ unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopol
             string op = row[7];
             string dir = row[8];
 
-            ParameterizedTopology topo {param1, param2, dir, property, op, value};
+            ParameterizedTopology topo{param1,   param2, dir,
+                                       property, op,     value};
             preconds_t.push_back(topo);
         }
     }
 
-    tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>> tup{preconds_q, preconds_t};
+    tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>> tup{
+        preconds_q, preconds_t};
     precond_map[curr_id] = tup;
 
     return precond_map;
@@ -176,12 +179,14 @@ unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopol
 /**
  * @brief Fetches the postconditions of an Exploit from the database.
  */
-unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> fetch_exploit_postconds() {
-    vector<Row> rows =
-        db.exec("SELECT * FROM exploit_postcondition");
+unordered_map<
+    int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>>
+fetch_exploit_postconds() {
+    vector<Row> rows = db.exec("SELECT * FROM exploit_postcondition");
 
-    // cout << "LENGTH: " << rows.size() << endl;
-    unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>> postcond_map;
+    unordered_map<
+        int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>>
+        postcond_map;
 
     int curr_id = -1;
     vector<ParameterizedQuality> postconds_q;
@@ -190,24 +195,18 @@ unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopol
         int type = stoi(row[2]);
         int exploit_id = stoi(row[1]);
 
-        if (exploit_id != curr_id)
-        {
-
-            if (curr_id != -1)
-            {
-
-                tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>> tup{postconds_q, postconds_t};
+        if (exploit_id != curr_id) {
+            if (curr_id != -1) {
+                tuple<vector<ParameterizedQuality>,
+                      vector<ParameterizedTopology>>
+                    tup{postconds_q, postconds_t};
                 postcond_map[curr_id] = tup;
 
                 postconds_q.clear();
                 postconds_t.clear();
-                // vector<ParameterizedQuality> postconds_q;
-                // vector<ParameterizedTopology> postconds_t;
-
             }
 
             curr_id = exploit_id;
-
         }
 
         if (type == 0) {
@@ -225,16 +224,17 @@ unordered_map<int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopol
             string op = row[7];
             string dir = row[8];
 
-            ParameterizedTopology topo {param1, param2, dir, property, op, value};
+            ParameterizedTopology topo{param1,   param2, dir,
+                                       property, op,     value};
             postconds_t.push_back(topo);
         }
     }
 
-    tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>> tup{postconds_q, postconds_t};
+    tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>> tup{
+        postconds_q, postconds_t};
     postcond_map[curr_id] = tup;
 
     return postcond_map;
-
 }
 
 vector<Exploit> fetch_all_exploits() {
@@ -278,19 +278,13 @@ unordered_map<int, vector<Quality>> fetch_asset_qualities() {
         string value = row[3];
         // cout << "op: " << op << endl;
 
-        if (asset_id != curr_id)
-        {
-
-            if (curr_id != -1)
-            {
-
+        if (asset_id != curr_id) {
+            if (curr_id != -1) {
                 qmap[curr_id] = qualities;
                 qualities.clear();
-
             }
 
             curr_id = asset_id;
-
         }
         // Quality qual(asset_id, property, "=", value);
         // qualities.push_back(qual);
@@ -312,8 +306,8 @@ unordered_map<int, vector<Quality>> fetch_asset_qualities() {
  */
 vector<Asset> fetch_all_assets(const string &network) {
     vector<Row> rows = db.exec("SELECT * FROM asset WHERE network_id = "
-                                "(SELECT id FROM network WHERE name = '" +
-                                network + "');");
+                               "(SELECT id FROM network WHERE name = '" +
+                               network + "');");
     vector<Asset> new_assets;
 
     auto qmap = fetch_asset_qualities();
@@ -368,9 +362,7 @@ vector<Topology> fetch_all_topologies() {
     return topologies;
 }
 
-Keyvalue fetch_facts()
-{
-
+Keyvalue fetch_facts() {
     Keyvalue initfacts;
 
     initfacts.populate(fetch_quality_attributes());
@@ -379,42 +371,36 @@ Keyvalue fetch_facts()
     initfacts.populate(fetch_topology_values());
 
     return initfacts;
-
 }
 
-inline string to_query(Edge edge){ return edge.get_query(); }
+inline string to_query(Edge edge) { return edge.get_query(); }
 
-void save_ag_to_db(std::vector<FactbaseItems> &factbase_items, std::vector<Factbase> &factbases,
-                   std::vector<Edge> &edges, Keyvalue &factlist)
-{
-
+void save_ag_to_db(std::vector<FactbaseItems> &factbase_items,
+                   std::vector<Factbase> &factbases, std::vector<Edge> &edges,
+                   Keyvalue &factlist) {
     string factbase_sql_query = "INSERT INTO factbase VALUES ";
 
-    for (int i = 0; i < factbases.size(); ++i)
-    {
-
-        if (i == 0)
-            factbase_sql_query += "(" + to_string(factbases[i].get_id()) + ",'" + to_string(factbases[i].hash(factlist)) + "')";
-
-        else
-            factbase_sql_query += ",(" + to_string(factbases[i].get_id()) + ",'" + to_string(factbases[i].hash(factlist)) + "')";
-
+    for (int i = 0; i < factbases.size(); ++i) {
+        if (i == 0) {
+            factbase_sql_query += "(" + to_string(factbases[i].get_id()) +
+                                  ",'" +
+                                  to_string(factbases[i].hash(factlist)) + "')";
+        } else {
+            factbase_sql_query += ",(" + to_string(factbases[i].get_id()) +
+                                  ",'" +
+                                  to_string(factbases[i].hash(factlist)) + "')";
+        }
     }
 
     factbase_sql_query += " ON CONFLICT DO NOTHING;";
 
-    // cout << factbase_sql_query << endl;
-
     db.exec(factbase_sql_query);
 
     string item_sql_query = "INSERT INTO factbase_item VALUES ";
-
     string quality_sql_query = "";
     string topology_sql_query = "";
 
-    for (int j = 0; j < factbase_items.size(); ++j)
-    {
-
+    for (int j = 0; j < factbase_items.size(); ++j) {
         auto fbi = factbase_items[j];
 
         int id = get<1>(fbi);
@@ -423,32 +409,34 @@ void save_ag_to_db(std::vector<FactbaseItems> &factbase_items, std::vector<Factb
         auto quals = get<0>(items);
         auto topo = get<1>(items);
 
-        for (auto qi : quals)
-        {
-
+        for (auto qi : quals) {
             if (j == 0)
-                quality_sql_query += "(" + to_string(id) + "," + to_string(qi.encode(factlist).enc) + ",'quality')";
+                quality_sql_query += "(" + to_string(id) + "," +
+                                     to_string(qi.encode(factlist).enc) +
+                                     ",'quality')";
 
             else
-                quality_sql_query += ",(" + to_string(id) + "," + to_string(qi.encode(factlist).enc) + ",'quality')";
-
+                quality_sql_query += ",(" + to_string(id) + "," +
+                                     to_string(qi.encode(factlist).enc) +
+                                     ",'quality')";
         }
 
-        for (auto ti : topo)
-        {
-
+        for (auto ti : topo) {
             if (j == 0)
-                topology_sql_query += "(" + to_string(id) + "," + to_string(ti.encode(factlist).enc) + ",'topology')";
+                topology_sql_query += "(" + to_string(id) + "," +
+                                      to_string(ti.encode(factlist).enc) +
+                                      ",'topology')";
 
             else
-                topology_sql_query += ",(" + to_string(id) + "," + to_string(ti.encode(factlist).enc) + ",'topology')";
-
+                topology_sql_query += ",(" + to_string(id) + "," +
+                                      to_string(ti.encode(factlist).enc) +
+                                      ",'topology')";
         }
-
     }
 
     if (topology_sql_query != "")
-        item_sql_query += quality_sql_query + "," + topology_sql_query + " ON CONFLICT DO NOTHING;";
+        item_sql_query += quality_sql_query + "," + topology_sql_query +
+                          " ON CONFLICT DO NOTHING;";
     else
         item_sql_query += quality_sql_query + " ON CONFLICT DO NOTHING;";
 
@@ -469,37 +457,27 @@ void save_ag_to_db(std::vector<FactbaseItems> &factbase_items, std::vector<Factb
         eq.insert({*ei, i});
 
     int ii = 0;
-    for (auto ei : eq)
-    {
-
+    for (auto ei : eq) {
         int i = ei.second;
 
         int eid = edges[i].set_id();
 
-        if (ii == 0)
-        {
+        if (ii == 0) {
             edge_sql_query += "(" + to_string(eid) + "," + ei.first;
             edge_assets_sql_query += edges[i].get_asset_query();
-        }
-        else
-        {
+        } else {
             edge_sql_query += ",(" + to_string(eid) + "," + ei.first;
             edge_assets_sql_query += "," + edges[i].get_asset_query();
         }
 
         ++ii;
-
     }
 
     edge_sql_query += " ON CONFLICT DO NOTHING;";
     edge_assets_sql_query += " ON CONFLICT DO NOTHING;";
 
-    // cout << edge_sql_query << endl << endl;
-    // cout << edge_assets_sql_query << endl << endl;
-
     db.exec(edge_sql_query);
     db.exec(edge_assets_sql_query);
-
 }
 
 // the main function executes the command according to the given flag and throws
@@ -516,24 +494,23 @@ int main(int argc, char *argv[]) {
     int opt;
     while ((opt = getopt(argc, argv, "hpn:")) != -1) {
         switch (opt) {
-            case 'h':
-                print_usage();
-                return 0;
-            case 'n':
-                opt_network = optarg;
-                break;
-            case '?':
-                if (optopt == 'c')
-                    fprintf(stderr, "Option -%c requires an argument.\n",
-                            optopt);
-                exit(EXIT_FAILURE);
-            case ':':
-                fprintf(stderr, "wtf\n");
-                exit(EXIT_FAILURE);
-            default:
-                fprintf(stderr, "Unknown option -%c.\n", optopt);
-                print_usage();
-                exit(EXIT_FAILURE);
+        case 'h':
+            print_usage();
+            return 0;
+        case 'n':
+            opt_network = optarg;
+            break;
+        case '?':
+            if (optopt == 'c')
+                fprintf(stderr, "Option -%c requires an argument.\n", optopt);
+            exit(EXIT_FAILURE);
+        case ':':
+            fprintf(stderr, "wtf\n");
+            exit(EXIT_FAILURE);
+        default:
+            fprintf(stderr, "Unknown option -%c.\n", optopt);
+            print_usage();
+            exit(EXIT_FAILURE);
         }
     }
 
@@ -541,22 +518,22 @@ int main(int argc, char *argv[]) {
 
     try {
         cfg.readFile("ag_gen.cfg");
-    } catch(const FileIOException &e) {
+    } catch (const FileIOException &e) {
         cerr << "Cannot read config file: ./ag_gen.cfg" << endl;
         exit(1);
-    } catch(const ParseException &e) {
-        cerr << "Parse error at " << e.getFile() << ":" << e.getLine()
-             << " - " << e.getError() << endl;
+    } catch (const ParseException &e) {
+        cerr << "Parse error at " << e.getFile() << ":" << e.getLine() << " - "
+             << e.getError() << endl;
         exit(1);
     }
 
     string new_db_string;
 
-    string host {"localhost"};
-    string port {"5432"};
-    string dbName {"ag_gen"};
-    string username {};
-    string password {};
+    string host{"localhost"};
+    string port{"5432"};
+    string dbName{"ag_gen"};
+    string username{};
+    string password{};
 
     cfg.lookupValue("database.host", host);
     cfg.lookupValue("database.port", port);
@@ -564,85 +541,19 @@ int main(int argc, char *argv[]) {
     cfg.lookupValue("database.username", username);
     cfg.lookupValue("database.password", password);
 
-    // db = make_shared<DB>("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
-    db.connect("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
-    // db = DB {"postgresql://" + username + "@" + host + ":" + port + "/" + dbName};
-
-    //db.connect("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
-
-    /*
-    auto a = fetch_asset_qualities();
-
-    for (auto ai : a)
-    {
-
-        cout << "Asset ID: " << ai.first << endl;
-        for (auto aiq : ai.second)
-        {
-
-            aiq.print();
-
-        }
-
-    }
-    */
+    db.connect("postgresql://" + username + "@" + host + ":" + port + "/" +
+               dbName);
 
     AGGenInstance _instance;
-
     _instance.opt_network = opt_network;
     _instance.initial_qualities = fetch_all_qualities();
     _instance.initial_topologies = fetch_all_topologies();
     _instance.assets = fetch_all_assets(opt_network);
     _instance.exploits = fetch_all_exploits();
     _instance.facts = fetch_facts();
-
-    // Network net{opt_network, fetch_all_qualities(), fetch_all_topologies(), fetch_all_assets(opt_network), fetch_facts()};
-
-    /*
-    auto m = fetch_exploit_preconds();
-
-    cout << endl << endl << "Preconds" << endl;
-    for (auto mi : m)
-    {
-
-        cout << "exploit_id: " << mi.first << endl;
-        cout << "Qualities" << endl;
-        vector<ParameterizedQuality> mq = get<0>(mi.second);
-        for (auto mqi : mq)
-            mqi.print();
-
-        cout << "Topologies" << endl;
-        vector<ParameterizedTopology> mt = get<1>(mi.second);
-        for (auto mti : mt)
-            mti.print();
-
-    }
-
-    auto m2 = fetch_exploit_postconds();
-
-    cout << endl << endl << "Postconds" << endl;
-    for (auto mi : m2)
-    {
-
-        cout << "exploit_id: " << mi.first << endl;
-        cout << "Qualities" << endl;
-        vector<ParameterizedQuality> mq = get<0>(mi.second);
-        for (auto mqi : mq)
-            mqi.print();
-
-        cout << "Topologies" << endl;
-        vector<ParameterizedTopology> mt = get<1>(mi.second);
-        for (auto mti : mt)
-            mti.print();
-
-    }*/
-
-    //Network net{fetch_all_assets(opt_network), fetch_facts()};
     auto ex = fetch_all_exploits();
-    AGGen gen(_instance);
-    //AGGenInstance preinst = build_pre_instance(opt_network);
-    //AGGen gen{preinst};
 
+    AGGen gen(_instance);
     AGGenInstance postinstance = gen.generate();
 
     auto factbase_items = postinstance.factbase_items;
@@ -651,6 +562,4 @@ int main(int argc, char *argv[]) {
     auto factlist = postinstance.facts;
 
     save_ag_to_db(factbase_items, factbases, edges, factlist);
-
-
 }

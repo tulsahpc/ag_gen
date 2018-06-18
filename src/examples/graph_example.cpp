@@ -4,8 +4,7 @@
 struct Ve {
     std::string name;
 };
-struct Ed {
-};
+struct Ed {};
 
 int main() {
 

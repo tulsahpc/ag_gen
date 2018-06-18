@@ -97,13 +97,11 @@ class Connection {
 class DB {
     Connection conn;
 
-public:
+  public:
     DB() {}
     // DB(const std::string &conninfo) : conn(conninfo) {};
-    
-    void connect(const std::string &conninfo) {
-        conn.connect(conninfo);
-    }
+
+    void connect(const std::string &conninfo) { conn.connect(conninfo); }
 
     std::vector<Row> exec(const std::string &sql) {
         try {

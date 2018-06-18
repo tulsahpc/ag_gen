@@ -13,8 +13,8 @@
 /** AssetGroup class
  * @brief Holds information about multiple Assets
  * @details Holds the hypothetical qualities and topologies of
- *          multiple Assets as well as a vector of the number IDs of the Assets. 
- *          It also implements a print method for the qualities and topologies 
+ *          multiple Assets as well as a vector of the number IDs of the Assets.
+ *          It also implements a print method for the qualities and topologies
  *          and for the Assets.
  */
 class AssetGroup {
