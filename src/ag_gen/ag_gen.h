@@ -13,22 +13,38 @@
 #include "edge.h"
 #include "exploit.h"
 #include "factbase.h"
-#include "network.h"
 #include "network_state.h"
 
 #include "util/keyvalue.h"
+
+using FactbaseItems = std::tuple<std::tuple<std::vector<Quality>, std::vector<Topology>>, int>;
+
+struct AGGenInstance
+{
+
+	std::string opt_network;
+	std::vector<Asset> assets;
+	std::vector<Factbase> factbases;
+	std::vector<Quality> initial_qualities;
+	std::vector<Topology> initial_topologies;
+	std::vector<FactbaseItems> factbase_items;
+	std::vector<Exploit> exploits;
+	std::vector<Edge> edges;
+	Keyvalue facts;
+
+};
 
 /** AGGen class
  * @brief Generate attack graph
  * @details Main generator class that stores state for the entire graph generation process.
  */
 class AGGen {
-    Network &net; //!< Network we are generating from
+	AGGenInstance instance;
     std::deque<NetworkState> frontier; //!< Unexplored states
     std::set<size_t> hash_list{}; //!< List of hashes of known states
   public:
-    explicit AGGen(Network &net_i);
-    void generate();
+    explicit AGGen(AGGenInstance &_instance);
+    AGGenInstance& generate();
 };
 
 #endif // AG_GEN_HPP

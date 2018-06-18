@@ -20,7 +20,7 @@
 #include <libpq-fe.h>
 
 class DB;
-extern std::shared_ptr<DB> db;
+// extern std::shared_ptr<DB> db;
 typedef std::vector<std::string> Row;
 
 class DBException : public std::runtime_error {
@@ -34,11 +34,16 @@ class DBException : public std::runtime_error {
 class Connection {
     bool connected = false;
 
+    std::string ci;
+
     PGconn *conn_r;
 
   public:
-    Connection(const std::string &conninfo) {
+    Connection() {}
+
+    void connect(const std::string &conninfo) {
         // Create database connection
+        ci = conninfo;
         conn_r = PQconnectdb(conninfo.c_str());
         if (PQstatus(conn_r) != CONNECTION_OK) {
             std::string errormsg(PQerrorMessage(conn_r));
@@ -59,6 +64,7 @@ class Connection {
     bool is_connected() { return connected; }
 
     std::vector<Row> exec(const std::string &sql) {
+
         if (!is_connected()) {
             throw DBException("Not connected to Database.");
         }
@@ -92,10 +98,11 @@ class DB {
     Connection conn;
 
 public:
-    DB(const std::string &conninfo) : conn(conninfo) {}
-
+    DB() {}
+    // DB(const std::string &conninfo) : conn(conninfo) {};
+    
     void connect(const std::string &conninfo) {
-        conn = Connection {conninfo};
+        conn.connect(conninfo);
     }
 
     std::vector<Row> exec(const std::string &sql) {

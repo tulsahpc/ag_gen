@@ -18,8 +18,8 @@ using namespace std;
  *
  * @param net_i The network to build the attack graph for
  */
-AGGen::AGGen(Network &net_i) : net(net_i) {
-    frontier.emplace_back(net.get_initial_state());
+AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
+    frontier.emplace_back(instance.initial_qualities, instance.initial_topologies);
 }
 
 /**
@@ -80,11 +80,13 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
  *      4b. If not all preconditions are found, break and continue checking with the next exploit.
  *      5. Push the new network state onto the frontier to be expanded later.
  */
-void AGGen::generate() {
+AGGenInstance& AGGen::generate() {
+
+    std::vector<Exploit> exploit_list = instance.exploits;
     auto counter = 0;
     auto start = std::chrono::system_clock::now();
 
-    auto exploit_list = Exploit::fetch_all();
+    //auto exploit_list = Exploit::fetch_all();
     unsigned long esize = exploit_list.size();
 
     cout << "Generating Attack Graph" << endl;
@@ -108,7 +110,7 @@ void AGGen::generate() {
             auto preconds_q = e.precond_list_q();
             auto preconds_t = e.precond_list_t();
 
-            Odometer od(num_params, net.size());
+            Odometer od(num_params, instance.facts.size());
             std::vector<AssetGroup> asset_groups;
 
             auto len = od.length();
@@ -197,7 +199,11 @@ void AGGen::generate() {
 
             // Store nodes in global list here
 
-            auto res = hash_list.find(new_state.get_hash());
+            FactbaseItems new_items = make_tuple(make_tuple(qualities, topologies), new_state.get_factbase().get_id());
+
+            instance.factbase_items.push_back(new_items);
+
+            auto res = hash_list.find(new_state.get_hash(instance.facts));
 
             //    If the factbase does not already exist, increment our
             //    number of new states and save the factbase to the
@@ -209,10 +215,15 @@ void AGGen::generate() {
                 // exploit, assetGroup);
                 continue;
             } else {
-                hash_list.insert(new_state.get_hash());
+                new_state.set_id();
+                instance.factbases.push_back(new_state.get_factbase());
+                hash_list.insert(new_state.get_hash(instance.facts));
                 frontier.emplace_front(new_state);
                 counter++;
             }
+            instance.edges.emplace_back(current_state.get_factbase().get_id(),
+                                        new_state.get_factbase().get_id(),
+                                        exploit, assetGroup);
         }
     }
 
@@ -226,4 +237,6 @@ void AGGen::generate() {
 
     cout << "total number of generated states: " << counter << endl;
     cout << "states in hash_list: " << hash_list.size() << endl;
+
+    return instance;
 }

@@ -18,9 +18,9 @@ using namespace std;
  * @param netid The id of the network to fetch from
  * @param nname The name of the asset
  */
-Asset::Asset(int iid, int netid, std::string nname)
-    : id(iid), network_id(netid), name(move(nname)) {
-    fetch_qualities();
+Asset::Asset(int iid, int netid, std::string nname, std::vector<Quality> q)
+    : id(iid), network_id(netid), name(move(nname)), qualities(q) {
+    // fetch_qualities();
 }
 
 /**
@@ -28,6 +28,7 @@ Asset::Asset(int iid, int netid, std::string nname)
  * @details Grabs all of the qualities in the database associated with
  *          the Asset's ID and gives them to the Asset
  */
+/*
 void Asset::fetch_qualities() {
     vector<Row> rows = db->exec("SELECT * FROM quality WHERE asset_id = '" +
                                 to_string(id) + "';");
@@ -42,15 +43,16 @@ void Asset::fetch_qualities() {
 
         qualities.emplace_back(asset_id, property, "=", value);
     }
-}
+}*/
 
 /**
  * @brief Gets all of the Assets under the network
  * @details Grabs all of the Assets in the database under the network given in
- *    	    the argument and returns a vector of those Assets
+ *          the argument and returns a vector of those Assets
  *
  * @param network Name of the network to grab from
  */
+/*
 vector<Asset> Asset::fetch_all(const string &network) {
     vector<Row> rows = db->exec("SELECT * FROM asset WHERE network_id = "
                                 "(SELECT id FROM network WHERE name = '" +
@@ -68,3 +70,4 @@ vector<Asset> Asset::fetch_all(const string &network) {
 
     return new_assets;
 }
+*/

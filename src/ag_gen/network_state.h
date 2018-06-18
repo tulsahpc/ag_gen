@@ -21,17 +21,17 @@ class Network;
  *          for the addition of Qualities and Topologies to the Factbase.
  */
 class NetworkState {
-    Network *net;
     Factbase factbase;
     friend class Factbase;
 
   public:
-    NetworkState(Network &net);
+    NetworkState(std::vector<Quality> q, std::vector<Topology> t);
     NetworkState(const NetworkState &ns);
 
     const Factbase &get_factbase() const;
-    size_t get_hash() const;
+    size_t get_hash(Keyvalue &factlist) const;
 
+    void set_id();
     void add_qualities(std::vector<Quality> q);
     void add_topologies(std::vector<Topology> t);
 };

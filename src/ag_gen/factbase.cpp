@@ -9,12 +9,14 @@
 
 using namespace std;
 
+int Factbase::current_id = 0;
+
 /**
  * @brief Constructor for Factbase
  * @details Fetches Qualities and Topologies for the Factbase.
  */
-Factbase::Factbase()
-    : qualities(Quality::fetch_all()), topologies(Topology::fetch_all()) {}
+Factbase::Factbase(std::vector<Quality> q, std::vector<Topology> t)
+    : qualities(q), topologies(t) { id = 0; }
 
 /**
  * @brief Sets the parent NetworkState.
@@ -22,6 +24,13 @@ Factbase::Factbase()
  * @param ns New parent NetworkState
  */
 void Factbase::set_parent(const NetworkState &ns) { parent = &ns; }
+
+void Factbase::set_id()
+{
+
+    id = current_id++;
+
+}
 
 /**
  * @brief Returns the current Factbase ID.
@@ -31,17 +40,18 @@ int Factbase::get_id() const { return id; }
 /**
  * @brief Checks if the Factbase exists in the database.
  */
-bool Factbase::exists_in_db() {
-    string sql =
-        "SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';";
-    vector<Row> rows = db->exec(sql);
-    if (!rows.empty()) {
-        id = stoi(rows[0][0]);
-        return true;
-    } else {
-        return false;
-    }
-}
+// bool Factbase::exists_in_db() {
+    // return false;
+    // string sql =
+    //     "SELECT 1 FROM factbase WHERE hash = '" + to_string(hash()) + "';";
+    // vector<Row> rows = db->exec(sql);
+    // if (!rows.empty()) {
+    //     id = stoi(rows[0][0]);
+    //     return true;
+    // } else {
+    //     return false;
+    // }
+// }
 
 /**
  * @brief Searches for a Quality in the Factbase.
@@ -86,35 +96,34 @@ void Factbase::add_topology(Topology &t) { topologies.push_back(t); }
 /**
  * @brief Saves the Factbase to the database.
  */
-void Factbase::save() {
-    if (exists_in_db()) {
-        return;
-    }
+// void Factbase::save() {
+    // if (exists_in_db()) {
+    //     return;
+    // }
 
-    vector<Row> rows =
-        db->exec("SELECT new_factbase('" + to_string(hash()) + "');");
-    id = stoi(rows[0][0]);
+    // vector<Row> rows =
+    //     db->exec("SELECT new_factbase('" + to_string(hash()) + "');");
+    // id = stoi(rows[0][0]);
 
-    // XXX: There has to be a better way to do this
-    string insert_sql = "INSERT INTO factbase_item VALUES ";
-    insert_sql += "(" + to_string(id) + "," +
-                  to_string(qualities[0].encode(parent->net->facts).enc) +
-                  ",'quality')";
-    for (int i = 1; i < qualities.size(); i++) {
-        insert_sql += ",(" + to_string(id) + "," +
-                      to_string(qualities[i].encode(parent->net->facts).enc) +
-                      ",'quality')";
-    }
+    // // XXX: There has to be a better way to do this
+    // string insert_sql = "INSERT INTO factbase_item VALUES ";
+    // insert_sql += "(" + to_string(id) + "," +
+    //               to_string(qualities[0].encode(parent->net->facts).enc) +
+    //               ",'quality')";
+    // for (int i = 1; i < qualities.size(); i++) {
+    //     insert_sql += ",(" + to_string(id) + "," +
+    //                   to_string(qualities[i].encode(parent->net->facts).enc) +
+    //                   ",'quality')";
+    // }
+    // for (auto &topologie : topologies) {
+    //     insert_sql += ",(" + to_string(id) + "," +
+    //                   to_string(topologie.encode(parent->net->facts).enc) +
+    //                   ",'topology')";
+    // }
+    // insert_sql += " ON CONFLICT DO NOTHING;";
 
-    for (auto &topologie : topologies) {
-        insert_sql += ",(" + to_string(id) + "," +
-                      to_string(topologie.encode(parent->net->facts).enc) +
-                      ",'topology')";
-    }
-    insert_sql += " ON CONFLICT DO NOTHING;";
-
-    db->exec(insert_sql);
-}
+    // db->exec(insert_sql);
+// }
 
 /**
  * @brief Shamelessly copied from Boost::hash_combine
@@ -128,20 +137,20 @@ size_t combine(size_t seed) {
 /**
  * @brief Hashes the Factbase
  */
-size_t Factbase::hash() const {
+size_t Factbase::hash(Keyvalue &factlist) const {
     //  size_t hash = 0xf848b64e; // Random seed value
     size_t hash = 0x0c32a12fe19d2119;
 
     unsigned long qualities_length = qualities.size();
     for (int i = 0; i < qualities_length; i++) {
         auto &qual = qualities.at(i);
-        hash = hash ^ combine(qual.encode(parent->net->facts).enc);
+        hash = hash ^ combine(qual.encode(factlist).enc);
     }
 
     unsigned long topologies_length = topologies.size();
     for (int i = 0; i < topologies_length; i++) {
         auto &topo = topologies.at(i);
-        hash = hash ^ combine(topo.encode(parent->net->facts).enc);
+        hash = hash ^ combine(topo.encode(factlist).enc);
     }
 
     return hash;
@@ -152,7 +161,7 @@ size_t Factbase::hash() const {
  */
 void Factbase::print() const {
     cout << "ID: " << id << endl;
-    cout << "HASH: " << hash() << endl;
+//    cout << "HASH: " << hash() << endl;
     cout << "Qualities: " << qualities.size() << endl;
     cout << "Topologies: " << topologies.size() << endl << endl;
     for (auto &qual : qualities) {

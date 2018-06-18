@@ -16,20 +16,21 @@ class NetworkState;
  *          NetworkState such as Qualities and Topologies.
  */
 class Factbase {
+    static int current_id;
     const NetworkState *parent;
 
     int id;
     std::vector<Quality> qualities;
     std::vector<Topology> topologies;
 
-    Factbase();
+    Factbase(std::vector<Quality> q, std::vector<Topology> t);
     void set_parent(const NetworkState &ns);
 
     friend class NetworkState;
 
   public:
-    void populate();
-    void save();
+
+    // void save();
 
     bool find_quality(Quality &q) const;
     bool find_topology(Topology &t) const;
@@ -37,11 +38,12 @@ class Factbase {
     void add_quality(Quality &q);
     void add_topology(Topology &y);
 
-    bool exists_in_db();
+    // bool exists_in_db();
 
     void print() const;
+    void set_id();
     int get_id() const;
-    size_t hash() const;
+    size_t hash(Keyvalue &factlist) const;
 };
 
 #endif

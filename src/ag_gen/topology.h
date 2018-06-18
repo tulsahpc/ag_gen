@@ -48,9 +48,9 @@ class Topology {
     bool operator==(const Topology &rhs) const;
     bool operator<(const Topology &rhs) const;
 
-    static std::vector<Topology> fetch_all();
-    static std::vector<std::string> fetch_all_attributes();
-    static std::vector<std::string> fetch_all_values();
+    // static std::vector<Topology> fetch_all();
+    // static std::vector<std::string> fetch_all_attributes();
+    // static std::vector<std::string> fetch_all_values();
 };
 
 #endif // AG_GEN_TOPOLOGY_H
