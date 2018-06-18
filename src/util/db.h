@@ -100,7 +100,7 @@ class DB {
 public:
     DB() {}
     // DB(const std::string &conninfo) : conn(conninfo) {};
-    
+
     void connect(const std::string &conninfo) {
         conn.connect(conninfo);
     }
