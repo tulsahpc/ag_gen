@@ -86,14 +86,18 @@ BISON_TARGET(xp_parser "${CMAKE_SOURCE_DIR}/src/parser/xp-parser/xp_parser.yy"
     "${CMAKE_CURRENT_BINARY_DIR}/xp_parser.c"
     DEFINES_FILE "${CMAKE_CURRENT_BINARY_DIR}/xp_parser.tab.h")
 FLEX_TARGET(xp_scanner "${CMAKE_SOURCE_DIR}/src/parser/xp-parser/xp_scanner.l"
-    "${CMAKE_CURRENT_BINARY_DIR}/xp_scanner.c")
+    "${CMAKE_CURRENT_BINARY_DIR}/xp_scanner.c"
+    COMPILE_FLAGS "-Pxp")
 ADD_FLEX_BISON_DEPENDENCY(xp_scanner xp_parser)
 
 add_executable(xp_test ${FLEX_xp_scanner_OUTPUTS} ${BISON_xp_parser_OUTPUTS} ${utils_src})
 target_include_directories(xp_test PRIVATE ${CMAKE_CURRENT_BINARY_DIR} "${CMAKE_SOURCE_DIR}/src/compiler/xp-parser")
 
 # Main application
-add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp" ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS} ${ag_gen_src} ${utils_src})
+add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp"
+    ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS}
+    ${FLEX_xp_scanner_OUTPUTS} ${BISON_xp_parser_OUTPUTS}
+    ${ag_gen_src} ${utils_src})
 target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES} ${CONFIG_LIBRARIES})
 
 # Coding examples

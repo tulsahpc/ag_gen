@@ -12,40 +12,40 @@ ID      [a-zA-Z][a-zA-Z0-9_\.]*
 
 #.*\n {}
 
-exploit { yylval.string = strdup(yytext); return EXPLOIT; }
-preconditions { yylval.string = strdup(yytext); return PRECONDITIONS; }
-postconditions { yylval.string = strdup(yytext); return POSTCONDITIONS; }
-quality  { yylval.string = strdup(yytext); return QUALITY; }
-topology  { yylval.string = strdup(yytext); return TOPOLOGY; }
-insert { yylval.string = strdup(yytext); return INSERT; }
-update { yylval.string = strdup(yytext); return UPDATE; }
-delete { yylval.string = strdup(yytext); return DELETE; }
+exploit { xplval.string = strdup(yytext); return EXPLOIT; }
+preconditions { xplval.string = strdup(yytext); return PRECONDITIONS; }
+postconditions { xplval.string = strdup(yytext); return POSTCONDITIONS; }
+quality  { xplval.string = strdup(yytext); return QUALITY; }
+topology  { xplval.string = strdup(yytext); return TOPOLOGY; }
+add { xplval.string = strdup(yytext); return ADD; }
+update { xplval.string = strdup(yytext); return UPDATE; }
+delete { xplval.string = strdup(yytext); return DELETE; }
 
-{DIGIT}+ { yylval.string = strdup(yytext); return INT; }
-{DIGIT}*"."{DIGIT}+ { yylval.string = strdup(yytext); return FLOAT; }
-{ID} { yylval.string = strdup(yytext); return IDENTIFIER; }
+{DIGIT}+ { xplval.string = strdup(yytext); return INT; }
+{DIGIT}*"."{DIGIT}+ { xplval.string = strdup(yytext); return FLOAT; }
+{ID} { xplval.string = strdup(yytext); return IDENTIFIER; }
 
-"(" { yylval.string = strdup(yytext); return LPAREN; }
-")" { yylval.string = strdup(yytext); return RPAREN; }
-"="	 { yylval.string = strdup(yytext); return EQ; }
-"!=" { yylval.string = strdup(yytext); return NEQ; }
-"<" { yylval.string = strdup(yytext); return LT; }
-">" { yylval.string = strdup(yytext); return GT; }
-">=" { yylval.string = strdup(yytext); return GEQ; }
-"<=" { yylval.string = strdup(yytext); return LEQ; }
-":="  { yylval.string = strdup(yytext); return EQ; }
-"<>" { yylval.string = strdup(yytext); return NEQ; }
-"+=" { yylval.string = strdup(yytext); return PLUSEQ; }
-"-=" { yylval.string = strdup(yytext); return SUBEQ; }
-":"	 { yylval.string = strdup(yytext); return COLON; }
-";"	 { yylval.string = strdup(yytext); return SEMI; }
-","	 { yylval.string = strdup(yytext); return COMMA; }
-"."	 { yylval.string = strdup(yytext); return PERIOD; }
-"->" { yylval.string = strdup(yytext); return ONEDIR; }
-"<-" { yylval.string = strdup(yytext); return ONEDIRBACK; }
-"<->"  { yylval.string = strdup(yytext); return BIDIR; }
-"!>" { yylval.string = strdup(yytext); return NOTONEDIR; }
-"<!>" { yylval.string = strdup(yytext); return NOTBIDIR; }
+"(" { xplval.string = strdup(yytext); return LPAREN; }
+")" { xplval.string = strdup(yytext); return RPAREN; }
+"="	 { xplval.string = strdup(yytext); return EQ; }
+"!=" { xplval.string = strdup(yytext); return NEQ; }
+"<" { xplval.string = strdup(yytext); return LT; }
+">" { xplval.string = strdup(yytext); return GT; }
+">=" { xplval.string = strdup(yytext); return GEQ; }
+"<=" { xplval.string = strdup(yytext); return LEQ; }
+":="  { xplval.string = strdup(yytext); return EQ; }
+"<>" { xplval.string = strdup(yytext); return NEQ; }
+"+=" { xplval.string = strdup(yytext); return PLUSEQ; }
+"-=" { xplval.string = strdup(yytext); return SUBEQ; }
+":"	 { xplval.string = strdup(yytext); return COLON; }
+";"	 { xplval.string = strdup(yytext); return SEMI; }
+","	 { xplval.string = strdup(yytext); return COMMA; }
+"."	 { xplval.string = strdup(yytext); return PERIOD; }
+"->" { xplval.string = strdup(yytext); return ONEDIR; }
+"<-" { xplval.string = strdup(yytext); return ONEDIRBACK; }
+"<->"  { xplval.string = strdup(yytext); return BIDIR; }
+"!>" { xplval.string = strdup(yytext); return NOTONEDIR; }
+"<!>" { xplval.string = strdup(yytext); return NOTBIDIR; }
 [ \t\r\n]+ {}
 
 . { return yytext[0]; }

@@ -1,8 +1,3 @@
-CREATE TABLE network (
-  id SERIAL PRIMARY KEY,
-  name TEXT
-);
-
 CREATE TABLE factbase (
   id SERIAL PRIMARY KEY,
   hash TEXT UNIQUE
@@ -17,8 +12,7 @@ CREATE TABLE factbase_item (
 
 CREATE TABLE asset (
   id SERIAL PRIMARY KEY,
-  name TEXT,
-  network_id INTEGER REFERENCES network(id)
+  name TEXT
 );
 
 CREATE TABLE quality (

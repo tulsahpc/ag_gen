@@ -10,7 +10,6 @@ struct Edge {};
 struct Asset {
     std::string id;
     std::string name;
-    std::string network_id;
 };
 struct Topology {
     std::string option;
@@ -84,7 +83,6 @@ void graph_db(const char *conninfo) {
         Net_Vertex v = boost::add_vertex(ng);
         ng[v].id = PQgetvalue(res, i, 0);
         ng[v].name = PQgetvalue(res, i, 1);
-        ng[v].network_id = PQgetvalue(res, i, 2);
         net_vertex_map[ng[v].id] = v;
     }
     PQclear(res);

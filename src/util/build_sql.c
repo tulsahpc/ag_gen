@@ -14,7 +14,7 @@ int assetcount = 0;
 int exploitcount = 0;
 
 const char *sqlAsset =
-    "(%d, '%s', (SELECT id FROM network WHERE name = 'home')),";
+    "(%d, '%s'),";
 const char *sqlQuality = "(%d, '%s', '%s', '%s'),";
 const char *sqlTopology = "(%d, %d, '%s', '%s', '%s', '%s'),";
 const char *sqlExploit = "\t(%d, '%s', %d),\n";

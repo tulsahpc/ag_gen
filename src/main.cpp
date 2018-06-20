@@ -24,18 +24,6 @@
 #include "util/list.h"
 #include "util/mem.h"
 
-/**
- * @brief      Prints command line usage information.
- */
-void print_usage() {
-    std::cout << "Usage: ag_gen [OPTION...]" << std::endl << std::endl;
-    std::cout << "Flags:" << std::endl;
-    std::cout << "\t-n\tNetwork model name to generate attack graph on." << std::endl;
-    std::cout << "\t-p\tPrint information about the network specified by -n."
-         << std::endl;
-    std::cout << "\t-h\tThis help menu." << std::endl;
-}
-
 void graph_ag(std::vector<Edge> edges, std::vector<Factbase> factbases) {
     typedef boost::property<boost::edge_name_t, std::string> EdgeNameProperty;
     typedef boost::property<boost::vertex_name_t, int> VertexNameProperty;
@@ -84,7 +72,7 @@ extern "C" {
     extern int nmparse(networkmodel *nm);
 }
 
-int parse_nm(std::string filename) {
+std::string parse_nm(std::string filename) {
     FILE *file = fopen(filename.c_str(), "r");
 
     networkmodel nm;
@@ -112,165 +100,189 @@ int parse_nm(std::string filename) {
         }
     }
 
-    FILE *out = stdout;
+//    FILE *out = stdout;
+    std::string output;
 
     char* assetheader = "INSERT INTO asset VALUES";
-    fprintf(out, "%s\n", assetheader);
+//    fprintf(out, "%s\n", assetheader);
+    output += assetheader;
+
     for(int i=0; i<nm.assets->used-1; i++) {
         char* nextstring = nm.assets->arr[i];
-        fprintf(out, "%s\n", nextstring);
+        output += nextstring;
+//        fprintf(out, "%s\n", nextstring);
     }
     char* stripped = nm.assets->arr[nm.assets->used-1];
     stripped[strlen(stripped)-1] = '\n';
-    fprintf(out, "%s\n", stripped);
-
-    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
+//    fprintf(out, "%s\n", stripped);
+    output += stripped;
+//    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
+    output += "ON CONFLICT DO NOTHING;";
 
     char* qualityheader = "\nINSERT INTO quality VALUES";
-    fprintf(out, "%s\n", qualityheader);
+//    fprintf(out, "%s\n", qualityheader);
+    output += qualityheader;
     for(int i=0; i<qualities->used-1; i++) {
         char* nextstring = qualities->arr[i];
-        fprintf(out, "%s\n", nextstring);
+//        fprintf(out, "%s\n", nextstring);
+        output += nextstring;
     }
     stripped = qualities->arr[qualities->used-1];
     stripped[strlen(stripped)-1] = '\n';
-    fprintf(out, "%s\n", stripped);
-
-    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
+//    fprintf(out, "%s\n", stripped);
+    output += stripped;
+//    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
+    output += "ON CONFLICT DO NOTHING;";
 
     char* topologyheader = "\nINSERT INTO topology VALUES";
-    fprintf(out, "%s\n", topologyheader);
+//    fprintf(out, "%s\n", topologyheader);
+    output += topologyheader;
     for(int i=0; i<topologies->used-1; i++) {
         char* nextstring = topologies->arr[i];
-        fprintf(out, "%s\n", nextstring);
+//        fprintf(out, "%s\n", nextstring);
+        output += nextstring;
     }
     stripped = topologies->arr[topologies->used-1];
     stripped[strlen(stripped)-1] = '\n';
-    fprintf(out, "%s\n", stripped);
+//    fprintf(out, "%s\n", stripped);
+    output += stripped;
 
-    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
-
-    fclose(out);
-
+//    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
+    output += "ON CONFLICT DO NOTHING;";
     free_hashtable(nm.asset_tab);
+
+    return output;
 }
 
 extern "C" {
-    extern FILE *xp;
+    extern FILE *xpin;
     extern int xpparse(list *xpplist);
 }
 
-// int parse_xp(std::string filename) {
-//     FILE *file = fopen(filename.c_str(), "r");
+std::string parse_xp(std::string filename) {
+    FILE *file = fopen(filename.c_str(), "r");
 
-//     if(!file) {
-//         fprintf(stderr, "Cannot open file.\n");
-//         return -1;
-//     }
+    if(!file) {
+        fprintf(stderr, "Cannot open file.\n");
+    }
 
-//     struct list *xplist = list_new();
+    struct list *xplist = list_new();
 
-//     //yydebug = 1;
-//     yyin = file;
-//     do {
-//         xpparse(xplist);
-//     } while(!feof(yyin));
+    //yydebug = 1;
+    xpin = file;
+    do {
+        xpparse(xplist);
+    } while(!feof(xpin));
 
-//     FILE* fp = fopen("exploits.sql", "w");
-//     if(fp == NULL) {
-//         printf("Error creating file.\n");
-//         exit(1);
-//     }
+    // FILE *out = stdout;
+    std::string output;
 
-//     //print_xp_list(xplist);
+    //print_xp_list(xplist);
 
-//     /////////////////////////
-//     // EXPLOITS
-//     /////////////////////////
+    /////////////////////////
+    // EXPLOITS
+    /////////////////////////
 
-//     hashtable *exploit_ids = new_hashtable(101);
+    hashtable *exploit_ids = new_hashtable(101);
 
-//     // Preload buffer with SQL prelude
-//     size_t bufsize = INITIALBUFSIZE;
-//     char *buf = (char *)getcmem(bufsize);
-//     strcat(buf, "INSERT INTO exploit VALUES\n");
+    // Preload buffer with SQL prelude
+    size_t bufsize = INITIALBUFSIZE;
+    char *buf = (char *)getcmem(bufsize);
+    strcat(buf, "INSERT INTO exploit VALUES\n");
 
-//     // Iterate over each exploit in the list
-//     // Generate an "exploit_instance" which contains
-//     // the generated exploit id and the sql for
-//     // for the exploit.
-//     for(int i=0; i<xplist->size; i++) {
-//         struct exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
-//         exploit_instance *ei = make_exploit(xp);
-//         add_hashtable(exploit_ids, xp->name, (void *)ei->id);
-//         // printf("%s - %d\n", xp->name, get_hashtable(exploit_ids, xp->name));
-//         while(bufsize < strlen(buf) + strlen(ei->sql))
-//             buf = (char *)realloc(buf, (bufsize*=2));
-//         strcat(buf, ei->sql);
-//     }
+    // Iterate over each exploit in the list
+    // Generate an "exploit_instance" which contains
+    // the generated exploit id and the sql for
+    // for the exploit.
+    for(int i=0; i<xplist->size; i++) {
+        exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
+        exploit_instance *ei = make_exploit(xp);
+        add_hashtable(exploit_ids, xp->name, (void *)ei->id);
+        // printf("%s - %d\n", xp->name, get_hashtable(exploit_ids, xp->name));
+        while(bufsize < strlen(buf) + strlen(ei->sql))
+            buf = (char *)realloc(buf, (bufsize*=2));
+        strcat(buf, ei->sql);
+    }
 
-//     // Replace the last comma with a semicolon
-//     char *last = strrchr(buf, ',');
-//     *last = ';';
-//     fprintf(fp, "%s\n", buf);
+    // Replace the last comma with a semicolon
+    char *last = strrchr(buf, ',');
+    *last = ';';
+    // fprintf(out, "%s\n", buf);
+    output += std::string(buf);
 
-//     /////////////////////////
-//     // PRECONDITIONS
-//     /////////////////////////
+    /////////////////////////
+    // PRECONDITIONS
+    /////////////////////////
 
-//     // Preload buffer with SQL prelude
-//     bufsize = INITIALBUFSIZE;
-//     buf = (char *)getcmem(bufsize);
-//     strcat(buf, "INSERT INTO exploit_precondition VALUES\n");
+    // Preload buffer with SQL prelude
+    bufsize = INITIALBUFSIZE;
+    buf = (char *)getcmem(bufsize);
+    strcat(buf, "INSERT INTO exploit_precondition VALUES\n");
 
-//     // Iterate over each exploit. We then iterate
-//     // over each fact in the exploit and generate
-//     // the sql for it.
-//     for(int i=0; i<xplist->size; i++) {
-//         exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
-//         for(int j=0; j<xp->preconditions->size; j++) {
-//             fact *fct = (fact *)list_get_idx(xp->preconditions, j);
-//             // printf("%s: %d\n", fct->from, get_hashtable(exploit_ids, fct->from));
-//             char *sqladd = make_precondition(exploit_ids, xp, fct);
-//             while(bufsize < strlen(buf) + strlen(sqladd)) {
-//                 buf = (char *)realloc(buf, (bufsize*=2));
-//             }
-//             strcat(buf, sqladd);
-//         }
-//     }
+    // Iterate over each exploit. We then iterate
+    // over each fact in the exploit and generate
+    // the sql for it.
+    for(int i=0; i<xplist->size; i++) {
+        exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
+        for(int j=0; j<xp->preconditions->size; j++) {
+            fact *fct = (fact *)list_get_idx(xp->preconditions, j);
+            // printf("%s: %d\n", fct->from, get_hashtable(exploit_ids, fct->from));
+            char *sqladd = make_precondition(exploit_ids, xp, fct);
+            while(bufsize < strlen(buf) + strlen(sqladd)) {
+                buf = (char *)realloc(buf, (bufsize*=2));
+            }
+            strcat(buf, sqladd);
+        }
+    }
 
-//     last = strrchr(buf, ',');
-//     *last = ';';
-//     fprintf(fp, "%s\n", buf);
+    last = strrchr(buf, ',');
+    *last = ';';
+    // fprintf(out, "%s\n", buf);
+    output += std::string(buf);
 
-//     /////////////////////////
-//     // POSTCONDITIONS
-//     /////////////////////////
+    /////////////////////////
+    // POSTCONDITIONS
+    /////////////////////////
 
-//     // Preload buffer with SQL prelude
-//     bufsize = INITIALBUFSIZE;
-//     buf = (char *)getcmem(bufsize);
-//     strcat(buf, "INSERT INTO exploit_postcondition VALUES\n");
+    // Preload buffer with SQL prelude
+    bufsize = INITIALBUFSIZE;
+    buf = (char *)getcmem(bufsize);
+    strcat(buf, "INSERT INTO exploit_postcondition VALUES\n");
 
-//     // Iterate over each exploit. We then iterate
-//     // over each fact in the exploit and generate
-//     // the sql for it.
-//     for(int i=0; i<xplist->size; i++) {
-//         exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
-//         for(int j=0; j<xp->postconditions->size; j++) {
-//             postcondition *pc = (postcondition *)list_get_idx(xp->postconditions, j);
-//             char *sqladd = make_postcondition(exploit_ids, xp, pc);
-//             while(bufsize < strlen(buf) + strlen(sqladd)) {
-//                 buf = (char *)realloc(buf, (bufsize*=2));
-//             }
-//             strcat(buf, sqladd);
-//         }
-//     }
+    // Iterate over each exploit. We then iterate
+    // over each fact in the exploit and generate
+    // the sql for it.
+    for(int i=0; i<xplist->size; i++) {
+        exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
+        for(int j=0; j<xp->postconditions->size; j++) {
+            postcondition *pc = (postcondition *)list_get_idx(xp->postconditions, j);
+            char *sqladd = make_postcondition(exploit_ids, xp, pc);
+            while(bufsize < strlen(buf) + strlen(sqladd)) {
+                buf = (char *)realloc(buf, (bufsize*=2));
+            }
+            strcat(buf, sqladd);
+        }
+    }
 
-//     last = strrchr(buf, ',');
-//     *last = ';';
-//     fprintf(fp, "%s\n", buf);
-// }
+    last = strrchr(buf, ',');
+    *last = ';';
+    // fprintf(out, "%s\n", buf);
+    output += std::string(buf);
+
+    return output;
+}
+
+/**
+ * @brief      Prints command line usage information.
+ */
+void print_usage() {
+    std::cout << "Usage: ag_gen [OPTION...]" << std::endl << std::endl;
+    std::cout << "Flags:" << std::endl;
+    std::cout << "\t-g\tGenerate visual graph using graphviz" << std::endl;
+    std::cout << "\t-n\tNetwork model file used for generation" << std::endl;
+    std::cout << "\t-x\tExploit pattern file used for generation" << std::endl;
+    std::cout << "\t-h\tThis help menu." << std::endl;
+}
 
 // the main function executes the command according to the given flag and throws
 // and error if an unknown flag is provided. It then uses the database given in
@@ -287,20 +299,20 @@ int main(int argc, char *argv[]) {
     bool should_graph = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "hpf:n:g")) != -1) {
+    while ((opt = getopt(argc, argv, "ghn:x:")) != -1) {
         switch (opt) {
+        case 'g':
+            should_graph = true;
+            break;
         case 'h':
             print_usage();
             return 0;
         case 'n':
             opt_nm = optarg;
             break;
-        case 'f':
+        case 'x':
             opt_xp = optarg;
             break;
-        case 'g':
-                should_graph = true;
-                break;
         case '?':
             if (optopt == 'c')
                 fprintf(stderr, "Option -%c requires an argument.\n", optopt);
@@ -345,21 +357,22 @@ int main(int argc, char *argv[]) {
     init_db("postgresql://" + username + "@" + host + ":" + port + "/" +
                dbName);
 
-    // Parsing here
+    std::string parsednm;
     if(!opt_nm.empty()) {
-        parse_nm(opt_nm);
+        parsednm = parse_nm(opt_nm);
     }
 
-    // if(!opt_xp.empty()) {
-    //     parse_xp(opt_xp);
-    // }
+    std::string parsedxp;
+    if(!opt_xp.empty()) {
+        parsedxp = parse_xp(opt_xp);
+    }
 
+//    import_models(parsednm, parsedxp);
 
     AGGenInstance _instance;
-    _instance.opt_network = "home";
     _instance.initial_qualities = fetch_all_qualities();
     _instance.initial_topologies = fetch_all_topologies();
-    _instance.assets = fetch_all_assets("home");
+    _instance.assets = fetch_all_assets();
     _instance.exploits = fetch_all_exploits();
     _instance.facts = fetch_facts();
     auto ex = fetch_all_exploits();
@@ -372,8 +385,9 @@ int main(int argc, char *argv[]) {
     auto edges = postinstance.edges;
     auto factlist = postinstance.facts;
 
-    save_ag_to_db(factbase_items, factbases, edges, factlist);
-
+    std::cout << "Saving Attack Graph to Database: ";
+//    save_ag_to_db(factbase_items, factbases, edges, factlist);
+    std::cout << "Done" << std::endl;
     if (should_graph)
         graph_ag(edges, factbases);
 }

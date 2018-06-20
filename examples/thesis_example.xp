@@ -1,0 +1,8 @@
+exploit ubuntu_apache_exploit(router,website)=
+    preconditions:
+        quality:website,os=ubuntu;
+        quality:website,webserver=apache;
+        quality:website,webserver_version=2.2;
+    postconditions:
+        add quality:website,command_injection=true;
+.

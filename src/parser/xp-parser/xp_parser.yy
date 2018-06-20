@@ -1,6 +1,4 @@
-//%debug
-//%error-verbose
-
+%error-verbose
 %define api.prefix xp
 
 %{
@@ -14,12 +12,10 @@
     #include "util/build_sql.h"
     #include "util/list.h"
 
-    #define YYDEBUG 0
-
-    int yylex();
-    void yyerror(struct list *xplist, char const *s);
-    extern FILE* yyin;
-    extern int yylineno;
+    int xplex();
+    void xperror(struct list *xplist, char const *s);
+    extern FILE* xpin;
+    extern int xplineno;
 %}
 
 %union {
@@ -45,7 +41,7 @@
 %token <string> IDENTIFIER INT FLOAT
 %token <string> EQ NEQ GT LT GEQ LEQ PLUSEQ SUBEQ
 %token <string> ONEDIR ONEDIRBACK BIDIR NOTONEDIR NOTBIDIR
-%token <string> INSERT UPDATE DELETE
+%token <string> ADD UPDATE DELETE
 %token EXPLOIT PRECONDITIONS POSTCONDITIONS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE LPAREN RPAREN;
 
 %%
@@ -132,7 +128,7 @@ postcondition: operation fact {
 }
 ;
 
-operation: INSERT { $$ = $1; }
+operation: ADD { $$ = $1; }
 | DELETE { $$ = $1; }
 | UPDATE { $$ = $1; }
 ;
@@ -364,7 +360,7 @@ void print_xp_list(struct list *xplist) {
     fprintf(fp, "%s\n", buf);
 } */
 
-void yyerror(struct list *xplist, char const *s) {
-    fprintf(stderr, "Line %d: %s\n", yylineno, s);
+void xperror(struct list *xplist, char const *s) {
+    fprintf(stderr, "Line %d: %s\n", xplineno, s);
     exit(-1);
 }

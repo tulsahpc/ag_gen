@@ -19,10 +19,15 @@
 
 using namespace std;
 
-DB db;
+static DB db;
 
 void init_db(std::string connect_str) {
     db.connect(connect_str);
+}
+
+void import_models(std::string nm, std::string xp) {
+    db.exec(nm);
+    db.exec(xp);
 }
 
 /**
@@ -108,7 +113,7 @@ vector<string> fetch_topology_values() {
 unordered_map<
     int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>>
 fetch_exploit_preconds() {
-    vector<Row> rows = db.exec("SELECT * FROM exploit_precondition");
+    vector<Row> rows = db.exec("SELECT * FROM exploit_precondition;");
 
     unordered_map<
         int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>>
@@ -169,7 +174,7 @@ fetch_exploit_preconds() {
 unordered_map<
     int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>>
 fetch_exploit_postconds() {
-    vector<Row> rows = db.exec("SELECT * FROM exploit_postcondition");
+    vector<Row> rows = db.exec("SELECT * FROM exploit_postcondition;");
 
     unordered_map<
         int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>>
@@ -252,7 +257,7 @@ vector<Exploit> fetch_all_exploits() {
  *          the Asset's ID and gives them to the Asset
  */
 unordered_map<int, vector<Quality>> fetch_asset_qualities() {
-    vector<Row> rows = db.exec("SELECT * FROM quality");
+    vector<Row> rows = db.exec("SELECT * FROM quality;");
 
     unordered_map<int, vector<Quality>> qmap;
 
@@ -291,10 +296,8 @@ unordered_map<int, vector<Quality>> fetch_asset_qualities() {
  *
  * @param network Name of the network to grab from
  */
-vector<Asset> fetch_all_assets(const string &network) {
-    vector<Row> rows = db.exec("SELECT * FROM asset WHERE network_id = "
-                               "(SELECT id FROM network WHERE name = '" +
-                               network + "');");
+vector<Asset> fetch_all_assets() {
+    vector<Row> rows = db.exec("SELECT * FROM asset;");
     vector<Asset> new_assets;
 
     auto qmap = fetch_asset_qualities();
@@ -302,13 +305,14 @@ vector<Asset> fetch_all_assets(const string &network) {
     for (auto &row : rows) {
         int id = stoi(row[0]);
         string name = row[1];
-        int network_id = stoi(row[2]);
 
         auto q = qmap[id];
 
         // new_assets.push_back(asset);
-        new_assets.emplace_back(id, network_id, name, q);
+        new_assets.emplace_back(id, name, q);
     }
+
+    std::cout << "Number of Assets: " << new_assets.size() << std::endl;
 
     return new_assets;
 }
@@ -326,6 +330,8 @@ vector<Quality> fetch_all_qualities() {
         Quality qual(asset_id, property, op, value);
         qualities.push_back(qual);
     }
+
+    std::cout << "Number of Qualities: " << qualities.size() << std::endl;
 
     return qualities;
 }
@@ -346,6 +352,8 @@ vector<Topology> fetch_all_topologies() {
         topologies.push_back(t);
     }
 
+    std::cout << "Number of Topologies: " << topologies.size() << std::endl;
+
     return topologies;
 }
 
@@ -356,6 +364,8 @@ Keyvalue fetch_facts() {
     initfacts.populate(fetch_quality_values());
     initfacts.populate(fetch_topology_attributes());
     initfacts.populate(fetch_topology_values());
+
+    std::cout << "Number of Facts: " << initfacts.size() << std::endl;
 
     return initfacts;
 }
@@ -379,6 +389,7 @@ void save_ag_to_db(vector<FactbaseItems> &factbase_items,
 
     factbase_sql_query += " ON CONFLICT DO NOTHING;";
 
+    std::cout << factbase_sql_query << std::endl;
     db.exec(factbase_sql_query);
 
     string item_sql_query = "INSERT INTO factbase_item VALUES ";

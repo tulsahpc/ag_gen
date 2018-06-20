@@ -21,6 +21,8 @@
 
 void init_db(std::string connect_str);
 
+void import_models(std::string nm, std::string xp);
+
 std::vector<std::string> fetch_quality_attributes();
 std::vector<std::string> fetch_quality_values();
 std::vector<std::string> fetch_topology_attributes();
@@ -35,7 +37,7 @@ std::unordered_map<
 
 std::vector<Exploit> fetch_all_exploits();
 std::unordered_map<int, std::vector<Quality>> fetch_asset_qualities();
-std::vector<Asset> fetch_all_assets(const std::string &network);
+std::vector<Asset> fetch_all_assets();
 std::vector<Quality> fetch_all_qualities();
 std::vector<Topology> fetch_all_topologies();
 Keyvalue fetch_facts();

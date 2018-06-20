@@ -14,12 +14,11 @@
  */
 class Asset {
     int id;
-    int network_id;
     std::string name;
     std::vector<Quality> qualities;
 
   public:
-    Asset(int iid, int netid, std::string nname, std::vector<Quality> q);
+    Asset(int iid, std::string nname, std::vector<Quality> q);
 };
 
 #endif // ASSET_HPP

@@ -89,7 +89,6 @@ AGGenInstance &AGGen::generate() {
     auto counter = 0;
     auto start = std::chrono::system_clock::now();
 
-    // auto exploit_list = Exploit::fetch_all();
     unsigned long esize = exploit_list.size();
 
     cout << "Generating Attack Graph" << endl;
@@ -104,14 +103,20 @@ AGGenInstance &AGGen::generate() {
 
         vector<tuple<Exploit, AssetGroup>> appl_exploits;
 
+        std::cout << "Number of Exploits: " << esize << std::endl;
         // Get all applicable exploits with this network state
         for (int i = 0; i < esize; i++) {
             auto e = exploit_list.at(i);
+            std::cout << "Exploit: " << e.get_id() << std::endl;
 
             auto num_params = e.get_num_params();
+            std::cout << "\tNum Params: " << num_params << std::endl;
 
             auto preconds_q = e.precond_list_q();
+            std::cout << "\tNum Precond Qualities: " << preconds_q.size() << std::endl;
+
             auto preconds_t = e.precond_list_t();
+            std::cout << "\tNum Precond Topologies: " << preconds_t.size() << std::endl << std::endl;
 
             Odometer od(num_params, instance.facts.size());
             std::vector<AssetGroup> asset_groups;
@@ -146,6 +151,7 @@ AGGenInstance &AGGen::generate() {
             }
 
             auto assetgroup_size = asset_groups.size();
+            std::cout << "\tAsset Group Size: " << assetgroup_size << std::endl;
             for (auto j = 0; j < assetgroup_size; j++) {
                 auto asset_group = asset_groups.at(j);
                 // Each quality must exist. If not, discard asset_group
@@ -171,7 +177,7 @@ AGGenInstance &AGGen::generate() {
             }
         }
 
-        // cout << "Applicable Exploits: " << appl_exploits.size() << endl;
+        std::cout << "\nApplicable Exploits: " << appl_exploits.size() << std::endl << std::endl;
 
         auto appl_expl_size = appl_exploits.size();
 
@@ -232,16 +238,10 @@ AGGenInstance &AGGen::generate() {
         }
     }
 
-    cout << "Saving Attack Graph to Database" << endl;
-
-    cout << "Completed" << endl;
-
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     cout << "Total Time: " << elapsed_seconds.count() << " seconds" << endl;
-
-    cout << "total number of generated states: " << counter << endl;
-    cout << "states in hash_list: " << hash_list.size() << endl;
+    cout << "Generated States: " << counter << endl;
 
     return instance;
 }

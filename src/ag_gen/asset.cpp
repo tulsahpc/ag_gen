@@ -19,5 +19,5 @@ using namespace std;
  * @param nname The name of the Asset
  * @param q The vector of qualities to associate with the Asset
  */
-Asset::Asset(int iid, int netid, std::string nname, std::vector<Quality> q)
-    : id(iid), network_id(netid), name(move(nname)), qualities(q) {}
+Asset::Asset(int iid, std::string nname, std::vector<Quality> q)
+    : id(iid), name(move(nname)), qualities(q) {}

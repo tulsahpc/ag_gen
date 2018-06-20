@@ -1,6 +1,4 @@
-//%debug
-//%error-verbose
-
+%error-verbose
 %define api.prefix nm
 
 %{
