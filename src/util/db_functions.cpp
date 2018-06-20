@@ -304,6 +304,7 @@ vector<Asset> fetch_all_assets() {
 
     for (auto &row : rows) {
         int id = stoi(row[0]);
+        cout << "id: " << id << endl;
         string name = row[1];
 
         auto q = qmap[id];
@@ -396,7 +397,7 @@ void save_ag_to_db(vector<FactbaseItems> &factbase_items,
     string quality_sql_query = "";
     string topology_sql_query = "";
 
-    for (int j = 0; j < factbase_items.size(); ++j) {
+    for (int j = 0, sql_index = 0; j < factbase_items.size(); ++j) {
         auto fbi = factbase_items[j];
 
         int id = get<1>(fbi);
@@ -406,7 +407,7 @@ void save_ag_to_db(vector<FactbaseItems> &factbase_items,
         auto topo = get<1>(items);
 
         for (auto qi : quals) {
-            if (j == 0)
+            if (sql_index == 0)
                 quality_sql_query += "(" + to_string(id) + "," +
                                      to_string(qi.encode(factlist).enc) +
                                      ",'quality')";
@@ -415,10 +416,11 @@ void save_ag_to_db(vector<FactbaseItems> &factbase_items,
                 quality_sql_query += ",(" + to_string(id) + "," +
                                      to_string(qi.encode(factlist).enc) +
                                      ",'quality')";
+            ++sql_index;
         }
 
         for (auto ti : topo) {
-            if (j == 0)
+            if (sql_index == 0)
                 topology_sql_query += "(" + to_string(id) + "," +
                                       to_string(ti.encode(factlist).enc) +
                                       ",'topology')";
@@ -427,14 +429,20 @@ void save_ag_to_db(vector<FactbaseItems> &factbase_items,
                 topology_sql_query += ",(" + to_string(id) + "," +
                                       to_string(ti.encode(factlist).enc) +
                                       ",'topology')";
+            ++sql_index;
         }
     }
 
-    if (topology_sql_query != "")
-        item_sql_query += quality_sql_query + "," + topology_sql_query +
-                          " ON CONFLICT DO NOTHING;";
-    else
-        item_sql_query += quality_sql_query + " ON CONFLICT DO NOTHING;";
+    item_sql_query += quality_sql_query + topology_sql_query
+                    + " ON CONFLICT DO NOTHING";
+
+    // std::cout << item_sql_query << std::endl;
+
+    // if (topology_sql_query != "")
+    //     item_sql_query += quality_sql_query + "," + topology_sql_query +
+    //                       " ON CONFLICT DO NOTHING;";
+    // else
+    //     item_sql_query += quality_sql_query + " ON CONFLICT DO NOTHING;";
 
     db.exec(item_sql_query);
 
