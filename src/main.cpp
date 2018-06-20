@@ -103,12 +103,12 @@ std::string parse_nm(std::string filename) {
 //    FILE *out = stdout;
     std::string output;
 
-    char* assetheader = "INSERT INTO asset VALUES";
+    const char* assetheader = "INSERT INTO asset VALUES";
 //    fprintf(out, "%s\n", assetheader);
     output += assetheader;
 
     for(int i=0; i<nm.assets->used-1; i++) {
-        char* nextstring = nm.assets->arr[i];
+        const char* nextstring = nm.assets->arr[i];
         output += nextstring;
 //        fprintf(out, "%s\n", nextstring);
     }
@@ -119,11 +119,11 @@ std::string parse_nm(std::string filename) {
 //    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
     output += "ON CONFLICT DO NOTHING;";
 
-    char* qualityheader = "\nINSERT INTO quality VALUES";
+    const char* qualityheader = "\nINSERT INTO quality VALUES";
 //    fprintf(out, "%s\n", qualityheader);
     output += qualityheader;
     for(int i=0; i<qualities->used-1; i++) {
-        char* nextstring = qualities->arr[i];
+        const char* nextstring = qualities->arr[i];
 //        fprintf(out, "%s\n", nextstring);
         output += nextstring;
     }
@@ -134,11 +134,11 @@ std::string parse_nm(std::string filename) {
 //    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
     output += "ON CONFLICT DO NOTHING;";
 
-    char* topologyheader = "\nINSERT INTO topology VALUES";
+    const char* topologyheader = "\nINSERT INTO topology VALUES";
 //    fprintf(out, "%s\n", topologyheader);
     output += topologyheader;
     for(int i=0; i<topologies->used-1; i++) {
-        char* nextstring = topologies->arr[i];
+        const char* nextstring = topologies->arr[i];
 //        fprintf(out, "%s\n", nextstring);
         output += nextstring;
     }
@@ -150,6 +150,8 @@ std::string parse_nm(std::string filename) {
 //    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
     output += "ON CONFLICT DO NOTHING;";
     free_hashtable(nm.asset_tab);
+
+    // printf("%s\n", output.c_str());
 
     return output;
 }
@@ -269,6 +271,8 @@ std::string parse_xp(std::string filename) {
     // fprintf(out, "%s\n", buf);
     output += std::string(buf);
 
+    printf("%s\n", output.c_str());
+
     return output;
 }
 
@@ -367,7 +371,7 @@ int main(int argc, char *argv[]) {
         parsedxp = parse_xp(opt_xp);
     }
 
-//    import_models(parsednm, parsedxp);
+    // import_models(parsednm, parsedxp);
 
     AGGenInstance _instance;
     _instance.initial_qualities = fetch_all_qualities();
@@ -386,7 +390,7 @@ int main(int argc, char *argv[]) {
     auto factlist = postinstance.facts;
 
     std::cout << "Saving Attack Graph to Database: ";
-//    save_ag_to_db(factbase_items, factbases, edges, factlist);
+    // save_ag_to_db(factbase_items, factbases, edges, factlist);
     std::cout << "Done" << std::endl;
     if (should_graph)
         graph_ag(edges, factbases);
