@@ -38,6 +38,8 @@ class Connection {
 
     PGconn *conn_r;
 
+    friend class DB;
+
   public:
     Connection() {}
 
@@ -51,6 +53,17 @@ class Connection {
                               errormsg);
         }
         connected = true;
+
+        /* https://www.postgresql.org/docs/10/static/libpq-example.html */
+        /* Set always-secure search path, so malicious users can't take control. */
+        // PGresult *res = PQexec(conn_r, "SELECT pg_catalog.set_config('search_path', '', false)");
+        // if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        //     std::string errormsg(PQerrorMessage(conn_r));
+        //     PQclear(res);
+        //     throw DBException("Something went really wrong: " + errormsg);
+        // }
+
+        // PQclear(res);
     }
 
     ~Connection() {
@@ -110,6 +123,10 @@ class DB {
             std::cerr << "Database Exception: " << e.what() << std::endl;
             abort();
         }
+    }
+
+    PGconn *raw_conn() {
+        return conn.conn_r;
     }
 };
 

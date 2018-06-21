@@ -18,6 +18,7 @@ postconditions { xplval.string = strdup(yytext); return POSTCONDITIONS; }
 quality  { xplval.string = strdup(yytext); return QUALITY; }
 topology  { xplval.string = strdup(yytext); return TOPOLOGY; }
 add { xplval.string = strdup(yytext); return ADD; }
+insert { xplval.string = strdup(yytext); return INSERT; }
 update { xplval.string = strdup(yytext); return UPDATE; }
 delete { xplval.string = strdup(yytext); return DELETE; }
 

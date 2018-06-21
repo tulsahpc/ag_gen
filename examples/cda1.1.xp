@@ -1,0 +1,13 @@
+exploit expand_cda_1(a)=
+    preconditions:
+        quality:a,funny=true;
+    postconditions:
+        insert quality:a,poop=true;
+.
+
+exploit expand_cda_2(a)=
+    preconditions:
+        quality:a,funny=true;
+    postconditions:
+        insert quality:a,giggle=true;
+.

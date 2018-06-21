@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <algorithm>
 
 #include "db_functions.h"
 
@@ -28,6 +29,82 @@ void init_db(std::string connect_str) {
 void import_models(std::string nm, std::string xp) {
     db.exec(nm);
     db.exec(xp);
+}
+
+void reset_db(std::string dbname) {
+
+}
+
+static void
+exit_nicely(PGconn *conn)
+{
+    PQfinish(conn);
+    exit(1);
+}
+
+void test_create() {
+    /*
+     * Our test case here involves using a cursor, for which we must be inside
+     * a transaction block.  We could do the whole thing with a single
+     * PQexec() of "select * from pg_database", but that's too trivial to make
+     * a good example.
+     */
+
+    PGconn *conn = db.raw_conn();
+
+    /* Start a transaction block */
+    PGresult *res = PQexec(conn, "BEGIN");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "BEGIN command failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+    }
+    PQclear(res);
+
+    /*
+     * Fetch rows from pg_database, the system catalog of databases
+     */
+    res = PQexec(conn, "DECLARE myportal CURSOR FOR select * from pg_database");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "DECLARE CURSOR failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+    }
+    PQclear(res);
+
+    res = PQexec(conn, "FETCH ALL in myportal");
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    {
+        fprintf(stderr, "FETCH ALL failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+    }
+
+    /* first, print out the attribute names */
+    int nFields = PQnfields(res);
+    for (int i = 0; i < nFields; i++)
+        printf("%-15s", PQfname(res, i));
+    printf("\n\n");
+
+    /* next, print out the rows */
+    for (int i = 0; i < PQntuples(res); i++)
+    {
+        for (int j = 0; j < nFields; j++)
+            printf("%-15s", PQgetvalue(res, i, j));
+        printf("\n");
+    }
+
+    PQclear(res);
+
+    /* close the portal ... we don't bother to check for errors ... */
+    res = PQexec(conn, "CLOSE myportal");
+    PQclear(res);
+
+    /* end the transaction */
+    res = PQexec(conn, "END");
+    PQclear(res);
 }
 
 /**
@@ -441,7 +518,7 @@ void save_ag_to_db(vector<FactbaseItems> &factbase_items,
     vector<string> edge_queries;
     edge_queries.resize(edges.size());
 
-    transform(edges.begin(), edges.end(), edge_queries.begin(), to_query);
+    std::transform(edges.begin(), edges.end(), edge_queries.begin(), to_query);
 
     // map edge queries to index in edge vector
     unordered_map<string, int> eq;

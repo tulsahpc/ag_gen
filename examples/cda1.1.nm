@@ -1,0 +1,6 @@
+network model =
+    assets :
+        item1;
+    facts :
+        quality:item1,funny=true;
+.

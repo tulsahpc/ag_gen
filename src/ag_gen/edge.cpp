@@ -78,11 +78,11 @@ string Edge::get_asset_query() {
 
         if (i == 0)
             sql += "(" + to_string(id) + "," + to_string(i) + "," +
-                   to_string(current_perm[i] + 1) + ")";
+                   to_string(current_perm[i]) + ")";
 
         else
             sql += ",(" + to_string(id) + "," + to_string(i) + "," +
-                   to_string(current_perm[i] + 1) + ")";
+                   to_string(current_perm[i]) + ")";
     }
     return sql;
 }

@@ -104,51 +104,41 @@ std::string parse_nm(std::string filename) {
     std::string output;
 
     const char* assetheader = "INSERT INTO asset VALUES";
-//    fprintf(out, "%s\n", assetheader);
     output += assetheader;
 
     for(int i=0; i<nm.assets->used-1; i++) {
         const char* nextstring = nm.assets->arr[i];
         output += nextstring;
-//        fprintf(out, "%s\n", nextstring);
     }
     char* stripped = nm.assets->arr[nm.assets->used-1];
     stripped[strlen(stripped)-1] = '\n';
-//    fprintf(out, "%s\n", stripped);
     output += stripped;
-//    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
     output += "ON CONFLICT DO NOTHING;";
 
     const char* qualityheader = "\nINSERT INTO quality VALUES";
-//    fprintf(out, "%s\n", qualityheader);
     output += qualityheader;
     for(int i=0; i<qualities->used-1; i++) {
         const char* nextstring = qualities->arr[i];
-//        fprintf(out, "%s\n", nextstring);
         output += nextstring;
     }
     stripped = qualities->arr[qualities->used-1];
     stripped[strlen(stripped)-1] = '\n';
-//    fprintf(out, "%s\n", stripped);
     output += stripped;
-//    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
     output += "ON CONFLICT DO NOTHING;";
 
-    const char* topologyheader = "\nINSERT INTO topology VALUES";
-//    fprintf(out, "%s\n", topologyheader);
-    output += topologyheader;
-    for(int i=0; i<topologies->used-1; i++) {
-        const char* nextstring = topologies->arr[i];
-//        fprintf(out, "%s\n", nextstring);
-        output += nextstring;
+    if(topologies->used > 0) {
+        const char *topologyheader = "\nINSERT INTO topology VALUES";
+        output += topologyheader;
+        for (int i = 0; i < topologies->used - 1; i++) {
+            const char *nextstring = topologies->arr[i];
+            output += nextstring;
+        }
+        stripped = topologies->arr[topologies->used - 1];
+        stripped[strlen(stripped) - 1] = '\n';
+        output += stripped;
+
+        output += "ON CONFLICT DO NOTHING;";
     }
-    stripped = topologies->arr[topologies->used-1];
-    stripped[strlen(stripped)-1] = '\n';
-//    fprintf(out, "%s\n", stripped);
-    output += stripped;
-
-//    fprintf(out, "%s\n", "ON CONFLICT DO NOTHING;");
-    output += "ON CONFLICT DO NOTHING;";
     free_hashtable(nm.asset_tab);
 
     // printf("%s\n", output.c_str());
@@ -346,7 +336,7 @@ int main(int argc, char *argv[]) {
 
     std::string host{"localhost"};
     std::string port{"5432"};
-    std::string dbName{"ag_gen"};
+    std::string dbName{"ag_gen2"};
     std::string username{};
     std::string password{};
 
@@ -359,37 +349,41 @@ int main(int argc, char *argv[]) {
     init_db("postgresql://" + username + "@" + host + ":" + port + "/" +
                dbName);
 
-    std::string parsednm;
-    if(!opt_nm.empty()) {
-        parsednm = parse_nm(opt_nm);
-    }
+//    test_create();
 
-    std::string parsedxp;
-    if(!opt_xp.empty()) {
-        parsedxp = parse_xp(opt_xp);
-    }
+     std::string parsednm;
+     if(!opt_nm.empty()) {
+         parsednm = parse_nm(opt_nm);
+     }
 
-    import_models(parsednm, parsedxp);
+     std::string parsedxp;
+     if(!opt_xp.empty()) {
+         parsedxp = parse_xp(opt_xp);
+     }
 
-    AGGenInstance _instance;
-    _instance.initial_qualities = fetch_all_qualities();
-    _instance.initial_topologies = fetch_all_topologies();
-    _instance.assets = fetch_all_assets();
-    _instance.exploits = fetch_all_exploits();
-    _instance.facts = fetch_facts();
-    auto ex = fetch_all_exploits();
+     std::cout << "Importing Models to Database: ";
+     import_models(parsednm, parsedxp);
+     std::cout << "Done" << std::endl;
 
-    AGGen gen(_instance);
-    AGGenInstance postinstance = gen.generate();
+     AGGenInstance _instance;
+     _instance.initial_qualities = fetch_all_qualities();
+     _instance.initial_topologies = fetch_all_topologies();
+     _instance.assets = fetch_all_assets();
+     _instance.exploits = fetch_all_exploits();
+     _instance.facts = fetch_facts();
+     auto ex = fetch_all_exploits();
 
-    auto factbase_items = postinstance.factbase_items;
-    auto factbases = postinstance.factbases;
-    auto edges = postinstance.edges;
-    auto factlist = postinstance.facts;
+     AGGen gen(_instance);
+     AGGenInstance postinstance = gen.generate();
 
-    std::cout << "Saving Attack Graph to Database: ";
-    save_ag_to_db(factbase_items, factbases, edges, factlist);
-    std::cout << "Done" << std::endl;
-    if (should_graph)
-        graph_ag(edges, factbases);
+     auto factbase_items = postinstance.factbase_items;
+     auto factbases = postinstance.factbases;
+     auto edges = postinstance.edges;
+     auto factlist = postinstance.facts;
+
+     std::cout << "Saving Attack Graph to Database: ";
+     save_ag_to_db(factbase_items, factbases, edges, factlist);
+     std::cout << "Done" << std::endl;
+     if (should_graph)
+         graph_ag(edges, factbases);
 }

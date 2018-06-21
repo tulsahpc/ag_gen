@@ -29,6 +29,7 @@ AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
     instance.factbases.push_back(init_state.get_factbase());
     instance.factbase_items.push_back(init_items);
     hash_list.insert(init_state.get_hash(instance.facts));
+    state_list.push_back(init_state);
     frontier.push_back(init_state);
 }
 
@@ -106,6 +107,8 @@ AGGenInstance &AGGen::generate() {
         // Remove the next state from the queue and get its factbase
         auto current_state = frontier.front();
         frontier.pop_front();
+
+        std::cout << "Current State: " << current_state.get_factbase().get_id() << std::endl;
 
         vector<tuple<Exploit, AssetGroup>> appl_exploits;
 
@@ -189,6 +192,7 @@ AGGenInstance &AGGen::generate() {
         //std::cout << "\nApplicable Exploits: " << appl_exploits.size() << std::endl;
 
         auto appl_expl_size = appl_exploits.size();
+        std::cout << "Applicable Exploits: " << to_string(appl_expl_size) << std::endl;
 
         // Apply each exploit to the network state to generate new network
         // states
@@ -223,6 +227,8 @@ AGGenInstance &AGGen::generate() {
 
             instance.factbase_items.push_back(new_items);
 
+            std::cout << "Hash: " << new_state.get_hash(instance.facts) << std::endl;
+
             auto res = hash_list.find(new_state.get_hash(instance.facts));
 
             //    If the factbase does not already exist, increment our
@@ -230,12 +236,9 @@ AGGenInstance &AGGen::generate() {
             //    database. Then we push the new network state onto the
             //    frontier. If the factbase does already exist, we create a
             //    new edge from the previous state to this one and move on.
-            if (res != hash_list.end()) {
-                // Edge edge(current_factbase.get_id(), factbase.get_id(),
-                // exploit, assetGroup);
-                continue;
-            } else {
+            if (res == hash_list.end()) {
                 new_state.set_id();
+                state_list.push_back(new_state);
                 instance.factbases.push_back(new_state.get_factbase());
                 hash_list.insert(new_state.get_hash(instance.facts));
                 frontier.emplace_back(new_state);
@@ -245,6 +248,8 @@ AGGenInstance &AGGen::generate() {
                                         new_state.get_factbase().get_id(),
                                         exploit, assetGroup);
         }
+
+        std::cout << std::endl;
     }
 
     auto end = std::chrono::system_clock::now();

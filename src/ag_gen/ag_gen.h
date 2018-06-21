@@ -41,6 +41,7 @@ class AGGen {
     AGGenInstance instance;
     std::deque<NetworkState> frontier; //!< Unexplored states
     std::set<size_t> hash_list{};      //!< List of hashes of known states
+    std::vector<NetworkState> state_list{};
   public:
     explicit AGGen(AGGenInstance &_instance);
     AGGenInstance &generate();

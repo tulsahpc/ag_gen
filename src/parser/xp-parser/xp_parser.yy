@@ -41,7 +41,7 @@
 %token <string> IDENTIFIER INT FLOAT
 %token <string> EQ NEQ GT LT GEQ LEQ PLUSEQ SUBEQ
 %token <string> ONEDIR ONEDIRBACK BIDIR NOTONEDIR NOTBIDIR
-%token <string> ADD UPDATE DELETE
+%token <string> ADD INSERT UPDATE DELETE
 %token EXPLOIT PRECONDITIONS POSTCONDITIONS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE LPAREN RPAREN;
 
 %%
@@ -129,6 +129,7 @@ postcondition: operation fact {
 ;
 
 operation: ADD { $$ = $1; }
+| INSERT { $$ = $1; }
 | DELETE { $$ = $1; }
 | UPDATE { $$ = $1; }
 ;

@@ -60,6 +60,8 @@ char *make_postcondition(hashtable *exploit_ids, exploitpattern *xp, postconditi
 
     if(strcmp(action, "add") == 0)
         action_type = ADD_T;
+    else if(strcmp(action, "insert") == 0)
+        action_type = ADD_T;
     else if(strcmp(action, "update") == 0)
         action_type = UPDATE_T;
     else if(strcmp(action, "delete") == 0)

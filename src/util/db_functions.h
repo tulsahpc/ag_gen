@@ -48,4 +48,6 @@ void save_ag_to_db(std::vector<FactbaseItems> &factbase_items,
                    std::vector<Factbase> &factbases, std::vector<Edge> &edges,
                    Keyvalue &factlist);
 
+void test_create();
+
 #endif
