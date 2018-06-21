@@ -19,8 +19,16 @@ using namespace std;
  * @param _instance The initial information for generating the graph
  */
 AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
-    frontier.emplace_back(instance.initial_qualities,
-                          instance.initial_topologies);
+    auto init_quals = instance.initial_qualities;
+    auto init_topos = instance.initial_topologies;
+    NetworkState init_state(init_quals, init_topos);
+    init_state.set_id();
+    FactbaseItems init_items =
+                make_tuple(make_tuple(init_quals, init_topos),
+                           init_state.get_factbase().get_id());
+    instance.factbases.push_back(init_state.get_factbase());
+    instance.factbase_items.push_back(init_items);
+    frontier.push_back(init_state);
 }
 
 /**

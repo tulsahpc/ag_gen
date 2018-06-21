@@ -371,7 +371,7 @@ int main(int argc, char *argv[]) {
         parsedxp = parse_xp(opt_xp);
     }
 
-    // import_models(parsednm, parsedxp);
+    import_models(parsednm, parsedxp);
 
     AGGenInstance _instance;
     _instance.initial_qualities = fetch_all_qualities();
@@ -390,7 +390,7 @@ int main(int argc, char *argv[]) {
     auto factlist = postinstance.facts;
 
     std::cout << "Saving Attack Graph to Database: ";
-    // save_ag_to_db(factbase_items, factbases, edges, factlist);
+    save_ag_to_db(factbase_items, factbases, edges, factlist);
     std::cout << "Done" << std::endl;
     if (should_graph)
         graph_ag(edges, factbases);

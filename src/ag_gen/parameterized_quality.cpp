@@ -18,4 +18,4 @@ void ParameterizedQuality::print() {
  * @details Parameter numbers are 1-indexed.
  * @return The current parameter number.
  */
-int ParameterizedQuality::get_param_num() { return param - 1; }
+int ParameterizedQuality::get_param_num() { return param; }
