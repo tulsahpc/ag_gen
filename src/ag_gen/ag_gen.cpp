@@ -109,7 +109,7 @@ AGGenInstance &AGGen::generate() {
         auto current_hash = current_state.get_hash(instance.facts);
         frontier.pop_front();
 
-        std::cout << "Current State: " << current_state.get_factbase().get_id() << std::endl;
+        std::cout << "Current State: " << current_state.get_id() << std::endl;
 
         vector<tuple<Exploit, AssetGroup>> appl_exploits;
 
