@@ -101,7 +101,7 @@ AGGenInstance &AGGen::generate() {
 
     cout << "Generating Attack Graph" << endl;
     while (!frontier.empty()) {
-        cout << "Frontier Size: " << frontier.size() << endl;
+//        cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
         auto current_state = frontier.front();
         frontier.pop_front();
@@ -111,28 +111,29 @@ AGGenInstance &AGGen::generate() {
 
         vector<tuple<Exploit, AssetGroup>> appl_exploits;
 
-        std::cout << "Number of Exploits: " << esize << std::endl;
+        // std::cout << "Number of Exploits: " << esize << std::endl;
         // Get all applicable exploits with this network state
         for (int i = 0; i < esize; i++) {
-            auto e = exploit_list.at(i);
-            std::cout << "Exploit: " << e.get_id() << std::endl;
+             auto e = exploit_list.at(i);
+            // std::cout << "Exploit: " << e.get_id() << std::endl;
 
-            auto num_params = e.get_num_params();
-            std::cout << "\tNum Params: " << num_params << std::endl;
+             auto num_params = e.get_num_params();
+            // std::cout << "\tNum Params: " << num_params << std::endl;
 
-            auto preconds_q = e.precond_list_q();
-            std::cout << "\tNum Precond Qualities: " << preconds_q.size() << std::endl;
+             auto preconds_q = e.precond_list_q();
+            // std::cout << "\tNum Precond Qualities: " << preconds_q.size() << std::endl;
 
-            auto preconds_t = e.precond_list_t();
-            std::cout << "\tNum Precond Topologies: " << preconds_t.size() << std::endl << std::endl;
+             auto preconds_t = e.precond_list_t();
+            // std::cout << "\tNum Precond Topologies: " << preconds_t.size() << std::endl << std::endl;
 
             Odometer od(num_params, instance.facts.size());
             std::vector<AssetGroup> asset_groups;
 
             auto len = od.length();
-            // for (auto j = 0; j < len; j++) {
+//            od.print();
+//            for (auto j = 0; j < len; j++) {
             for (auto perm : od) {
-                // auto perm = od[j];
+//                auto perm = od[j];
 
                 vector<Quality> asset_group_quals;
                 vector<Topology> asset_group_topos;
@@ -141,6 +142,8 @@ AGGenInstance &AGGen::generate() {
                     asset_group_quals.emplace_back(
                         perm[precond.get_param_num()], precond.name, "=",
                         precond.value);
+//                    auto qual = Quality(perm[precond.get_param_num()], precond.name, "=", precond.value);
+//                    qual.print();
                 }
 
                 for (auto &precond : preconds_t) {
@@ -159,9 +162,9 @@ AGGenInstance &AGGen::generate() {
             }
 
             auto assetgroup_size = asset_groups.size();
-            std::cout << "\tAsset Group Size: " << assetgroup_size << std::endl;
-            for (auto j = 0; j < assetgroup_size; j++) {
+            for (int j = 0; j < assetgroup_size; j++) {
                 auto asset_group = asset_groups.at(j);
+
                 // Each quality must exist. If not, discard asset_group
                 // entirely.
                 for (auto &quality : asset_group.get_hypo_quals()) {
@@ -185,7 +188,7 @@ AGGenInstance &AGGen::generate() {
             }
         }
 
-        std::cout << "\nApplicable Exploits: " << appl_exploits.size() << std::endl << std::endl;
+        //std::cout << "\nApplicable Exploits: " << appl_exploits.size() << std::endl;
 
         auto appl_expl_size = appl_exploits.size();
 
@@ -237,7 +240,7 @@ AGGenInstance &AGGen::generate() {
                 new_state.set_id();
                 instance.factbases.push_back(new_state.get_factbase());
                 hash_list.insert(new_state.get_hash(instance.facts));
-                frontier.emplace_front(new_state);
+                frontier.emplace_back(new_state);
                 counter++;
             }
             instance.edges.emplace_back(current_state.get_factbase().get_id(),

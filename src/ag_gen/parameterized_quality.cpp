@@ -15,7 +15,7 @@ void ParameterizedQuality::print() {
 
 /**
  * @brief Gets the current parameter number.
- * @details Parameter numbers are 1-indexed.
+ * @details Parameter numbers are 0-indexed.
  * @return The current parameter number.
  */
 int ParameterizedQuality::get_param_num() { return param; }

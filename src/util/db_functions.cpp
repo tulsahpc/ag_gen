@@ -304,7 +304,6 @@ vector<Asset> fetch_all_assets() {
 
     for (auto &row : rows) {
         int id = stoi(row[0]);
-        cout << "id: " << id << endl;
         string name = row[1];
 
         auto q = qmap[id];
@@ -312,8 +311,6 @@ vector<Asset> fetch_all_assets() {
         // new_assets.push_back(asset);
         new_assets.emplace_back(id, name, q);
     }
-
-    std::cout << "Number of Assets: " << new_assets.size() << std::endl;
 
     return new_assets;
 }
@@ -331,8 +328,6 @@ vector<Quality> fetch_all_qualities() {
         Quality qual(asset_id, property, op, value);
         qualities.push_back(qual);
     }
-
-    std::cout << "Number of Qualities: " << qualities.size() << std::endl;
 
     return qualities;
 }
@@ -353,8 +348,6 @@ vector<Topology> fetch_all_topologies() {
         topologies.push_back(t);
     }
 
-    std::cout << "Number of Topologies: " << topologies.size() << std::endl;
-
     return topologies;
 }
 
@@ -365,8 +358,6 @@ Keyvalue fetch_facts() {
     initfacts.populate(fetch_quality_values());
     initfacts.populate(fetch_topology_attributes());
     initfacts.populate(fetch_topology_values());
-
-    std::cout << "Number of Facts: " << initfacts.size() << std::endl;
 
     return initfacts;
 }
@@ -389,8 +380,6 @@ void save_ag_to_db(vector<FactbaseItems> &factbase_items,
     }
 
     factbase_sql_query += " ON CONFLICT DO NOTHING;";
-
-    std::cout << factbase_sql_query << std::endl;
     db.exec(factbase_sql_query);
 
     string item_sql_query = "INSERT INTO factbase_item VALUES ";
