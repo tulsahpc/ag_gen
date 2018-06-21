@@ -34,6 +34,11 @@ NetworkState::NetworkState(const NetworkState &ns) : factbase(ns.factbase) {
 void NetworkState::set_id() { factbase.set_id(); }
 
 /**
+ * @return The ID of the NetworkState
+ */
+int NetworkState::get_id() { return factbase.get_id(); }
+
+/**
  * @return The Factbase for the NetworkState
  */
 const Factbase &NetworkState::get_factbase() const { return factbase; }

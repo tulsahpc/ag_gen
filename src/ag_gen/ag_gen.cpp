@@ -23,12 +23,12 @@ AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
     auto init_topos = instance.initial_topologies;
     NetworkState init_state(init_quals, init_topos);
     init_state.set_id();
+    int init_id = init_state.get_id();
     FactbaseItems init_items =
-                make_tuple(make_tuple(init_quals, init_topos),
-                           init_state.get_factbase().get_id());
+                make_tuple(make_tuple(init_quals, init_topos), init_id);
     instance.factbases.push_back(init_state.get_factbase());
     instance.factbase_items.push_back(init_items);
-    hash_list.insert(init_state.get_hash(instance.facts));
+    hash_map.insert(make_pair(init_state.get_hash(instance.facts), init_id));
     state_list.push_back(init_state);
     frontier.push_back(init_state);
 }
@@ -106,6 +106,7 @@ AGGenInstance &AGGen::generate() {
 //        cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
         auto current_state = frontier.front();
+        auto current_hash = current_state.get_hash(instance.facts);
         frontier.pop_front();
 
         std::cout << "Current State: " << current_state.get_factbase().get_id() << std::endl;
@@ -221,32 +222,39 @@ AGGenInstance &AGGen::generate() {
 
             // Store nodes in global list here
 
-            FactbaseItems new_items =
-                make_tuple(make_tuple(qualities, topologies),
-                           new_state.get_factbase().get_id());
+            auto hash = new_state.get_hash(instance.facts);
 
-            instance.factbase_items.push_back(new_items);
+            if (hash == current_hash)
+                continue;
 
-            std::cout << "Hash: " << new_state.get_hash(instance.facts) << std::endl;
+            // std::cout << "Hash: " << new_state.get_hash(instance.facts) << std::endl;
 
-            auto res = hash_list.find(new_state.get_hash(instance.facts));
+            auto res = hash_map.find(hash);
 
             //    If the factbase does not already exist, increment our
             //    number of new states and save the factbase to the
             //    database. Then we push the new network state onto the
             //    frontier. If the factbase does already exist, we create a
             //    new edge from the previous state to this one and move on.
-            if (res == hash_list.end()) {
+            if (res == hash_map.end()) {
+                FactbaseItems new_items =
+                            make_tuple(make_tuple(qualities, topologies), new_state.get_id());
+
+                instance.factbase_items.push_back(new_items);
                 new_state.set_id();
                 state_list.push_back(new_state);
                 instance.factbases.push_back(new_state.get_factbase());
-                hash_list.insert(new_state.get_hash(instance.facts));
+                hash_map.insert(make_pair(new_state.get_hash(instance.facts), new_state.get_id()));
                 frontier.emplace_back(new_state);
+                instance.edges.emplace_back(current_state.get_id(), new_state.get_id(),
+                                            exploit, assetGroup);
                 counter++;
             }
-            instance.edges.emplace_back(current_state.get_factbase().get_id(),
-                                        new_state.get_factbase().get_id(),
-                                        exploit, assetGroup);
+            else {
+                instance.edges.emplace_back(current_state.get_id(), hash_map[hash],
+                                            exploit, assetGroup);
+            }
+
         }
 
         std::cout << std::endl;
