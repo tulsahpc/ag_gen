@@ -368,8 +368,8 @@ int main(int argc, char *argv[]) {
     if(!opt_xp.empty()) {
         parsedxp = parse_xp(opt_xp);
     }
-    
-//    import_models(parsednm, parsedxp);
+
+    import_models(parsednm, parsedxp);
 
     AGGenInstance _instance;
     _instance.initial_qualities = fetch_all_qualities();

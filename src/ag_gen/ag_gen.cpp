@@ -28,6 +28,7 @@ AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
                            init_state.get_factbase().get_id());
     instance.factbases.push_back(init_state.get_factbase());
     instance.factbase_items.push_back(init_items);
+    hash_list.insert(init_state.get_hash(instance.facts));
     frontier.push_back(init_state);
 }
 
@@ -105,9 +106,6 @@ AGGenInstance &AGGen::generate() {
         // Remove the next state from the queue and get its factbase
         auto current_state = frontier.front();
         frontier.pop_front();
-
-        // Save the initial state's hash value
-        // hash_list[current_state.hash()] = current_state;
 
         vector<tuple<Exploit, AssetGroup>> appl_exploits;
 
