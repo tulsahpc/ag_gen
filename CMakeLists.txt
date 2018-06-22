@@ -1,4 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
+
+# Uncomment for gcc
+# set(CMAKE_C_COMPILER "gcc-8")
+# set(CMAKE_CXX_COMPILER "g++-8")
+
 project(ag_gen)
 
 set_source_files_properties(
@@ -44,7 +49,6 @@ find_package(OpenSSL)
 find_package(Boost)
 find_package(Doxygen)
 
-pkg_check_modules(CONFIG REQUIRED libconfig++)
 pkg_check_modules(CMOCKA cmocka)
 
 if(OpenSSL_FOUND)
@@ -98,7 +102,7 @@ add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp"
     ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS}
     ${FLEX_xp_scanner_OUTPUTS} ${BISON_xp_parser_OUTPUTS}
     ${ag_gen_src} ${utils_src})
-target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES} ${CONFIG_LIBRARIES})
+target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES})
 
 # Coding examples
 add_executable(graph_example "${CMAKE_SOURCE_DIR}/src/examples/graph_example.cpp")
@@ -118,3 +122,6 @@ add_executable(netgen "${CMAKE_SOURCE_DIR}/src/tools/netgen.cpp")
 # Unit Testing
 add_executable(dynstr_test ${CMAKE_SOURCE_DIR}/src/util/mem.c ${CMAKE_SOURCE_DIR}/src/tests/mem_test.c)
 target_link_libraries(dynstr_test ${CMOCKA_LIBRARIES})
+
+# Files to be added to build directory
+configure_file("config.ini" "config.ini" COPYONLY)
