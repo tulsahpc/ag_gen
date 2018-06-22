@@ -13,8 +13,10 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/graphviz.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
-#include <libconfig.h++>
+// #include <libconfig.h++>
 
 #include "ag_gen/ag_gen.h"
 #include "util/db_functions.h"
@@ -270,6 +272,7 @@ std::string parse_xp(std::string filename) {
 void print_usage() {
     std::cout << "Usage: ag_gen [OPTION...]" << std::endl << std::endl;
     std::cout << "Flags:" << std::endl;
+    std::cout << "\t-c\tConfig section in config.ini" << std::endl;
     std::cout << "\t-g\tGenerate visual graph using graphviz" << std::endl;
     std::cout << "\t-n\tNetwork model file used for generation" << std::endl;
     std::cout << "\t-x\tExploit pattern file used for generation" << std::endl;
@@ -287,11 +290,12 @@ int main(int argc, char *argv[]) {
 
     std::string opt_nm;
     std::string opt_xp;
+    std::string opt_config;
 
     bool should_graph = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "ghn:x:")) != -1) {
+    while ((opt = getopt(argc, argv, "ghc:n:x:")) != -1) {
         switch (opt) {
         case 'g':
             should_graph = true;
@@ -304,6 +308,9 @@ int main(int argc, char *argv[]) {
             break;
         case 'x':
             opt_xp = optarg;
+            break;
+        case 'c':
+            opt_config = optarg;
             break;
         case '?':
             if (optopt == 'c')
@@ -319,32 +326,43 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    libconfig::Config cfg;
+    std::string config_section = (opt_config.empty()) ? "default" : opt_config;
 
-    try {
-        cfg.readFile("ag_gen.cfg");
-    } catch (const libconfig::FileIOException &e) {
-        std::cerr << "Cannot read config file: ./ag_gen.cfg" << std::endl;
-        exit(1);
-    } catch (const libconfig::ParseException &e) {
-        std::cerr << "Parse error at " << e.getFile() << ":" << e.getLine() << " - "
-             << e.getError() << std::endl;
-        exit(1);
-    }
+    // libconfig::Config cfg;
 
-    std::string new_db_string;
+    // try {
+    //     cfg.readFile("ag_gen.cfg");
+    // } catch (const libconfig::FileIOException &e) {
+    //     std::cerr << "Cannot read config file: ./ag_gen.cfg" << std::endl;
+    //     exit(1);
+    // } catch (const libconfig::ParseException &e) {
+    //     std::cerr << "Parse error at " << e.getFile() << ":" << e.getLine() << " - "
+    //          << e.getError() << std::endl;
+    //     exit(1);
+    // }
 
-    std::string host{"localhost"};
-    std::string port{"5432"};
-    std::string dbName{"ag_gen2"};
-    std::string username{};
-    std::string password{};
+    boost::property_tree::ptree pt;
+    boost::property_tree::ini_parser::read_ini("config.ini", pt);
 
-    cfg.lookupValue("database.host", host);
-    cfg.lookupValue("database.port", port);
-    cfg.lookupValue("database.db", dbName);
-    cfg.lookupValue("database.username", username);
-    cfg.lookupValue("database.password", password);
+    std::string host = pt.get<std::string>(config_section + ".host");
+    std::string port = pt.get<std::string>(config_section + ".port");
+    std::string dbName = pt.get<std::string>(config_section + ".db");
+    std::string username = pt.get<std::string>(config_section + ".username");
+    std::string password = pt.get<std::string>(config_section + ".password");
+
+    // std::string new_db_string;
+
+    // std::string host{"localhost"};
+    // std::string port{"5432"};
+    // std::string dbName{"ag_gen2"};
+    // std::string username{};
+    // std::string password{};
+
+    // cfg.lookupValue("database.host", host);
+    // cfg.lookupValue("database.port", port);
+    // cfg.lookupValue("database.db", dbName);
+    // cfg.lookupValue("database.username", username);
+    // cfg.lookupValue("database.password", password);
 
     init_db("postgresql://" + username + "@" + host + ":" + port + "/" +
                dbName);
