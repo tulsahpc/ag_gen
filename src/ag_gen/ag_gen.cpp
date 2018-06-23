@@ -30,7 +30,6 @@ AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
     instance.factbases.push_back(init_state.get_factbase());
     instance.factbase_items.push_back(init_items);
     hash_map.insert(make_pair(init_state.get_hash(instance.facts), init_id));
-    ancestors.push_back(init_state.get_hash(instance.facts));
     frontier.push_back(init_state);
 }
 
@@ -101,7 +100,6 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
  *      5. Push the new network state onto the frontier to be expanded later.
  */
 AGGenInstance &AGGen::generate() {
-
     std::vector<Exploit> exploit_list = instance.exploits;
     auto counter = 0;
     auto start = std::chrono::system_clock::now();
@@ -109,7 +107,11 @@ AGGenInstance &AGGen::generate() {
     unsigned long esize = exploit_list.size();
 
     cout << "Generating Attack Graph" << endl;
+    unsigned long long count_output = 0;
     while (!frontier.empty()) {
+        if(count_output % 500) {
+            std::cout << "State " << count_output << "\n";
+        }
 //        cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
         auto current_state = frontier.back();
@@ -199,8 +201,6 @@ AGGenInstance &AGGen::generate() {
 
         auto appl_expl_size = appl_exploits.size();
 
-        bool newStates = false;
-
         // Apply each exploit to the network state to generate new network
         // states
         for (int j = 0; j < appl_expl_size; j++) {
@@ -277,27 +277,18 @@ AGGenInstance &AGGen::generate() {
                     make_tuple(new_state.get_factbase().get_facts_tuple(), new_state.get_id());
                 instance.factbase_items.push_back(new_items);
 
-                ancestors.push_back(current_hash);
-
                 instance.factbases.push_back(new_state.get_factbase());
                 hash_map.insert(make_pair(new_state.get_hash(instance.facts), new_state.get_id()));
+
                 frontier.emplace_back(new_state);
 
                 instance.edges.emplace_back(current_state.get_id(), new_state.get_id(),
                                             exploit, assetGroup);
-                newStates = true;
                 counter++;
+            } else {
+                instance.edges.emplace_back(current_state.get_id(), hash_map[hash],
+                                            exploit, assetGroup);
             }
-            else {
-                //if(std::find(ancestors.begin(), ancestors.end(), hash) == ancestors.end()) {
-                    instance.edges.emplace_back(current_state.get_id(), hash_map[hash],
-                                                exploit, assetGroup);
-                //}
-            }
-        }
-
-        if(!newStates) {
-            ancestors.pop_back();
         }
     }
 

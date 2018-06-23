@@ -40,7 +40,6 @@ class AGGen {
     AGGenInstance instance;
     std::vector<NetworkState> frontier;               //!< Unexplored states
     std::unordered_map<size_t, int> hash_map{};      //!< Map of hashes to Factbase ID
-    std::vector<size_t> ancestors{};
   public:
     explicit AGGen(AGGenInstance &_instance);
     AGGenInstance &generate();
