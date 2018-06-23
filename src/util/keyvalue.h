@@ -48,6 +48,8 @@ class Keyvalue {
     std::string operator[](int num) const { return str_vector.at(num); }
 
     int size() const { return length; }
+
+    std::vector<std::string> get_str_vector() { return str_vector; }
 };
 
 #endif // KEYVALUE_HPP

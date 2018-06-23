@@ -104,6 +104,10 @@ add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp"
     ${ag_gen_src} ${utils_src})
 target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES})
 
+add_executable(fbitems "${CMAKE_SOURCE_DIR}/src/fbitems/fbitems.cpp"
+    ${ag_gen_src} ${utils_src})
+target_link_libraries(fbitems ${PostgreSQL_LIBRARIES})
+
 # Coding examples
 add_executable(graph_example "${CMAKE_SOURCE_DIR}/src/examples/graph_example.cpp")
 

@@ -19,6 +19,8 @@ class Asset {
 
   public:
     Asset(int iid, std::string nname, std::vector<Quality> q);
+
+    std::string get_name();
 };
 
 #endif // ASSET_HPP
