@@ -5,6 +5,7 @@
 #include <chrono>
 #include <iostream>
 #include <vector>
+#include <tuple>
 
 #include "ag_gen.h"
 
@@ -29,7 +30,7 @@ AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
     instance.factbases.push_back(init_state.get_factbase());
     instance.factbase_items.push_back(init_items);
     hash_map.insert(make_pair(init_state.get_hash(instance.facts), init_id));
-    state_list.push_back(init_state);
+    ancestors.push_back(init_state.get_hash(instance.facts));
     frontier.push_back(init_state);
 }
 
@@ -43,7 +44,7 @@ AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
  * @param group A tuple containing the exploit and applicable assets
  * @return A tuple containing the "real" qualities and "real" topologies
  */
-static std::tuple<std::vector<Quality>, std::vector<Topology>>
+static std::tuple<std::vector<std::tuple<ACTION_T, Quality>>, std::vector<std::tuple<ACTION_T, Topology>>>
 createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
     auto ex = get<0>(group);
     auto ag = get<1>(group);
@@ -53,24 +54,30 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
     auto param_postconds_q = ex.postcond_list_q();
     auto param_postconds_t = ex.postcond_list_t();
 
-    vector<Quality> postconds_q;
-    vector<Topology> postconds_t;
+    vector<tuple<ACTION_T, Quality>> postconds_q;
+    vector<tuple<ACTION_T, Topology>> postconds_t;
 
     for (auto &postcond : param_postconds_q) {
-        Quality q(perm[postcond.get_param_num()], postcond.name, "=",
-                  postcond.value);
-        postconds_q.push_back(q);
+        auto action = std::get<0>(postcond);
+        auto fact = std::get<1>(postcond);
+
+        Quality q(perm[fact.get_param_num()], fact.name, "=",
+                  fact.value);
+        postconds_q.push_back(std::make_tuple(action, q));
     }
 
     for (auto &postcond : param_postconds_t) {
-        auto dir = postcond.get_dir();
-        auto prop = postcond.get_property();
-        auto op = postcond.get_operation();
-        auto val = postcond.get_value();
+        auto action = std::get<0>(postcond);
+        auto fact = std::get<1>(postcond);
 
-        Topology t(perm[postcond.get_from_param()],
-                   perm[postcond.get_to_param()], dir, prop, op, val);
-        postconds_t.push_back(t);
+        auto dir = fact.get_dir();
+        auto prop = fact.get_property();
+        auto op = fact.get_operation();
+        auto val = fact.get_value();
+
+        Topology t(perm[fact.get_from_param()],
+                   perm[fact.get_to_param()], dir, prop, op, val);
+        postconds_t.push_back(std::make_tuple(action, t));
     }
 
     return make_tuple(postconds_q, postconds_t);
@@ -105,11 +112,11 @@ AGGenInstance &AGGen::generate() {
     while (!frontier.empty()) {
 //        cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
-        auto current_state = frontier.front();
+        auto current_state = frontier.back();
         auto current_hash = current_state.get_hash(instance.facts);
-        frontier.pop_front();
+        frontier.pop_back();
 
-        std::cout << "Current State: " << current_state.get_id() << std::endl;
+//        std::cout << "Current State: " << current_state.get_id() << std::endl;
 
         vector<tuple<Exploit, AssetGroup>> appl_exploits;
 
@@ -190,10 +197,9 @@ AGGenInstance &AGGen::generate() {
             }
         }
 
-        //std::cout << "\nApplicable Exploits: " << appl_exploits.size() << std::endl;
-
         auto appl_expl_size = appl_exploits.size();
-        std::cout << "Applicable Exploits: " << to_string(appl_expl_size) << std::endl;
+
+        bool newStates = false;
 
         // Apply each exploit to the network state to generate new network
         // states
@@ -215,10 +221,40 @@ AGGenInstance &AGGen::generate() {
             // Deep copy the factbase so we can create a new network state
             NetworkState new_state{current_state};
 
-            new_state.add_qualities(qualities);
-            new_state.add_topologies(topologies);
-
             // ADD/UPDATE/DELETE code goes here
+            for(auto qual : qualities) {
+                auto action = std::get<0>(qual);
+                auto fact = std::get<1>(qual);
+
+                switch(action) {
+                case ADD_T:
+                    new_state.add_quality(fact);
+                    break;
+                case UPDATE_T:
+                    new_state.update_quality(fact);
+                    break;
+                case DELETE_T:
+                    new_state.delete_quality(fact);
+                    break;
+                }
+            }
+
+            for(auto topo : topologies) {
+                auto action = std::get<0>(topo);
+                auto fact = std::get<1>(topo);
+
+                switch(action) {
+                case ADD_T:
+                    new_state.add_topology(fact);
+                    break;
+                case UPDATE_T:
+                    new_state.update_topology(fact);
+                    break;
+                case DELETE_T:
+                    new_state.delete_topology(fact);
+                    break;
+                }
+            }
 
             // Store nodes in global list here
 
@@ -226,8 +262,6 @@ AGGenInstance &AGGen::generate() {
 
             if (hash == current_hash)
                 continue;
-
-            // std::cout << "Hash: " << new_state.get_hash(instance.facts) << std::endl;
 
             auto res = hash_map.find(hash);
 
@@ -237,27 +271,34 @@ AGGenInstance &AGGen::generate() {
             //    frontier. If the factbase does already exist, we create a
             //    new edge from the previous state to this one and move on.
             if (res == hash_map.end()) {
-                FactbaseItems new_items =
-                            make_tuple(make_tuple(qualities, topologies), new_state.get_id());
-
-                instance.factbase_items.push_back(new_items);
                 new_state.set_id();
-                state_list.push_back(new_state);
+
+                FactbaseItems new_items =
+                    make_tuple(new_state.get_factbase().get_facts_tuple(), new_state.get_id());
+                instance.factbase_items.push_back(new_items);
+
+                ancestors.push_back(current_hash);
+
                 instance.factbases.push_back(new_state.get_factbase());
                 hash_map.insert(make_pair(new_state.get_hash(instance.facts), new_state.get_id()));
                 frontier.emplace_back(new_state);
+
                 instance.edges.emplace_back(current_state.get_id(), new_state.get_id(),
                                             exploit, assetGroup);
+                newStates = true;
                 counter++;
             }
             else {
-                instance.edges.emplace_back(current_state.get_id(), hash_map[hash],
-                                            exploit, assetGroup);
+                //if(std::find(ancestors.begin(), ancestors.end(), hash) == ancestors.end()) {
+                    instance.edges.emplace_back(current_state.get_id(), hash_map[hash],
+                                                exploit, assetGroup);
+                //}
             }
-
         }
 
-        std::cout << std::endl;
+        if(!newStates) {
+            ancestors.pop_back();
+        }
     }
 
     auto end = std::chrono::system_clock::now();

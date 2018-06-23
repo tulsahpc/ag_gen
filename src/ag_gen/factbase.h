@@ -17,7 +17,6 @@ class NetworkState;
  */
 class Factbase {
     static int current_id;
-    const NetworkState *parent;
 
     int id;
     std::vector<Quality> qualities;
@@ -30,11 +29,22 @@ class Factbase {
 
   public:
 
+    std::tuple<std::vector<Quality>, std::vector<Topology>> get_facts_tuple() const;
+
     bool find_quality(Quality &q) const;
     bool find_topology(Topology &t) const;
 
+    std::vector<Quality>::iterator get_quality(Quality &q);
+    std::vector<Topology>::iterator get_topology(Topology &t);
+
     void add_quality(Quality &q);
-    void add_topology(Topology &y);
+    void add_topology(Topology &t);
+
+    void delete_quality(Quality &q);
+    void delete_topology(Topology &t);
+
+    void update_quality(Quality &q);
+    void update_topology(Topology &t);
 
     void print() const;
     void set_id();

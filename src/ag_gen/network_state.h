@@ -33,8 +33,18 @@ class NetworkState {
 
     void set_id();
     int get_id();
+
     void add_qualities(std::vector<Quality> q);
     void add_topologies(std::vector<Topology> t);
+
+    void add_quality(Quality &q);
+    void add_topology(Topology &t);
+
+    void update_quality(Quality &q);
+    void update_topology(Topology &t);
+
+    void delete_quality(Quality &q);
+    void delete_topology(Topology &t);
 };
 
 #endif

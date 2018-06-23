@@ -16,6 +16,8 @@ using namespace std;
 Quality::Quality(int asset, string qualName, string o, string qualValue)
     : asset_id(asset), name(move(qualName)), op(o), value(move(qualValue)) {}
 
+int Quality::get_asset_id() const { return asset_id; }
+
 /**
  * @return The name of the Quality
  */
@@ -25,6 +27,12 @@ string Quality::get_name() const { return name; }
  * @return The operation
  */
 string Quality::get_op() const { return op; }
+
+std::string Quality::get_value() const { return value; }
+
+void Quality::set_value(std::string val) {
+    value = val;
+}
 
 /**
  * @brief Prints the Quality

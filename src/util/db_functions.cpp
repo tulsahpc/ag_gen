@@ -249,25 +249,39 @@ fetch_exploit_preconds() {
  * @brief Fetches the postconditions of an Exploit from the database.
  */
 unordered_map<
-    int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>>
+    int, tuple<vector<PostconditionQ>, vector<PostconditionT>>>
 fetch_exploit_postconds() {
     vector<Row> rows = db.exec("SELECT * FROM exploit_postcondition;");
 
     unordered_map<
-        int, tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>>>
+        int, tuple<vector<PostconditionQ>, vector<PostconditionT>>>
         postcond_map;
 
     int curr_id = -1;
-    vector<ParameterizedQuality> postconds_q;
-    vector<ParameterizedTopology> postconds_t;
+    vector<PostconditionQ> postconds_q;
+    vector<PostconditionT> postconds_t;
     for (auto &row : rows) {
         int type = stoi(row[2]);
         int exploit_id = stoi(row[1]);
 
+        std::string action_str = row[9];
+        ACTION_T action;
+
+        if(action_str == "add" || action_str == "insert") {
+            action = ADD_T;
+        } else if (action_str == "update") {
+            action = UPDATE_T;
+        } else if (action_str == "delete") {
+            action = DELETE_T;
+        } else {
+            std::cout << "Bad Action '" << action_str << "'" << std::endl;
+            exit(1);
+        }
+
         if (exploit_id != curr_id) {
             if (curr_id != -1) {
-                tuple<vector<ParameterizedQuality>,
-                      vector<ParameterizedTopology>>
+                tuple<vector<PostconditionQ>,
+                      vector<PostconditionT>>
                     tup{postconds_q, postconds_t};
                 postcond_map[curr_id] = tup;
 
@@ -284,7 +298,7 @@ fetch_exploit_postconds() {
             string value = row[6];
 
             ParameterizedQuality qual{param1, property, value};
-            postconds_q.push_back(qual);
+            postconds_q.push_back(std::make_tuple(action, qual));
         } else {
             int param1 = stoi(row[3]);
             int param2 = stoi(row[4]);
@@ -295,11 +309,11 @@ fetch_exploit_postconds() {
 
             ParameterizedTopology topo{param1,   param2, dir,
                                        property, op,     value};
-            postconds_t.push_back(topo);
+            postconds_t.push_back(std::make_tuple(action, topo));
         }
     }
 
-    tuple<vector<ParameterizedQuality>, vector<ParameterizedTopology>> tup{
+    tuple<vector<PostconditionQ>, vector<PostconditionT>> tup{
         postconds_q, postconds_t};
     postcond_map[curr_id] = tup;
 

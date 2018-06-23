@@ -38,9 +38,9 @@ struct AGGenInstance {
  */
 class AGGen {
     AGGenInstance instance;
-    std::deque<NetworkState> frontier;               //!< Unexplored states
+    std::vector<NetworkState> frontier;               //!< Unexplored states
     std::unordered_map<size_t, int> hash_map{};      //!< Map of hashes to Factbase ID
-    std::vector<NetworkState> state_list{};
+    std::vector<size_t> ancestors{};
   public:
     explicit AGGen(AGGenInstance &_instance);
     AGGenInstance &generate();

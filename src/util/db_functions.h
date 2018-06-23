@@ -32,7 +32,7 @@ std::unordered_map<
     int, std::tuple<std::vector<ParameterizedQuality>, std::vector<ParameterizedTopology>>>
                fetch_exploit_preconds();
 std::unordered_map<
-    int, std::tuple<std::vector<ParameterizedQuality>, std::vector<ParameterizedTopology>>>
+    int, std::tuple<std::vector<PostconditionQ>, std::vector<PostconditionT>>>
                fetch_exploit_postconds();
 
 std::vector<Exploit> fetch_all_exploits();

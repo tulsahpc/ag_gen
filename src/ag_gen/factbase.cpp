@@ -23,21 +23,20 @@ Factbase::Factbase(std::vector<Quality> q, std::vector<Topology> t)
 }
 
 /**
- * @brief Sets the parent NetworkState.
- *
- * @param ns New parent NetworkState
- */
-void Factbase::set_parent(const NetworkState &ns) { parent = &ns; }
-
-/**
  * @brief Increments the current ID.
  */
-void Factbase::set_id() { id = current_id++; }
+void Factbase::set_id() {
+    id = current_id++;
+}
 
 /**
  * @return The current Factbase ID.
  */
 int Factbase::get_id() const { return id; }
+
+std::tuple<std::vector<Quality>, std::vector<Topology>> Factbase::get_facts_tuple() const {
+    return std::make_tuple(qualities, topologies);
+}
 
 /**
  * @brief Searches for a Quality in the Factbase.
@@ -46,10 +45,14 @@ int Factbase::get_id() const { return id; }
  * @param q Quality for which to search.
  */
 bool Factbase::find_quality(Quality &q) const {
-    if (find(qualities.begin(), qualities.end(), q) == qualities.end()) {
+    if(std::find(qualities.begin(), qualities.end(), q) == qualities.end()) {
         return false;
     }
     return true;
+}
+
+std::vector<Quality>::iterator Factbase::get_quality(Quality &q) {
+    return std::find(qualities.begin(), qualities.end(), q);
 }
 
 /**
@@ -59,10 +62,14 @@ bool Factbase::find_quality(Quality &q) const {
  * @param t Topology for which to search.
  */
 bool Factbase::find_topology(Topology &t) const {
-    if (find(topologies.begin(), topologies.end(), t) == topologies.end()) {
+    if (std::find(topologies.begin(), topologies.end(), t) == topologies.end()) {
         return false;
     }
     return true;
+}
+
+std::vector<Topology>::iterator Factbase::get_topology(Topology &t) {
+    return std::find(topologies.begin(), topologies.end(), t);
 }
 
 /**
@@ -70,14 +77,32 @@ bool Factbase::find_topology(Topology &t) const {
  *
  * @param q Quality to add
  */
-void Factbase::add_quality(Quality &q) { qualities.push_back(q); }
+void Factbase::add_quality(Quality &q) {
+    qualities.push_back(q);
+}
+
+void Factbase::delete_quality(Quality &q) {
+    auto qual = get_quality(q);
+    if(qual != qualities.end()) {
+        qualities.erase(qual);
+    }
+}
 
 /**
  * @brief Adds a given Topology to the factbase's vector of Topologies.
  *
  * @param t Topology to add
  */
-void Factbase::add_topology(Topology &t) { topologies.push_back(t); }
+void Factbase::add_topology(Topology &t) {
+    topologies.push_back(t);
+}
+
+void Factbase::delete_topology(Topology &t) {
+    auto topo = get_topology(t);
+    if(topo != topologies.end()) {
+        topologies.erase(topo);
+    }
+}
 
 /**
  * @brief Shamelessly copied from Boost::hash_combine

@@ -33,8 +33,12 @@ class Quality {
     Quality(int assetId, std::string qualName, std::string op,
             std::string qualValue);
 
+    int get_asset_id() const;
     std::string get_name() const;
     std::string get_op() const;
+    std::string get_value() const;
+
+    void set_value(std::string val);
 
     void print() const;
 

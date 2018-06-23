@@ -11,3 +11,11 @@ exploit expand_cda_2(a)=
     postconditions:
         insert quality:a,giggle=true;
 .
+
+exploit retract_1(a)=
+    preconditions:
+        quality:a,giggle=true;
+        quality:a,poop=true;
+    postconditions:
+        update quality:a,funny=false;
+.

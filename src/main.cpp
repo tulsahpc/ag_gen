@@ -26,7 +26,7 @@
 #include "util/list.h"
 #include "util/mem.h"
 
-void graph_ag(std::vector<Edge> edges, std::vector<Factbase> factbases) {
+void graph_ag(std::string filename, std::vector<Edge> edges, std::vector<Factbase> factbases) {
     typedef boost::property<boost::edge_name_t, std::string> EdgeNameProperty;
     typedef boost::property<boost::vertex_name_t, int> VertexNameProperty;
 
@@ -63,7 +63,7 @@ void graph_ag(std::vector<Edge> edges, std::vector<Factbase> factbases) {
     }
 
     std::ofstream gout;
-    gout.open("ag.circo");
+    gout.open(filename);
     boost::write_graphviz(gout, g, boost::default_writer(), boost::make_label_writer(boost::get(boost::edge_name, g)));
     //boost::write_graphviz(gout, g);
 
@@ -403,5 +403,5 @@ int main(int argc, char *argv[]) {
      save_ag_to_db(factbase_items, factbases, edges, factlist);
      std::cout << "Done" << std::endl;
      if (should_graph)
-         graph_ag(edges, factbases);
+         graph_ag("ag.dot", edges, factbases);
 }

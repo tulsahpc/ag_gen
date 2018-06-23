@@ -86,3 +86,8 @@ config.txt
 doc/
 
 ._*
+
+*.dot
+*.circo
+*.svg
+

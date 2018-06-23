@@ -1,4 +1,0 @@
-server: localhost
-db: ag_gen
-login:
-password:
