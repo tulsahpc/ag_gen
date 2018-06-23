@@ -319,6 +319,8 @@ fetch_exploit_postconds() {
         std::string action_str = row[9];
         ACTION_T action;
 
+        // std::cout << action_str << "\n";
+
         if(action_str == "add" || action_str == "insert") {
             action = ADD_T;
         } else if (action_str == "update") {

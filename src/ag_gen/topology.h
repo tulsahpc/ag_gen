@@ -41,6 +41,7 @@ class Topology {
     std::string get_property() const;
     std::string get_op() const;
     std::string get_value() const;
+    void set_value(std::string &val);
     std::string get_dir() const;
 
     void print() const;

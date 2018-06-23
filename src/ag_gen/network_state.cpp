@@ -88,24 +88,31 @@ void NetworkState::add_topology(Topology &t) {
 }
 
 void NetworkState::update_quality(Quality &q) {
-    if(factbase.find_quality(q)) {
-        auto asset_id = q.get_asset_id();
-        auto attr = q.get_name();
-        auto val = q.get_value();
+    auto asset_id = q.get_asset_id();
+    auto attr = q.get_name();
+    auto val = q.get_value();
 
-        for(auto &qual : factbase.qualities) {
-            if(qual.get_asset_id() == asset_id &&
-                qual.get_name() == attr) {
-                qual.set_value(val);
-            }
+    for(auto &qual : factbase.qualities) {
+        if(qual.get_asset_id() == asset_id &&
+            qual.get_name() == attr) {
+            qual.set_value(val);
         }
     }
 }
 
 void NetworkState::update_topology(Topology &t) {
-    if(factbase.find_topology(t)) {
-        delete_topology(t);
-        add_topology(t);
+    auto from_asset = t.get_from_asset_id();
+    auto to_asset = t.get_to_asset_id();
+    auto attr = t.get_property();
+    auto dir = t.get_dir();
+    auto val = t.get_value();
+
+    for(auto &topo : factbase.topologies) {
+        if(topo.get_from_asset_id() == from_asset &&
+            topo.get_to_asset_id() == to_asset &&
+            topo.get_property() == attr) {
+            topo.set_value(val);
+        }
     }
 }
 

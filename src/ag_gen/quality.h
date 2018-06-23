@@ -38,7 +38,7 @@ class Quality {
     std::string get_op() const;
     std::string get_value() const;
 
-    void set_value(std::string val);
+    void set_value(std::string &val);
 
     void print() const;
 

@@ -73,7 +73,10 @@ include_directories("${CMAKE_SOURCE_DIR}/src/")
 file(GLOB ag_gen_src "${CMAKE_SOURCE_DIR}/src/ag_gen/*.cpp")
 file(GLOB utils_src "${CMAKE_SOURCE_DIR}/src/util/*.c" "${CMAKE_SOURCE_DIR}/src/util/*.cpp")
 
-# Network Model Parser
+########################
+### Network Model Parser
+########################
+
 BISON_TARGET(nm_parser "${CMAKE_SOURCE_DIR}/src/parser/nm-parser/nm_parser.yy"
     "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.c"
     DEFINES_FILE "${CMAKE_CURRENT_BINARY_DIR}/nm_parser.tab.h")
@@ -85,7 +88,10 @@ ADD_FLEX_BISON_DEPENDENCY(nm_scanner nm_parser)
 add_executable(nm_test ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS} ${utils_src})
 target_include_directories(nm_test PRIVATE ${CMAKE_CURRENT_BINARY_DIR} "${CMAKE_SOURCE_DIR}/src/compiler/nm-parser")
 
-# Exploit Pattern Parser
+##########################
+### Exploit Pattern Parser
+##########################
+
 BISON_TARGET(xp_parser "${CMAKE_SOURCE_DIR}/src/parser/xp-parser/xp_parser.yy"
     "${CMAKE_CURRENT_BINARY_DIR}/xp_parser.c"
     DEFINES_FILE "${CMAKE_CURRENT_BINARY_DIR}/xp_parser.tab.h")
@@ -97,33 +103,24 @@ ADD_FLEX_BISON_DEPENDENCY(xp_scanner xp_parser)
 add_executable(xp_test ${FLEX_xp_scanner_OUTPUTS} ${BISON_xp_parser_OUTPUTS} ${utils_src})
 target_include_directories(xp_test PRIVATE ${CMAKE_CURRENT_BINARY_DIR} "${CMAKE_SOURCE_DIR}/src/compiler/xp-parser")
 
-# Main application
+####################
+### Main application
+####################
+
 add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp"
     ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS}
     ${FLEX_xp_scanner_OUTPUTS} ${BISON_xp_parser_OUTPUTS}
     ${ag_gen_src} ${utils_src})
 target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES})
 
-add_executable(fbitems "${CMAKE_SOURCE_DIR}/src/fbitems/fbitems.cpp"
+add_executable(decode "${CMAKE_SOURCE_DIR}/src/tools/decode.cpp"
     ${ag_gen_src} ${utils_src})
-target_link_libraries(fbitems ${PostgreSQL_LIBRARIES})
+target_link_libraries(decode ${PostgreSQL_LIBRARIES})
 
-# Coding examples
-add_executable(graph_example "${CMAKE_SOURCE_DIR}/src/examples/graph_example.cpp")
+################
+### Unit Testing
+################
 
-add_executable(db_api_example "${CMAKE_SOURCE_DIR}/src/examples/db_api_example.cpp")
-target_link_libraries(db_api_example ${PostgreSQL_LIBRARIES})
-
-# Tools and Work-in-Progress Ideas
-add_executable(sha256_test "${CMAKE_SOURCE_DIR}/src/tools/sha256_test.cpp")
-target_link_libraries(sha256_test ${OPENSSL_LIBRARIES})
-
-add_executable(graphing_db "${CMAKE_SOURCE_DIR}/src/tools/graphing_db.cpp")
-target_link_libraries(graphing_db ${BOOST_LIBRARIES} ${PostgreSQL_LIBRARIES})
-
-add_executable(netgen "${CMAKE_SOURCE_DIR}/src/tools/netgen.cpp")
-
-# Unit Testing
 add_executable(dynstr_test ${CMAKE_SOURCE_DIR}/src/util/mem.c ${CMAKE_SOURCE_DIR}/src/tests/mem_test.c)
 target_link_libraries(dynstr_test ${CMOCKA_LIBRARIES})
 

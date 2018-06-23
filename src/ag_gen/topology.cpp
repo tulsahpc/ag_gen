@@ -45,6 +45,8 @@ string Topology::get_op() const { return op; }
  */
 string Topology::get_value() const { return value; }
 
+void Topology::set_value(std::string &val) { value = val; }
+
 /**
  * @return The direction of the Topology
  */

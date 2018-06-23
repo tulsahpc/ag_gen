@@ -17,5 +17,5 @@ exploit retract_1(a)=
         quality:a,giggle=true;
         quality:a,poop=true;
     postconditions:
-        update quality:a,funny=false;
+        delete quality:a,funny=true;
 .

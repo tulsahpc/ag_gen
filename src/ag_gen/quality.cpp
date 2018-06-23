@@ -30,7 +30,7 @@ string Quality::get_op() const { return op; }
 
 std::string Quality::get_value() const { return value; }
 
-void Quality::set_value(std::string val) {
+void Quality::set_value(std::string &val) {
     value = val;
 }
 
