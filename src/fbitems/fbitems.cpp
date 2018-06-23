@@ -99,9 +99,12 @@ void find_all(std::vector<std::string> &str_vector)
     for (int i = 0; i < fbitems.size(); ++i)
     {
 
-        std::cout << i << ": ";
-
         auto items = fbitems[i];
+
+        if (items.empty())
+            continue;
+
+        std::cout << i << ": ";
 
         for (auto item : items)
         {
