@@ -3,7 +3,11 @@
 #include <vector>
 #include <string>
 
+#include <getopt.h>
+
 #include <boost/lexical_cast.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
 #include "ag_gen/quality.h"
 #include "ag_gen/topology.h"
@@ -12,11 +16,13 @@
 #include "util/keyvalue.h"
 #include "util/db_functions.h"
 
-void print_usage(char *argv[])
+void print_usage()
 {
 
-    std::cout << "Usage: " << argv[0] << " (optional: index)" << std::endl
-              << "\t If no index is provided, all items will be printed." << std::endl;
+    std::cout << "Usage: fbitems [OPTIONS...]" << std::endl
+              << "\t-h\tShows this help menu." << std::endl
+              << "\t-i\tindex. If no index provided, all items will be found." << std::endl
+              << "\t-c\tconfig section. If none is provided, default will be used." << std::endl;
 
 }
 
@@ -157,29 +163,64 @@ void find_all(std::vector<std::string> &str_vector)
 int main(int argc, char *argv[])
 {
 
-    init_db("postgresql://@localhost:5432/ag_gen");
+    std::string opt_config;
+    std::string opt_index;
+
+    int opt;
+    while ((opt = getopt(argc, argv, "hc:i:")) != -1) {
+        switch (opt) {
+        case 'c':
+            opt_config = optarg;
+            break;
+        case 'i':
+            opt_index = optarg;
+            break;
+        case 'h':
+            print_usage();
+            return 0;
+        case '?':
+            if (optopt == 'c')
+                fprintf(stderr, "Option -%c requires an argument.\n", optopt);
+            exit(EXIT_FAILURE);
+        case ':':
+            fprintf(stderr, "wtf\n");
+            exit(EXIT_FAILURE);
+        default:
+            fprintf(stderr, "Unknown option -%c.\n", optopt);
+            print_usage();
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    std::string config_section = (opt_config.empty()) ? "default" : opt_config;
+
+    boost::property_tree::ptree pt;
+    boost::property_tree::ini_parser::read_ini("config.ini", pt);
+
+    std::string host = pt.get<std::string>(config_section + ".host");
+    std::string port = pt.get<std::string>(config_section + ".port");
+    std::string dbName = pt.get<std::string>(config_section + ".db");
+    std::string username = pt.get<std::string>(config_section + ".username");
+    std::string password = pt.get<std::string>(config_section + ".password");
+
+    init_db("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
 
     Keyvalue kv = fetch_facts();
     std::vector<std::string> str_vector = kv.get_str_vector();
 
-    if (argc == 1)
+    if (opt_index.empty())
         find_all(str_vector);
-    else if (argc == 2)
+    else
     {
 
         try{
-            int index = boost::lexical_cast<int>(argv[1]);
+            int index = boost::lexical_cast<int>(opt_index);
             find_one(str_vector, index);
         } catch(boost::bad_lexical_cast) {
-            print_usage(argv);
+            print_usage();
             return 2;
         }
 
-    }
-    else
-    {
-        print_usage(argv);
-        return 1;
     }
 
     // All done :)
