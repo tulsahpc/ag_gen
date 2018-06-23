@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <utility>
 #include <unordered_map>
 
 #include "keyvalue.h"
@@ -19,9 +20,22 @@
 #include "ag_gen/asset.h"
 #include "ag_gen/factbase.h"
 
+struct CustomDBException : public std::exception
+{
+
+    const char * what () const throw ()
+    {
+        return "DB Exception";
+    }
+
+};
+
 void init_db(std::string connect_str);
 
 void import_models(std::string nm, std::string xp);
+
+std::vector<std::vector<std::pair<size_t, std::string>>> fetch_all_factbase_items();
+std::vector<std::pair<size_t, std::string>> fetch_one_factbase_items(int index);
 
 std::vector<std::string> fetch_quality_attributes();
 std::vector<std::string> fetch_quality_values();
@@ -48,6 +62,6 @@ void save_ag_to_db(std::vector<FactbaseItems> &factbase_items,
                    std::vector<Factbase> &factbases, std::vector<Edge> &edges,
                    Keyvalue &factlist);
 
-void test_create();
+// void test_create();
 
 #endif

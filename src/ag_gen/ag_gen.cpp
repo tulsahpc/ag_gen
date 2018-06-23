@@ -237,11 +237,10 @@ AGGenInstance &AGGen::generate() {
             //    frontier. If the factbase does already exist, we create a
             //    new edge from the previous state to this one and move on.
             if (res == hash_map.end()) {
+                new_state.set_id();
                 FactbaseItems new_items =
                             make_tuple(make_tuple(qualities, topologies), new_state.get_id());
-
                 instance.factbase_items.push_back(new_items);
-                new_state.set_id();
                 state_list.push_back(new_state);
                 instance.factbases.push_back(new_state.get_factbase());
                 hash_map.insert(make_pair(new_state.get_hash(instance.facts), new_state.get_id()));

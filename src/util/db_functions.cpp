@@ -42,69 +42,121 @@ exit_nicely(PGconn *conn)
     exit(1);
 }
 
-void test_create() {
-    /*
-     * Our test case here involves using a cursor, for which we must be inside
-     * a transaction block.  We could do the whole thing with a single
-     * PQexec() of "select * from pg_database", but that's too trivial to make
-     * a good example.
-     */
 
-    PGconn *conn = db.raw_conn();
+// void test_create() {
+//     /*
+//      * Our test case here involves using a cursor, for which we must be inside
+//      * a transaction block.  We could do the whole thing with a single
+//      * PQexec() of "select * from pg_database", but that's too trivial to make
+//      * a good example.
+//      */
 
-    /* Start a transaction block */
-    PGresult *res = PQexec(conn, "BEGIN");
-    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+//     PGconn *conn = db.raw_conn();
+
+//     /* Start a transaction block */
+//     PGresult *res = PQexec(conn, "BEGIN");
+//     if (PQresultStatus(res) != PGRES_COMMAND_OK)
+//     {
+//         fprintf(stderr, "BEGIN command failed: %s", PQerrorMessage(conn));
+//         PQclear(res);
+//         exit_nicely(conn);
+//     }
+//     PQclear(res);
+
+//     /*
+//      * Fetch rows from pg_database, the system catalog of databases
+//      */
+//     res = PQexec(conn, "DECLARE myportal CURSOR FOR select * from pg_database");
+//     if (PQresultStatus(res) != PGRES_COMMAND_OK)
+//     {
+//         fprintf(stderr, "DECLARE CURSOR failed: %s", PQerrorMessage(conn));
+//         PQclear(res);
+//         exit_nicely(conn);
+//     }
+//     PQclear(res);
+
+//     res = PQexec(conn, "FETCH ALL in myportal");
+//     if (PQresultStatus(res) != PGRES_TUPLES_OK)
+//     {
+//         fprintf(stderr, "FETCH ALL failed: %s", PQerrorMessage(conn));
+//         PQclear(res);
+//         exit_nicely(conn);
+//     }
+
+//     /* first, print out the attribute names */
+//     int nFields = PQnfields(res);
+//     for (int i = 0; i < nFields; i++)
+//         printf("%-15s", PQfname(res, i));
+//     printf("\n\n");
+
+//     /* next, print out the rows */
+//     for (int i = 0; i < PQntuples(res); i++)
+//     {
+//         for (int j = 0; j < nFields; j++)
+//             printf("%-15s", PQgetvalue(res, i, j));
+//         printf("\n");
+//     }
+
+//     PQclear(res);
+
+//     /* close the portal ... we don't bother to check for errors ... */
+//     res = PQexec(conn, "CLOSE myportal");
+//     PQclear(res);
+
+//     /* end the transaction */
+//     res = PQexec(conn, "END");
+//     PQclear(res);
+// }
+
+vector<vector<pair<size_t, string>>> fetch_all_factbase_items()
+{
+
+    vector<vector<pair<size_t, string>>> fi;
+    vector<Row> firows = db.exec("SELECT * FROM factbase_item;");
+    if (firows.empty())
+        throw CustomDBException();
+
+    int current_index = -1;
+    for (auto firow : firows)
     {
-        fprintf(stderr, "BEGIN command failed: %s", PQerrorMessage(conn));
-        PQclear(res);
-        exit_nicely(conn);
-    }
-    PQclear(res);
 
-    /*
-     * Fetch rows from pg_database, the system catalog of databases
-     */
-    res = PQexec(conn, "DECLARE myportal CURSOR FOR select * from pg_database");
-    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+        int index = stoi(firow[0]);
+        if (index != current_index)
+        {
+
+            current_index = index;
+            fi.emplace_back();
+
+        }
+        size_t st;
+        sscanf(firow[1].c_str(), "%zu", &st);
+        fi[index].push_back(make_pair(st, firow[2]));
+
+    }
+
+    return fi;
+
+}
+
+vector<pair<size_t, string>> fetch_one_factbase_items(int index)
+{
+
+    vector<pair<size_t, string>> fi;
+    vector<Row> firows = db.exec("SELECT fact,type FROM factbase_item WHERE factbase_id=" + to_string(index) + ";");
+    if (firows.empty())
+        throw CustomDBException();
+
+    for (auto firow : firows)
     {
-        fprintf(stderr, "DECLARE CURSOR failed: %s", PQerrorMessage(conn));
-        PQclear(res);
-        exit_nicely(conn);
-    }
-    PQclear(res);
 
-    res = PQexec(conn, "FETCH ALL in myportal");
-    if (PQresultStatus(res) != PGRES_TUPLES_OK)
-    {
-        fprintf(stderr, "FETCH ALL failed: %s", PQerrorMessage(conn));
-        PQclear(res);
-        exit_nicely(conn);
+        size_t st;
+        sscanf(firow[0].c_str(), "%zu", &st);
+        fi.push_back(make_pair(st, firow[1]));
+
     }
 
-    /* first, print out the attribute names */
-    int nFields = PQnfields(res);
-    for (int i = 0; i < nFields; i++)
-        printf("%-15s", PQfname(res, i));
-    printf("\n\n");
+    return fi;
 
-    /* next, print out the rows */
-    for (int i = 0; i < PQntuples(res); i++)
-    {
-        for (int j = 0; j < nFields; j++)
-            printf("%-15s", PQgetvalue(res, i, j));
-        printf("\n");
-    }
-
-    PQclear(res);
-
-    /* close the portal ... we don't bother to check for errors ... */
-    res = PQexec(conn, "CLOSE myportal");
-    PQclear(res);
-
-    /* end the transaction */
-    res = PQexec(conn, "END");
-    PQclear(res);
 }
 
 /**

@@ -21,3 +21,10 @@ using namespace std;
  */
 Asset::Asset(int iid, std::string nname, std::vector<Quality> q)
     : id(iid), name(move(nname)), qualities(q) {}
+
+std::string Asset::get_name()
+{
+
+    return name;
+
+}
