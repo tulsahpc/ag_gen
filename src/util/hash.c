@@ -31,7 +31,7 @@ void init_hashtable(hashtable *t, int size) {
     clearmem(t->arr, size * sizeof(hashnode *));
 }
 
-void add_hashtable(hashtable *t, char *key, void *val) {
+void add_hashtable(hashtable *t, char *key, int val) {
     if (should_rehash(t))
         rehash(t);
     uint64_t idx = hash(key) % t->size;
@@ -59,7 +59,7 @@ void add_hashtable(hashtable *t, char *key, void *val) {
     t->used++;
 }
 
-void *get_hashtable(hashtable *t, char *str) {
+int get_hashtable(hashtable *t, char *str) {
     uint64_t idx = hash(str) % t->size;
     hashnode *currnode = t->arr[idx];
     // printf("Looking for '%s' with size %d\n", str, t->size);
@@ -73,7 +73,7 @@ void *get_hashtable(hashtable *t, char *str) {
         currnode = currnode->next;
     }
     // printf("Not Found\n\n");
-    return (void *)-1;
+    return -1;
 }
 
 void free_hashtable(hashtable *t) {

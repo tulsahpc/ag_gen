@@ -76,3 +76,8 @@ CREATE TABLE edge_asset_binding (
   exploit_param INTEGER,
   asset_id INTEGER REFERENCES asset(id)
 );
+
+CREATE TABLE keyvalue (
+  id INTEGER PRIMARY KEY,
+  property TEXT
+);

@@ -88,8 +88,8 @@ class Odometer {
 };
 
 class Odometer_iterator {
-    size_t index;
     Odometer od;
+    size_t index;
 
   public:
     Odometer_iterator(Odometer _od, size_t const i) : od(_od), index(i) {}

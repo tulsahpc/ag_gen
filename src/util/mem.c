@@ -37,6 +37,7 @@ int clearmem(void *buf, size_t size) {
     if(!buf)
         return 1;
     memset(buf, 0, size);
+    return 0;
 }
 
 char *getstr(size_t size) {

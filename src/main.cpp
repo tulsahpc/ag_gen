@@ -191,7 +191,7 @@ std::string parse_xp(std::string filename) {
     for(int i=0; i<xplist->size; i++) {
         exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
         exploit_instance *ei = make_exploit(xp);
-        add_hashtable(exploit_ids, xp->name, (void *)ei->id);
+        add_hashtable(exploit_ids, xp->name, ei->id);
         // printf("%s - %d\n", xp->name, get_hashtable(exploit_ids, xp->name));
         while(bufsize < strlen(buf) + strlen(ei->sql))
             buf = (char *)realloc(buf, (bufsize*=2));

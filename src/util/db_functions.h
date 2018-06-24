@@ -37,6 +37,8 @@ void import_models(std::string nm, std::string xp);
 std::vector<std::vector<std::pair<size_t, std::string>>> fetch_all_factbase_items();
 std::vector<std::pair<size_t, std::string>> fetch_one_factbase_items(int index);
 
+std::vector<std::string> fetch_keyvalues();
+std::vector<std::string> fetch_unique_values();
 std::vector<std::string> fetch_quality_attributes();
 std::vector<std::string> fetch_quality_values();
 std::vector<std::string> fetch_topology_attributes();

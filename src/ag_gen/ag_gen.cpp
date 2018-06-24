@@ -140,12 +140,7 @@ AGGenInstance &AGGen::generate() {
             Odometer od(num_params, instance.facts.size());
             std::vector<AssetGroup> asset_groups;
 
-            auto len = od.length();
-//            od.print();
-//            for (auto j = 0; j < len; j++) {
             for (auto perm : od) {
-//                auto perm = od[j];
-
                 vector<Quality> asset_group_quals;
                 vector<Topology> asset_group_topos;
 

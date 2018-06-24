@@ -36,4 +36,4 @@ topology  { return TOPOLOGY; }
 "<->"  { nmlval.string = strdup(yytext); return BIDIR; }
 [ \t\r\n]+ {}
 
-. { return strdup(yytext[0]); }
+. { return 1; }

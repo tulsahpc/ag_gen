@@ -13,12 +13,11 @@
  * them in a vector.
  */
 class Asset {
-    int id;
     std::string name;
     std::vector<Quality> qualities;
 
   public:
-    Asset(int iid, std::string nname, std::vector<Quality> q);
+    Asset(std::string nname, std::vector<Quality> q);
 
     std::string get_name();
 };

@@ -10,7 +10,7 @@
 
 union EncodedQuality {
     struct {
-        int asset_id : 32;
+        int asset_id : 16;
         int attr : 12;
         int op : 4;
         int val : 16;

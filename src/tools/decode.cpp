@@ -49,7 +49,7 @@ void find_one(std::vector<std::string> &str_vector, int index) {
             EncodedQuality eq;
             eq.enc = item.first;
             Asset asset = assets[eq.dec.asset_id];
-            std::cout << asset.get_name();
+            std::cout << asset.get_name() << ",";
 
             std::string attr = str_vector[eq.dec.attr];
             std::string val = str_vector[eq.dec.val];
@@ -66,7 +66,7 @@ void find_one(std::vector<std::string> &str_vector, int index) {
             Asset from_asset = assets[et.dec.from_asset];
             Asset to_asset = assets[et.dec.to_asset];
 
-            std::cout << from_asset.get_name() << "->" << to_asset.get_name();
+            std::cout << from_asset.get_name() << "->" << to_asset.get_name() << ",";
 
             std::string prop = str_vector[et.dec.property];
             std::string val = str_vector[et.dec.value];
@@ -183,18 +183,21 @@ int main(int argc, char *argv[]) {
     std::string username = pt.get<std::string>(config_section + ".username");
     std::string password = pt.get<std::string>(config_section + ".password");
 
+    std::cout << dbName << "\n";
     init_db("postgresql://" + username + "@" + host + ":" + port + "/" + dbName);
 
-    Keyvalue kv = fetch_facts();
-    std::vector<std::string> str_vector = kv.get_str_vector();
+//    Keyvalue kv = fetch_facts();
+//    std::vector<std::string> str_vector = kv.get_str_vector();
+
+    std::vector<std::string> str_vector = fetch_keyvalues();
 
     if (opt_index.empty()) {
         find_all(str_vector);
     } else {
         try {
-            int index = boost::lexical_cast<int>(opt_index);
+            auto index = boost::lexical_cast<int>(opt_index);
             find_one(str_vector, index);
-        } catch(boost::bad_lexical_cast) {
+        } catch (boost::bad_lexical_cast &e) {
             print_usage();
             return 2;
         }
