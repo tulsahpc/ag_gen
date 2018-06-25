@@ -18,6 +18,23 @@ union EncodedQuality {
     size_t enc;
 };
 
+/**
+ * @brief Holds information about a Quality and a parameter number.
+ */
+struct ParameterizedQuality {
+    int param;
+    std::string name;
+    std::string value;
+
+    int get_param_num() { return param; }
+
+    void print() {
+        std::cout << "Param: " + std::to_string(param) << std::endl;
+        std::cout << "Attribute: " + name << std::endl;
+        std::cout << "Value: " + value << std::endl << std::endl;
+    }
+};
+
 /** Quality class
  * @brief Holds information for the Quality
  */

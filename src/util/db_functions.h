@@ -11,8 +11,6 @@
 #include "db.h"
 
 #include "ag_gen/ag_gen.h"
-#include "ag_gen/parameterized_quality.h"
-#include "ag_gen/parameterized_topology.h"
 #include "ag_gen/exploit.h"
 #include "ag_gen/edge.h"
 #include "ag_gen/quality.h"

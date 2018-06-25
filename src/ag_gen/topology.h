@@ -19,6 +19,31 @@ union EncodedTopology {
     size_t enc;
 };
 
+struct ParameterizedTopology {
+    int from_param;
+    int to_param;
+    std::string dir;
+    std::string prop;
+    std::string op;
+    std::string val;
+
+    int get_from_param() { return from_param; }
+    int get_to_param() { return to_param; }
+    std::string get_dir() { return dir; }
+    std::string get_property() { return prop; }
+    std::string get_operation() { return op; }
+    std::string get_value() { return val; }
+
+    void print() {
+        std::cout << "From Param: " << std::to_string(from_param) << std::endl;
+        std::cout << "To Param: " << std::to_string(to_param) << std::endl;
+        std::cout << "Direction: " << dir << std::endl << std::endl;
+        std::cout << "Property: " << prop << std::endl << std::endl;
+        std::cout << "Operation: " << op << std::endl << std::endl;
+        std::cout << "Value: " << val << std::endl << std::endl;
+    }
+};
+
 /** Topology class
  * @brief Holds information for the Topology
  */
