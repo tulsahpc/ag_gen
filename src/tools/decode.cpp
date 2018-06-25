@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -24,8 +25,9 @@ void print_usage() {
 }
 
 void find_one(std::vector<std::string> &str_vector, int index) {
-
     std::vector<std::pair<size_t, std::string>> fbitems;
+
+    std::ofstream output("file.txt");
 
     try {
         fbitems = fetch_one_factbase_items(index);
@@ -36,7 +38,7 @@ void find_one(std::vector<std::string> &str_vector, int index) {
 
     std::vector<Asset> assets = fetch_all_assets();
 
-    std::cout << index << ":";
+    output << index << ":";
 
     for (auto item : fbitems) {
 
@@ -44,21 +46,21 @@ void find_one(std::vector<std::string> &str_vector, int index) {
 
         if (type == "quality") {
 
-            std::cout << "\tquality:";
+            output << "\tquality:";
 
             EncodedQuality eq;
             eq.enc = item.first;
             Asset asset = assets[eq.dec.asset_id];
-            std::cout << asset.get_name() << ",";
+            output << asset.get_name() << ",";
 
             std::string attr = str_vector[eq.dec.attr];
             std::string val = str_vector[eq.dec.val];
 
-            std::cout << attr << "=" << val << "\n";
+            output << attr << "=" << val << "\n";
 
         } else if (type == "topology") {
 
-            std::cout << "\ttopology:";
+            output << "\ttopology:";
 
             EncodedTopology et;
             et.enc = item.first;
@@ -66,21 +68,23 @@ void find_one(std::vector<std::string> &str_vector, int index) {
             Asset from_asset = assets[et.dec.from_asset];
             Asset to_asset = assets[et.dec.to_asset];
 
-            std::cout << from_asset.get_name() << "->" << to_asset.get_name() << ",";
+            output << from_asset.get_name() << "->" << to_asset.get_name() << ",";
 
             std::string prop = str_vector[et.dec.property];
             std::string val = str_vector[et.dec.value];
 
-            std::cout << prop << "=" << val << "\n";
+            output << prop << "=" << val << "\n";
         }
     }
 
-    std::cout << std::endl;
+    output << std::endl;
 }
 
 void find_all(std::vector<std::string> &str_vector) {
 
     std::vector<std::vector<std::pair<size_t, std::string>>> fbitems;
+
+    std::ofstream output("file.txt");
 
     try {
         fbitems = fetch_all_factbase_items();
@@ -98,7 +102,7 @@ void find_all(std::vector<std::string> &str_vector) {
         if (items.empty())
             continue;
 
-        std::cout << i << ":";
+        output << i << ":";
 
         for (auto item : items) {
 
@@ -106,21 +110,21 @@ void find_all(std::vector<std::string> &str_vector) {
 
             if (type == "quality") {
 
-                std::cout << "\tquality:";
+                output << "\tquality:";
 
                 EncodedQuality eq;
                 eq.enc = item.first;
                 Asset asset = assets[eq.dec.asset_id];
-                std::cout << asset.get_name() << ",";
+                output << asset.get_name() << ",";
 
                 std::string attr = str_vector[eq.dec.attr];
                 std::string val = str_vector[eq.dec.val];
 
-                std::cout << attr << "=" << val << "\n";
+                output << attr << "=" << val << "\n";
 
             } else if (type == "topology") {
 
-                std::cout << "\ttopology:";
+                output << "\ttopology:";
 
                 EncodedTopology et;
                 et.enc = item.first;
@@ -128,16 +132,16 @@ void find_all(std::vector<std::string> &str_vector) {
                 Asset from_asset = assets[et.dec.from_asset];
                 Asset to_asset = assets[et.dec.to_asset];
 
-                std::cout << from_asset.get_name() << "->" << to_asset.get_name() << ",";
+                output << from_asset.get_name() << "->" << to_asset.get_name() << ",";
 
                 std::string prop = str_vector[et.dec.property];
                 std::string val = str_vector[et.dec.value];
 
-                std::cout << prop << "=" << val << "\n";
+                output << prop << "=" << val << "\n";
             }
         }
 
-        std::cout << std::endl;
+        output << std::endl;
     }
 }
 

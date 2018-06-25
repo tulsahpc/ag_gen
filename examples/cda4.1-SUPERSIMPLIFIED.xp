@@ -12,12 +12,20 @@ exploit expand_critical_1_1(a, b)=
          topology:a->b,physical;
      postconditions:
          insert quality:b,critical=true;
- .
+.
 
-exploit expand_critical_1_2(a, b)=
+exploit expand_critical_2_1(a, b)=
     preconditions:
         quality:a,critical=true;
-        topology:a<->b,physical;
+        topology:b->a,physical;
     postconditions:
         insert quality:b,critical=true;
 .
+
+#exploit expand_critical_1_2(a, b)=
+#    preconditions:
+#        quality:a,critical=true;
+#        topology:a<->b,physical;
+#    postconditions:
+#        insert quality:b,critical=true;
+#.

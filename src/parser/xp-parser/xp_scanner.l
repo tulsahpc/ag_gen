@@ -21,6 +21,7 @@ add { xplval.string = strdup(yytext); return ADD; }
 insert { xplval.string = strdup(yytext); return INSERT; }
 update { xplval.string = strdup(yytext); return UPDATE; }
 delete { xplval.string = strdup(yytext); return DELETE; }
+remove { xplval.string = strdup(yytext); return REMOVE; }
 
 {DIGIT}+ { xplval.string = strdup(yytext); return INT; }
 {DIGIT}*"."{DIGIT}+ { xplval.string = strdup(yytext); return FLOAT; }

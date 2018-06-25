@@ -739,4 +739,5 @@ network model =
 		quality:airborneRadiation,platform=physical;
 		quality:buildingPower,platform=physical;
 		quality:seismicActivity,platform=physical;
+	tags:
 .

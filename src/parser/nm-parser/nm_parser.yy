@@ -1,5 +1,5 @@
 %error-verbose
-%define api.prefix nm
+%define api.prefix {nm}
 
 %{
     #include <stdio.h>
@@ -44,10 +44,11 @@
 %token <string> EQ GT LT GEQ LEQ
 %token <string> ONEDIR BIDIR
 %token NETWORK MODEL ASSETS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE;
+%token TAGS
 
 %%
 
-root: NETWORK IDENTIFIER EQ assets facts PERIOD {
+root: NETWORK IDENTIFIER EQ assets facts tags PERIOD {
     nm->assets = $4;
     nm->facts = $5;
   }
@@ -71,6 +72,9 @@ assetlist: { $$ = NULL; }
   }
 
 asset: IDENTIFIER SEMI { $$ = $1; }
+
+tags: {}
+| TAGS COLON {}
 
 facts: FACTS COLON factlist { $$ = $3; }
 

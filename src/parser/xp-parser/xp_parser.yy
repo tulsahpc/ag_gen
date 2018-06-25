@@ -1,5 +1,5 @@
 %error-verbose
-%define api.prefix xp
+%define api.prefix {xp}
 
 %{
     #include <stdio.h>
@@ -41,7 +41,7 @@
 %token <string> IDENTIFIER INT FLOAT
 %token <string> EQ NEQ GT LT GEQ LEQ PLUSEQ SUBEQ
 %token <string> ONEDIR ONEDIRBACK BIDIR NOTONEDIR NOTBIDIR
-%token <string> ADD INSERT UPDATE DELETE
+%token <string> ADD INSERT UPDATE DELETE REMOVE
 %token EXPLOIT PRECONDITIONS POSTCONDITIONS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE LPAREN RPAREN;
 
 %%
@@ -130,8 +130,9 @@ postcondition: operation fact {
 
 operation: ADD { $$ = $1; }
 | INSERT { $$ = $1; }
-| DELETE { $$ = $1; }
 | UPDATE { $$ = $1; }
+| DELETE { $$ = $1; }
+| REMOVE { $$ = $1; }
 ;
 
 fact: QUALITY COLON IDENTIFIER COMMA statement SEMI {

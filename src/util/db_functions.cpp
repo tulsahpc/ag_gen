@@ -42,55 +42,40 @@ std::vector<std::string> fetch_keyvalues() {
     return kvs;
 }
 
-std::vector<std::vector<std::pair<size_t, std::string>>> fetch_all_factbase_items()
-{
-
+std::vector<std::vector<std::pair<size_t, std::string>>> fetch_all_factbase_items() {
     std::vector<std::vector<std::pair<size_t, std::string>>> fi;
     std::vector<Row> firows = db.exec("SELECT * FROM factbase_item;");
     if (firows.empty())
         throw CustomDBException();
 
     int current_index = -1;
-    for (auto firow : firows)
-    {
-
+    for (auto firow : firows) {
         int index = stoi(firow[0]);
-        if (index != current_index)
-        {
-
+        if (index != current_index) {
             current_index = index;
             fi.emplace_back();
-
         }
         size_t st;
         sscanf(firow[1].c_str(), "%zu", &st);
         fi[index].push_back(make_pair(st, firow[2]));
-
     }
 
     return fi;
-
 }
 
-std::vector<std::pair<size_t, std::string>> fetch_one_factbase_items(int index)
-{
-
+std::vector<std::pair<size_t, std::string>> fetch_one_factbase_items(int index) {
     std::vector<std::pair<size_t, std::string>> fi;
     std::vector<Row> firows = db.exec("SELECT fact,type FROM factbase_item WHERE factbase_id=" + std::to_string(index) + ";");
     if (firows.empty())
         throw CustomDBException();
 
-    for (auto firow : firows)
-    {
-
+    for (auto firow : firows) {
         size_t st;
         sscanf(firow[0].c_str(), "%zu", &st);
         fi.push_back(std::make_pair(st, firow[1]));
-
     }
 
     return fi;
-
 }
 
 std::vector<std::string> fetch_unique_values() {

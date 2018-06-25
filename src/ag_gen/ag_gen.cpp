@@ -11,8 +11,6 @@
 
 #include "util/odometer.h"
 
-using namespace std;
-
 /**
  * @brief Constructor for generator
  * @details Builds a generator for creating attack graphs.
@@ -29,7 +27,7 @@ AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
                 make_tuple(make_tuple(init_quals, init_topos), init_id);
     instance.factbases.push_back(init_state.get_factbase());
     instance.factbase_items.push_back(init_items);
-    hash_map.insert(make_pair(init_state.get_hash(instance.facts), init_id));
+    hash_map.insert(std::make_pair(init_state.get_hash(instance.facts), init_id));
     frontier.push_back(init_state);
 }
 
@@ -45,16 +43,16 @@ AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
  */
 static std::tuple<std::vector<std::tuple<ACTION_T, Quality>>, std::vector<std::tuple<ACTION_T, Topology>>>
 createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
-    auto ex = get<0>(group);
-    auto ag = get<1>(group);
+    auto ex = std::get<0>(group);
+    auto ag = std::get<1>(group);
 
     auto perm = ag.get_perm();
 
     auto param_postconds_q = ex.postcond_list_q();
     auto param_postconds_t = ex.postcond_list_t();
 
-    vector<tuple<ACTION_T, Quality>> postconds_q;
-    vector<tuple<ACTION_T, Topology>> postconds_t;
+    std::vector<std::tuple<ACTION_T, Quality>> postconds_q;
+    std::vector<std::tuple<ACTION_T, Topology>> postconds_t;
 
     for (auto &postcond : param_postconds_q) {
         auto action = std::get<0>(postcond);
@@ -106,7 +104,7 @@ AGGenInstance &AGGen::generate() {
 
     unsigned long esize = exploit_list.size();
 
-    cout << "Generating Attack Graph" << endl;
+    std::cout << "Generating Attack Graph" << std::endl;
     unsigned long long count_output = 0;
     while (!frontier.empty()) {
         if(count_output % 500) {
@@ -120,7 +118,7 @@ AGGenInstance &AGGen::generate() {
 
 //        std::cout << "Current State: " << current_state.get_id() << std::endl;
 
-        vector<tuple<Exploit, AssetGroup>> appl_exploits;
+        std::vector<std::tuple<Exploit, AssetGroup>> appl_exploits;
 
         // std::cout << "Number of Exploits: " << esize << std::endl;
         // Get all applicable exploits with this network state
@@ -141,8 +139,8 @@ AGGenInstance &AGGen::generate() {
             std::vector<AssetGroup> asset_groups;
 
             for (auto perm : od) {
-                vector<Quality> asset_group_quals;
-                vector<Topology> asset_group_topos;
+                std::vector<Quality> asset_group_quals;
+                std::vector<Topology> asset_group_topos;
 
                 for (auto &precond : preconds_q) {
                     asset_group_quals.emplace_back(
@@ -187,7 +185,7 @@ AGGenInstance &AGGen::generate() {
                     }
                 }
                 {
-                    auto new_appl_exploit = make_tuple(e, asset_group);
+                    auto new_appl_exploit = std::make_tuple(e, asset_group);
                     appl_exploits.push_back(new_appl_exploit);
                 }
             LOOPCONTINUE:;
@@ -203,15 +201,15 @@ AGGenInstance &AGGen::generate() {
 
             // For each applicable exploit, we extract which exploit applies and
             // to which asset group it applies to.
-            auto exploit = get<0>(e);
-            auto assetGroup = get<1>(e);
+            auto exploit = std::get<0>(e);
+            auto assetGroup = std::get<1>(e);
 
             // We generate the associated post conditions and extract the new
             // qualities and topologies that will be applied to the current
             // factbase.
             auto postconditions = createPostConditions(e);
-            auto qualities = get<0>(postconditions);
-            auto topologies = get<1>(postconditions);
+            auto qualities = std::get<0>(postconditions);
+            auto topologies = std::get<1>(postconditions);
 
             // Deep copy the factbase so we can create a new network state
             NetworkState new_state{current_state};
@@ -269,28 +267,28 @@ AGGenInstance &AGGen::generate() {
                 new_state.set_id();
 
                 FactbaseItems new_items =
-                    make_tuple(new_state.get_factbase().get_facts_tuple(), new_state.get_id());
+                    std::make_tuple(new_state.get_factbase().get_facts_tuple(), new_state.get_id());
                 instance.factbase_items.push_back(new_items);
 
                 instance.factbases.push_back(new_state.get_factbase());
-                hash_map.insert(make_pair(new_state.get_hash(instance.facts), new_state.get_id()));
+                hash_map.insert(std::make_pair(new_state.get_hash(instance.facts), new_state.get_id()));
 
-                frontier.emplace_back(new_state);
+                frontier.emplace_front(new_state);
 
                 instance.edges.emplace_back(current_state.get_id(), new_state.get_id(),
                                             exploit, assetGroup);
                 counter++;
             } else {
-                instance.edges.emplace_back(current_state.get_id(), hash_map[hash],
-                                            exploit, assetGroup);
+                    instance.edges.emplace_back(current_state.get_id(), hash_map[hash],
+                                                exploit, assetGroup);
             }
         }
     }
 
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
-    cout << "Total Time: " << elapsed_seconds.count() << " seconds" << endl;
-    cout << "Generated States: " << counter << endl;
+    std::cout << "Total Time: " << elapsed_seconds.count() << " seconds" << std::endl;
+    std::cout << "Generated States: " << counter << std::endl;
 
     return instance;
 }

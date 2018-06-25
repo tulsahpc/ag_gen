@@ -17,6 +17,7 @@ facts  { return FACTS; }
 assets  { return ASSETS; }
 quality  { return QUALITY; }
 topology  { return TOPOLOGY; }
+tags { return TAGS; }
 
 {DIGIT}+ { nmlval.string = strdup(yytext); return INT; }
 {DIGIT}*"."{DIGIT}+ { nmlval.string = strdup(yytext); return FLOAT; }
