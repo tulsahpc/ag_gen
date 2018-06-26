@@ -38,20 +38,12 @@ class ag_visitor : public boost::default_dfs_visitor {
 
     template <typename Graph>
     void back_edge(GraphEdge e, Graph g) {
-        std::cout << "back edge" << std::endl;
         typename boost::property_map<Graph, boost::edge_index_t>::type Edge_Index =
                             boost::get(boost::edge_index, g);
 
         int index = Edge_Index[e];
-        std::cout << index << std::endl;
-        for (auto e : edges)
-            std::cout << e.get_query() << std::endl;
         edges.erase(std::next(edges.begin(), index));
-        for (auto e : edges)
-            std::cout << e.get_query() << std::endl;
-        std::cout << edges.size() << std::endl;
         to_delete.push_back(e);
-        std::cout << to_delete.size() << std::endl;
     }
 };
 
@@ -95,16 +87,10 @@ void graph_ag(std::string filename, std::vector<Edge> &edges, std::vector<Factba
         Edge_Index[e] = i;
     }
 
-    std::cout << "before: " << edges.size() << std::endl;
-
     std::vector<GraphEdge> to_delete;
 
     ag_visitor<GraphEdge> vis(edges, to_delete);
     boost::depth_first_search(g, boost::visitor(vis));
-
-    std::cout << "after: " << edges.size() << std::endl;
-
-    std::cout << to_delete.size() << std::endl;
 
     for (auto td : to_delete)
         boost::remove_edge(td, g);
