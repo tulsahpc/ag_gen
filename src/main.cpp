@@ -47,7 +47,10 @@ class ag_visitor : public boost::default_dfs_visitor {
     }
 };
 
-void graph_ag(std::string filename, std::vector<Edge> &edges, std::vector<Factbase> &factbases) {
+void graph_ag(std::string filename, std::vector<Edge> &edges, std::vector<Factbase> &factbases,
+              bool should_graph, bool no_cycles) {
+    if (!should_graph && !no_cycles) return;
+
     typedef boost::property<boost::edge_name_t, std::string,
             boost::property<boost::edge_index_t, int>> EdgeProperties;
     typedef boost::property<boost::vertex_name_t, int> VertexNameProperty;
@@ -87,24 +90,28 @@ void graph_ag(std::string filename, std::vector<Edge> &edges, std::vector<Factba
         Edge_Index[e] = i;
     }
 
-    std::vector<GraphEdge> to_delete;
+    if (no_cycles) {
+        std::vector<GraphEdge> to_delete;
 
-    ag_visitor<GraphEdge> vis(edges, to_delete);
-    boost::depth_first_search(g, boost::visitor(vis));
+        ag_visitor<GraphEdge> vis(edges, to_delete);
+        boost::depth_first_search(g, boost::visitor(vis));
 
-    for (auto td : to_delete)
-        boost::remove_edge(td, g);
+        for (auto td : to_delete)
+            boost::remove_edge(td, g);
 
-    for (int ii = 0; ii < edges.size(); ++ii)
-    {
-        auto e = edges[ii];
-        if (e.is_deleted())
-            edges.erase(std::next(edges.begin(), ii));
+        for (int ii = 0; ii < edges.size(); ++ii)
+        {
+            auto e = edges[ii];
+            if (e.is_deleted())
+                edges.erase(std::next(edges.begin(), ii));
+        }
     }
 
-    std::ofstream gout;
-    gout.open(filename);
-    boost::write_graphviz(gout, g, boost::default_writer(), boost::make_label_writer(boost::get(boost::edge_name, g)));
+    if (should_graph) {
+        std::ofstream gout;
+        gout.open(filename);
+        boost::write_graphviz(gout, g, boost::default_writer(), boost::make_label_writer(boost::get(boost::edge_name, g)));
+    }
     //boost::write_graphviz(gout, g);
 
 }
@@ -313,7 +320,8 @@ void print_usage() {
     std::cout << "Usage: ag_gen [OPTION...]" << std::endl << std::endl;
     std::cout << "Flags:" << std::endl;
     std::cout << "\t-c\tConfig section in config.ini" << std::endl;
-    std::cout << "\t-g\tGenerate visual graph using graphviz" << std::endl;
+    std::cout << "\t-g\tGenerate visual graph using graphviz, dot file for saving" << std::endl;
+    std::cout << "\t-d\tPerform a depth first search to remove cycles" << std::endl;
     std::cout << "\t-n\tNetwork model file used for generation" << std::endl;
     std::cout << "\t-x\tExploit pattern file used for generation" << std::endl;
     std::cout << "\t-h\tThis help menu." << std::endl;
@@ -331,14 +339,17 @@ int main(int argc, char *argv[]) {
     std::string opt_nm;
     std::string opt_xp;
     std::string opt_config;
+    std::string opt_graph;
 
     bool should_graph = false;
+    bool no_cycles = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "ghc:n:x:")) != -1) {
+    while ((opt = getopt(argc, argv, "g:dhc:n:x:")) != -1) {
         switch (opt) {
         case 'g':
             should_graph = true;
+            opt_graph = optarg;
             break;
         case 'h':
             print_usage();
@@ -351,6 +362,9 @@ int main(int argc, char *argv[]) {
             break;
         case 'c':
             opt_config = optarg;
+            break;
+        case 'd':
+            no_cycles = true;
             break;
         case '?':
             if (optopt == 'c')
@@ -442,6 +456,5 @@ int main(int argc, char *argv[]) {
      std::cout << "Saving Attack Graph to Database: ";
      save_ag_to_db(factbase_items, factbases, edges, factlist);
      std::cout << "Done" << std::endl;
-     if (should_graph)
-         graph_ag("ag.dot", edges, factbases);
+     graph_ag(opt_graph, edges, factbases, should_graph, no_cycles);
 }
