@@ -256,6 +256,7 @@ AGGenInstance &AGGen::generate() {
             if (hash == current_hash)
                 continue;
 
+//            std::cout << "New State Hash: " << hash << std::endl;
             auto res = hash_map.find(hash);
 
             //    If the factbase does not already exist, increment our
@@ -279,8 +280,9 @@ AGGenInstance &AGGen::generate() {
                                             exploit, assetGroup);
                 counter++;
             } else {
-                    instance.edges.emplace_back(current_state.get_id(), hash_map[hash],
-                                                exploit, assetGroup);
+                auto hashed_id = hash_map[hash];
+                instance.edges.emplace_back(current_state.get_id(), hash_map[hash],
+                                            exploit, assetGroup);
             }
         }
     }

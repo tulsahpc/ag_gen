@@ -126,15 +126,16 @@ size_t Factbase::hash(Keyvalue &factlist) const {
     unsigned long qualities_length = qualities.size();
     for (int i = 0; i < qualities_length; i++) {
         auto &qual = qualities.at(i);
-        hash = hash ^ combine(qual.encode(factlist).enc);
+        hash = hash + combine(qual.encode(factlist).enc);
     }
 
     unsigned long topologies_length = topologies.size();
     for (int i = 0; i < topologies_length; i++) {
         auto &topo = topologies.at(i);
-        hash = hash ^ combine(topo.encode(factlist).enc);
+        hash = hash + combine(topo.encode(factlist).enc);
     }
 
+//    std::cout << "Hash: " << hash << std::endl;
     return hash;
 }
 
@@ -143,7 +144,7 @@ size_t Factbase::hash(Keyvalue &factlist) const {
  */
 void Factbase::print() const {
     cout << "ID: " << id << endl;
-    //    cout << "HASH: " << hash() << endl;
+//        cout << "HASH: " << hash() << endl;
     cout << "Qualities: " << qualities.size() << endl;
     cout << "Topologies: " << topologies.size() << endl << endl;
     for (auto &qual : qualities) {
