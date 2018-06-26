@@ -448,128 +448,132 @@ Keyvalue fetch_facts() {
     return initfacts;
 }
 
-void save_ag_to_db(std::vector<FactbaseItems> &factbase_items,
-                   std::vector<Factbase> &factbases, std::vector<Edge> &edges,
-                   Keyvalue &factlist) {
-    std::string factbase_sql_query = "INSERT INTO factbase VALUES ";
+// void save_ag_to_db(std::vector<FactbaseItems> &factbase_items,
+//                    std::vector<Factbase> &factbases, std::vector<Edge> &edges,
+//                    Keyvalue &factlist) {
+void save_ag_to_db(AGGenInstance &instance, bool save_keyvalue){
+    std::vector<FactbaseItems>& factbase_items = instance.factbase_items;
+    std::vector<Factbase>& factbases = instance.factbases;
+    std::vector<Edge>& edges = instance.edges;
+    Keyvalue& factlist = instance.facts;
 
-    for (int i = 0; i < factbases.size(); ++i) {
-        if (i == 0) {
-            factbase_sql_query += "(" + std::to_string(factbases[i].get_id()) +
-                                  ",'" +
-                                  std::to_string(factbases[i].hash(factlist)) + "')";
-        } else {
-            factbase_sql_query += ",(" + std::to_string(factbases[i].get_id()) +
-                                  ",'" +
-                                  std::to_string(factbases[i].hash(factlist)) + "')";
+    if (!factbases.empty()){
+        std::string factbase_sql_query = "INSERT INTO factbase VALUES ";
+
+        for (int i = 0; i < factbases.size(); ++i) {
+            if (i == 0) {
+                factbase_sql_query += "(" + std::to_string(factbases[i].get_id()) +
+                                      ",'" +
+                                      std::to_string(factbases[i].hash(factlist)) + "')";
+            } else {
+                factbase_sql_query += ",(" + std::to_string(factbases[i].get_id()) +
+                                      ",'" +
+                                      std::to_string(factbases[i].hash(factlist)) + "')";
+            }
         }
+        factbase_sql_query += " ON CONFLICT DO NOTHING;";
+        db.exec(factbase_sql_query);
     }
 
-    factbase_sql_query += " ON CONFLICT DO NOTHING;";
-    db.exec(factbase_sql_query);
+    if (!factbase_items.empty()) {
+        std::string item_sql_query = "INSERT INTO factbase_item VALUES ";
+        std::string quality_sql_query = "";
+        std::string topology_sql_query = "";
 
-    std::string item_sql_query = "INSERT INTO factbase_item VALUES ";
-    std::string quality_sql_query = "";
-    std::string topology_sql_query = "";
+        for (int j = 0, sql_index = 0; j < factbase_items.size(); ++j) {
+            auto fbi = factbase_items[j];
 
-    for (int j = 0, sql_index = 0; j < factbase_items.size(); ++j) {
-        auto fbi = factbase_items[j];
+            int id = std::get<1>(fbi);
+            auto items = std::get<0>(fbi);
 
-        int id = std::get<1>(fbi);
-        auto items = std::get<0>(fbi);
+            auto quals = std::get<0>(items);
+            auto topo = std::get<1>(items);
 
-        auto quals = std::get<0>(items);
-        auto topo = std::get<1>(items);
+            for (auto qi : quals) {
+                if (sql_index == 0)
+                    quality_sql_query += "(" + std::to_string(id) + "," +
+                                         std::to_string(qi.encode(factlist).enc) +
+                                         ",'quality')";
 
-        for (auto qi : quals) {
-            if (sql_index == 0)
-                quality_sql_query += "(" + std::to_string(id) + "," +
-                                     std::to_string(qi.encode(factlist).enc) +
-                                     ",'quality')";
+                else
+                    quality_sql_query += ",(" + std::to_string(id) + "," +
+                                         std::to_string(qi.encode(factlist).enc) +
+                                         ",'quality')";
+                ++sql_index;
+            }
 
-            else
-                quality_sql_query += ",(" + std::to_string(id) + "," +
-                                     std::to_string(qi.encode(factlist).enc) +
-                                     ",'quality')";
-            ++sql_index;
+            for (auto ti : topo) {
+                if (sql_index == 0)
+                    topology_sql_query += "(" + std::to_string(id) + "," +
+                                          std::to_string(ti.encode(factlist).enc) +
+                                          ",'topology')";
+
+                else
+                    topology_sql_query += ",(" + std::to_string(id) + "," +
+                                          std::to_string(ti.encode(factlist).enc) +
+                                          ",'topology')";
+                ++sql_index;
+            }
         }
 
-        for (auto ti : topo) {
-            if (sql_index == 0)
-                topology_sql_query += "(" + std::to_string(id) + "," +
-                                      std::to_string(ti.encode(factlist).enc) +
-                                      ",'topology')";
-
-            else
-                topology_sql_query += ",(" + std::to_string(id) + "," +
-                                      std::to_string(ti.encode(factlist).enc) +
-                                      ",'topology')";
-            ++sql_index;
-        }
-    }
-
-    item_sql_query += quality_sql_query + topology_sql_query
+        item_sql_query += quality_sql_query + topology_sql_query
                     + " ON CONFLICT DO NOTHING";
+        db.exec(item_sql_query);
+    }
 
-    // std::cout << item_sql_query << std::endl;
+    if (!edges.empty()) {
+        std::string edge_sql_query = "INSERT INTO edge VALUES ";
+        std::string edge_assets_sql_query = "INSERT INTO edge_asset_binding VALUES ";
 
-    // if (topology_sql_query != "")
-    //     item_sql_query += quality_sql_query + "," + topology_sql_query +
-    //                       " ON CONFLICT DO NOTHING;";
-    // else
-    //     item_sql_query += quality_sql_query + " ON CONFLICT DO NOTHING;";
+        std::vector<std::string> edge_queries;
+        edge_queries.resize(edges.size());
 
-    db.exec(item_sql_query);
+        std::transform(edges.begin(), edges.end(), edge_queries.begin(), to_query);
 
-    std::string edge_sql_query = "INSERT INTO edge VALUES ";
-    std::string edge_assets_sql_query = "INSERT INTO edge_asset_binding VALUES ";
+        // map edge queries to index in edge vector
+        std::unordered_map<std::string, int> eq;
+        auto ei = edge_queries.begin();
+        for (int i = 0; ei != edge_queries.end(); i++, ei++)
+            eq.insert({*ei, i});
 
-    std::vector<std::string> edge_queries;
-    edge_queries.resize(edges.size());
+        int ii = 0;
+        for (auto ei : eq) {
+            int i = ei.second;
 
-    std::transform(edges.begin(), edges.end(), edge_queries.begin(), to_query);
+            int eid = edges[i].set_id();
 
-    // map edge queries to index in edge vector
-    std::unordered_map<std::string, int> eq;
-    auto ei = edge_queries.begin();
-    for (int i = 0; ei != edge_queries.end(); i++, ei++)
-        eq.insert({*ei, i});
+            if (ii == 0) {
+                edge_sql_query += "(" + std::to_string(eid) + "," + ei.first;
+                edge_assets_sql_query += edges[i].get_asset_query();
+            } else {
+                edge_sql_query += ",(" + std::to_string(eid) + "," + ei.first;
+                edge_assets_sql_query += "," + edges[i].get_asset_query();
+            }
 
-    int ii = 0;
-    for (auto ei : eq) {
-        int i = ei.second;
-
-        int eid = edges[i].set_id();
-
-        if (ii == 0) {
-            edge_sql_query += "(" + std::to_string(eid) + "," + ei.first;
-            edge_assets_sql_query += edges[i].get_asset_query();
-        } else {
-            edge_sql_query += ",(" + std::to_string(eid) + "," + ei.first;
-            edge_assets_sql_query += "," + edges[i].get_asset_query();
+            ++ii;
         }
 
-        ++ii;
+        edge_sql_query += " ON CONFLICT DO NOTHING;";
+        edge_assets_sql_query += " ON CONFLICT DO NOTHING;";
+
+        db.exec(edge_sql_query);
+        db.exec(edge_assets_sql_query);
     }
 
-    edge_sql_query += " ON CONFLICT DO NOTHING;";
-    edge_assets_sql_query += " ON CONFLICT DO NOTHING;";
+    if (save_keyvalue) {
+        std::ostringstream out;
+        out << "INSERT INTO keyvalue VALUES ";
+        std::vector<std::string> keyvalue_vector = factlist.get_str_vector();
 
-    db.exec(edge_sql_query);
-    db.exec(edge_assets_sql_query);
+        size_t count = 0;
+        for(auto &value : keyvalue_vector) {
+            if(count == 0)
+                out << "(" << std::to_string(count++) << ",'" << value << "')";
+            else
+                out << ",(" << std::to_string(count++) << ",'" << value << "')";
+        }
+        out << ";";
 
-    std::ostringstream out;
-    out << "INSERT INTO keyvalue VALUES ";
-    std::vector<std::string> keyvalue_vector = factlist.get_str_vector();
-
-    size_t count = 0;
-    for(auto &value : keyvalue_vector) {
-        if(count == 0)
-            out << "(" << std::to_string(count++) << ",'" << value << "')";
-        else
-            out << ",(" << std::to_string(count++) << ",'" << value << "')";
+        db.exec(out.str());
     }
-    out << ";";
-
-    db.exec(out.str());
 }

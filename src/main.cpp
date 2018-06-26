@@ -320,6 +320,7 @@ void print_usage() {
     std::cout << "Usage: ag_gen [OPTION...]" << std::endl << std::endl;
     std::cout << "Flags:" << std::endl;
     std::cout << "\t-c\tConfig section in config.ini" << std::endl;
+    std::cout << "\t-b\tEnables batch processing. The argument is the size of batches." << std::endl;
     std::cout << "\t-g\tGenerate visual graph using graphviz, dot file for saving" << std::endl;
     std::cout << "\t-d\tPerform a depth first search to remove cycles" << std::endl;
     std::cout << "\t-n\tNetwork model file used for generation" << std::endl;
@@ -340,12 +341,14 @@ int main(int argc, char *argv[]) {
     std::string opt_xp;
     std::string opt_config;
     std::string opt_graph;
+    std::string opt_batch;
 
     bool should_graph = false;
     bool no_cycles = false;
+    bool batch_process = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "g:dhc:n:x:")) != -1) {
+    while ((opt = getopt(argc, argv, "b:g:dhc:n:x:")) != -1) {
         switch (opt) {
         case 'g':
             should_graph = true;
@@ -365,6 +368,10 @@ int main(int argc, char *argv[]) {
             break;
         case 'd':
             no_cycles = true;
+            break;
+        case 'b':
+            batch_process = true;
+            opt_batch = optarg;
             break;
         case '?':
             if (optopt == 'c')
@@ -433,6 +440,10 @@ int main(int argc, char *argv[]) {
          parsedxp = parse_xp(opt_xp);
      }
 
+     int batch_size = 0;
+     if (batch_process)
+        batch_size = std::stoi(opt_batch);
+
      std::cout << "Importing Models to Database: ";
      import_models(parsednm, parsedxp);
      std::cout << "Done" << std::endl;
@@ -446,7 +457,7 @@ int main(int argc, char *argv[]) {
      auto ex = fetch_all_exploits();
 
      AGGen gen(_instance);
-     AGGenInstance postinstance = gen.generate();
+     AGGenInstance postinstance = gen.generate(batch_process, batch_size);
 
      auto factbase_items = postinstance.factbase_items;
      auto factbases = postinstance.factbases;
@@ -454,7 +465,16 @@ int main(int argc, char *argv[]) {
      auto factlist = postinstance.facts;
 
      std::cout << "Saving Attack Graph to Database: ";
-     save_ag_to_db(factbase_items, factbases, edges, factlist);
+     // save_ag_to_db(factbase_items, factbases, edges, factlist);
+     std::cout << "before final save" << std::endl;
+     save_ag_to_db(postinstance, true);
+
+     //cleanup
+     postinstance = AGGenInstance();
+
      std::cout << "Done" << std::endl;
-     graph_ag(opt_graph, edges, factbases, should_graph, no_cycles);
+
+     // TODO Implement batch pulling later
+     if (!batch_process)
+        graph_ag(opt_graph, edges, factbases, should_graph, no_cycles);
 }

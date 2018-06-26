@@ -42,7 +42,7 @@ class AGGen {
     std::unordered_map<size_t, int> hash_map{};      //!< Map of hashes to Factbase ID
   public:
     explicit AGGen(AGGenInstance &_instance);
-    AGGenInstance &generate();
+    AGGenInstance &generate(bool batch_process, int batch_num);
 };
 
 #endif // AG_GEN_HPP
