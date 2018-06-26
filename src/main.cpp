@@ -30,11 +30,12 @@
 
 template<typename GraphEdge>
 class ag_visitor : public boost::default_dfs_visitor {
-    std::vector<Edge> &edges;
+    //std::vector<Edge> &edges;
     std::vector<GraphEdge> &to_delete;
   public:
-    ag_visitor(std::vector<Edge> &_edges, std::vector<GraphEdge> &_to_delete)
-              : edges(_edges), to_delete(_to_delete) {}
+    // ag_visitor(std::vector<Edge> &_edges, std::vector<GraphEdge> &_to_delete)
+    //           : edges(_edges), to_delete(_to_delete) {}
+    ag_visitor(std::vector<GraphEdge> &_to_delete) : to_delete(_to_delete) {}
 
     template <typename Graph>
     void back_edge(GraphEdge e, Graph g) {
@@ -42,14 +43,18 @@ class ag_visitor : public boost::default_dfs_visitor {
                             boost::get(boost::edge_index, g);
 
         int index = Edge_Index[e];
-        edges[index].set_deleted();
+        // edges[index].set_deleted();
         to_delete.push_back(e);
     }
 };
 
-void graph_ag(std::string filename, std::vector<Edge> &edges, std::vector<Factbase> &factbases,
-              bool should_graph, bool no_cycles) {
+void graph_ag(std::string filename, bool should_graph, bool no_cycles) {
     if (!should_graph && !no_cycles) return;
+
+    GraphInfo info = fetch_graph_info();
+
+    auto factbase_ids = info.first;
+    auto edges = info.second;
 
     typedef boost::property<boost::edge_name_t, std::string,
             boost::property<boost::edge_index_t, int>> EdgeProperties;
@@ -69,42 +74,43 @@ void graph_ag(std::string filename, std::vector<Edge> &edges, std::vector<Factba
 
     std::unordered_map<int, Vertex> vertex_map;
 
-    for (auto fbi : factbases) {
+    for (int fid : factbase_ids) {
         Vertex v = boost::add_vertex(g);
-        int fid = fbi.get_id();
         Factbase_ID[v] = fid;
         vertex_map[fid] = v;
     }
 
-    for (int i = 0; i < edges.size(); ++i) {
-        auto ei = edges[i];
-        int from_id = ei.get_from_id();
-        int to_id = ei.get_to_id();
-        int eid = ei.get_exploit_id();
+    for (auto ei : edges) {
+        int eid = ei[0];
+        int from_id = ei[1];
+        int to_id = ei[2];
+        int exid = ei[3];
 
         Vertex from_v = vertex_map[from_id];
         Vertex to_v = vertex_map[to_id];
 
         GraphEdge e = boost::add_edge(from_v, to_v, g).first;
-        Exploit_ID[e] = std::to_string(eid);
-        Edge_Index[e] = i;
+        Exploit_ID[e] = std::to_string(exid);
+        Edge_Index[e] = eid;
     }
 
     if (no_cycles) {
         std::vector<GraphEdge> to_delete;
 
-        ag_visitor<GraphEdge> vis(edges, to_delete);
+        // ag_visitor<GraphEdge> vis(edges, to_delete);
+        ag_visitor<GraphEdge> vis(to_delete);
         boost::depth_first_search(g, boost::visitor(vis));
 
         for (auto td : to_delete)
             boost::remove_edge(td, g);
 
+        /*
         for (int ii = 0; ii < edges.size(); ++ii)
         {
             auto e = edges[ii];
             if (e.is_deleted())
                 edges.erase(std::next(edges.begin(), ii));
-        }
+        }*/
     }
 
     if (should_graph) {
@@ -474,7 +480,5 @@ int main(int argc, char *argv[]) {
 
      std::cout << "Done" << std::endl;
 
-     // TODO Implement batch pulling later
-     if (!batch_process)
-        graph_ag(opt_graph, edges, factbases, should_graph, no_cycles);
+     graph_ag(opt_graph, should_graph, no_cycles);
 }

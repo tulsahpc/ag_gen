@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <array>
 
 #include "db_functions.h"
 
@@ -38,6 +39,31 @@ std::vector<std::string> fetch_keyvalues() {
     }
 
     return kvs;
+}
+
+GraphInfo fetch_graph_info() {
+    std::vector<Row> factbase_rows = db.exec("SELECT id FROM factbase ORDER BY id;");
+    std::vector<Row> edge_rows = db.exec("SELECT * FROM edge ORDER BY id;");
+
+    std::vector<int> factbase_ids;
+    factbase_ids.resize(factbase_rows.size());
+
+    std::transform(factbase_rows.begin(), factbase_rows.end(), factbase_ids.begin(),
+                   [](Row row){ return std::stoi(row[0]); });
+
+    std::vector<std::array<int, 4>> edges;
+
+    for (auto& row : edge_rows) {
+        int id = std::stoi(row[0]);
+        int from_node = std::stoi(row[1]);
+        int to_node = std::stoi(row[2]);
+        int exploit_id = std::stoi(row[3]);
+
+        std::array<int, 4> arr = {id, from_node, to_node, exploit_id};
+        edges.push_back(arr);
+    }
+
+    return std::make_pair(factbase_ids, edges);
 }
 
 std::vector<std::vector<std::pair<size_t, std::string>>> fetch_all_factbase_items() {
@@ -540,7 +566,8 @@ void save_ag_to_db(AGGenInstance &instance, bool save_keyvalue){
         for (auto ei : eq) {
             int i = ei.second;
 
-            int eid = edges[i].set_id();
+            int eid = edges[i].get_id();
+            //int eid = edges[i].set_id();
 
             if (ii == 0) {
                 edge_sql_query += "(" + std::to_string(eid) + "," + ei.first;

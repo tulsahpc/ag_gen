@@ -18,7 +18,7 @@
 #include "ag_gen/asset.h"
 #include "ag_gen/factbase.h"
 
-using GraphInfo = std::pair<std::vector<Factbase>, std::vector<Edge>>;
+using GraphInfo = std::pair<std::vector<int>, std::vector<std::array<int, 4>>>;
 
 struct CustomDBException : public std::exception
 {
@@ -33,6 +33,8 @@ struct CustomDBException : public std::exception
 void init_db(std::string connect_str);
 
 void import_models(std::string nm, std::string xp);
+
+GraphInfo fetch_graph_info();
 
 std::vector<std::vector<std::pair<size_t, std::string>>> fetch_all_factbase_items();
 std::vector<std::pair<size_t, std::string>> fetch_one_factbase_items(int index);

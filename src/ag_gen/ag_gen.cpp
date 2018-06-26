@@ -280,13 +280,15 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
                 frontier.emplace_front(new_state);
 
-                instance.edges.emplace_back(current_state.get_id(), new_state.get_id(),
-                                            exploit, assetGroup);
+                Edge e(current_state.get_id(), new_state.get_id(), exploit, assetGroup);
+                e.set_id();
+
+                instance.edges.push_back(e);
                 counter++;
             } else {
-                auto hashed_id = hash_map[hash];
-                instance.edges.emplace_back(current_state.get_id(), hash_map[hash],
-                                            exploit, assetGroup);
+                Edge e(current_state.get_id(), hash_map[hash], exploit, assetGroup);
+                e.set_id();
+                instance.edges.push_back(e);
             }
         }
     }
