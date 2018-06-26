@@ -15,6 +15,8 @@
 #include <boost/graph/graphviz.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <boost/graph/visitors.hpp>
+#include <boost/graph/depth_first_search.hpp>
 
 // #include <libconfig.h++>
 
@@ -26,20 +28,49 @@
 #include "util/list.h"
 #include "util/mem.h"
 
-void graph_ag(std::string filename, std::vector<Edge> edges, std::vector<Factbase> factbases) {
-    typedef boost::property<boost::edge_name_t, std::string> EdgeNameProperty;
+template<typename GraphEdge>
+class ag_visitor : public boost::default_dfs_visitor {
+    std::vector<Edge> &edges;
+    std::vector<GraphEdge> &to_delete;
+  public:
+    ag_visitor(std::vector<Edge> &_edges, std::vector<GraphEdge> &_to_delete)
+              : edges(_edges), to_delete(_to_delete) {}
+
+    template <typename Graph>
+    void back_edge(GraphEdge e, Graph g) {
+        std::cout << "back edge" << std::endl;
+        typename boost::property_map<Graph, boost::edge_index_t>::type Edge_Index =
+                            boost::get(boost::edge_index, g);
+
+        int index = Edge_Index[e];
+        std::cout << index << std::endl;
+        for (auto e : edges)
+            std::cout << e.get_query() << std::endl;
+        edges.erase(std::next(edges.begin(), index));
+        for (auto e : edges)
+            std::cout << e.get_query() << std::endl;
+        std::cout << edges.size() << std::endl;
+        to_delete.push_back(e);
+        std::cout << to_delete.size() << std::endl;
+    }
+};
+
+void graph_ag(std::string filename, std::vector<Edge> &edges, std::vector<Factbase> &factbases) {
+    typedef boost::property<boost::edge_name_t, std::string,
+            boost::property<boost::edge_index_t, int>> EdgeProperties;
     typedef boost::property<boost::vertex_name_t, int> VertexNameProperty;
 
     typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
-                           VertexNameProperty, EdgeNameProperty> Graph;
+                           VertexNameProperty, EdgeProperties> Graph;
 
     Graph g;
 
     boost::property_map<Graph, boost::vertex_name_t>::type Factbase_ID = boost::get(boost::vertex_name, g);
     boost::property_map<Graph, boost::edge_name_t>::type Exploit_ID = boost::get(boost::edge_name, g);
+    boost::property_map<Graph, boost::edge_index_t>::type Edge_Index = boost::get(boost::edge_index, g);
 
     typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-    typedef boost::graph_traits<Graph>::edge_descriptor Edge;
+    typedef boost::graph_traits<Graph>::edge_descriptor GraphEdge;
 
     std::unordered_map<int, Vertex> vertex_map;
 
@@ -50,7 +81,8 @@ void graph_ag(std::string filename, std::vector<Edge> edges, std::vector<Factbas
         vertex_map[fid] = v;
     }
 
-    for (auto ei : edges) {
+    for (int i = 0; i < edges.size(); ++i) {
+        auto ei = edges[i];
         int from_id = ei.get_from_id();
         int to_id = ei.get_to_id();
         int eid = ei.get_exploit_id();
@@ -58,9 +90,24 @@ void graph_ag(std::string filename, std::vector<Edge> edges, std::vector<Factbas
         Vertex from_v = vertex_map[from_id];
         Vertex to_v = vertex_map[to_id];
 
-        Edge e = boost::add_edge(from_v, to_v, g).first;
+        GraphEdge e = boost::add_edge(from_v, to_v, g).first;
         Exploit_ID[e] = std::to_string(eid);
+        Edge_Index[e] = i;
     }
+
+    std::cout << "before: " << edges.size() << std::endl;
+
+    std::vector<GraphEdge> to_delete;
+
+    ag_visitor<GraphEdge> vis(edges, to_delete);
+    boost::depth_first_search(g, boost::visitor(vis));
+
+    std::cout << "after: " << edges.size() << std::endl;
+
+    std::cout << to_delete.size() << std::endl;
+
+    for (auto td : to_delete)
+        boost::remove_edge(td, g);
 
     std::ofstream gout;
     gout.open(filename);
