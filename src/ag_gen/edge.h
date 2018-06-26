@@ -18,6 +18,7 @@ class Edge {
     int to_node;
     Exploit exploit;
     AssetGroup assetGroup;
+    bool deleted;
 
   public:
     Edge(int, int, Exploit &, AssetGroup &);
@@ -30,6 +31,8 @@ class Edge {
     int get_from_id();
     int get_to_id();
     int get_exploit_id();
+    void set_deleted();
+    bool is_deleted();
 };
 
 #endif // AG_GEN_EDGE_H

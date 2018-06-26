@@ -42,7 +42,7 @@ class ag_visitor : public boost::default_dfs_visitor {
                             boost::get(boost::edge_index, g);
 
         int index = Edge_Index[e];
-        edges.erase(std::next(edges.begin(), index));
+        edges[index].set_deleted();
         to_delete.push_back(e);
     }
 };
@@ -94,6 +94,13 @@ void graph_ag(std::string filename, std::vector<Edge> &edges, std::vector<Factba
 
     for (auto td : to_delete)
         boost::remove_edge(td, g);
+
+    for (int ii = 0; ii < edges.size(); ++ii)
+    {
+        auto e = edges[ii];
+        if (e.is_deleted())
+            edges.erase(std::next(edges.begin(), ii));
+    }
 
     std::ofstream gout;
     gout.open(filename);

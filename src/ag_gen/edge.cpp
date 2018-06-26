@@ -20,12 +20,16 @@ using namespace std;
  * @param ag AssetGroup associated with the Edge
  */
 Edge::Edge(int iFrom, int iTo, Exploit &ex, AssetGroup &ag)
-    : from_node(iFrom), to_node(iTo), exploit(ex), assetGroup(ag) {}
+    : from_node(iFrom), to_node(iTo), exploit(ex), assetGroup(ag), deleted(false) {}
 
 /**
  * @return The Edge ID
  */
 int Edge::get_id() { return id; }
+
+void Edge::set_deleted() { deleted = true; }
+
+bool Edge::is_deleted() { return deleted; }
 
 int Edge::get_from_id()
 {
