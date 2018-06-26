@@ -36,6 +36,8 @@ void import_models(std::string nm, std::string xp);
 
 GraphInfo fetch_graph_info();
 
+void delete_edges(std::vector<int> edge_ids);
+
 std::vector<std::vector<std::pair<size_t, std::string>>> fetch_all_factbase_items();
 std::vector<std::pair<size_t, std::string>> fetch_one_factbase_items(int index);
 

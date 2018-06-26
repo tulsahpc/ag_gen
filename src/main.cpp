@@ -30,12 +30,9 @@
 
 template<typename GraphEdge>
 class ag_visitor : public boost::default_dfs_visitor {
-    //std::vector<Edge> &edges;
-    std::vector<GraphEdge> &to_delete;
+    std::vector<std::pair<GraphEdge, int>> &to_delete;
   public:
-    // ag_visitor(std::vector<Edge> &_edges, std::vector<GraphEdge> &_to_delete)
-    //           : edges(_edges), to_delete(_to_delete) {}
-    ag_visitor(std::vector<GraphEdge> &_to_delete) : to_delete(_to_delete) {}
+    ag_visitor(std::vector<std::pair<GraphEdge, int>> &_to_delete) : to_delete(_to_delete) {}
 
     template <typename Graph>
     void back_edge(GraphEdge e, Graph g) {
@@ -44,7 +41,7 @@ class ag_visitor : public boost::default_dfs_visitor {
 
         int index = Edge_Index[e];
         // edges[index].set_deleted();
-        to_delete.push_back(e);
+        to_delete.push_back(std::make_pair(e, index));
     }
 };
 
@@ -95,22 +92,22 @@ void graph_ag(std::string filename, bool should_graph, bool no_cycles) {
     }
 
     if (no_cycles) {
-        std::vector<GraphEdge> to_delete;
+        std::vector<std::pair<GraphEdge, int>> to_delete;
 
         // ag_visitor<GraphEdge> vis(edges, to_delete);
         ag_visitor<GraphEdge> vis(to_delete);
         boost::depth_first_search(g, boost::visitor(vis));
 
-        for (auto td : to_delete)
-            boost::remove_edge(td, g);
+        std::vector<int> delete_edge_ids;
+        delete_edge_ids.resize(to_delete.size());
 
-        /*
-        for (int ii = 0; ii < edges.size(); ++ii)
-        {
-            auto e = edges[ii];
-            if (e.is_deleted())
-                edges.erase(std::next(edges.begin(), ii));
-        }*/
+        for (int i = 0; i < to_delete.size(); ++i) {
+            boost::remove_edge(to_delete[i].first, g);
+            delete_edge_ids[i] = to_delete[i].second;
+        }
+
+        delete_edges(delete_edge_ids);
+
     }
 
     if (should_graph) {

@@ -41,6 +41,22 @@ std::vector<std::string> fetch_keyvalues() {
     return kvs;
 }
 
+void delete_edges(std::vector<int> edge_ids) {
+    std::ostringstream ss;
+
+    ss << "(";
+
+    std::copy(edge_ids.begin(), edge_ids.end() - 1, std::ostream_iterator<int>(ss, ", "));
+    ss << edge_ids.back() << ")";
+
+    std::string ids = ss.str();
+
+    std::string sql = "DELETE FROM edge_asset_binding WHERE edge_id IN " + ids
+                    + "; DELETE FROM edge WHERE id IN" + ids + ";";
+
+    db.exec(sql);
+}
+
 GraphInfo fetch_graph_info() {
     std::vector<Row> factbase_rows = db.exec("SELECT id FROM factbase ORDER BY id;");
     std::vector<Row> edge_rows = db.exec("SELECT * FROM edge ORDER BY id;");
