@@ -222,7 +222,19 @@ fetch_exploit_preconds() {
             std::string property = row[5];
             std::string value = row[6];
             std::string op = row[7];
-            std::string dir = row[8];
+            std::string dir_str = row[8];
+
+            DIRECTION_T dir;
+            if(dir_str == "->") {
+                dir = FORWARD_T;
+            } else if (dir_str == "<-") {
+                dir = BACKWARD_T;
+            } else if (dir_str == "<->") {
+                dir = BIDIRECTION_T;
+            } else {
+                std::cerr << "Unknown direction '" << dir_str << "'" << std::endl;
+                exit(1);
+            }
 
             ParameterizedTopology topo{param1,   param2, dir,
                                        property, op,     value};
@@ -299,7 +311,19 @@ fetch_exploit_postconds() {
             std::string property = row[5];
             std::string value = row[6];
             std::string op = row[7];
-            std::string dir = row[8];
+            std::string dir_str = row[8];
+
+            DIRECTION_T dir;
+            if(dir_str == "->") {
+                dir = FORWARD_T;
+            } else if (dir_str == "<-") {
+                dir = BACKWARD_T;
+            } else if (dir_str == "<->") {
+                dir = BIDIRECTION_T;
+            } else {
+                std::cerr << "Unknown direction '" << dir_str << "'" << std::endl;
+                exit(1);
+            }
 
             ParameterizedTopology topo{param1,   param2, dir,
                                        property, op,     value};
@@ -424,7 +448,20 @@ std::vector<Topology> fetch_all_topologies() {
     for (auto &row : rows) {
         int from_asset = std::stoi(row[0]);
         int to_asset = std::stoi(row[1]);
-        std::string dir = row[2];
+        std::string dir_str = row[2];
+
+        DIRECTION_T dir;
+        if(dir_str == "->") {
+            dir = FORWARD_T;
+        } else if (dir_str == "<-") {
+            dir = BACKWARD_T;
+        } else if (dir_str == "<->") {
+            dir = BIDIRECTION_T;
+        } else {
+            std::cerr << "Unknown direction '" << dir_str << "'" << std::endl;
+            exit(1);
+        }
+
         std::string property = row[3];
         std::string op = row[4];
         std::string value = row[5];

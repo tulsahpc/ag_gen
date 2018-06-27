@@ -135,7 +135,7 @@ AGGenInstance &AGGen::generate() {
              auto preconds_t = e.precond_list_t();
             // std::cout << "\tNum Precond Topologies: " << preconds_t.size() << std::endl << std::endl;
 
-            Odometer od(num_params, instance.facts.size());
+            Odometer od(num_params, instance.assets.size());
             std::vector<AssetGroup> asset_groups;
 
             for (auto perm : od) {

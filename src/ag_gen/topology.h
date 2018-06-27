@@ -6,6 +6,12 @@
 
 #include "util/keyvalue.h"
 
+typedef enum {
+    FORWARD_T = 0,
+    BACKWARD_T = 1,
+    BIDIRECTION_T = 2,
+} DIRECTION_T;
+
 union EncodedTopology {
     struct {
         int from_asset : 16;
@@ -22,14 +28,14 @@ union EncodedTopology {
 struct ParameterizedTopology {
     int from_param;
     int to_param;
-    std::string dir;
+    DIRECTION_T dir;
     std::string prop;
     std::string op;
     std::string val;
 
     int get_from_param() { return from_param; }
     int get_to_param() { return to_param; }
-    std::string get_dir() { return dir; }
+    DIRECTION_T get_dir() { return dir; }
     std::string get_property() { return prop; }
     std::string get_operation() { return op; }
     std::string get_value() { return val; }
@@ -53,12 +59,12 @@ class Topology {
     std::string property;
     std::string op;
     std::string value;
-    std::string dir;
+    DIRECTION_T dir;
 
     friend class Factbase;
 
   public:
-    Topology(int f_asset, int t_asset, std::string dir, std::string property,
+    Topology(int f_asset, int t_asset, DIRECTION_T dir, std::string property,
              std::string op, std::string val);
 
     int get_from_asset_id() const;
@@ -66,15 +72,15 @@ class Topology {
     std::string get_property() const;
     std::string get_op() const;
     std::string get_value() const;
-    void set_value(std::string &val);
-    std::string get_dir() const;
+    DIRECTION_T get_dir() const;
 
     void print() const;
 
     const EncodedTopology encode(const Keyvalue &kv_facts) const;
 
     bool operator==(const Topology &rhs) const;
-    bool operator<(const Topology &rhs) const;
+
+    void set_value(std::string &val);
 };
 
 #endif // AG_GEN_TOPOLOGY_H
