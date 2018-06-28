@@ -38,7 +38,7 @@ void AssetGroup::print_group() {
         cout << "Asset " + to_string(perm[0]);
     } else {
         cout << "Assets " + to_string(perm[0]);
-        for (int i : perm) {
+        for (size_t i : perm) {
             cout << ", " + to_string(i);
         }
     }

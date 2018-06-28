@@ -124,13 +124,13 @@ size_t Factbase::hash(Keyvalue &factlist) const {
     size_t hash = 0x0c32a12fe19d2119;
 
     unsigned long qualities_length = qualities.size();
-    for (int i = 0; i < qualities_length; i++) {
+    for (size_t i = 0; i < qualities_length; i++) {
         auto &qual = qualities.at(i);
         hash = hash + combine(qual.encode(factlist).enc);
     }
 
     unsigned long topologies_length = topologies.size();
-    for (int i = 0; i < topologies_length; i++) {
+    for (size_t i = 0; i < topologies_length; i++) {
         auto &topo = topologies.at(i);
         hash = hash + combine(topo.encode(factlist).enc);
     }

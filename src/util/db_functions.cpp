@@ -63,7 +63,7 @@ std::vector<std::vector<std::pair<size_t, std::string>>> fetch_all_factbase_item
 
 std::vector<std::pair<size_t, std::string>> fetch_one_factbase_items(int index) {
     std::vector<std::pair<size_t, std::string>> fi;
-    std::vector<Row> firows = db.exec("SELECT fact,type FROM factbase_item WHERE factbase_id=" + std::to_string(index) + ";");
+    std::vector<Row> firows = db.exec("SELECT f,type FROM factbase_item WHERE factbase_id=" + std::to_string(index) + ";");
     if (firows.empty())
         throw CustomDBException();
 
@@ -490,7 +490,7 @@ void save_ag_to_db(std::vector<FactbaseItems> &factbase_items,
                    Keyvalue &factlist) {
     std::string factbase_sql_query = "INSERT INTO factbase VALUES ";
 
-    for (int i = 0; i < factbases.size(); ++i) {
+    for (size_t i = 0; i < factbases.size(); ++i) {
         if (i == 0) {
             factbase_sql_query += "(" + std::to_string(factbases[i].get_id()) +
                                   ",'" +
@@ -506,10 +506,10 @@ void save_ag_to_db(std::vector<FactbaseItems> &factbase_items,
     db.exec(factbase_sql_query);
 
     std::string item_sql_query = "INSERT INTO factbase_item VALUES ";
-    std::string quality_sql_query = "";
-    std::string topology_sql_query = "";
+    std::string quality_sql_query;
+    std::string topology_sql_query;
 
-    for (int j = 0, sql_index = 0; j < factbase_items.size(); ++j) {
+    for (size_t j = 0, sql_index = 0; j < factbase_items.size(); ++j) {
         auto fbi = factbase_items[j];
 
         int id = std::get<1>(fbi);
@@ -569,7 +569,7 @@ void save_ag_to_db(std::vector<FactbaseItems> &factbase_items,
     // map edge queries to index in edge vector
     std::unordered_map<std::string, int> eq;
     auto ei = edge_queries.begin();
-    for (int i = 0; ei != edge_queries.end(); i++, ei++)
+    for (size_t i = 0; ei != edge_queries.end(); i++, ei++)
         eq.insert({*ei, i});
 
     int ii = 0;
@@ -601,10 +601,11 @@ void save_ag_to_db(std::vector<FactbaseItems> &factbase_items,
 
     size_t count = 0;
     for(auto &value : keyvalue_vector) {
-        if(count == 0)
+        if(count == 0) {
             out << "(" << std::to_string(count++) << ",'" << value << "')";
-        else
+        } else {
             out << ",(" << std::to_string(count++) << ",'" << value << "')";
+        }
     }
     out << ";";
 

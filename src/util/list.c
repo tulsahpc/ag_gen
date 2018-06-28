@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "mem.h"
 #include "list.h"
 
@@ -45,12 +46,12 @@ void list_rem_idx(struct list *l, size_t idx) {
         count++;
     }
 
-    struct node *prev;
+    struct node *prev = NULL;
     if(curr->prev != NULL) {
         prev = curr->prev;
     }
 
-    struct node *next;
+    struct node *next = NULL;
     if(curr->next != NULL) {
         next = curr->next;
     }

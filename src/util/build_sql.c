@@ -71,20 +71,22 @@ char *make_postcondition(hashtable *exploit_ids, exploitpattern *xp, postconditi
         exit(1);
     }
 
-    if(pc->fact->type == QUALITY_T) {
-        char *obj = pc->fact->st->obj;
-        char *op = pc->fact->st->op;
-        char *val = pc->fact->st->val;
+    if(pc->f->type == QUALITY_T) {
+        char *obj = pc->f->st->obj;
+        char *op = pc->f->st->op;
+        char *val = pc->f->st->val;
 
-        sprintf(buf, sqlPostcondition, postcondition_curr_id++, exploit_id, QUALITY_T, get_hashtable(params, pc->fact->from), NULL, obj, val, op, NULL, action);
+        sprintf(buf, sqlPostcondition, postcondition_curr_id++, exploit_id, QUALITY_T, get_hashtable(params, pc->f->from), NULL, obj, val, op, NULL, action);
 
     } else {
-        char *obj = pc->fact->st->obj;
-        char *op = pc->fact->st->op;
-        char *val = pc->fact->st->val;
-        char *dir = pc->fact->dir;
+        char *obj = pc->f->st->obj;
+        char *op = pc->f->st->op;
+        char *val = pc->f->st->val;
+        char *dir = pc->f->dir;
+        int asset_from = get_hashtable(params, pc->f->from);
+        int asset_to = get_hashtable(params, pc->f->to);
 
-        sprintf(buf, sqlPostcondition, postcondition_curr_id++, exploit_id, TOPOLOGY_T, get_hashtable(params, pc->fact->from), get_hashtable(params, pc->fact->to), obj, val, op, dir, action);
+        sprintf(buf, sqlPostcondition, postcondition_curr_id++, exploit_id, TOPOLOGY_T, asset_from, asset_to, obj, val, op, dir, action);
     }
 
     return buf;
@@ -94,7 +96,7 @@ static int precondition_curr_id = 0;
 char *make_precondition(hashtable *exploit_ids, exploitpattern *xp, fact *fct) {
     char *buf = malloc(1000);
 
-    int exploit_id = (int)get_hashtable(exploit_ids, xp->name);
+    int exploit_id = get_hashtable(exploit_ids, xp->name);
     hashtable *params = str_array_to_hashtable(xp->params);
 
     if(fct->type == QUALITY_T) {

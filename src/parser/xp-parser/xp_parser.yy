@@ -65,13 +65,13 @@ exploit: EXPLOIT IDENTIFIER LPAREN parameters RPAREN EQ preconditions postcondit
 }
 ;
 
-parameters: IDENTIFIER COMMA parameters {
-    if($3 == NULL) {
+parameters: parameters COMMA IDENTIFIER {
+    if($1 == NULL) {
         $$ = new_str_array();
-        add_str($$, $1);
+        add_str($$, $3);
     } else {
-        $$ = $3;
-        add_str($$, $1);
+        $$ = $1;
+        add_str($$, $3);
     }
 }
 | IDENTIFIER {
@@ -123,7 +123,7 @@ postconditionslist: { $$ = NULL; }
 postcondition: operation fact {
     postcondition *pc = getmem(sizeof(postcondition));
     pc->op = $1;
-    pc->fact = $2;
+    pc->f = $2;
     $$ = pc;
 }
 ;
@@ -141,7 +141,7 @@ fact: QUALITY COLON IDENTIFIER COMMA statement SEMI {
     st->op = $5->op;
     st->val = $5->val;
 
-    fact *fct = getmem(sizeof(struct fact));
+    struct fact *fct = getmem(sizeof(struct fact));
     fct->type = QUALITY_T;
     fct->from = $3;
     fct->dir = NULL;
@@ -156,7 +156,7 @@ fact: QUALITY COLON IDENTIFIER COMMA statement SEMI {
     st->op = $7->op;
     st->val = $7->val;
 
-    fact *fct = getmem(sizeof(struct fact));
+    struct fact *fct = getmem(sizeof(struct fact));
     fct->type = TOPOLOGY_T;
     fct->from = $3;
     fct->dir = $4;
@@ -239,7 +239,7 @@ void print_xp_list(struct list *xplist) {
         printf("\tPostconditions:\n");
         for(int j=0; j<xp->postconditions->size; j++) {
             struct postcondition *pc = list_get_idx(xp->postconditions, j);
-            printf("\t\t%s %s %s %s\n", pc->op, pc->fact->from, pc->fact->dir, pc->fact->to);
+            printf("\t\t%s %s %s %s\n", pc->op, pc->f->from, pc->f->dir, pc->f->to);
         }
     }
 }
@@ -314,12 +314,12 @@ void print_xp_list(struct list *xplist) {
     strcat(buf, "INSERT INTO exploit_precondition VALUES\n");
 
     // Iterate over each exploit. We then iterate
-    // over each fact in the exploit and generate
+    // over each f in the exploit and generate
     // the sql for it.
     for(int i=0; i<xplist->size; i++) {
         exploitpattern *xp = list_get_idx(xplist, i);
         for(int j=0; j<xp->preconditions->size; j++) {
-            fact *fct = list_get_idx(xp->preconditions, j);
+            f *fct = list_get_idx(xp->preconditions, j);
             // printf("%s: %d\n", fct->from, get_hashtable(exploit_ids, fct->from));
             char *sqladd = make_precondition(exploit_ids, xp, fct);
             while(bufsize < strlen(buf) + strlen(sqladd)) {
@@ -343,7 +343,7 @@ void print_xp_list(struct list *xplist) {
     strcat(buf, "INSERT INTO exploit_postcondition VALUES\n");
 
     // Iterate over each exploit. We then iterate
-    // over each fact in the exploit and generate
+    // over each f in the exploit and generate
     // the sql for it.
     for(int i=0; i<xplist->size; i++) {
         exploitpattern *xp = list_get_idx(xplist, i);

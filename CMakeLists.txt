@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
 # Uncomment for gcc
 # set(CMAKE_C_COMPILER "gcc-8")
@@ -41,8 +41,10 @@ find_package(PkgConfig REQUIRED)
 find_package(PostgreSQL REQUIRED)
 find_package(OpenMP)
 
-# Only required for supplementary tools
-set(BISON_EXECUTABLE "/usr/local/bin/bison")
+if(APPLE)
+    set(BISON_EXECUTABLE "/usr/local/bin/bison")
+endif()
+
 find_package(BISON 3.0 REQUIRED)
 find_package(FLEX)
 find_package(OpenSSL)

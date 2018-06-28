@@ -5,9 +5,9 @@ CREATE TABLE factbase (
 
 CREATE TABLE factbase_item (
   factbase_id INTEGER REFERENCES factbase(id),
-  fact BIGINT,
+  f BIGINT,
   type TEXT,
-  PRIMARY KEY (factbase_id, fact, type)
+  PRIMARY KEY (factbase_id, f, type)
 );
 
 CREATE TABLE asset (

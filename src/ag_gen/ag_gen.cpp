@@ -122,7 +122,7 @@ AGGenInstance &AGGen::generate() {
 
         // std::cout << "Number of Exploits: " << esize << std::endl;
         // Get all applicable exploits with this network state
-        for (int i = 0; i < esize; i++) {
+        for (size_t i = 0; i < esize; i++) {
              auto e = exploit_list.at(i);
             // std::cout << "Exploit: " << e.get_id() << std::endl;
 
@@ -166,7 +166,7 @@ AGGenInstance &AGGen::generate() {
             }
 
             auto assetgroup_size = asset_groups.size();
-            for (int j = 0; j < assetgroup_size; j++) {
+            for (size_t j = 0; j < assetgroup_size; j++) {
                 auto asset_group = asset_groups.at(j);
 
                 // Each quality must exist. If not, discard asset_group
@@ -196,7 +196,7 @@ AGGenInstance &AGGen::generate() {
 
         // Apply each exploit to the network state to generate new network
         // states
-        for (int j = 0; j < appl_expl_size; j++) {
+        for (size_t j = 0; j < appl_expl_size; j++) {
             auto e = appl_exploits.at(j);
 
             // For each applicable exploit, we extract which exploit applies and
@@ -280,7 +280,6 @@ AGGenInstance &AGGen::generate() {
                                             exploit, assetGroup);
                 counter++;
             } else {
-                auto hashed_id = hash_map[hash];
                 instance.edges.emplace_back(current_state.get_id(), hash_map[hash],
                                             exploit, assetGroup);
             }

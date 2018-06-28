@@ -10,28 +10,28 @@
 // N is the width of the permutation
 // K is the number of elements
 class Odometer {
-    std::vector<std::vector<int>> perms;
-    int idx_state = 0;
-    int n, k;
+    std::vector<std::vector<size_t>> perms;
+    size_t idx_state = 0;
+    size_t n, k;
 
   public:
-    Odometer(int in_n, int in_k) {
+    Odometer(size_t in_n, size_t in_k) {
         n = in_n;
         k = in_k;
 
-        int curr_idx = 0;
-        int perm_idx = 0;
+        size_t curr_idx = 0;
+        size_t perm_idx = 0;
 
-        std::vector<int> orig_perm(n);
-        std::vector<int> &last_perm = orig_perm;
+        std::vector<size_t> orig_perm(n);
+        std::vector<size_t> &last_perm = orig_perm;
 
-        for (int i = 0; i < n; i++) {
+        for (size_t i = 0; i < n; i++) {
             orig_perm[i] = 0;
         }
 
         while (perm_idx < length()) {
-            std::vector<int> curr_perm(n);
-            for (int i = 0; i < n; i++) {
+            std::vector<size_t> curr_perm(n);
+            for (size_t i = 0; i < n; i++) {
                 curr_perm[i] = last_perm[i];
             }
 
@@ -45,7 +45,7 @@ class Odometer {
 
             if (curr_idx < n) {
                 curr_perm[curr_idx]++;
-                for (int i = 0; i < curr_idx; i++) {
+                for (size_t i = 0; i < curr_idx; i++) {
                     curr_perm[i] = 0;
                 }
                 curr_idx = 0;
@@ -57,8 +57,8 @@ class Odometer {
     }
 
     void print() {
-        for (std::vector<int> perm : perms) {
-            for (int num : perm) {
+        for (std::vector<size_t> perm : perms) {
+            for (auto num : perm) {
                 std::cout << num << " ";
             }
             std::cout << std::endl;
@@ -67,19 +67,19 @@ class Odometer {
 
     unsigned long length() { return pow(k, n); }
 
-    std::vector<int> next() { return perms[idx_state++]; }
+    std::vector<size_t> next() { return perms[idx_state++]; }
 
-    const std::vector<int> &operator[](int idx) const { return perms[idx]; }
+    const std::vector<size_t> &operator[](int idx) const { return perms[idx]; }
 
     void reset() { idx_state = 0; }
 
-    int perm_length() { return n; }
+    size_t perm_length() { return n; }
 
-    std::vector<std::vector<int>> get_all() { return perms; }
+    std::vector<std::vector<size_t>> get_all() { return perms; }
 
     size_t get_size() { return perms.size(); }
 
-    std::vector<int> const &GetAt(size_t i) const {
+    std::vector<size_t> const &GetAt(size_t i) const {
 
         if (i < perms.size())
             return perms[i];
@@ -99,7 +99,7 @@ class Odometer_iterator {
         return index != other.index;
     }
 
-    std::vector<int> const &operator*() const { return od.GetAt(index); }
+    std::vector<size_t> const &operator*() const { return od.GetAt(index); }
 
     Odometer_iterator const &operator++() {
 
