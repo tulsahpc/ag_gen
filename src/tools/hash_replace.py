@@ -33,13 +33,8 @@ def perform_replacements(fai, hash_map):
 
     for i in xrange(fai, len(lines) - 1):
         hashes = lines[i][:-4].split(' -> ')
-        print lines[i][:-1]
-        print "%s\t%d\t%d" % (hashes[0], hash_map[hashes[0]], len(hashes[0]))
-        print "%s\t%d\t%d" % (hashes[1], hash_map[hashes[1]], len(hashes[1]))
         lines[i] = lines[i].replace(hashes[0], str(hash_map[hashes[0]]))
         lines[i] = lines[i].replace(hashes[1], str(hash_map[hashes[1]]))
-        print lines[i]
-
 
 
 first_arrow_index = find_first_arrow();
