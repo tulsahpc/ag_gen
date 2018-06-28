@@ -42,7 +42,7 @@
 
 %token <string> IDENTIFIER INT FLOAT
 %token <string> EQ GT LT GEQ LEQ
-%token <string> ONEDIR BIDIR
+%token <string> ONEDIR ONEDIRBACK BIDIR NOTONEDIR NOTBIDIR
 %token NETWORK MODEL ASSETS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE;
 %token TAGS
 
@@ -108,7 +108,7 @@ f:
 
     struct statement* st = $7;
 
-    char* sql = make_topology(fromasset, toasset, "->", st);
+    char* sql = make_topology(fromasset, toasset, $4, st);
 
     size_t typesql_len = strlen(sql)+3;
     char* typesql = getmem(typesql_len);
@@ -159,8 +159,11 @@ relop:
 ;
 
 direction:
-  ONEDIR
-| BIDIR
+  BIDIR
+| ONEDIR
+| ONEDIRBACK
+| NOTBIDIR
+| NOTONEDIR
 ;
 
 %%

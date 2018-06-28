@@ -29,6 +29,11 @@ void import_models(std::string nm, std::string xp) {
     db.exec(xp);
 }
 
+int get_max_factbase_id() {
+    std::vector<Row> res = db.exec("SELECT MAX(id) FROM factbase;");
+    return stoi(res[0][0]);
+}
+
 std::vector<std::string> fetch_keyvalues() {
     std::vector<Row> rows = db.exec("SELECT property FROM keyvalue;");
     std::vector<std::string> kvs{};

@@ -30,11 +30,3 @@ exploit retract_2(a)=
         delete quality:a,poop=true;
         update quality:a,funny=true;
 .
-
-exploit other(a)=
-    preconditions:
-        quality:a,funny=true;
-        quality:a,giggle=true;
-    postconditions:
-        add quality:a,thing=hello;
-.

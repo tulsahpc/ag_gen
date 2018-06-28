@@ -32,6 +32,7 @@ void init_db(std::string connect_str);
 
 void import_models(std::string nm, std::string xp);
 
+int get_max_factbase_id();
 std::vector<std::vector<std::pair<size_t, std::string>>> fetch_all_factbase_items();
 std::vector<std::pair<size_t, std::string>> fetch_one_factbase_items(int index);
 

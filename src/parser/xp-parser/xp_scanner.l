@@ -30,6 +30,7 @@ remove { xplval.string = strdup(yytext); return REMOVE; }
 "(" { xplval.string = strdup(yytext); return LPAREN; }
 ")" { xplval.string = strdup(yytext); return RPAREN; }
 "="	 { xplval.string = strdup(yytext); return EQ; }
+"==" { xplval.string = strdup(yytext); return EQ; }
 "!=" { xplval.string = strdup(yytext); return NEQ; }
 "<" { xplval.string = strdup(yytext); return LT; }
 ">" { xplval.string = strdup(yytext); return GT; }
@@ -43,11 +44,11 @@ remove { xplval.string = strdup(yytext); return REMOVE; }
 ";"	 { xplval.string = strdup(yytext); return SEMI; }
 ","	 { xplval.string = strdup(yytext); return COMMA; }
 "."	 { xplval.string = strdup(yytext); return PERIOD; }
+"<->"  { xplval.string = strdup(yytext); return BIDIR; }
+"<!>" { xplval.string = strdup(yytext); return NOTBIDIR; }
 "->" { xplval.string = strdup(yytext); return ONEDIR; }
 "<-" { xplval.string = strdup(yytext); return ONEDIRBACK; }
-"<->"  { xplval.string = strdup(yytext); return BIDIR; }
 "!>" { xplval.string = strdup(yytext); return NOTONEDIR; }
-"<!>" { xplval.string = strdup(yytext); return NOTBIDIR; }
 [ \t\r\n]+ {}
 
 . { return yytext[0]; }

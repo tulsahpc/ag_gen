@@ -2,7 +2,7 @@ exploit ubuntu_apache_exploit(website)=
     preconditions:
         quality:website,os=ubuntu;
         quality:website,webserver=apache;
-        quality:website,webserver_version=2.2;
+        quality:website,webserver_version==2.2;
     postconditions:
         insert quality:website,command_injection=true;
 .
@@ -10,7 +10,7 @@ exploit ubuntu_apache_exploit(website)=
 exploit ubuntu_linux_priv_esc(machine)=
     preconditions:
         quality:machine,os=ubuntu;
-        quality:machine,version=12.04;
+        quality:machine,version==12.04;
     postconditions:
         insert quality:machine,priv_esc=true;
 .

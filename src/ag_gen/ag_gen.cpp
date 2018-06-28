@@ -215,7 +215,7 @@ AGGenInstance &AGGen::generate() {
             NetworkState new_state{current_state};
 
             // ADD/UPDATE/DELETE code goes here
-            for(auto qual : qualities) {
+            for(auto &qual : qualities) {
                 auto action = std::get<0>(qual);
                 auto fact = std::get<1>(qual);
 
@@ -232,7 +232,7 @@ AGGenInstance &AGGen::generate() {
                 }
             }
 
-            for(auto topo : topologies) {
+            for(auto &topo : topologies) {
                 auto action = std::get<0>(topo);
                 auto fact = std::get<1>(topo);
 
@@ -248,8 +248,6 @@ AGGenInstance &AGGen::generate() {
                     break;
                 }
             }
-
-            // Store nodes in global list here
 
             auto hash = new_state.get_hash(instance.facts);
 
