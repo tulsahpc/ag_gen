@@ -5,6 +5,8 @@
 #include <iostream>
 #include <vector>
 
+#include <boost/functional/hash.hpp>
+
 #include "ag_gen.h"
 
 using namespace std;
@@ -107,11 +109,10 @@ void Factbase::delete_topology(Topology &t) {
 /**
  * @brief Shamelessly copied from Boost::hash_combine
  */
-size_t combine(size_t seed) {
-    seed ^= std::hash<size_t>{}(seed) + 0x9e3779b97f4a7c15 + (seed << 6) +
-            (seed >> 2);
-    return seed;
-}
+// void combine(size_t *seed) {
+//     *seed ^= std::hash<size_t>{}(seed) + 0x9e3779b97f4a7c15 + (seed << 6) +
+//             (seed >> 2);
+// }
 
 /**
  * @brief Hashes the Factbase
@@ -121,22 +122,26 @@ size_t combine(size_t seed) {
  */
 size_t Factbase::hash(Keyvalue &factlist) const {
     //  size_t hash = 0xf848b64e; // Random seed value
-    size_t hash = 0x0c32a12fe19d2119;
+    size_t seed = 0x0c32a12fe19d2119;
+    // size_t seed = 0;
 
+    std::vector<Quality> local_quals {qualities};
     unsigned long qualities_length = qualities.size();
+    std::stable_sort(local_quals.begin(), local_quals.end());
     for (size_t i = 0; i < qualities_length; i++) {
-        auto &qual = qualities.at(i);
-        hash = hash + combine(qual.encode(factlist).enc);
+        auto &qual = local_quals.at(i);
+        boost::hash_combine(seed, qual.encode(factlist).enc);
     }
 
+    std::vector<Topology> local_topos {topologies};
     unsigned long topologies_length = topologies.size();
+    std::stable_sort(local_topos.begin(), local_topos.end());
     for (size_t i = 0; i < topologies_length; i++) {
         auto &topo = topologies.at(i);
-        hash = hash + combine(topo.encode(factlist).enc);
+        boost::hash_combine(seed, topo.encode(factlist).enc);
     }
 
-//    std::cout << "Hash: " << hash << std::endl;
-    return hash;
+    return seed;
 }
 
 /**
