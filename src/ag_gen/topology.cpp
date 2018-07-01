@@ -3,8 +3,6 @@
 
 #include "ag_gen.h"
 
-using namespace std;
-
 /**
  * @brief Constructor for Topology
  *
@@ -15,10 +13,10 @@ using namespace std;
  * @param op The operation
  * @param val The value of the Topology
  */
-Topology::Topology(int f_asset, int t_asset, string dir, string property,
-                   string op, string val)
+Topology::Topology(int f_asset, int t_asset, DIRECTION_T dir, std::string property,
+                   std::string op, std::string val)
     : from_asset_id(f_asset), to_asset_id(t_asset), property(move(property)),
-      op(move(op)), value(move(val)), dir(move(dir)) {}
+      op(move(op)), value(move(val)), dir(std::move(dir)) {}
 
 /**
  * @return The From Asset ID
@@ -33,33 +31,33 @@ int Topology::get_to_asset_id() const { return to_asset_id; }
 /**
  * @return The property of the Topology
  */
-string Topology::get_property() const { return property; }
+std::string Topology::get_property() const { return property; }
 
 /**
  * @return The operation of the Topology
  */
-string Topology::get_op() const { return op; }
+std::string Topology::get_op() const { return op; }
 
 /**
  * @return The value of the Topology
  */
-string Topology::get_value() const { return value; }
+std::string Topology::get_value() const { return value; }
 
 void Topology::set_value(std::string &val) { value = val; }
 
 /**
  * @return The direction of the Topology
  */
-string Topology::get_dir() const { return dir; }
+DIRECTION_T Topology::get_dir() const { return dir; }
 
 /**
  * @brief Prints the Topology
  */
 void Topology::print() const {
-    cout << to_string(from_asset_id) + " " + dir + " " +
-                to_string(to_asset_id) + ": " + property + " " + op + " " +
+    std::cout << std::to_string(from_asset_id) + " " + std::to_string(dir) + " " +
+                std::to_string(to_asset_id) + ": " + property + " " + op + " " +
                 value
-         << endl;
+         << std::endl;
 }
 
 /**
@@ -74,7 +72,7 @@ const EncodedTopology Topology::encode(const Keyvalue &kv_facts) const {
 
     topo.dec.from_asset = from_asset_id;
     topo.dec.to_asset = to_asset_id;
-    topo.dec.dir = 0; // Assuming only one direction for now
+    topo.dec.dir = dir;
     topo.dec.property = kv_facts[property];
     topo.dec.op = 0; // Assuming only one operation for now
     topo.dec.value = kv_facts[value];
@@ -83,17 +81,35 @@ const EncodedTopology Topology::encode(const Keyvalue &kv_facts) const {
 }
 
 bool Topology::operator==(const Topology &rhs) const {
-    if (this->from_asset_id != rhs.from_asset_id)
+    if(this->dir != BIDIRECTION_T) {
+        if (this->from_asset_id != rhs.from_asset_id) {
+            return false;
+        }
+
+        if (this->to_asset_id != rhs.to_asset_id) {
+            return false;
+        }
+    } else {
+        if(this->from_asset_id != rhs.from_asset_id && this->from_asset_id != rhs.to_asset_id) {
+            return false;
+        }
+
+        if(this->to_asset_id != rhs.to_asset_id && this->to_asset_id != rhs.from_asset_id) {
+            return false;
+        }
+    }
+
+    if (this->property != rhs.property) {
         return false;
-    if (this->to_asset_id != rhs.to_asset_id)
+    }
+
+    if (this->op != rhs.op) {
         return false;
-    if (this->dir != rhs.dir)
+    }
+
+    if (this->value != rhs.value) {
         return false;
-    if (this->property != rhs.property)
-        return false;
-    if (this->op != rhs.op)
-        return false;
-    if (this->value != rhs.value)
-        return false;
+    }
+
     return true;
 }

@@ -35,14 +35,14 @@
 %type <arr> factlist facts
 
 %type <string> asset
-%type <string> fact
+%type <string> f
 %type <string> relop operator direction number value
 
 %type <st> statement
 
 %token <string> IDENTIFIER INT FLOAT
 %token <string> EQ GT LT GEQ LEQ
-%token <string> ONEDIR BIDIR
+%token <string> ONEDIR ONEDIRBACK BIDIR NOTONEDIR NOTBIDIR
 %token NETWORK MODEL ASSETS COLON FACTS PERIOD SEMI QUALITY COMMA TOPOLOGY WHITESPACE;
 %token TAGS
 
@@ -79,7 +79,7 @@ tags: {}
 facts: FACTS COLON factlist { $$ = $3; }
 
 factlist: { $$ = NULL; }
-| factlist fact {
+| factlist f {
     if($1 == NULL) {
         $$ = new_str_array();
         add_str($$, $2);
@@ -90,14 +90,15 @@ factlist: { $$ = NULL; }
   }
 ;
 
-fact:
+f:
   QUALITY COLON IDENTIFIER COMMA statement SEMI {
     int assetid = get_hashtable(nm->asset_tab, $3);
     char* sql = make_quality(assetid, $5);
 
-    char* typesql = getmem(strlen(sql)+3);
-    strncat(typesql, "q:", 2);
-    strncat(typesql, sql, strlen(sql));
+    size_t typesql_len = strlen(sql)+3;
+    char* typesql = getmem(typesql_len);
+    strncat(typesql, "q:", 3);
+    strncat(typesql, sql, typesql_len);
 
     $$ = typesql;
   }
@@ -107,11 +108,12 @@ fact:
 
     struct statement* st = $7;
 
-    char* sql = make_topology(fromasset, toasset, "->", st);
+    char* sql = make_topology(fromasset, toasset, $4, st);
 
-    char* typesql = getmem(strlen(sql)+3);
-    strncat(typesql, "t:", 2);
-    strncat(typesql, sql, strlen(sql));
+    size_t typesql_len = strlen(sql)+3;
+    char* typesql = getmem(typesql_len);
+    strncat(typesql, "t:", 3);
+    strncat(typesql, sql, typesql_len);
 
     $$ = typesql;
   }
@@ -157,8 +159,11 @@ relop:
 ;
 
 direction:
-  ONEDIR
-| BIDIR
+  BIDIR
+| ONEDIR
+| ONEDIRBACK
+| NOTBIDIR
+| NOTONEDIR
 ;
 
 %%

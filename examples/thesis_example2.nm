@@ -5,13 +5,10 @@ network model =
 
         # DMZ
         website;
-        public_api;
 
         # Internal
         storage_server;
         active_directory;
-        icehrm;
-        splunk;
 
         # Workstations
         workstation1;
@@ -20,7 +17,6 @@ network model =
 
         # Wifi
         ap;
-        personal_laptop;
         personal_phone;
 
     facts:
@@ -34,12 +30,6 @@ network model =
         quality:website,webserver_version:=2.2;
         topology:border_router<->website,dmz;
 
-        quality:public_api,os=ubuntu;
-        quality:public_api,version:=12.04;
-        quality:public_api,backend=flask;
-        quality:public_api,backend_version:=6;
-        topology:border_router<->public_api,dmz;
-
         quality:storage_server,os=freebsd;
         quality:storage_server,version:=10;
         quality:storage_server,smb=enabled;
@@ -50,19 +40,11 @@ network model =
         quality:active_directory,domain_controller=true;
         topology:border_router<->active_directory,private_firewall;
 
-        topology:border_router<->icehrm,private_firewall;
-
-        topology:border_router<->splunk,private_firewall;
-
         topology:border_router<->workstation1,private_nat;
-
         topology:border_router<->workstation2,private_nat;
-
         topology:border_router<->workstation3,private_nat;
 
         topology:border_router<->ap,private_nat;
-
-        topology:ap<->personal_laptop,wifi_private;
 
         topology:ap<->personal_phone,wifi_private;
     tags:

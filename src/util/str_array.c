@@ -28,26 +28,26 @@ void add_str(str_array *arr, char *str) {
     arr->arr[arr->used++] = dynstr(str);
 }
 
-char *get_str_idx(str_array *arr, int idx) {
+char *get_str_idx(str_array *arr, size_t idx) {
     return arr->arr[idx];
 }
 
 void free_str_array(str_array *arr) {
-    for (int i = 0; i < arr->used; i++) {
+    for (size_t i = 0; i < arr->used; i++) {
         free(arr->arr[i]);
     }
     free(arr->arr);
 }
 
 void print_str_array(str_array *arr) {
-    for (int i = 0; i < arr->used; i++) {
+    for (size_t i = 0; i < arr->used; i++) {
         printf("\t%s\n", arr->arr[i]);
     }
 }
 
 hashtable *str_array_to_hashtable(str_array *arr) {
     hashtable *ht = new_hashtable(7);
-    for(int i=0; i<arr->used; i++) {
+    for(size_t i=0; i<arr->used; i++) {
         //printf("TEST: %s - %d\n", get_str_idx(arr, i), i);
         add_hashtable(ht, get_str_idx(arr, i), i);
     }

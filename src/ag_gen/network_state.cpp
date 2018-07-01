@@ -104,7 +104,6 @@ void NetworkState::update_topology(Topology &t) {
     auto from_asset = t.get_from_asset_id();
     auto to_asset = t.get_to_asset_id();
     auto attr = t.get_property();
-    auto dir = t.get_dir();
     auto val = t.get_value();
 
     for(auto &topo : factbase.topologies) {

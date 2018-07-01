@@ -33,8 +33,12 @@ tags { return TAGS; }
 ";"	 { nmlval.string = strdup(yytext); return SEMI; }
 ","	 { nmlval.string = strdup(yytext); return COMMA; }
 "."	 { nmlval.string = strdup(yytext); return PERIOD; }
-"->"  { nmlval.string = strdup(yytext); return ONEDIR; }
 "<->"  { nmlval.string = strdup(yytext); return BIDIR; }
+"<!>" { nmlval.string = strdup(yytext); return NOTBIDIR; }
+"<-" { nmlval.string = strdup(yytext); return ONEDIRBACK; }
+"->"  { nmlval.string = strdup(yytext); return ONEDIR; }
+"!>" { nmlval.string = strdup(yytext); return NOTONEDIR; }
+
 [ \t\r\n]+ {}
 
 . { return 1; }

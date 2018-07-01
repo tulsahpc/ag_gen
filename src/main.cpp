@@ -138,7 +138,7 @@ std::string parse_nm(std::string filename) {
     str_array* qualities = new_str_array();
     str_array* topologies = new_str_array();
 
-    for(int i=0; i<nm.facts->used; i++) {
+    for(size_t i=0; i<nm.facts->used; i++) {
         char* current = nm.facts->arr[i];
         char* copy = getstr(strlen(current));
 
@@ -158,7 +158,7 @@ std::string parse_nm(std::string filename) {
     const char* assetheader = "INSERT INTO asset VALUES";
     output += assetheader;
 
-    for(int i=0; i<nm.assets->used-1; i++) {
+    for(size_t i=0; i<nm.assets->used-1; i++) {
         const char* nextstring = nm.assets->arr[i];
         output += nextstring;
     }
@@ -169,7 +169,7 @@ std::string parse_nm(std::string filename) {
 
     const char* qualityheader = "\nINSERT INTO quality VALUES";
     output += qualityheader;
-    for(int i=0; i<qualities->used-1; i++) {
+    for(size_t i=0; i<qualities->used-1; i++) {
         const char* nextstring = qualities->arr[i];
         output += nextstring;
     }
@@ -181,7 +181,7 @@ std::string parse_nm(std::string filename) {
     if(topologies->used > 0) {
         const char *topologyheader = "\nINSERT INTO topology VALUES";
         output += topologyheader;
-        for (int i = 0; i < topologies->used - 1; i++) {
+        for (size_t i = 0; i < topologies->used - 1; i++) {
             const char *nextstring = topologies->arr[i];
             output += nextstring;
         }
@@ -231,20 +231,21 @@ std::string parse_xp(std::string filename) {
 
     // Preload buffer with SQL prelude
     size_t bufsize = INITIALBUFSIZE;
-    char *buf = (char *)getcmem(bufsize);
+    char *buf = static_cast<char *>(getcmem(bufsize));
     strcat(buf, "INSERT INTO exploit VALUES\n");
 
     // Iterate over each exploit in the list
     // Generate an "exploit_instance" which contains
     // the generated exploit id and the sql for
     // for the exploit.
-    for(int i=0; i<xplist->size; i++) {
-        exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
+    for(size_t i=0; i<xplist->size; i++) {
+        exploitpattern *xp = static_cast<exploitpattern *>(list_get_idx(xplist, i));
         exploit_instance *ei = make_exploit(xp);
         add_hashtable(exploit_ids, xp->name, ei->id);
         // printf("%s - %d\n", xp->name, get_hashtable(exploit_ids, xp->name));
-        while(bufsize < strlen(buf) + strlen(ei->sql))
-            buf = (char *)realloc(buf, (bufsize*=2));
+        while(bufsize < strlen(buf) + strlen(ei->sql)) {
+            buf = static_cast<char *>(realloc(buf, (bufsize *= 2)));
+        }
         strcat(buf, ei->sql);
     }
 
@@ -260,15 +261,15 @@ std::string parse_xp(std::string filename) {
 
     // Preload buffer with SQL prelude
     bufsize = INITIALBUFSIZE;
-    buf = (char *)getcmem(bufsize);
+    buf = static_cast<char *>(getcmem(bufsize));
     strcat(buf, "INSERT INTO exploit_precondition VALUES\n");
 
     // Iterate over each exploit. We then iterate
-    // over each fact in the exploit and generate
+    // over each f in the exploit and generate
     // the sql for it.
-    for(int i=0; i<xplist->size; i++) {
+    for(size_t i=0; i<xplist->size; i++) {
         exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
-        for(int j=0; j<xp->preconditions->size; j++) {
+        for(size_t j=0; j<xp->preconditions->size; j++) {
             fact *fct = (fact *)list_get_idx(xp->preconditions, j);
             // printf("%s: %d\n", fct->from, get_hashtable(exploit_ids, fct->from));
             char *sqladd = make_precondition(exploit_ids, xp, fct);
@@ -294,11 +295,11 @@ std::string parse_xp(std::string filename) {
     strcat(buf, "INSERT INTO exploit_postcondition VALUES\n");
 
     // Iterate over each exploit. We then iterate
-    // over each fact in the exploit and generate
+    // over each f in the exploit and generate
     // the sql for it.
-    for(int i=0; i<xplist->size; i++) {
+    for(size_t i=0; i<xplist->size; i++) {
         exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
-        for(int j=0; j<xp->postconditions->size; j++) {
+        for(size_t j=0; j<xp->postconditions->size; j++) {
             postcondition *pc = (postcondition *)list_get_idx(xp->postconditions, j);
             char *sqladd = make_postcondition(exploit_ids, xp, pc);
             while(bufsize < strlen(buf) + strlen(sqladd)) {

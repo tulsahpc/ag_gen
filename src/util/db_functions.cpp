@@ -30,6 +30,11 @@ void import_models(std::string nm, std::string xp) {
     db.exec(xp);
 }
 
+int get_max_factbase_id() {
+    std::vector<Row> res = db.exec("SELECT MAX(id) FROM factbase;");
+    return stoi(res[0][0]);
+}
+
 std::vector<std::string> fetch_keyvalues() {
     std::vector<Row> rows = db.exec("SELECT property FROM keyvalue;");
     std::vector<std::string> kvs{};
@@ -105,7 +110,7 @@ std::vector<std::vector<std::pair<size_t, std::string>>> fetch_all_factbase_item
 
 std::vector<std::pair<size_t, std::string>> fetch_one_factbase_items(int index) {
     std::vector<std::pair<size_t, std::string>> fi;
-    std::vector<Row> firows = db.exec("SELECT fact,type FROM factbase_item WHERE factbase_id=" + std::to_string(index) + ";");
+    std::vector<Row> firows = db.exec("SELECT f,type FROM factbase_item WHERE factbase_id=" + std::to_string(index) + ";");
     if (firows.empty())
         throw CustomDBException();
 
@@ -264,7 +269,19 @@ fetch_exploit_preconds() {
             std::string property = row[5];
             std::string value = row[6];
             std::string op = row[7];
-            std::string dir = row[8];
+            std::string dir_str = row[8];
+
+            DIRECTION_T dir;
+            if(dir_str == "->") {
+                dir = FORWARD_T;
+            } else if (dir_str == "<-") {
+                dir = BACKWARD_T;
+            } else if (dir_str == "<->") {
+                dir = BIDIRECTION_T;
+            } else {
+                std::cerr << "Unknown direction '" << dir_str << "'" << std::endl;
+                exit(1);
+            }
 
             ParameterizedTopology topo{param1,   param2, dir,
                                        property, op,     value};
@@ -341,7 +358,19 @@ fetch_exploit_postconds() {
             std::string property = row[5];
             std::string value = row[6];
             std::string op = row[7];
-            std::string dir = row[8];
+            std::string dir_str = row[8];
+
+            DIRECTION_T dir;
+            if(dir_str == "->") {
+                dir = FORWARD_T;
+            } else if (dir_str == "<-") {
+                dir = BACKWARD_T;
+            } else if (dir_str == "<->") {
+                dir = BIDIRECTION_T;
+            } else {
+                std::cerr << "Unknown direction '" << dir_str << "'" << std::endl;
+                exit(1);
+            }
 
             ParameterizedTopology topo{param1,   param2, dir,
                                        property, op,     value};
@@ -466,7 +495,20 @@ std::vector<Topology> fetch_all_topologies() {
     for (auto &row : rows) {
         int from_asset = std::stoi(row[0]);
         int to_asset = std::stoi(row[1]);
-        std::string dir = row[2];
+        std::string dir_str = row[2];
+
+        DIRECTION_T dir;
+        if(dir_str == "->") {
+            dir = FORWARD_T;
+        } else if (dir_str == "<-") {
+            dir = BACKWARD_T;
+        } else if (dir_str == "<->") {
+            dir = BIDIRECTION_T;
+        } else {
+            std::cerr << "Unknown direction '" << dir_str << "'" << std::endl;
+            exit(1);
+        }
+
         std::string property = row[3];
         std::string op = row[4];
         std::string value = row[5];

@@ -1,9 +1,9 @@
-<network-model> ::= network <identifier> = assets : <asset-list> facts : <fact-list> .
+<network-model> ::= network <identifier> = assets : <asset-list> facts : <f-list> .
 <asset-list>    ::= <asset-list> <identifier> ;
                   | <EOL>
-<fact-list>     ::= <fact-list> <fact> ;
+<f-list>     ::= <f-list> <f> ;
                   | <EOL>
-<fact>          ::= quality : <identifier> , <statement> ;
+<f>          ::= quality : <identifier> , <statement> ;
                   | topology : <identifier> <direction> <identifier> , <statement> ;
 
 <statement>     ::= <identifier> <operator> <value>

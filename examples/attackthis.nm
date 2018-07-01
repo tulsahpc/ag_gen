@@ -1,0 +1,38 @@
+network model =
+    assets:
+        # Router
+        edge_router;
+
+        # My PC
+        beast;
+
+        # Wifi
+        ap;
+        laptop;
+
+        # :)
+        cloud;
+
+    facts:
+        quality:edge_router,vendor=ubiquity;
+        quality:edge_router,os=edgeos;
+        quality:edge_router,version:=1;
+
+        quality:beast,os=windows;
+        quality:beast,version:=10;
+        quality:beast,beastly=true;
+        topology:beast<->edge_router,lan;
+
+        quality:ap,vendor=ubiquity;
+        quality:ap,os=apos;
+        quality:ap,version:=1;
+        topology:ap<->edge_router,wifi;
+
+        quality:laptop,vendor=apple;
+        quality:laptop,os=macos;
+        quality:laptop,version:=10;
+        topology:laptop<->ap,wifi;
+
+        quality:cloud,happy=false;
+        topology:cloud<->edge_router,hc;
+.

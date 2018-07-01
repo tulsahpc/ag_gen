@@ -57,7 +57,7 @@ typedef struct fact {
 
 typedef struct postcondition {
     char *op;
-    fact *fact;
+    fact *f;
 } postcondition;
 
 char *make_asset(char *as);

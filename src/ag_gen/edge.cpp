@@ -78,7 +78,7 @@ int Edge::edge_current_id = 0;
 string Edge::get_asset_query() {
     auto current_perm = assetGroup.get_perm();
     string sql = "";
-    for (int i = 0; i < current_perm.size(); ++i) {
+    for (size_t i = 0; i < current_perm.size(); ++i) {
 
         if (i == 0)
             sql += "(" + to_string(id) + "," + to_string(i) + "," +

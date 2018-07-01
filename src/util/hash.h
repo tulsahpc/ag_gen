@@ -27,7 +27,7 @@ uint64_t hash(char *str);
 hashtable *new_hashtable(int size);
 void init_hashtable(hashtable *t, int size);
 int get_hashtable(hashtable *t, char *key);
-void add_hashtable(hashtable *t, char *key, int val);
+void add_hashtable(hashtable *t, char *key, size_t val);
 void free_hashtable(hashtable *t);
 
 #ifdef __cplusplus

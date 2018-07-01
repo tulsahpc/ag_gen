@@ -21,7 +21,7 @@ class AssetGroup {
     std::vector<Quality> hypothetical_qualities;
     std::vector<Topology> hypothetical_topologies;
 
-    std::vector<int> perm;
+    std::vector<size_t> perm;
 
   public:
     /**
@@ -33,11 +33,11 @@ class AssetGroup {
      * @param pperm IDs of the Assets
      */
     AssetGroup(std::vector<Quality> hypo_quals,
-               std::vector<Topology> hypo_topos, std::vector<int> pperm)
+               std::vector<Topology> hypo_topos, std::vector<size_t> pperm)
         : hypothetical_qualities(move(hypo_quals)),
           hypothetical_topologies(move(hypo_topos)), perm(move(pperm)) {}
 
-    std::vector<int> get_perm() const { return perm; }
+    std::vector<size_t> get_perm() const { return perm; }
 
     std::vector<Quality> get_hypo_quals() const {
         return hypothetical_qualities;

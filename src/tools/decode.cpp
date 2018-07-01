@@ -3,12 +3,15 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <queue>
 
 #include <getopt.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <ag_gen/quality.h>
+#include <ag_gen/topology.h>
 
 #include "ag_gen/asset.h"
 #include "ag_gen/quality.h"
@@ -24,125 +27,96 @@ void print_usage() {
               << "\t-c\tconfig section. If none is provided, default will be used." << std::endl;
 }
 
-void find_one(std::vector<std::string> &str_vector, int index) {
+std::string find_one_impl(std::vector<std::string> &str_vector, int index) {
     std::vector<std::pair<size_t, std::string>> fbitems;
 
-    std::ofstream output("file.txt");
+    std::ostringstream output;
+
+    std::vector<EncodedQuality> cmpq_base;
+    auto cmpq = [](EncodedQuality &a, EncodedQuality &b) { return a.dec.asset_id < b.dec.asset_id; };
+    std::priority_queue<EncodedQuality, std::vector<EncodedQuality>, decltype(cmpq)> pqq(cmpq, cmpq_base);
+
+    std::vector<EncodedTopology> cmpt_base;
+    auto cmpt = [](EncodedTopology &a, EncodedTopology &b) { return a.dec.from_asset < b.dec.from_asset; };
+    std::priority_queue<EncodedTopology, std::vector<EncodedTopology>, decltype(cmpt)> pqt(cmpt, cmpt_base);
 
     try {
         fbitems = fetch_one_factbase_items(index);
     } catch (CustomDBException &ex) {
         std::cout << index << " not in DB" << std::endl;
-        return;
+        exit(1);
+    }
+
+    for(auto &item : fbitems) {
+        std::string type = item.second;
+        if (type == "quality") {
+            EncodedQuality eq;
+            eq.enc = item.first;
+            pqq.emplace(eq);
+        } else {
+            EncodedTopology et;
+            et.enc = item.first;
+            pqt.emplace(et);
+        }
     }
 
     std::vector<Asset> assets = fetch_all_assets();
-
     output << index << ":";
 
-    for (auto item : fbitems) {
+    while(!pqq.empty()) {
+        EncodedQuality qual = pqq.top();
+        pqq.pop();
 
-        std::string type = item.second;
+        output << "\tquality:";
 
-        if (type == "quality") {
+        Asset asset = assets[qual.dec.asset_id];
+        output << asset.get_name() << ",";
 
-            output << "\tquality:";
+        std::string attr = str_vector[qual.dec.attr];
+        std::string val = str_vector[qual.dec.val];
 
-            EncodedQuality eq;
-            eq.enc = item.first;
-            Asset asset = assets[eq.dec.asset_id];
-            output << asset.get_name() << ",";
+        output << attr << "=" << val << "\n";
 
-            std::string attr = str_vector[eq.dec.attr];
-            std::string val = str_vector[eq.dec.val];
+    }
 
-            output << attr << "=" << val << "\n";
+    while(!pqt.empty()) {
+        EncodedTopology topo = pqt.top();
+        pqt.pop();
 
-        } else if (type == "topology") {
+        output << "\ttopology:";
 
-            output << "\ttopology:";
+        Asset from_asset = assets[topo.dec.from_asset];
+        Asset to_asset = assets[topo.dec.to_asset];
 
-            EncodedTopology et;
-            et.enc = item.first;
+        output << from_asset.get_name() << "->" << to_asset.get_name() << ",";
 
-            Asset from_asset = assets[et.dec.from_asset];
-            Asset to_asset = assets[et.dec.to_asset];
+        std::string prop = str_vector[topo.dec.property];
+        std::string val = str_vector[topo.dec.value];
 
-            output << from_asset.get_name() << "->" << to_asset.get_name() << ",";
-
-            std::string prop = str_vector[et.dec.property];
-            std::string val = str_vector[et.dec.value];
-
-            output << prop << "=" << val << "\n";
-        }
+        output << prop << "=" << val << "\n";
     }
 
     output << std::endl;
+
+    return output.str();
+}
+
+void find_one(std::vector<std::string> &str_vector, int index) {
+    std::ofstream output("file.txt");
+    output << find_one_impl(str_vector, index);
 }
 
 void find_all(std::vector<std::string> &str_vector) {
-
-    std::vector<std::vector<std::pair<size_t, std::string>>> fbitems;
+    int max = get_max_factbase_id();
 
     std::ofstream output("file.txt");
 
-    try {
-        fbitems = fetch_all_factbase_items();
-    } catch (CustomDBException &ex) {
-        std::cout << "factbase_item TABLE empty" << std::endl;
-        return;
+    for(auto i=0; i<=max; ++i) {
+        output << find_one_impl(str_vector, i);
     }
 
-    std::vector<Asset> assets = fetch_all_assets();
-
-    for (int i = 0; i < fbitems.size(); ++i) {
-
-        auto items = fbitems[i];
-
-        if (items.empty())
-            continue;
-
-        output << i << ":";
-
-        for (auto item : items) {
-
-            std::string type = item.second;
-
-            if (type == "quality") {
-
-                output << "\tquality:";
-
-                EncodedQuality eq;
-                eq.enc = item.first;
-                Asset asset = assets[eq.dec.asset_id];
-                output << asset.get_name() << ",";
-
-                std::string attr = str_vector[eq.dec.attr];
-                std::string val = str_vector[eq.dec.val];
-
-                output << attr << "=" << val << "\n";
-
-            } else if (type == "topology") {
-
-                output << "\ttopology:";
-
-                EncodedTopology et;
-                et.enc = item.first;
-
-                Asset from_asset = assets[et.dec.from_asset];
-                Asset to_asset = assets[et.dec.to_asset];
-
-                output << from_asset.get_name() << "->" << to_asset.get_name() << ",";
-
-                std::string prop = str_vector[et.dec.property];
-                std::string val = str_vector[et.dec.value];
-
-                output << prop << "=" << val << "\n";
-            }
-        }
-
-        output << std::endl;
-    }
+    output << std::endl;
+    output.close();
 }
 
 int main(int argc, char *argv[]) {
