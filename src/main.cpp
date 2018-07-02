@@ -471,7 +471,7 @@ int main(int argc, char *argv[]) {
      if (batch_process)
         batch_size = std::stoi(opt_batch);
 
-     std::cout << "Importing Models to Database: ";
+     std::cout << "Importing Models to Database: " << std::endl;
      import_models(parsednm, parsedxp);
      std::cout << "Done" << std::endl;
 
@@ -491,9 +491,8 @@ int main(int argc, char *argv[]) {
      auto edges = postinstance.edges;
      auto factlist = postinstance.facts;
 
-     std::cout << "Saving Attack Graph to Database: ";
+     std::cout << "Saving Attack Graph to Database: " << std::endl;
      // save_ag_to_db(factbase_items, factbases, edges, factlist);
-     std::cout << "before final save" << std::endl;
      save_ag_to_db(postinstance, true);
 
      //cleanup
