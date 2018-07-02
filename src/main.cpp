@@ -341,11 +341,12 @@ int main(int argc, char *argv[]) {
         print_usage();
         return 0;
     }
+    std::cout << "yo" << std::endl;
 
-    cpp_redis::client client;
-    client.connect();
-    client.set("hello", "42");
-    client.sync_commit();
+    // cpp_redis::client client;
+    // client.connect("127.0.0.1", 6379);
+    // client.set("hello", "42");
+    // client.sync_commit();
 
     std::string opt_nm;
     std::string opt_xp;
@@ -434,6 +435,8 @@ int main(int argc, char *argv[]) {
     // cfg.lookupValue("database.db", dbName);
     // cfg.lookupValue("database.username", username);
     // cfg.lookupValue("database.password", password);
+
+    std::cout << "yo2" << std::endl;
 
     init_db("postgresql://" + username + "@" + host + ":" + port + "/" +
                dbName);
