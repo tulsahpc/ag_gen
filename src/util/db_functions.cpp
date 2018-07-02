@@ -488,7 +488,7 @@ std::vector<Quality> fetch_all_qualities(Keyvalue &facts) {
     return qualities;
 }
 
-std::vector<Topology> fetch_all_topologies() {
+std::vector<Topology> fetch_all_topologies(Keyvalue &facts) {
     std::vector<Topology> topologies;
 
     std::vector<Row> rows = db.exec("SELECT * FROM topology;");
@@ -513,7 +513,7 @@ std::vector<Topology> fetch_all_topologies() {
         std::string op = row[4];
         std::string value = row[5];
 
-        Topology t(from_asset, to_asset, dir, property, op, value);
+        Topology t(from_asset, to_asset, dir, property, op, value, facts);
         topologies.push_back(t);
     }
 
@@ -589,12 +589,12 @@ void save_ag_to_db(AGGenInstance &instance, bool save_keyvalue){
             for (auto ti : topo) {
                 if (sql_index == 0)
                     topology_sql_query += "(" + std::to_string(id) + "," +
-                                          std::to_string(ti.encode(factlist).enc) +
+                                          std::to_string(ti.get_encoding()) +
                                           ",'topology')";
 
                 else
                     topology_sql_query += ",(" + std::to_string(id) + "," +
-                                          std::to_string(ti.encode(factlist).enc) +
+                                          std::to_string(ti.get_encoding()) +
                                           ",'topology')";
                 ++sql_index;
             }

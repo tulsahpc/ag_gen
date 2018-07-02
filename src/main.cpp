@@ -455,7 +455,7 @@ int main(int argc, char *argv[]) {
      AGGenInstance _instance;
      _instance.facts = fetch_facts();
      _instance.initial_qualities = fetch_all_qualities(_instance.facts);
-     _instance.initial_topologies = fetch_all_topologies();
+     _instance.initial_topologies = fetch_all_topologies(_instance.facts);
      _instance.assets = fetch_all_assets(_instance.facts);
      _instance.exploits = fetch_all_exploits();
      auto ex = fetch_all_exploits();

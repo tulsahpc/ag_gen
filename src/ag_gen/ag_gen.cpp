@@ -74,7 +74,7 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group, Keyvalue &facts) {
         auto val = fact.get_value();
 
         Topology t(perm[fact.get_from_param()],
-                   perm[fact.get_to_param()], dir, prop, op, val);
+                   perm[fact.get_to_param()], dir, prop, op, val, facts);
         postconds_t.push_back(std::make_tuple(action, t));
     }
 
@@ -162,7 +162,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
                     asset_group_topos.emplace_back(
                         perm[precond.get_from_param()],
-                        perm[precond.get_to_param()], dir, prop, op, val);
+                        perm[precond.get_to_param()], dir, prop, op, val, instance.facts);
                 }
 
                 asset_groups.emplace_back(asset_group_quals, asset_group_topos,
