@@ -10,6 +10,7 @@
 #include <string>
 #include <tuple>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/graphviz.hpp>
@@ -332,6 +333,11 @@ void print_usage() {
     std::cout << "\t-h\tThis help menu." << std::endl;
 }
 
+inline bool file_exists(const std::string &name) {
+    struct stat buffer;
+    return (stat (name.c_str(), &buffer) == 0);
+}
+
 // the main function executes the command according to the given flag and throws
 // and error if an unknown flag is provided. It then uses the database given in
 // the "config.txt" file to generate an attack graph.
@@ -436,12 +442,20 @@ int main(int argc, char *argv[]) {
 
      std::string parsednm;
      if(!opt_nm.empty()) {
-         parsednm = parse_nm(opt_nm);
+        if (!file_exists(opt_nm)) {
+            fprintf(stderr, "File %s doesn't exist.\n", opt_nm.c_str());
+            exit(EXIT_FAILURE);
+        }
+        parsednm = parse_nm(opt_nm);
      }
 
      std::string parsedxp;
      if(!opt_xp.empty()) {
-         parsedxp = parse_xp(opt_xp);
+        if (!file_exists(opt_xp)) {
+            fprintf(stderr, "File %s doesn't exist.\n", opt_xp.c_str());
+            exit(EXIT_FAILURE);
+        }
+        parsedxp = parse_xp(opt_xp);
      }
 
      int batch_size = 0;
