@@ -1,5 +1,7 @@
 bin/
 
+libs/
+
 # vim ycm file
 .ycm*
 
