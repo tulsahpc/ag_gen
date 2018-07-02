@@ -20,6 +20,7 @@
 
 // #include <libconfig.h++>
 
+#include <cpp_redis/cpp_redis>
 #include "ag_gen/ag_gen.h"
 #include "util/db_functions.h"
 #include "util/build_sql.h"
@@ -340,6 +341,11 @@ int main(int argc, char *argv[]) {
         print_usage();
         return 0;
     }
+
+    cpp_redis::client client;
+    client.connect();
+    client.set("hello", "42");
+    client.sync_commit();
 
     std::string opt_nm;
     std::string opt_xp;

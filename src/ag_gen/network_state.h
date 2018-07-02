@@ -45,6 +45,8 @@ class NetworkState {
 
     void delete_quality(Quality &q);
     void delete_topology(Topology &t);
+
+    bool operator==(const Factbase &rhs) const;
 };
 
 #endif

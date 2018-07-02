@@ -284,9 +284,30 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
                 instance.edges.push_back(e);
                 counter++;
             } else {
-                Edge e(current_state.get_id(), hash_map[hash], exploit, assetGroup);
-                e.set_id();
-                instance.edges.push_back(e);
+                if (new_state == instance.factbases[hash_map[hash]]) {
+                    Edge e(current_state.get_id(), hash_map[hash], exploit, assetGroup);
+                    e.set_id();
+                    instance.edges.push_back(e);
+                    std::cout << "equal" << std::endl;;
+                } else {
+                    new_state.set_id();
+
+                    FactbaseItems new_items =
+                        std::make_tuple(new_state.get_factbase().get_facts_tuple(), new_state.get_id());
+                    instance.factbase_items.push_back(new_items);
+
+                    instance.factbases.push_back(new_state.get_factbase());
+                    hash_map.insert(std::make_pair(new_state.get_hash(instance.facts), new_state.get_id()));
+
+                    frontier.emplace_front(new_state);
+
+                    Edge e(current_state.get_id(), new_state.get_id(), exploit, assetGroup);
+                    e.set_id();
+
+                    instance.edges.push_back(e);
+                    counter++;
+                    std::cout << "not equal" << std::endl;
+                }
             }
         }
     }
