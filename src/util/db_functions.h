@@ -58,9 +58,9 @@ std::unordered_map<
                fetch_exploit_postconds();
 
 std::vector<Exploit> fetch_all_exploits();
-std::unordered_map<int, std::vector<Quality>> fetch_asset_qualities();
-std::vector<Asset> fetch_all_assets();
-std::vector<Quality> fetch_all_qualities();
+std::unordered_map<int, std::vector<Quality>> fetch_asset_qualities(Keyvalue &facts);
+std::vector<Asset> fetch_all_assets(Keyvalue &facts);
+std::vector<Quality> fetch_all_qualities(Keyvalue &facts);
 std::vector<Topology> fetch_all_topologies();
 Keyvalue fetch_facts();
 

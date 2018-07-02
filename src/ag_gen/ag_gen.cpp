@@ -43,7 +43,7 @@ AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
  * @return A tuple containing the "real" qualities and "real" topologies
  */
 static std::tuple<std::vector<std::tuple<ACTION_T, Quality>>, std::vector<std::tuple<ACTION_T, Topology>>>
-createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
+createPostConditions(std::tuple<Exploit, AssetGroup> &group, Keyvalue &facts) {
     auto ex = std::get<0>(group);
     auto ag = std::get<1>(group);
 
@@ -60,7 +60,7 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
         auto fact = std::get<1>(postcond);
 
         Quality q(perm[fact.get_param_num()], fact.name, "=",
-                  fact.value);
+                  fact.value, facts);
         postconds_q.push_back(std::make_tuple(action, q));
     }
 
@@ -149,7 +149,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
                 for (auto &precond : preconds_q) {
                     asset_group_quals.emplace_back(
                         perm[precond.get_param_num()], precond.name, "=",
-                        precond.value);
+                        precond.value, instance.facts);
 //                    auto qual = Quality(perm[precond.get_param_num()], precond.name, "=", precond.value);
 //                    qual.print();
                 }
@@ -211,7 +211,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
             // We generate the associated post conditions and extract the new
             // qualities and topologies that will be applied to the current
             // factbase.
-            auto postconditions = createPostConditions(e);
+            auto postconditions = createPostConditions(e, instance.facts);
             auto qualities = std::get<0>(postconditions);
             auto topologies = std::get<1>(postconditions);
 

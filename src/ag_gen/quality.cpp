@@ -13,8 +13,8 @@ using namespace std;
  * @param o The operation
  * @param qualValue The value of the Quality
  */
-Quality::Quality(int asset, string qualName, string o, string qualValue)
-    : asset_id(asset), name(move(qualName)), op(o), value(move(qualValue)) {}
+Quality::Quality(int asset, string qualName, string o, string qualValue, Keyvalue &facts)
+    : asset_id(asset), name(move(qualName)), op(o), value(move(qualValue)), encoded(encode(facts).enc) {}
 
 int Quality::get_asset_id() const { return asset_id; }
 
@@ -29,6 +29,10 @@ string Quality::get_name() const { return name; }
 string Quality::get_op() const { return op; }
 
 std::string Quality::get_value() const { return value; }
+
+const size_t Quality::get_encoding() const {
+    return encoded;
+}
 
 void Quality::set_value(std::string &val) {
     value = val;
