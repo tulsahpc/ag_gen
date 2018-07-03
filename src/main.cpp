@@ -21,7 +21,6 @@
 
 // #include <libconfig.h++>
 
-#include <cpp_redis/cpp_redis>
 #include "ag_gen/ag_gen.h"
 #include "util/db_functions.h"
 #include "util/build_sql.h"
@@ -29,6 +28,7 @@
 #include "util/hash.h"
 #include "util/list.h"
 #include "util/mem.h"
+#include "util/redis_manager.h"
 
 template<typename GraphEdge>
 class ag_visitor : public boost::default_dfs_visitor {
@@ -351,7 +351,7 @@ int main(int argc, char *argv[]) {
 
     // cpp_redis::client client;
     // client.connect("127.0.0.1", 6379);
-    // client.set("hello", "42");
+    // client.sadd("helloset", std::vector<std::string>{"420", "69"});
     // client.sync_commit();
 
     std::string opt_nm;
@@ -483,7 +483,9 @@ int main(int argc, char *argv[]) {
      _instance.exploits = fetch_all_exploits();
      auto ex = fetch_all_exploits();
 
-     AGGen gen(_instance);
+     RedisManager rman("127.0.0.1", 6379);
+
+     AGGen gen(_instance, rman);
      AGGenInstance postinstance = gen.generate(batch_process, batch_size);
 
      auto factbase_items = postinstance.factbase_items;

@@ -555,7 +555,8 @@ void save_ag_to_db(AGGenInstance &instance, bool save_keyvalue){
                                       std::to_string(factbases[i].hash(factlist)) + "')";
             }
         }
-        factbase_sql_query += " ON CONFLICT DO NOTHING;";
+        // factbase_sql_query += " ON CONFLICT DO NOTHING;";
+        factbase_sql_query += ";";
         db.exec(factbase_sql_query);
     }
 

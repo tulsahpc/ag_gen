@@ -132,32 +132,62 @@ void NetworkState::delete_topology(Topology &t) {
     }
 }
 
-bool NetworkState::operator==(const Factbase &rhs) const {
-    auto right_tuple = rhs.get_facts_tuple();
-    auto rq = std::get<0>(right_tuple);
-    auto rt = std::get<1>(right_tuple);
+int NetworkState::compare(std::string hash, RedisManager &rman) const {
+    if (!rman.check_collision(hash)) {
+        if (!rman.check_qualities(hash, factbase.qualities))
+            return -1;
 
-    auto left_tuple = factbase.get_facts_tuple();
-    auto lq = std::get<0>(left_tuple);
-    auto lt = std::get<1>(left_tuple);
+        if (!rman.check_topologies(hash, factbase.topologies))
+            return -1;
 
-    // Right quality set
-    std::unordered_set<size_t> rqs;
-    std::for_each(rq.begin(), rq.end(), [&rqs](Quality q){rqs.insert(q.get_encoding());});
-
-    // Right topology set
-    std::unordered_set<size_t> rts;
-    std::for_each(rt.begin(), rt.end(), [&rts](Topology t){rts.insert(t.get_encoding());});
-
-    for (auto q : lq) {
-        if (rqs.find(q.get_encoding()) == rqs.end())
-            return false;
+        return 0;
     }
 
-    for (auto t : lt) {
-        if (rts.find(t.get_encoding()) == rts.end())
-            return false;
+    int amt = rman.get_collision_count(hash);
+
+    if (rman.check_qualities(hash, factbase.qualities) && rman.check_topologies(hash, factbase.topologies))
+        return 0;
+
+    for (int i = 1; i <= amt; ++i) {
+        std::string new_string = hash + "_" + std::to_string(i);
+        if (!rman.check_qualities(new_string, factbase.qualities))
+            continue;
+
+        if (!rman.check_topologies(new_string, factbase.topologies))
+            continue;
+
+        return i;
     }
 
-    return true;
+    return -1;
 }
+
+// bool NetworkState::operator==(const Factbase &rhs) const {
+//     auto right_tuple = rhs.get_facts_tuple();
+//     auto rq = std::get<0>(right_tuple);
+//     auto rt = std::get<1>(right_tuple);
+
+//     auto left_tuple = factbase.get_facts_tuple();
+//     auto lq = std::get<0>(left_tuple);
+//     auto lt = std::get<1>(left_tuple);
+
+//     // Right quality set
+//     std::unordered_set<size_t> rqs;
+//     std::for_each(rq.begin(), rq.end(), [&rqs](Quality q){rqs.insert(q.get_encoding());});
+
+//     // Right topology set
+//     std::unordered_set<size_t> rts;
+//     std::for_each(rt.begin(), rt.end(), [&rts](Topology t){rts.insert(t.get_encoding());});
+
+//     for (auto q : lq) {
+//         if (rqs.find(q.get_encoding()) == rqs.end())
+//             return false;
+//     }
+
+//     for (auto t : lt) {
+//         if (rts.find(t.get_encoding()) == rts.end())
+//             return false;
+//     }
+
+//     return true;
+// }
