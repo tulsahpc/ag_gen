@@ -62,7 +62,6 @@ class Quality {
     EncodedQuality encode(const Keyvalue &kv_facts) const;
 
     bool operator==(const Quality &rhs) const;
-    bool operator<(const Quality &rhs) const;
 };
 
 #endif // AG_GEN_QUALITY_H

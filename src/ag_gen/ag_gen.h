@@ -19,6 +19,14 @@
 using FactbaseItems =
     std::tuple<std::tuple<std::vector<Quality>, std::vector<Topology>>, int>;
 
+typedef enum OPERATION_T {
+    EQ_T,
+    GEQ_T,
+    LEQ_T,
+    GT_T,
+    LT_T
+} OPERATION_T;
+
 struct AGGenInstance {
     std::string opt_network;
     std::vector<Asset> assets;

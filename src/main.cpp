@@ -269,13 +269,13 @@ std::string parse_xp(std::string filename) {
     // over each f in the exploit and generate
     // the sql for it.
     for(size_t i=0; i<xplist->size; i++) {
-        exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
+        exploitpattern *xp = static_cast<exploitpattern *>(list_get_idx(xplist, i));
         for(size_t j=0; j<xp->preconditions->size; j++) {
-            fact *fct = (fact *)list_get_idx(xp->preconditions, j);
+            fact *fct = static_cast<fact *>(list_get_idx(xp->preconditions, j));
             // printf("%s: %d\n", fct->from, get_hashtable(exploit_ids, fct->from));
             char *sqladd = make_precondition(exploit_ids, xp, fct);
             while(bufsize < strlen(buf) + strlen(sqladd)) {
-                buf = (char *)realloc(buf, (bufsize*=2));
+                buf = static_cast<char *>(realloc(buf, (bufsize*=2)));
             }
             strcat(buf, sqladd);
         }
@@ -299,12 +299,12 @@ std::string parse_xp(std::string filename) {
     // over each f in the exploit and generate
     // the sql for it.
     for(size_t i=0; i<xplist->size; i++) {
-        exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
+        exploitpattern *xp = static_cast<exploitpattern *>(list_get_idx(xplist, i));
         for(size_t j=0; j<xp->postconditions->size; j++) {
-            postcondition *pc = (postcondition *)list_get_idx(xp->postconditions, j);
+            postcondition *pc = static_cast<postcondition *>(list_get_idx(xp->postconditions, j));
             char *sqladd = make_postcondition(exploit_ids, xp, pc);
             while(bufsize < strlen(buf) + strlen(sqladd)) {
-                buf = (char *)realloc(buf, (bufsize*=2));
+                buf = static_cast<char *>(realloc(buf, (bufsize*=2)));
             }
             strcat(buf, sqladd);
         }
