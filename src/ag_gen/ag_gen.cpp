@@ -59,7 +59,7 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
         auto action = std::get<0>(postcond);
         auto fact = std::get<1>(postcond);
 
-        Quality q(perm[fact.get_param_num()], fact.name, fact.,
+        Quality q(perm[fact.get_param_num()], fact.name, "=",
                   fact.value);
         postconds_q.push_back(std::make_tuple(action, q));
     }
