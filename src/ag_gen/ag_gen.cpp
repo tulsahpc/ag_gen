@@ -10,6 +10,7 @@
 #include "ag_gen.h"
 
 #include "util/odometer.h"
+#include "util/db_functions.h"
 
 /**
  * @brief Constructor for generator
@@ -97,7 +98,7 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group) {
  * break and continue checking with the next exploit.
  *      5. Push the new network state onto the frontier to be expanded later.
  */
-AGGenInstance &AGGen::generate() {
+AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
     std::vector<Exploit> exploit_list = instance.exploits;
     auto counter = 0;
     auto start = std::chrono::system_clock::now();
@@ -105,11 +106,14 @@ AGGenInstance &AGGen::generate() {
     unsigned long esize = exploit_list.size();
 
     std::cout << "Generating Attack Graph" << std::endl;
-    unsigned long long count_output = 0;
     while (!frontier.empty()) {
-        if(count_output % 500) {
-            std::cout << "State " << count_output << "\n";
+        if (batch_process && (counter + 1) % batch_size == 0){
+            save_ag_to_db(instance, false);
+            instance.factbases.clear();
+            instance.factbase_items.clear();
+            instance.edges.clear();
         }
+
 //        cout << "Frontier Size: " << frontier.size() << endl;
         // Remove the next state from the queue and get its factbase
         auto current_state = frontier.back();
@@ -274,12 +278,15 @@ AGGenInstance &AGGen::generate() {
 
                 frontier.emplace_front(new_state);
 
-                instance.edges.emplace_back(current_state.get_id(), new_state.get_id(),
-                                            exploit, assetGroup);
+                Edge e(current_state.get_id(), new_state.get_id(), exploit, assetGroup);
+                e.set_id();
+
+                instance.edges.push_back(e);
                 counter++;
             } else {
-                instance.edges.emplace_back(current_state.get_id(), hash_map[hash],
-                                            exploit, assetGroup);
+                Edge e(current_state.get_id(), hash_map[hash], exploit, assetGroup);
+                e.set_id();
+                instance.edges.push_back(e);
             }
         }
     }

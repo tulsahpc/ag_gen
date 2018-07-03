@@ -10,6 +10,7 @@
 #include <string>
 #include <tuple>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/graphviz.hpp>
@@ -30,11 +31,9 @@
 
 template<typename GraphEdge>
 class ag_visitor : public boost::default_dfs_visitor {
-    std::vector<Edge> &edges;
-    std::vector<GraphEdge> &to_delete;
+    std::vector<std::pair<GraphEdge, int>> &to_delete;
   public:
-    ag_visitor(std::vector<Edge> &_edges, std::vector<GraphEdge> &_to_delete)
-              : edges(_edges), to_delete(_to_delete) {}
+    ag_visitor(std::vector<std::pair<GraphEdge, int>> &_to_delete) : to_delete(_to_delete) {}
 
     template <typename Graph>
     void back_edge(GraphEdge e, Graph g) {
@@ -42,14 +41,18 @@ class ag_visitor : public boost::default_dfs_visitor {
                             boost::get(boost::edge_index, g);
 
         int index = Edge_Index[e];
-        edges[index].set_deleted();
-        to_delete.push_back(e);
+        // edges[index].set_deleted();
+        to_delete.push_back(std::make_pair(e, index));
     }
 };
 
-void graph_ag(std::string filename, std::vector<Edge> &edges, std::vector<Factbase> &factbases,
-              bool should_graph, bool no_cycles) {
+void graph_ag(std::string filename, bool should_graph, bool no_cycles) {
     if (!should_graph && !no_cycles) return;
+
+    GraphInfo info = fetch_graph_info();
+
+    auto factbase_ids = info.first;
+    auto edges = info.second;
 
     typedef boost::property<boost::edge_name_t, std::string,
             boost::property<boost::edge_index_t, int>> EdgeProperties;
@@ -69,42 +72,43 @@ void graph_ag(std::string filename, std::vector<Edge> &edges, std::vector<Factba
 
     std::unordered_map<int, Vertex> vertex_map;
 
-    for (auto fbi : factbases) {
+    for (int fid : factbase_ids) {
         Vertex v = boost::add_vertex(g);
-        int fid = fbi.get_id();
         Factbase_ID[v] = fid;
         vertex_map[fid] = v;
     }
 
-    for (size_t i = 0; i < edges.size(); ++i) {
-        auto ei = edges[i];
-        int from_id = ei.get_from_id();
-        int to_id = ei.get_to_id();
-        int eid = ei.get_exploit_id();
+    for (auto ei : edges) {
+        int eid = ei[0];
+        int from_id = ei[1];
+        int to_id = ei[2];
+        int exid = ei[3];
 
         Vertex from_v = vertex_map[from_id];
         Vertex to_v = vertex_map[to_id];
 
         GraphEdge e = boost::add_edge(from_v, to_v, g).first;
-        Exploit_ID[e] = std::to_string(eid);
-        Edge_Index[e] = i;
+        Exploit_ID[e] = std::to_string(exid);
+        Edge_Index[e] = eid;
     }
 
     if (no_cycles) {
-        std::vector<GraphEdge> to_delete;
+        std::vector<std::pair<GraphEdge, int>> to_delete;
 
-        ag_visitor<GraphEdge> vis(edges, to_delete);
+        // ag_visitor<GraphEdge> vis(edges, to_delete);
+        ag_visitor<GraphEdge> vis(to_delete);
         boost::depth_first_search(g, boost::visitor(vis));
 
-        for (auto td : to_delete)
-            boost::remove_edge(td, g);
+        std::vector<int> delete_edge_ids;
+        delete_edge_ids.resize(to_delete.size());
 
-        for (size_t ii = 0; ii < edges.size(); ++ii)
-        {
-            auto e = edges[ii];
-            if (e.is_deleted())
-                edges.erase(std::next(edges.begin(), ii));
+        for (int i = 0; i < to_delete.size(); ++i) {
+            boost::remove_edge(to_delete[i].first, g);
+            delete_edge_ids[i] = to_delete[i].second;
         }
+
+        delete_edges(delete_edge_ids);
+
     }
 
     if (should_graph) {
@@ -321,11 +325,17 @@ void print_usage() {
     std::cout << "Usage: ag_gen [OPTION...]" << std::endl << std::endl;
     std::cout << "Flags:" << std::endl;
     std::cout << "\t-c\tConfig section in config.ini" << std::endl;
+    std::cout << "\t-b\tEnables batch processing. The argument is the size of batches." << std::endl;
     std::cout << "\t-g\tGenerate visual graph using graphviz, dot file for saving" << std::endl;
     std::cout << "\t-d\tPerform a depth first search to remove cycles" << std::endl;
     std::cout << "\t-n\tNetwork model file used for generation" << std::endl;
     std::cout << "\t-x\tExploit pattern file used for generation" << std::endl;
     std::cout << "\t-h\tThis help menu." << std::endl;
+}
+
+inline bool file_exists(const std::string &name) {
+    struct stat buffer;
+    return (stat (name.c_str(), &buffer) == 0);
 }
 
 // the main function executes the command according to the given flag and throws
@@ -341,12 +351,14 @@ int main(int argc, char *argv[]) {
     std::string opt_xp;
     std::string opt_config;
     std::string opt_graph;
+    std::string opt_batch;
 
     bool should_graph = false;
     bool no_cycles = false;
+    bool batch_process = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "g:dhc:n:x:")) != -1) {
+    while ((opt = getopt(argc, argv, "b:g:dhc:n:x:")) != -1) {
         switch (opt) {
         case 'g':
             should_graph = true;
@@ -366,6 +378,10 @@ int main(int argc, char *argv[]) {
             break;
         case 'd':
             no_cycles = true;
+            break;
+        case 'b':
+            batch_process = true;
+            opt_batch = optarg;
             break;
         case '?':
             if (optopt == 'c')
@@ -426,13 +442,25 @@ int main(int argc, char *argv[]) {
 
      std::string parsednm;
      if(!opt_nm.empty()) {
-         parsednm = parse_nm(opt_nm);
+        if (!file_exists(opt_nm)) {
+            fprintf(stderr, "File %s doesn't exist.\n", opt_nm.c_str());
+            exit(EXIT_FAILURE);
+        }
+        parsednm = parse_nm(opt_nm);
      }
 
      std::string parsedxp;
      if(!opt_xp.empty()) {
-         parsedxp = parse_xp(opt_xp);
+        if (!file_exists(opt_xp)) {
+            fprintf(stderr, "File %s doesn't exist.\n", opt_xp.c_str());
+            exit(EXIT_FAILURE);
+        }
+        parsedxp = parse_xp(opt_xp);
      }
+
+     int batch_size = 0;
+     if (batch_process)
+        batch_size = std::stoi(opt_batch);
 
      std::cout << "Importing Models to Database: ";
      import_models(parsednm, parsedxp);
@@ -447,7 +475,7 @@ int main(int argc, char *argv[]) {
      auto ex = fetch_all_exploits();
 
      AGGen gen(_instance);
-     AGGenInstance postinstance = gen.generate();
+     AGGenInstance postinstance = gen.generate(batch_process, batch_size);
 
      auto factbase_items = postinstance.factbase_items;
      auto factbases = postinstance.factbases;
@@ -455,7 +483,14 @@ int main(int argc, char *argv[]) {
      auto factlist = postinstance.facts;
 
      std::cout << "Saving Attack Graph to Database: ";
-     save_ag_to_db(factbase_items, factbases, edges, factlist);
+     // save_ag_to_db(factbase_items, factbases, edges, factlist);
+     std::cout << "before final save" << std::endl;
+     save_ag_to_db(postinstance, true);
+
+     //cleanup
+     postinstance = AGGenInstance();
+
      std::cout << "Done" << std::endl;
-     graph_ag(opt_graph, edges, factbases, should_graph, no_cycles);
+
+     graph_ag(opt_graph, should_graph, no_cycles);
 }

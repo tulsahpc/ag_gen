@@ -18,6 +18,8 @@
 #include "ag_gen/asset.h"
 #include "ag_gen/factbase.h"
 
+using GraphInfo = std::pair<std::vector<int>, std::vector<std::array<int, 4>>>;
+
 struct CustomDBException : public std::exception
 {
 
@@ -32,7 +34,12 @@ void init_db(std::string connect_str);
 
 void import_models(std::string nm, std::string xp);
 
+GraphInfo fetch_graph_info();
+
+void delete_edges(std::vector<int> edge_ids);
+
 int get_max_factbase_id();
+
 std::vector<std::vector<std::pair<size_t, std::string>>> fetch_all_factbase_items();
 std::vector<std::pair<size_t, std::string>> fetch_one_factbase_items(int index);
 
@@ -59,9 +66,11 @@ Keyvalue fetch_facts();
 
 inline std::string to_query(Edge edge) { return edge.get_query(); }
 
-void save_ag_to_db(std::vector<FactbaseItems> &factbase_items,
-                   std::vector<Factbase> &factbases, std::vector<Edge> &edges,
-                   Keyvalue &factlist);
+// void save_ag_to_db(std::vector<FactbaseItems> &factbase_items,
+//                    std::vector<Factbase> &factbases, std::vector<Edge> &edges,
+//                    Keyvalue &factlist);
+
+void save_ag_to_db(AGGenInstance &instance, bool save_keyvalue);
 
 // void test_create();
 
