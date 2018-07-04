@@ -107,8 +107,9 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
     std::cout << "Generating Attack Graph" << std::endl;
     while (!frontier.empty()) {
-        if (batch_process && (counter + 1) % batch_size == 0){
+        if (batch_process && ((counter+1) % batch_size) == 0) {
             save_ag_to_db(instance, false);
+            std::cout << "done\n";
             instance.factbases.clear();
             instance.factbase_items.clear();
             instance.edges.clear();
@@ -126,6 +127,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
         // std::cout << "Number of Exploits: " << esize << std::endl;
         // Get all applicable exploits with this network state
+        #pragma omp parallel for
         for (size_t i = 0; i < esize; i++) {
              auto e = exploit_list.at(i);
             // std::cout << "Exploit: " << e.get_id() << std::endl;
@@ -170,6 +172,8 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
             }
 
             auto assetgroup_size = asset_groups.size();
+
+            #pragma omp parallel for
             for (size_t j = 0; j < assetgroup_size; j++) {
                 auto asset_group = asset_groups.at(j);
 
@@ -188,6 +192,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
                         goto LOOPCONTINUE;
                     }
                 }
+                #pragma omp critical
                 {
                     auto new_appl_exploit = std::make_tuple(e, asset_group);
                     appl_exploits.push_back(new_appl_exploit);
@@ -282,6 +287,10 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
                 e.set_id();
 
                 instance.edges.push_back(e);
+
+                if(counter % 1000 == 0) {
+                    std::cout << "State " << counter << "\n";
+                }
                 counter++;
             } else {
                 Edge e(current_state.get_id(), hash_map[hash], exploit, assetGroup);

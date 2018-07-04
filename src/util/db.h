@@ -104,6 +104,16 @@ class Connection {
         PQclear(res);
         return rows;
     }
+
+    void execAsync(const std::string &sql) {
+        if (!is_connected()) {
+            throw DBException("Not connected to Database.");
+        }
+
+        while(PQgetResult(conn_r) != NULL);
+
+        int res = PQsendQuery(conn_r, sql.c_str());
+    }
 };
 
 class DB {
@@ -119,6 +129,17 @@ class DB {
         try {
             auto results = conn.exec(sql);
             return results;
+        } catch (DBException &e) {
+            std::cerr << "Database Exception: " << e.what() << std::endl;
+            abort();
+        }
+    }
+
+    void execAsync(const std::string &sql) {
+        try {
+            std::cout << "DB WAIT" << std::endl;
+            conn.execAsync(sql);
+            std::cout << "DB DONE" << std::endl;
         } catch (DBException &e) {
             std::cerr << "Database Exception: " << e.what() << std::endl;
             abort();
