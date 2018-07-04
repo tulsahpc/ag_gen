@@ -37,7 +37,7 @@ class RedisManager {
 
     inline void commit() { client.sync_commit(); }
 
-    inline void clear() { client.flushall(); client.sync_commit(); }
+    inline void clear() { client.flushall(); commit(); }
 
 };
 
