@@ -80,17 +80,17 @@ int RedisManager::get_collision_count(std::string hash) {
     return std::stoi(r.get().as_string());
 }
 
-bool RedisManager::check_quality_exists(std::string s, size_t enc) {
-    auto r = client.sismember(s, std::to_string(enc));
-    commit();
-    return r.get().as_integer() == 1;
-}
+// bool RedisManager::check_quality_exists(std::string s, size_t enc) {
+//     auto r = client.sismember(s, std::to_string(enc));
+//     commit();
+//     return r.get().as_integer() == 1;
+// }
 
-bool RedisManager::check_topology_exists(std::string s, size_t enc) {
-    auto r = client.sismember(s, std::to_string(enc));
-    commit();
-    return r.get().as_integer() == 1;
-}
+// bool RedisManager::check_topology_exists(std::string s, size_t enc) {
+//     auto r = client.sismember(s, std::to_string(enc));
+//     commit();
+//     return r.get().as_integer() == 1;
+// }
 
 bool RedisManager::check_qualities(std::string hash, const std::vector<Quality> &quals) {
     std::string s = hash + ":qualities";
@@ -100,12 +100,25 @@ bool RedisManager::check_qualities(std::string hash, const std::vector<Quality> 
     std::transform(quals.begin(), quals.end(), encs.begin(),
                    [](Quality q){ return q.get_encoding(); });
 
-    for (size_t enc : encs) {
-        if (!check_quality_exists(s, enc))
-            return false;
-    }
+    bool checked = true;
 
-    return true;
+    auto check_quality = [&](cpp_redis::reply reply) {
+        if (reply.as_integer() != 1) checked = false;
+    };
+
+    std::for_each(encs.begin(), encs.end(),
+                  [&](size_t enc){ client.sismember(s, std::to_string(enc), check_quality); });
+
+    commit();
+
+    return checked;
+
+    // for (size_t enc : encs) {
+    //     if (!check_quality_exists(s, enc))
+    //         return false;
+    // }
+
+    // return true;
 }
 
 bool RedisManager::check_topologies(std::string hash, const std::vector<Topology> &topos) {
@@ -116,12 +129,25 @@ bool RedisManager::check_topologies(std::string hash, const std::vector<Topology
     std::transform(topos.begin(), topos.end(), encs.begin(),
                    [](Topology t){ return t.get_encoding(); });
 
-    for (size_t enc : encs) {
-        if (!check_topology_exists(s, enc))
-            return false;
-    }
+    bool checked = true;
 
-    return true;
+    auto check_topology = [&](cpp_redis::reply reply) {
+        if (reply.as_integer() != 1) checked = false;
+    };
+
+    std::for_each(encs.begin(), encs.end(),
+                  [&](size_t enc){ client.sismember(s, std::to_string(enc), check_topology); });
+
+    commit();
+
+    return checked;
+
+    // for (size_t enc : encs) {
+    //     if (!check_topology_exists(s, enc))
+    //         return false;
+    // }
+
+    // return true;
 }
 
 bool RedisManager::check_factbase_exists(std::string hash) {

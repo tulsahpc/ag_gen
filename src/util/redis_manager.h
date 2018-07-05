@@ -11,8 +11,8 @@
 class RedisManager {
     cpp_redis::client client;
 
-    bool check_quality_exists(std::string s, size_t enc);
-    bool check_topology_exists(std::string s, size_t enc);
+    // bool check_quality_exists(std::string s, size_t enc);
+    // bool check_topology_exists(std::string s, size_t enc);
 
     std::string insert_collision_factbase(std::string hash, int id);
 
