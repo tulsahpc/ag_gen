@@ -438,59 +438,57 @@ int main(int argc, char *argv[]) {
     init_db("postgresql://" + username + "@" + host + ":" + port + "/" +
                dbName);
 
-//    test_create();
+    std::string parsednm;
+    if(!opt_nm.empty()) {
+       if (!file_exists(opt_nm)) {
+           fprintf(stderr, "File %s doesn't exist.\n", opt_nm.c_str());
+           exit(EXIT_FAILURE);
+       }
+       parsednm = parse_nm(opt_nm);
+    }
 
-     std::string parsednm;
-     if(!opt_nm.empty()) {
-        if (!file_exists(opt_nm)) {
-            fprintf(stderr, "File %s doesn't exist.\n", opt_nm.c_str());
-            exit(EXIT_FAILURE);
-        }
-        parsednm = parse_nm(opt_nm);
-     }
+    std::string parsedxp;
+    if(!opt_xp.empty()) {
+       if (!file_exists(opt_xp)) {
+           fprintf(stderr, "File %s doesn't exist.\n", opt_xp.c_str());
+           exit(EXIT_FAILURE);
+       }
+       parsedxp = parse_xp(opt_xp);
+    }
 
-     std::string parsedxp;
-     if(!opt_xp.empty()) {
-        if (!file_exists(opt_xp)) {
-            fprintf(stderr, "File %s doesn't exist.\n", opt_xp.c_str());
-            exit(EXIT_FAILURE);
-        }
-        parsedxp = parse_xp(opt_xp);
-     }
+    int batch_size = 0;
+    if (batch_process)
+       batch_size = std::stoi(opt_batch);
 
-     int batch_size = 0;
-     if (batch_process)
-        batch_size = std::stoi(opt_batch);
+    std::cout << "Importing Models to Database: ";
+    import_models(parsednm, parsedxp);
+    std::cout << "Done\n";
 
-     std::cout << "Importing Models to Database: ";
-     import_models(parsednm, parsedxp);
-     std::cout << "Done" << std::endl;
+    AGGenInstance _instance;
+    _instance.initial_qualities = fetch_all_qualities();
+    _instance.initial_topologies = fetch_all_topologies();
+    _instance.assets = fetch_all_assets();
+    _instance.exploits = fetch_all_exploits();
+    _instance.facts = fetch_facts();
+    auto ex = fetch_all_exploits();
 
-     AGGenInstance _instance;
-     _instance.initial_qualities = fetch_all_qualities();
-     _instance.initial_topologies = fetch_all_topologies();
-     _instance.assets = fetch_all_assets();
-     _instance.exploits = fetch_all_exploits();
-     _instance.facts = fetch_facts();
-     auto ex = fetch_all_exploits();
+    std::cout << "Assets: " << _instance.assets.size() << "\n";
+    std::cout << "Exploits: " << _instance.exploits.size() << "\n";
+    std::cout << "Facts: " << _instance.facts.size() << "\n";
 
-     AGGen gen(_instance);
-     AGGenInstance postinstance = gen.generate(batch_process, batch_size);
+    std::cout << "Generating Attack Graph: " << std::flush;
+    AGGen gen(_instance);
+    AGGenInstance postinstance = gen.generate(batch_process, batch_size);
+    std::cout << "Done\n";
 
-     auto factbase_items = postinstance.factbase_items;
-     auto factbases = postinstance.factbases;
-     auto edges = postinstance.edges;
-     auto factlist = postinstance.facts;
+    std::cout << "Total Time: " << postinstance.elapsed_seconds.count() << " seconds\n";
+    std::cout << "Generated States: " << postinstance.factbases.size() << "\n";
 
-     std::cout << "Saving Attack Graph to Database: ";
-     // save_ag_to_db(factbase_items, factbases, edges, factlist);
-     std::cout << "before final save" << std::endl;
-     save_ag_to_db(postinstance, true);
+    std::cout << "Saving Attack Graph to Database: " << std::flush;
+    save_ag_to_db(postinstance, true);
+    std::cout << "Done\n";
 
-     //cleanup
-     postinstance = AGGenInstance();
-
-     std::cout << "Done" << std::endl;
-
-     graph_ag(opt_graph, should_graph, no_cycles);
+    std::cout << "Creating graph visualization: " << std::flush;
+    graph_ag(opt_graph, should_graph, no_cycles);
+    std::cout << "Done\n";
 }
