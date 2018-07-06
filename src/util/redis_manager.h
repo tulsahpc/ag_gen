@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <cpp_redis/cpp_redis>
 
 #include "ag_gen/quality.h"
@@ -11,13 +12,15 @@
 class RedisManager {
     cpp_redis::client client;
 
+    std::unordered_map<std::string, std::string> script_map;
+
     // bool check_quality_exists(std::string s, size_t enc);
     // bool check_topology_exists(std::string s, size_t enc);
 
     std::string insert_collision_factbase(std::string &hash, int id);
 
   public:
-    RedisManager(std::string host, int port);
+    RedisManager(std::string host, int port, std::vector<std::pair<std::string, std::string>> &sm);
 
     void insert_qualities(std::string &hash, std::vector<Quality> &quals);
     void insert_topologies(std::string &hash, std::vector<Topology> &topos);

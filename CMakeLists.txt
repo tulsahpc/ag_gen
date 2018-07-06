@@ -130,3 +130,8 @@ target_link_libraries(dynstr_test ${CMOCKA_LIBRARIES})
 
 # Files to be added to build directory
 configure_file("config.ini" "config.ini" COPYONLY)
+
+add_custom_command(TARGET ag_gen PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/redis_scripts $<TARGET_FILE_DIR:ag_gen>/redis_scripts)
+

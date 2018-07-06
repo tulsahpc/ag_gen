@@ -9,6 +9,7 @@
 #include <fstream>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <boost/graph/adjacency_list.hpp>
@@ -339,6 +340,13 @@ inline bool file_exists(const std::string &name) {
     return (stat (name.c_str(), &buffer) == 0);
 }
 
+const std::string read_file(const std::string fn) {
+    std::ifstream f(fn);
+    std::stringstream buffer;
+    buffer << f.rdbuf();
+    return buffer.str();
+}
+
 // the main function executes the command according to the given flag and throws
 // and error if an unknown flag is provided. It then uses the database given in
 // the "config.txt" file to generate an attack graph.
@@ -348,6 +356,11 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     std::cout << "yo" << std::endl;
+
+    if (!file_exists("redis_scripts/collisions.lua")) {
+        fprintf(stderr, "File %s doesn't exist\n", "redis_scripts/collisions.lua");
+        exit(EXIT_FAILURE);
+    }
 
     // cpp_redis::client client;
     // client.connect("127.0.0.1", 6379);
@@ -483,7 +496,10 @@ int main(int argc, char *argv[]) {
      _instance.exploits = fetch_all_exploits();
      auto ex = fetch_all_exploits();
 
-     RedisManager rman("127.0.0.1", 6379);
+     std::vector<std::pair<std::string, std::string>> sm;
+     sm.push_back(std::make_pair("collisions", read_file("redis_scripts/collisions.lua")));
+
+     RedisManager rman("127.0.0.1", 6379, sm);
 
      AGGen gen(_instance, rman);
      AGGenInstance postinstance = gen.generate(batch_process, batch_size);

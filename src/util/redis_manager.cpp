@@ -9,9 +9,15 @@
 #include "ag_gen/topology.h"
 #include "redis_manager.h"
 
-RedisManager::RedisManager(std::string host, int port) {
+RedisManager::RedisManager(std::string host, int port,
+                           std::vector<std::pair<std::string, std::string>> &sm) {
     client.connect(host, port);
-    std::cout << "connected" << std::endl;
+
+    for (auto item : sm) {
+        auto r = client.script_load(item.second);
+        commit();
+        script_map[item.first] = r.get().as_string();
+    }
 }
 
 void RedisManager::insert_qualities(std::string &hash, std::vector<Quality> &quals) {
@@ -52,7 +58,7 @@ std::string RedisManager::insert_collision_factbase(std::string &hash, int id) {
 
     // return new_string;
 
-    auto r = client.evalsha("4408ffc18de934483504577055517fdbb852fd89", 1,
+    auto r = client.evalsha(script_map["collisions"], 1,
                             std::vector<std::string>{hash}, std::vector<std::string>{std::to_string(id)});
 
     commit();
