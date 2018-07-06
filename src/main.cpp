@@ -482,7 +482,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Done\n";
 
     std::cout << "Total Time: " << postinstance.elapsed_seconds.count() << " seconds\n";
-    std::cout << "Generated States: " << postinstance.factbases.size() << "\n";
+    std::cout << "Total States: " << postinstance.factbases.size() << "\n";
 
     std::cout << "Saving Attack Graph to Database: " << std::flush;
     save_ag_to_db(postinstance, true);
