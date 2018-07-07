@@ -4,6 +4,9 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <set>
+
+#include <boost/functional/hash.hpp>
 
 #include "ag_gen.h"
 
@@ -107,11 +110,10 @@ void Factbase::delete_topology(Topology &t) {
 /**
  * @brief Shamelessly copied from Boost::hash_combine
  */
-size_t combine(size_t seed) {
-    seed ^= std::hash<size_t>{}(seed) + 0x9e3779b97f4a7c15 + (seed << 6) +
-            (seed >> 2);
-    return seed;
-}
+// void combine(size_t *seed) {
+//     *seed ^= std::hash<size_t>{}(seed) + 0x9e3779b97f4a7c15 + (seed << 6) +
+//             (seed >> 2);
+// }
 
 /**
  * @brief Hashes the Factbase
@@ -121,22 +123,22 @@ size_t combine(size_t seed) {
  */
 size_t Factbase::hash(Keyvalue &factlist) const {
     //  size_t hash = 0xf848b64e; // Random seed value
-    size_t hash = 0x0c32a12fe19d2119;
+    // size_t seed = 0x0c32a12fe19d2119;
+    size_t seed = 0;
 
-    unsigned long qualities_length = qualities.size();
-    for (size_t i = 0; i < qualities_length; i++) {
-        auto &qual = qualities.at(i);
-        hash = hash + combine(qual.encode(factlist).enc);
-    }
+    std::set<size_t> factset_q;
+    std::transform(qualities.begin(), qualities.end(), std::inserter(factset_q, factset_q.end()),
+        [&](const Quality &q) -> size_t { return q.encode(factlist).enc;});
+    std::for_each(factset_q.begin(), factset_q.end(),
+        [&](size_t t) { boost::hash_combine(seed, t); });
 
-    unsigned long topologies_length = topologies.size();
-    for (size_t i = 0; i < topologies_length; i++) {
-        auto &topo = topologies.at(i);
-        hash = hash + combine(topo.encode(factlist).enc);
-    }
+    std::set<size_t> factset_t;
+    std::transform(topologies.begin(), topologies.end(), std::inserter(factset_t, factset_t.end()),
+        [&](const Topology &t) -> size_t { return t.encode(factlist).enc;});
+    std::for_each(factset_t.begin(), factset_t.end(),
+        [&](size_t t) { boost::hash_combine(seed, t); });
 
-//    std::cout << "Hash: " << hash << std::endl;
-    return hash;
+    return seed;
 }
 
 /**

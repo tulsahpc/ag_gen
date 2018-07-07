@@ -71,3 +71,10 @@ bool Quality::operator==(const Quality &rhs) const {
         return false;
     return true;
 }
+
+bool Quality::operator<(const Quality &rhs) const {
+    if(this->asset_id < rhs.asset_id)
+        return true;
+    else
+        return false;
+}

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <array>
+#include <iterator>
 
 #include "db_functions.h"
 

@@ -83,6 +83,7 @@ class Topology {
     void print() const;
 
     bool operator==(const Topology &rhs) const;
+    bool operator<(const Topology &rhs) const;
 
     void set_value(std::string &val);
 };

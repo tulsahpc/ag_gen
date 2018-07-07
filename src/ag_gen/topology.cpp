@@ -117,3 +117,10 @@ bool Topology::operator==(const Topology &rhs) const {
 
     return true;
 }
+
+bool Topology::operator<(const Topology &rhs) const {
+    if(this->from_asset_id < rhs.from_asset_id)
+        return true;
+    else
+        return false;
+}
