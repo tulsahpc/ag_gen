@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <tuple>
 #include <vector>
+#include <chrono>
 
 #include "asset.h"
 #include "assetgroup.h"
@@ -19,6 +20,14 @@
 using FactbaseItems =
     std::tuple<std::tuple<std::vector<Quality>, std::vector<Topology>>, int>;
 
+typedef enum OPERATION_T {
+    EQ_T,
+    GEQ_T,
+    LEQ_T,
+    GT_T,
+    LT_T
+} OPERATION_T;
+
 struct AGGenInstance {
     std::string opt_network;
     std::vector<Asset> assets;
@@ -29,6 +38,8 @@ struct AGGenInstance {
     std::vector<Exploit> exploits;
     std::vector<Edge> edges;
     Keyvalue facts;
+
+    std::chrono::duration<double> elapsed_seconds;
 };
 
 /** AGGen class

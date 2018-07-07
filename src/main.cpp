@@ -269,13 +269,13 @@ std::string parse_xp(std::string filename) {
     // over each f in the exploit and generate
     // the sql for it.
     for(size_t i=0; i<xplist->size; i++) {
-        exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
+        exploitpattern *xp = static_cast<exploitpattern *>(list_get_idx(xplist, i));
         for(size_t j=0; j<xp->preconditions->size; j++) {
-            fact *fct = (fact *)list_get_idx(xp->preconditions, j);
+            fact *fct = static_cast<fact *>(list_get_idx(xp->preconditions, j));
             // printf("%s: %d\n", fct->from, get_hashtable(exploit_ids, fct->from));
             char *sqladd = make_precondition(exploit_ids, xp, fct);
             while(bufsize < strlen(buf) + strlen(sqladd)) {
-                buf = (char *)realloc(buf, (bufsize*=2));
+                buf = static_cast<char *>(realloc(buf, (bufsize*=2)));
             }
             strcat(buf, sqladd);
         }
@@ -299,12 +299,12 @@ std::string parse_xp(std::string filename) {
     // over each f in the exploit and generate
     // the sql for it.
     for(size_t i=0; i<xplist->size; i++) {
-        exploitpattern *xp = (exploitpattern *)list_get_idx(xplist, i);
+        exploitpattern *xp = static_cast<exploitpattern *>(list_get_idx(xplist, i));
         for(size_t j=0; j<xp->postconditions->size; j++) {
-            postcondition *pc = (postcondition *)list_get_idx(xp->postconditions, j);
+            postcondition *pc = static_cast<postcondition *>(list_get_idx(xp->postconditions, j));
             char *sqladd = make_postcondition(exploit_ids, xp, pc);
             while(bufsize < strlen(buf) + strlen(sqladd)) {
-                buf = (char *)realloc(buf, (bufsize*=2));
+                buf = static_cast<char *>(realloc(buf, (bufsize*=2)));
             }
             strcat(buf, sqladd);
         }
@@ -438,62 +438,57 @@ int main(int argc, char *argv[]) {
     init_db("postgresql://" + username + "@" + host + ":" + port + "/" +
                dbName);
 
-//    test_create();
+    std::string parsednm;
+    if(!opt_nm.empty()) {
+       if (!file_exists(opt_nm)) {
+           fprintf(stderr, "File %s doesn't exist.\n", opt_nm.c_str());
+           exit(EXIT_FAILURE);
+       }
+       parsednm = parse_nm(opt_nm);
+    }
 
-     std::string parsednm;
-     if(!opt_nm.empty()) {
-        if (!file_exists(opt_nm)) {
-            fprintf(stderr, "File %s doesn't exist.\n", opt_nm.c_str());
-            exit(EXIT_FAILURE);
-        }
-        parsednm = parse_nm(opt_nm);
-     }
+    std::string parsedxp;
+    if(!opt_xp.empty()) {
+       if (!file_exists(opt_xp)) {
+           fprintf(stderr, "File %s doesn't exist.\n", opt_xp.c_str());
+           exit(EXIT_FAILURE);
+       }
+       parsedxp = parse_xp(opt_xp);
+    }
 
-     std::string parsedxp;
-     if(!opt_xp.empty()) {
-        if (!file_exists(opt_xp)) {
-            fprintf(stderr, "File %s doesn't exist.\n", opt_xp.c_str());
-            exit(EXIT_FAILURE);
-        }
-        parsedxp = parse_xp(opt_xp);
-     }
+    int batch_size = 0;
+    if (batch_process)
+       batch_size = std::stoi(opt_batch);
 
-     int batch_size = 0;
-     if (batch_process)
-        batch_size = std::stoi(opt_batch);
+    std::cout << "Importing Models to Database: ";
+    import_models(parsednm, parsedxp);
+    std::cout << "Done\n";
 
-     std::cout << "Importing Models to Database: ";
-     import_models(parsednm, parsedxp);
-     std::cout << "Done" << std::endl;
+    AGGenInstance _instance;
+    _instance.initial_qualities = fetch_all_qualities();
+    _instance.initial_topologies = fetch_all_topologies();
+    _instance.assets = fetch_all_assets();
+    _instance.exploits = fetch_all_exploits();
+    _instance.facts = fetch_facts();
+    auto ex = fetch_all_exploits();
 
-     AGGenInstance _instance;
-     _instance.initial_qualities = fetch_all_qualities();
-     _instance.initial_topologies = fetch_all_topologies();
-     _instance.assets = fetch_all_assets();
-     _instance.exploits = fetch_all_exploits();
-     _instance.facts = fetch_facts();
-     auto ex = fetch_all_exploits();
+    std::cout << "Assets: " << _instance.assets.size() << "\n";
+    std::cout << "Exploits: " << _instance.exploits.size() << "\n";
+    std::cout << "Facts: " << _instance.facts.size() << "\n";
 
-     std::cout << "Assets: " << _instance.assets.size() << "\n";
-     std::cout << "Exploits: " << _instance.exploits.size() << "\n";
+    std::cout << "Generating Attack Graph: " << std::flush;
+    AGGen gen(_instance);
+    AGGenInstance postinstance = gen.generate(batch_process, batch_size);
+    std::cout << "Done\n";
 
-     AGGen gen(_instance);
-     AGGenInstance postinstance = gen.generate(batch_process, batch_size);
+    std::cout << "Total Time: " << postinstance.elapsed_seconds.count() << " seconds\n";
+    std::cout << "Total States: " << postinstance.factbases.size() << "\n";
 
-     auto factbase_items = postinstance.factbase_items;
-     auto factbases = postinstance.factbases;
-     auto edges = postinstance.edges;
-     auto factlist = postinstance.facts;
+    std::cout << "Saving Attack Graph to Database: " << std::flush;
+    save_ag_to_db(postinstance, true);
+    std::cout << "Done\n";
 
-     std::cout << "Saving Attack Graph to Database: ";
-     // save_ag_to_db(factbase_items, factbases, edges, factlist);
-     std::cout << "before final save" << std::endl;
-     save_ag_to_db(postinstance, true);
-
-     //cleanup
-     postinstance = AGGenInstance();
-
-     std::cout << "Done" << std::endl;
-
-     graph_ag(opt_graph, should_graph, no_cycles);
+    std::cout << "Creating graph visualization: " << std::flush;
+    graph_ag(opt_graph, should_graph, no_cycles);
+    std::cout << "Done\n";
 }
