@@ -474,6 +474,9 @@ int main(int argc, char *argv[]) {
      _instance.facts = fetch_facts();
      auto ex = fetch_all_exploits();
 
+     std::cout << "Assets: " << _instance.assets.size() << "\n";
+     std::cout << "Exploits: " << _instance.exploits.size() << "\n";
+
      AGGen gen(_instance);
      AGGenInstance postinstance = gen.generate(batch_process, batch_size);
 
