@@ -32,8 +32,9 @@ AGGen::AGGen(AGGenInstance &_instance, RedisManager &_rman) : instance(_instance
     std::string hash = std::to_string(init_state.get_hash(instance.facts));
     // std::cout << "before init insertion" << std::endl;
     rman.insert_factbase(hash, init_id);
-    rman.insert_qualities(hash, init_quals);
-    rman.insert_topologies(hash, init_topos);
+    // rman.insert_qualities(hash, init_quals);
+    // rman.insert_topologies(hash, init_topos);
+    rman.insert_facts(hash, init_quals, init_topos);
     rman.commit();
     // std::cout << "after init insertion" << std::endl;
     // hash_map.insert(std::make_pair(init_state.get_hash(instance.facts), init_id));
@@ -288,8 +289,9 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
                 instance.factbases.push_back(new_state.get_factbase());
                 // std::cout << "before insertion" << std::endl;
                 rman.insert_factbase(hash, new_state.get_id());
-                rman.insert_qualities(hash, std::get<0>(facts_tuple));
-                rman.insert_topologies(hash, std::get<1>(facts_tuple));
+                // rman.insert_qualities(hash, std::get<0>(facts_tuple));
+                // rman.insert_topologies(hash, std::get<1>(facts_tuple));
+                rman.insert_facts(hash, std::get<0>(facts_tuple), std::get<1>(facts_tuple));
                 rman.commit();
                 // std::cout << "after insertion" << std::endl;
 

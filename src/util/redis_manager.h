@@ -19,8 +19,9 @@ class RedisManager {
   public:
     RedisManager(std::string host, int port, std::vector<std::pair<std::string, std::string>> &sm);
 
-    void insert_qualities(std::string &hash, std::vector<Quality> &quals);
-    void insert_topologies(std::string &hash, std::vector<Topology> &topos);
+    // void insert_qualities(std::string &hash, std::vector<Quality> &quals);
+    // void insert_topologies(std::string &hash, std::vector<Topology> &topos);
+    void insert_facts(std::string &hash, std::vector<Quality> &quals, std::vector<Topology> &topos);
     void insert_factbase(std::string &hash, int id);
 
     void handle_collision(std::string &hash, int id, std::vector<Quality> &quals, std::vector<Topology> &topos);

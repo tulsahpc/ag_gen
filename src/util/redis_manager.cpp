@@ -20,25 +20,39 @@ RedisManager::RedisManager(std::string host, int port,
     }
 }
 
-void RedisManager::insert_qualities(std::string &hash, std::vector<Quality> &quals) {
+void RedisManager::insert_facts(std::string &hash, std::vector<Quality> &quals,
+                                std::vector<Topology> &topos) {
     std::vector<std::string> strs;
-    strs.resize(quals.size());
+    strs.resize(quals.size() + topos.size());
 
     std::transform(quals.begin(), quals.end(), strs.begin(),
-                   [](Quality q){ return std::to_string(q.get_encoding()); });
+                   [](Quality &q){ return std::to_string(q.get_encoding()); });
 
-    client.sadd(hash + ":qualities", strs);
+    std::transform(topos.begin(), topos.end(), std::next(strs.begin(), quals.size()),
+                   [](Topology &t){ return std::to_string(t.get_encoding()); });
+
+    client.sadd(hash + ":facts", strs);
 }
 
-void RedisManager::insert_topologies(std::string &hash, std::vector<Topology> &topos) {
-    std::vector<std::string> strs;
-    strs.resize(topos.size());
+// void RedisManager::insert_qualities(std::string &hash, std::vector<Quality> &quals) {
+//     std::vector<std::string> strs;
+//     strs.resize(quals.size());
 
-    std::transform(topos.begin(), topos.end(), strs.begin(),
-                   [](Topology t){ return std::to_string(t.get_encoding()); });
+//     std::transform(quals.begin(), quals.end(), strs.begin(),
+//                    [](Quality q){ return std::to_string(q.get_encoding()); });
 
-    client.sadd(hash + ":topologies", strs);
-}
+//     client.sadd(hash + ":qualities", strs);
+// }
+
+// void RedisManager::insert_topologies(std::string &hash, std::vector<Topology> &topos) {
+//     std::vector<std::string> strs;
+//     strs.resize(topos.size());
+
+//     std::transform(topos.begin(), topos.end(), strs.begin(),
+//                    [](Topology t){ return std::to_string(t.get_encoding()); });
+
+//     client.sadd(hash + ":topologies", strs);
+// }
 
 void RedisManager::insert_factbase(std::string &hash, int id) {
     client.sadd("factbases", std::vector<std::string>{hash});
@@ -69,8 +83,7 @@ std::string RedisManager::insert_collision_factbase(std::string &hash, int id) {
 void RedisManager::handle_collision(std::string &hash, int id, std::vector<Quality> &quals, std::vector<Topology> &topos) {
     std::string new_string = insert_collision_factbase(hash, id);
 
-    insert_qualities(new_string, quals);
-    insert_topologies(new_string, topos);
+    insert_facts(new_string, quals, topos);
     commit();
 }
 
@@ -95,17 +108,14 @@ int RedisManager::get_collision_count(std::string &hash) {
 
 bool RedisManager::check_facts(std::string &hash, const std::vector<Quality> &quals,
                                const std::vector<Topology> &topos) {
-    std::string sq = hash + ":qualities";
-    std::string st = hash + ":topologies";
-    std::vector<std::string> encsq;
-    std::vector<std::string> encst;
-    encsq.resize(quals.size());
-    encst.resize(topos.size());
+    std::string sq = hash + ":facts";
+    std::vector<std::string> encs;
+    encs.resize(quals.size() + topos.size());
 
-    std::transform(quals.begin(), quals.end(), encsq.begin(),
+    std::transform(quals.begin(), quals.end(), encs.begin(),
                    [](Quality q){ return std::to_string(q.get_encoding()); });
 
-    std::transform(topos.begin(), topos.end(), encst.begin(),
+    std::transform(topos.begin(), topos.end(), std::next(encs.begin(), quals.size()),
                    [](Topology t){ return std::to_string(t.get_encoding()); });
 
     bool checked = true;
@@ -114,11 +124,8 @@ bool RedisManager::check_facts(std::string &hash, const std::vector<Quality> &qu
         if (reply.as_integer() != 1) checked = false;
     };
 
-    std::for_each(encsq.begin(), encsq.end(),
+    std::for_each(encs.begin(), encs.end(),
                   [&](std::string enc){ client.sismember(sq, enc, check_fact); });
-
-    std::for_each(encst.begin(), encst.end(),
-                  [&](std::string enc){ client.sismember(st, enc, check_fact); });
 
     commit();
 
