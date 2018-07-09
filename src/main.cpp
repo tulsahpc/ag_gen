@@ -332,6 +332,7 @@ void print_usage() {
     std::cout << "\t-d\tPerform a depth first search to remove cycles" << std::endl;
     std::cout << "\t-n\tNetwork model file used for generation" << std::endl;
     std::cout << "\t-x\tExploit pattern file used for generation" << std::endl;
+    std::cout << "\t-r\tUse redis for generation" << std::endl;
     std::cout << "\t-h\tThis help menu." << std::endl;
 }
 
