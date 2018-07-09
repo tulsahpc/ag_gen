@@ -114,7 +114,6 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
     unsigned long esize = exploit_list.size();
 
-    std::cout << "Generating Attack Graph" << std::endl;
     while (!frontier.empty()) {
         // std::cout << "states: " << counter << std::endl;
         if (batch_process && (counter + 1) % batch_size == 0){
@@ -346,8 +345,10 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
-    std::cout << "Total Time: " << elapsed_seconds.count() << " seconds" << std::endl;
-    std::cout << "Generated States: " << counter << std::endl;
+    instance.elapsed_seconds = elapsed_seconds;
+    
+    // std::cout << "Total Time: " << elapsed_seconds.count() << " seconds" << std::endl;
+    // std::cout << "Generated States: " << counter << std::endl;
 
     return instance;
 }

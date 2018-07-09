@@ -460,63 +460,65 @@ int main(int argc, char *argv[]) {
     init_db("postgresql://" + username + "@" + host + ":" + port + "/" +
                dbName);
 
-//    test_create();
+    std::string parsednm;
+    if(!opt_nm.empty()) {
+       if (!file_exists(opt_nm)) {
+           fprintf(stderr, "File %s doesn't exist.\n", opt_nm.c_str());
+           exit(EXIT_FAILURE);
+       }
+       parsednm = parse_nm(opt_nm);
+    }
 
-     std::string parsednm;
-     if(!opt_nm.empty()) {
-        if (!file_exists(opt_nm)) {
-            fprintf(stderr, "File %s doesn't exist.\n", opt_nm.c_str());
-            exit(EXIT_FAILURE);
-        }
-        parsednm = parse_nm(opt_nm);
-     }
+    std::string parsedxp;
+    if(!opt_xp.empty()) {
+       if (!file_exists(opt_xp)) {
+           fprintf(stderr, "File %s doesn't exist.\n", opt_xp.c_str());
+           exit(EXIT_FAILURE);
+       }
+       parsedxp = parse_xp(opt_xp);
+    }
 
-     std::string parsedxp;
-     if(!opt_xp.empty()) {
-        if (!file_exists(opt_xp)) {
-            fprintf(stderr, "File %s doesn't exist.\n", opt_xp.c_str());
-            exit(EXIT_FAILURE);
-        }
-        parsedxp = parse_xp(opt_xp);
-     }
+    int batch_size = 0;
+    if (batch_process)
+       batch_size = std::stoi(opt_batch);
 
-     int batch_size = 0;
-     if (batch_process)
-        batch_size = std::stoi(opt_batch);
+    std::cout << "Importing Models to Database: ";
+    import_models(parsednm, parsedxp);
+    std::cout << "Done\n";
 
-     std::cout << "Importing Models to Database: " << std::endl;
-     import_models(parsednm, parsedxp);
-     std::cout << "Done" << std::endl;
+    AGGenInstance _instance;
+    _instance.facts = fetch_facts();
+    _instance.initial_qualities = fetch_all_qualities(_instance.facts);
+    _instance.initial_topologies = fetch_all_topologies(_instance.facts);
+    _instance.assets = fetch_all_assets(_instance.facts);
+    _instance.exploits = fetch_all_exploits();
+    auto ex = fetch_all_exploits();
 
-     AGGenInstance _instance;
-     _instance.facts = fetch_facts();
-     _instance.initial_qualities = fetch_all_qualities(_instance.facts);
-     _instance.initial_topologies = fetch_all_topologies(_instance.facts);
-     _instance.assets = fetch_all_assets(_instance.facts);
-     _instance.exploits = fetch_all_exploits();
-     auto ex = fetch_all_exploits();
+    std::cout << "Assets: " << _instance.assets.size() << "\n";
+    std::cout << "Exploits: " << _instance.exploits.size() << "\n";
+    std::cout << "Facts: " << _instance.facts.size() << "\n";
 
-     std::vector<std::pair<std::string, std::string>> sm;
-     sm.push_back(std::make_pair("collisions", read_file("redis_scripts/collisions.lua")));
+    std::cout << "Reading redis scripts\n";
 
-     RedisManager rman("127.0.0.1", 6379, sm);
+    std::vector<std::pair<std::string, std::string>> sm;
+    sm.push_back(std::make_pair("collisions", read_file("redis_scripts/collisions.lua")));
 
-     AGGen gen(_instance, rman);
-     AGGenInstance postinstance = gen.generate(batch_process, batch_size);
+    RedisManager rman("127.0.0.1", 6379, sm);
+    std::cout << "Done\n";
 
-     auto factbase_items = postinstance.factbase_items;
-     auto factbases = postinstance.factbases;
-     auto edges = postinstance.edges;
-     auto factlist = postinstance.facts;
+    std::cout << "Generating Attack Graph: " << std::flush;
+    AGGen gen(_instance, rman);
+    AGGenInstance postinstance = gen.generate(batch_process, batch_size);
+    std::cout << "Done\n";
 
-     std::cout << "Saving Attack Graph to Database: " << std::endl;
-     // save_ag_to_db(factbase_items, factbases, edges, factlist);
-     save_ag_to_db(postinstance, true);
+    std::cout << "Total Time: " << postinstance.elapsed_seconds.count() << " seconds\n";
+    std::cout << "Total States: " << postinstance.factbases.size() << "\n";
 
-     //cleanup
-     postinstance = AGGenInstance();
+    std::cout << "Saving Attack Graph to Database: " << std::flush;
+    save_ag_to_db(postinstance, true);
+    std::cout << "Done\n";
 
-     std::cout << "Done" << std::endl;
-
-     graph_ag(opt_graph, should_graph, no_cycles);
+    std::cout << "Creating graph visualization: " << std::flush;
+    graph_ag(opt_graph, should_graph, no_cycles);
+    std::cout << "Done\n";
 }

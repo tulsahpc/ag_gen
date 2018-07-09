@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <tuple>
 #include <vector>
+#include <chrono>
 
 #include "asset.h"
 #include "assetgroup.h"
@@ -38,6 +39,8 @@ struct AGGenInstance {
     std::vector<Exploit> exploits;
     std::vector<Edge> edges;
     Keyvalue facts;
+
+    std::chrono::duration<double> elapsed_seconds;
 };
 
 /** AGGen class
