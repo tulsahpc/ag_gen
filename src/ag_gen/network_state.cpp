@@ -132,48 +132,48 @@ void NetworkState::delete_topology(Topology &t) {
     }
 }
 
-int NetworkState::compare(std::string &hash, RedisManager &rman) const {
-    if (!rman.check_collision(hash)) {
-        if (!rman.check_facts(hash, factbase.qualities, factbase.topologies))
+int NetworkState::compare(std::string &hash, RedisManager* rman) const {
+    if (!rman->check_collision(hash)) {
+        if (!rman->check_facts(hash, factbase.qualities, factbase.topologies))
             return -1;
         return 0;
     }
 
-    if (rman.check_facts(hash, factbase.qualities, factbase.topologies))
+    if (rman->check_facts(hash, factbase.qualities, factbase.topologies))
         return 0;
 
-    int amt = rman.get_collision_count(hash);
+    int amt = rman->get_collision_count(hash);
 
     for (int i = 0; i <= amt; ++i) {
         std::string new_string = hash + "_" + std::to_string(i);
-        if (!rman.check_facts(new_string, factbase.qualities, factbase.topologies))
+        if (!rman->check_facts(new_string, factbase.qualities, factbase.topologies))
             continue;
 
         return i;
     }
 
     return -1;
-    // if (!rman.check_collision(hash)) {
-    //     if (!rman.check_qualities(hash, factbase.qualities))
+    // if (!rman->check_collision(hash)) {
+    //     if (!rman->check_qualities(hash, factbase.qualities))
     //         return -1;
 
-    //     if (!rman.check_topologies(hash, factbase.topologies))
+    //     if (!rman->check_topologies(hash, factbase.topologies))
     //         return -1;
 
     //     return 0;
     // }
 
-    // if (rman.check_qualities(hash, factbase.qualities) && rman.check_topologies(hash, factbase.topologies))
+    // if (rman->check_qualities(hash, factbase.qualities) && rman->check_topologies(hash, factbase.topologies))
     //     return 0;
 
-    // int amt = rman.get_collision_count(hash);
+    // int amt = rman->get_collision_count(hash);
 
     // for (int i = 1; i <= amt; ++i) {
     //     std::string new_string = hash + "_" + std::to_string(i);
-    //     if (!rman.check_qualities(new_string, factbase.qualities))
+    //     if (!rman->check_qualities(new_string, factbase.qualities))
     //         continue;
 
-    //     if (!rman.check_topologies(new_string, factbase.topologies))
+    //     if (!rman->check_topologies(new_string, factbase.topologies))
     //         continue;
 
     //     return i;

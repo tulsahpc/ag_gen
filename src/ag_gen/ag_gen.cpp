@@ -12,14 +12,19 @@
 #include "util/odometer.h"
 #include "util/db_functions.h"
 
+AGGen::~AGGen() {
+    if (!use_redis)
+        delete rman;
+}
+
 /**
  * @brief Constructor for generator
  * @details Builds a generator for creating attack graphs.
  *
  * @param _instance The initial information for generating the graph
  */
-AGGen::AGGen(AGGenInstance &_instance, RedisManager &_rman) : instance(_instance), rman(_rman) {
-    rman.clear();
+AGGen::AGGen(AGGenInstance &_instance, RedisManager &_rman) : instance(_instance), rman(&_rman) {
+    rman->clear();
     auto init_quals = instance.initial_qualities;
     auto init_topos = instance.initial_topologies;
     NetworkState init_state(init_quals, init_topos);
@@ -31,14 +36,31 @@ AGGen::AGGen(AGGenInstance &_instance, RedisManager &_rman) : instance(_instance
     instance.factbase_items.push_back(init_items);
     std::string hash = std::to_string(init_state.get_hash(instance.facts));
     // std::cout << "before init insertion" << std::endl;
-    rman.insert_factbase(hash, init_id);
-    // rman.insert_qualities(hash, init_quals);
-    // rman.insert_topologies(hash, init_topos);
-    rman.insert_facts(hash, init_quals, init_topos);
-    rman.commit();
+    rman->insert_factbase(hash, init_id);
+    // rman->insert_qualities(hash, init_quals);
+    // rman->insert_topologies(hash, init_topos);
+    rman->insert_facts(hash, init_quals, init_topos);
+    rman->commit();
     // std::cout << "after init insertion" << std::endl;
     // hash_map.insert(std::make_pair(init_state.get_hash(instance.facts), init_id));
     frontier.push_back(init_state);
+    use_redis = true;
+}
+
+AGGen::AGGen(AGGenInstance &_instance) : instance(_instance), rman(new RedisManager()) {
+    auto init_quals = instance.initial_qualities;
+    auto init_topos = instance.initial_topologies;
+    NetworkState init_state(init_quals, init_topos);
+    init_state.set_id();
+    int init_id = init_state.get_id();
+    FactbaseItems init_items =
+                make_tuple(make_tuple(init_quals, init_topos), init_id);
+    instance.factbases.push_back(init_state.get_factbase());
+    instance.factbase_items.push_back(init_items);
+    std::string hash = std::to_string(init_state.get_hash(instance.facts));
+    hash_map.insert(std::make_pair(init_state.get_hash(instance.facts), init_id));
+    frontier.push_back(init_state);
+    use_redis = false;
 }
 
 /**
@@ -263,7 +285,6 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
             }
 
             auto hash_num = new_state.get_hash(instance.facts);
-            auto hash = std::to_string(hash_num);
 
             if (hash_num == current_hash)
                 continue;
@@ -277,47 +298,9 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
             //    frontier. If the factbase does already exist, we create a
             //    new edge from the previous state to this one and move on.
             // std::cout << "before exist check" << std::endl;
-            if (!rman.check_factbase_exists(hash)) {
-                new_state.set_id();
-
-                auto facts_tuple = new_state.get_factbase().get_facts_tuple();
-                FactbaseItems new_items =
-                    std::make_tuple(facts_tuple, new_state.get_id());
-                instance.factbase_items.push_back(new_items);
-
-                instance.factbases.push_back(new_state.get_factbase());
-                // std::cout << "before insertion" << std::endl;
-                rman.insert_factbase(hash, new_state.get_id());
-                // rman.insert_qualities(hash, std::get<0>(facts_tuple));
-                // rman.insert_topologies(hash, std::get<1>(facts_tuple));
-                rman.insert_facts(hash, std::get<0>(facts_tuple), std::get<1>(facts_tuple));
-                rman.commit();
-                // std::cout << "after insertion" << std::endl;
-
-                // hash_map.insert(std::make_pair(new_state.get_hash(instance.facts), new_state.get_id()));
-
-                frontier.emplace_front(new_state);
-
-                Edge e(current_state.get_id(), new_state.get_id(), exploit, assetGroup);
-                e.set_id();
-
-                instance.edges.push_back(e);
-                counter++;
-            } else {
-                // if (new_state == instance.factbases[hash_map[hash]]) {
-                int ci = new_state.compare(hash, rman); // collision index
-                if (ci != -1) {
-                    // std::cout << "equal" << std::endl;;
-                    // std::cout << "before get id" << std::endl;
-                    int id = rman.get_factbase_id(hash, ci);
-                    // std::cout << "id: " << id << std::endl;
-                    // std::cout << "after get id" << std::endl;
-                    Edge e(current_state.get_id(), id, exploit, assetGroup);
-                    e.set_id();
-                    // std::cout << "after edge" << std::endl;
-                    instance.edges.push_back(e);
-                } else {
-                    // std::cout << "not equal" << std::endl;
+            if (use_redis) {
+                auto hash = std::to_string(hash_num);
+                if (!rman->check_factbase_exists(hash)) {
                     new_state.set_id();
 
                     auto facts_tuple = new_state.get_factbase().get_facts_tuple();
@@ -327,8 +310,13 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
                     instance.factbases.push_back(new_state.get_factbase());
                     // std::cout << "before insertion" << std::endl;
-                    rman.handle_collision(hash, new_state.get_id(), std::get<0>(facts_tuple), std::get<1>(facts_tuple));
+                    rman->insert_factbase(hash, new_state.get_id());
+                    // rman->insert_qualities(hash, std::get<0>(facts_tuple));
+                    // rman->insert_topologies(hash, std::get<1>(facts_tuple));
+                    rman->insert_facts(hash, std::get<0>(facts_tuple), std::get<1>(facts_tuple));
+                    rman->commit();
                     // std::cout << "after insertion" << std::endl;
+
                     // hash_map.insert(std::make_pair(new_state.get_hash(instance.facts), new_state.get_id()));
 
                     frontier.emplace_front(new_state);
@@ -338,6 +326,69 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
                     instance.edges.push_back(e);
                     counter++;
+                } else {
+                    // if (new_state == instance.factbases[hash_map[hash]]) {
+                    int ci = new_state.compare(hash, rman); // collision index
+                    if (ci != -1) {
+                        // std::cout << "equal" << std::endl;;
+                        // std::cout << "before get id" << std::endl;
+                        int id = rman->get_factbase_id(hash, ci);
+                        // std::cout << "id: " << id << std::endl;
+                        // std::cout << "after get id" << std::endl;
+                        Edge e(current_state.get_id(), id, exploit, assetGroup);
+                        e.set_id();
+                        // std::cout << "after edge" << std::endl;
+                        instance.edges.push_back(e);
+                    } else {
+                        // std::cout << "not equal" << std::endl;
+                        new_state.set_id();
+
+                        auto facts_tuple = new_state.get_factbase().get_facts_tuple();
+                        FactbaseItems new_items =
+                            std::make_tuple(facts_tuple, new_state.get_id());
+                        instance.factbase_items.push_back(new_items);
+
+                        instance.factbases.push_back(new_state.get_factbase());
+                        // std::cout << "before insertion" << std::endl;
+                        rman->handle_collision(hash, new_state.get_id(), std::get<0>(facts_tuple), std::get<1>(facts_tuple));
+                        // std::cout << "after insertion" << std::endl;
+                        // hash_map.insert(std::make_pair(new_state.get_hash(instance.facts), new_state.get_id()));
+
+                        frontier.emplace_front(new_state);
+
+                        Edge e(current_state.get_id(), new_state.get_id(), exploit, assetGroup);
+                        e.set_id();
+
+                        instance.edges.push_back(e);
+                        counter++;
+                    }
+                }
+            } else {
+                if (hash_map.find(hash_num) == hash_map.end()) {
+                    new_state.set_id();
+
+                    auto facts_tuple = new_state.get_factbase().get_facts_tuple();
+                    FactbaseItems new_items =
+                        std::make_tuple(facts_tuple, new_state.get_id());
+                    instance.factbase_items.push_back(new_items);
+
+                    instance.factbases.push_back(new_state.get_factbase());
+
+                    hash_map.insert(std::make_pair(new_state.get_hash(instance.facts), new_state.get_id()));
+
+                    frontier.emplace_front(new_state);
+
+                    Edge e(current_state.get_id(), new_state.get_id(), exploit, assetGroup);
+                    e.set_id();
+
+                    instance.edges.push_back(e);
+                    counter++;
+                } else {
+                    int id = hash_map[hash_num];
+
+                    Edge e(current_state.get_id(), id, exploit, assetGroup);
+                    e.set_id();
+                    instance.edges.push_back(e);
                 }
             }
         }
@@ -346,7 +397,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     instance.elapsed_seconds = elapsed_seconds;
-    
+
     // std::cout << "Total Time: " << elapsed_seconds.count() << " seconds" << std::endl;
     // std::cout << "Generated States: " << counter << std::endl;
 

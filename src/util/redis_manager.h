@@ -17,6 +17,7 @@ class RedisManager {
     std::string insert_collision_factbase(std::string &hash, int id);
 
   public:
+    RedisManager() {}
     RedisManager(std::string host, int port, std::vector<std::pair<std::string, std::string>> &sm);
 
     // void insert_qualities(std::string &hash, std::vector<Quality> &quals);

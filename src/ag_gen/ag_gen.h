@@ -52,8 +52,13 @@ class AGGen {
     AGGenInstance instance;
     std::deque<NetworkState> frontier;               //!< Unexplored states
     std::unordered_map<size_t, int> hash_map{};      //!< Map of hashes to Factbase ID
-    RedisManager &rman;
+    RedisManager *rman;
+
+    bool use_redis;
+
   public:
+    ~AGGen();
+    AGGen(AGGenInstance &_instance);
     AGGen(AGGenInstance &_instance, RedisManager &_rman);
     AGGenInstance &generate(bool batch_process, int batch_num);
 };

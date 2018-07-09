@@ -357,11 +357,6 @@ int main(int argc, char *argv[]) {
     }
     std::cout << "yo" << std::endl;
 
-    if (!file_exists("redis_scripts/collisions.lua")) {
-        fprintf(stderr, "File %s doesn't exist\n", "redis_scripts/collisions.lua");
-        exit(EXIT_FAILURE);
-    }
-
     // cpp_redis::client client;
     // client.connect("127.0.0.1", 6379);
     // client.sadd("helloset", std::vector<std::string>{"420", "69"});
@@ -376,9 +371,10 @@ int main(int argc, char *argv[]) {
     bool should_graph = false;
     bool no_cycles = false;
     bool batch_process = false;
+    bool use_redis = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "b:g:dhc:n:x:")) != -1) {
+    while ((opt = getopt(argc, argv, "rb:g:dhc:n:x:")) != -1) {
         switch (opt) {
         case 'g':
             should_graph = true;
@@ -399,6 +395,9 @@ int main(int argc, char *argv[]) {
         case 'd':
             no_cycles = true;
             break;
+        case 'r':
+            use_redis = true;
+            break;
         case 'b':
             batch_process = true;
             opt_batch = optarg;
@@ -413,6 +412,13 @@ int main(int argc, char *argv[]) {
         default:
             fprintf(stderr, "Unknown option -%c.\n", optopt);
             print_usage();
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    if (use_redis) {
+        if (!file_exists("redis_scripts/collisions.lua")) {
+            fprintf(stderr, "File %s doesn't exist\n", "redis_scripts/collisions.lua");
             exit(EXIT_FAILURE);
         }
     }
@@ -498,17 +504,25 @@ int main(int argc, char *argv[]) {
     std::cout << "Exploits: " << _instance.exploits.size() << "\n";
     std::cout << "Facts: " << _instance.facts.size() << "\n";
 
-    std::cout << "Reading redis scripts\n";
+    AGGenInstance postinstance;
+    if (use_redis) {
+        std::cout << "Reading redis scripts\n";
 
-    std::vector<std::pair<std::string, std::string>> sm;
-    sm.push_back(std::make_pair("collisions", read_file("redis_scripts/collisions.lua")));
+        std::vector<std::pair<std::string, std::string>> sm;
+        sm.push_back(std::make_pair("collisions", read_file("redis_scripts/collisions.lua")));
 
-    RedisManager rman("127.0.0.1", 6379, sm);
-    std::cout << "Done\n";
+        RedisManager rman("127.0.0.1", 6379, sm);
+        std::cout << "Done\n";
 
-    std::cout << "Generating Attack Graph: " << std::flush;
-    AGGen gen(_instance, rman);
-    AGGenInstance postinstance = gen.generate(batch_process, batch_size);
+        std::cout << "Generating Attack Graph: " << std::flush;
+        AGGen gen(_instance, rman);
+        postinstance = gen.generate(batch_process, batch_size);
+    } else {
+        std::cout << "Generating Attack Graph: " << std::flush;
+        AGGen gen(_instance);
+        postinstance = gen.generate(batch_process, batch_size);
+    }
+
     std::cout << "Done\n";
 
     std::cout << "Total Time: " << postinstance.elapsed_seconds.count() << " seconds\n";

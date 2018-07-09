@@ -9,6 +9,7 @@
 #include "ag_gen/topology.h"
 #include "redis_manager.h"
 
+
 RedisManager::RedisManager(std::string host, int port,
                            std::vector<std::pair<std::string, std::string>> &sm) {
     client.connect(host, port);
