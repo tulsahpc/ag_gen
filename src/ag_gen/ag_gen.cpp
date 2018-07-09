@@ -105,14 +105,17 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
     unsigned long esize = exploit_list.size();
 
+    bool save_queued = false;
+
     std::cout << "Generating Attack Graph" << std::endl;
     while (!frontier.empty()) {
-        if (batch_process && ((counter+1) % batch_size) == 0) {
+        if (batch_process && (save_queued || ((counter+1) % batch_size) == 0)) {
             save_ag_to_db(instance, false);
             std::cout << "done\n";
             instance.factbases.clear();
             instance.factbase_items.clear();
             instance.edges.clear();
+            save_queued = false;
         }
 
 //        cout << "Frontier Size: " << frontier.size() << endl;
@@ -206,6 +209,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
         // Apply each exploit to the network state to generate new network
         // states
         for (size_t j = 0; j < appl_expl_size; j++) {
+            if ((counter + 1) % batch_size == 0) save_queued = true;
             auto e = appl_exploits.at(j);
 
             // For each applicable exploit, we extract which exploit applies and
