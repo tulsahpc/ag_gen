@@ -306,8 +306,10 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
-    std::cout << "Total Time: " << elapsed_seconds.count() << " seconds" << std::endl;
-    std::cout << "Generated States: " << counter << std::endl;
+    instance.elapsed_seconds = elapsed_seconds;
+
+    // std::cout << "Total Time: " << elapsed_seconds.count() << " seconds" << std::endl;
+    // std::cout << "Generated States: " << counter << std::endl;
 
     return instance;
 }
