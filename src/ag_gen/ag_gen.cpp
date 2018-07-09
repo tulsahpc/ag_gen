@@ -395,10 +395,8 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
                     e.set_id();
 
                     instance.edges.push_back(e);
+                    if (counter % 1000 == 0) std::cout << "State: " << counter << std::endl;
                     counter++;
-
-                    if (counter % 1000) std::cout << "State: " << counter << std::endl;
-
                 } else {
                     int id = hash_map[hash_num];
 
