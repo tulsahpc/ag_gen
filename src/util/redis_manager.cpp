@@ -88,17 +88,23 @@ void RedisManager::handle_collision(std::string &hash, int id, std::vector<Quali
     commit();
 }
 
-int RedisManager::get_factbase_id(std::string &hash, int ci) {
-    if (ci == 0 || ci == -1)
-    {
-        auto r = client.hget("idmap:" + hash, "id");
-        commit();
-        return std::stoi(r.get().as_string());
-    } else {
-        auto r = client.hget("idmap:" + hash + "_" + std::to_string(ci), "id");
-        commit();
-        return std::stoi(r.get().as_string());
-    }
+// int RedisManager::get_factbase_id(std::string &hash, int ci) {
+//     if (ci == 0 || ci == -1)
+//     {
+//         auto r = client.hget("idmap:" + hash, "id");
+//         commit();
+//         return std::stoi(r.get().as_string());
+//     } else {
+//         auto r = client.hget("idmap:" + hash + "_" + std::to_string(ci), "id");
+//         commit();
+//         return std::stoi(r.get().as_string());
+//     }
+// }
+
+int RedisManager::get_factbase_id(std::string &hash) {
+    auto r = client.hget("idmap:" + hash, "id");
+    commit();
+    return std::stoi(r.get().as_string());
 }
 
 int RedisManager::get_collision_count(std::string &hash) {

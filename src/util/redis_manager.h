@@ -27,7 +27,9 @@ class RedisManager {
 
     void handle_collision(std::string &hash, int id, std::vector<Quality> &quals, std::vector<Topology> &topos);
 
-    int get_factbase_id(std::string &hash, int ci);
+    // int get_factbase_id(std::string &hash, int ci);
+
+    int get_factbase_id(std::string &hash);
 
     int get_collision_count(std::string &hash);
 
