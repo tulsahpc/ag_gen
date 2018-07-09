@@ -542,6 +542,8 @@ void save_ag_to_db(AGGenInstance &instance, bool save_keyvalue){
     std::vector<Edge>& edges = instance.edges;
     Keyvalue& factlist = instance.facts;
 
+    db.exec("BEGIN;");
+
     if (!factbases.empty()){
         std::string factbase_sql_query = "INSERT INTO factbase VALUES ";
 
@@ -556,9 +558,8 @@ void save_ag_to_db(AGGenInstance &instance, bool save_keyvalue){
                                       std::to_string(factbases[i].hash(factlist)) + "')";
             }
         }
-        // factbase_sql_query += " ON CONFLICT DO NOTHING;";
-        factbase_sql_query += ";";
-        db.exec(factbase_sql_query);
+        factbase_sql_query += " ON CONFLICT DO NOTHING;";
+        db.execAsync(factbase_sql_query);
     }
 
     if (!factbase_items.empty()) {
@@ -604,7 +605,7 @@ void save_ag_to_db(AGGenInstance &instance, bool save_keyvalue){
 
         item_sql_query += quality_sql_query + topology_sql_query
                     + " ON CONFLICT DO NOTHING";
-        db.exec(item_sql_query);
+        db.execAsync(item_sql_query);
     }
 
     if (!edges.empty()) {
@@ -643,8 +644,8 @@ void save_ag_to_db(AGGenInstance &instance, bool save_keyvalue){
         edge_sql_query += " ON CONFLICT DO NOTHING;";
         edge_assets_sql_query += " ON CONFLICT DO NOTHING;";
 
-        db.exec(edge_sql_query);
-        db.exec(edge_assets_sql_query);
+        db.execAsync(edge_sql_query);
+        db.execAsync(edge_assets_sql_query);
     }
 
     if (save_keyvalue) {
@@ -660,7 +661,8 @@ void save_ag_to_db(AGGenInstance &instance, bool save_keyvalue){
                 out << ",(" << std::to_string(count++) << ",'" << value << "')";
         }
         out << ";";
-
-        db.exec(out.str());
+        db.execAsync(out.str());
     }
+
+    db.execAsync("COMMIT;");
 }

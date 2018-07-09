@@ -136,13 +136,17 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
     unsigned long esize = exploit_list.size();
 
+    bool save_queued = false;
+
+    std::cout << "Generating Attack Graph" << std::endl;
     while (!frontier.empty()) {
-        // std::cout << "states: " << counter << std::endl;
-        if (batch_process && (counter + 1) % batch_size == 0){
+        if (batch_process && (save_queued || ((counter+1) % batch_size) == 0)) {
             save_ag_to_db(instance, false);
+            std::cout << "done\n";
             instance.factbases.clear();
             instance.factbase_items.clear();
             instance.edges.clear();
+            save_queued = false;
         }
 
 //        cout << "Frontier Size: " << frontier.size() << endl;
@@ -157,6 +161,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
         // std::cout << "Number of Exploits: " << esize << std::endl;
         // Get all applicable exploits with this network state
+        #pragma omp parallel for
         for (size_t i = 0; i < esize; i++) {
              auto e = exploit_list.at(i);
             // std::cout << "Exploit: " << e.get_id() << std::endl;
@@ -201,6 +206,8 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
             }
 
             auto assetgroup_size = asset_groups.size();
+
+            #pragma omp parallel for
             for (size_t j = 0; j < assetgroup_size; j++) {
                 auto asset_group = asset_groups.at(j);
 
@@ -219,6 +226,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
                         goto LOOPCONTINUE;
                     }
                 }
+                #pragma omp critical
                 {
                     auto new_appl_exploit = std::make_tuple(e, asset_group);
                     appl_exploits.push_back(new_appl_exploit);
@@ -232,6 +240,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
         // Apply each exploit to the network state to generate new network
         // states
         for (size_t j = 0; j < appl_expl_size; j++) {
+            if ((counter + 1) % batch_size == 0) save_queued = true;
             auto e = appl_exploits.at(j);
 
             // For each applicable exploit, we extract which exploit applies and
@@ -387,6 +396,9 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
                     instance.edges.push_back(e);
                     counter++;
+
+                    if (counter % 1000) std::cout << "State: " << counter << std::endl;
+
                 } else {
                     int id = hash_map[hash_num];
 
