@@ -134,7 +134,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
              auto e = exploit_list.at(i);
             // std::cout << "Exploit: " << e.get_id() << std::endl;
 
-             auto num_params = e.get_num_params();
+             size_t num_params = e.get_num_params();
             // std::cout << "\tNum Params: " << num_params << std::endl;
 
              auto preconds_q = e.precond_list_q();
@@ -143,7 +143,8 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
              auto preconds_t = e.precond_list_t();
             // std::cout << "\tNum Precond Topologies: " << preconds_t.size() << std::endl << std::endl;
 
-            Odometer od(num_params, instance.assets.size());
+            // Odometer od(num_params, instance.assets.size());
+            Odometer<size_t> od(num_params, instance.assets.size());
             std::vector<AssetGroup> asset_groups;
 
             for (auto perm : od) {

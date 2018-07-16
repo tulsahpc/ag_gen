@@ -7,45 +7,58 @@
 #include <string>
 #include <vector>
 
-// N is the width of the permutation
-// K is the number of elements
+template<typename T>
+class Odometer_iterator;
+
+template<typename T>
+using PermSet = std::vector<std::vector<T>>;
+
+template<typename T>
 class Odometer {
-    std::vector<std::vector<size_t>> perms;
+    PermSet<T> perms;
     size_t idx_state = 0;
-    size_t n, k;
+    size_t N,K;
 
   public:
-    Odometer(size_t in_n, size_t in_k) {
-        n = in_n;
-        k = in_k;
+
+    typedef Odometer_iterator<T> iterator;
+    typedef ptrdiff_t difference_type;
+    typedef size_t size_type;
+    typedef T value_type;
+    typedef T* pointer;
+    typedef T& reference;
+
+    Odometer(size_t n_in, size_t k_in) {
+        N = n_in;
+        K = k_in;
 
         size_t curr_idx = 0;
         size_t perm_idx = 0;
 
-        std::vector<size_t> orig_perm(n);
-        std::vector<size_t> &last_perm = orig_perm;
+        std::vector<T> orig_perm(N);
+        std::vector<T> &last_perm = orig_perm;
 
-        for (size_t i = 0; i < n; i++) {
+        for (auto i = 0; i < N; i++) {
             orig_perm[i] = 0;
         }
 
         while (perm_idx < length()) {
-            std::vector<size_t> curr_perm(n);
-            for (size_t i = 0; i < n; i++) {
+            std::vector<T> curr_perm(N);
+            for (auto i = 0; i < N; i++) {
                 curr_perm[i] = last_perm[i];
             }
 
             perms.push_back(curr_perm);
 
-            while (curr_idx < n && curr_perm[curr_idx] >= k - 1) {
+            while (curr_idx < N && curr_perm[curr_idx] >= K - 1) {
                 curr_idx++;
             }
 
             perm_idx++;
 
-            if (curr_idx < n) {
+            if (curr_idx < N) {
                 curr_perm[curr_idx]++;
-                for (size_t i = 0; i < curr_idx; i++) {
+                for (auto i = 0; i < curr_idx; i++) {
                     curr_perm[i] = 0;
                 }
                 curr_idx = 0;
@@ -57,7 +70,7 @@ class Odometer {
     }
 
     void print() {
-        for (std::vector<size_t> perm : perms) {
+        for (std::vector<T> perm : perms) {
             for (auto num : perm) {
                 std::cout << num << " ";
             }
@@ -65,54 +78,53 @@ class Odometer {
         }
     }
 
-    unsigned long length() { return pow(k, n); }
+    unsigned long length() { return pow(K, N); }
 
-    std::vector<size_t> next() { return perms[idx_state++]; }
+    std::vector<T> next() { return perms[idx_state++]; }
 
-    const std::vector<size_t> &operator[](int idx) const { return perms[idx]; }
+    const std::vector<T> &operator[](size_t idx) const { return perms[idx]; }
 
     void reset() { idx_state = 0; }
 
-    size_t perm_length() { return n; }
+    size_t perm_length() { return N; }
 
-    std::vector<std::vector<size_t>> get_all() { return perms; }
+    PermSet<T> get_all() { return perms; }
 
     size_t get_size() { return perms.size(); }
 
-    std::vector<size_t> const &GetAt(size_t i) const {
-
+    std::vector<T> const &GetAt(T i) const {
         if (i < perms.size())
             return perms[i];
         throw std::out_of_range("index out of range");
     }
 };
 
+template<typename T>
 class Odometer_iterator {
-    Odometer od;
+    Odometer<T> od;
     size_t index;
 
   public:
-    Odometer_iterator(Odometer _od, size_t const i) : od(_od), index(i) {}
+    Odometer_iterator(Odometer<T> _od, size_t const i) : od(_od), index(i) {}
 
     bool operator!=(Odometer_iterator const &other) const {
-
         return index != other.index;
     }
 
-    std::vector<size_t> const &operator*() const { return od.GetAt(index); }
+    std::vector<T> const &operator*() const { return od.GetAt(index); }
 
-    Odometer_iterator const &operator++() {
-
+    Odometer_iterator<T> const &operator++() {
         ++index;
         return *this;
     }
 };
 
-inline Odometer_iterator begin(Odometer od) { return Odometer_iterator(od, 0); }
+template<typename T>
+inline Odometer_iterator<T> begin(Odometer<T> od) { return Odometer_iterator<T>(od, 0); }
 
-inline Odometer_iterator end(Odometer od) {
-
-    return Odometer_iterator(od, od.get_size());
+template<typename T>
+inline Odometer_iterator<T> end(Odometer<T> od) {
+    return Odometer_iterator<T>(od, od.get_size());
 }
 
 #endif // UTIL_ODOMETER_HPP
