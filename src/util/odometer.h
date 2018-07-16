@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
-template<typename T>
-class Odometer_iterator;
+// template<typename T>
+// class Odometer_iterator;
 
 template<typename T>
 using PermSet = std::vector<std::vector<T>>;

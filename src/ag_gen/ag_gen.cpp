@@ -139,12 +139,12 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
     std::cout << "Generating Attack Graph" << std::endl;
 
-    std::unordered_map<size_t, std::vector<std::vector<size_t>>> od_map;
+    std::unordered_map<size_t, PermSet<size_t>> od_map;
     size_t assets_size = instance.assets.size();
     for (auto ex : exploit_list) {
         size_t num_params = ex.get_num_params();
         if (od_map.find(num_params) == od_map.end()) {
-            Odometer od(num_params, assets_size);
+            Odometer<size_t> od(num_params, assets_size);
             od_map[num_params] = od.get_all();
         }
     }
@@ -185,7 +185,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
             // std::cout << "\tNum Precond Topologies: " << preconds_t.size() << std::endl << std::endl;
 
             // Odometer od(num_params, instance.assets.size());
-            Odometer<size_t> od(num_params, instance.assets.size());
+            auto perms = od_map[num_params];
             std::vector<AssetGroup> asset_groups;
 
             for (auto perm : perms) {
