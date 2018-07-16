@@ -413,7 +413,7 @@ std::vector<Exploit> fetch_all_exploits() {
  * @details Grabs all of the qualities in the database associated with
  *          the Asset's ID and gives them to the Asset
  */
-std::unordered_map<int, std::vector<Quality>> fetch_asset_qualities() {
+std::unordered_map<int, std::vector<Quality>> fetch_asset_qualities(Keyvalue &facts) {
     std::vector<Row> rows = db.exec("SELECT * FROM quality;");
 
     std::unordered_map<int, std::vector<Quality>> qmap;
@@ -438,7 +438,7 @@ std::unordered_map<int, std::vector<Quality>> fetch_asset_qualities() {
         // Quality qual(asset_id, property, "=", value);
         // qualities.push_back(qual);
 
-        qualities.emplace_back(asset_id, property, op, value);
+        qualities.emplace_back(asset_id, property, op, value, facts);
     }
 
     qmap[curr_id] = qualities;
@@ -453,11 +453,11 @@ std::unordered_map<int, std::vector<Quality>> fetch_asset_qualities() {
  *
  * @param network Name of the network to grab from
  */
-std::vector<Asset> fetch_all_assets() {
+std::vector<Asset> fetch_all_assets(Keyvalue &facts) {
     std::vector<Row> rows = db.exec("SELECT * FROM asset;");
     std::vector<Asset> new_assets;
 
-    auto qmap = fetch_asset_qualities();
+    auto qmap = fetch_asset_qualities(facts);
 
     for (auto &row : rows) {
         int id = std::stoi(row[0]);
@@ -472,7 +472,7 @@ std::vector<Asset> fetch_all_assets() {
     return new_assets;
 }
 
-std::vector<Quality> fetch_all_qualities() {
+std::vector<Quality> fetch_all_qualities(Keyvalue &facts) {
     std::vector<Quality> qualities;
     std::vector<Row> rows = db.exec("SELECT * FROM quality;");
 
@@ -482,14 +482,14 @@ std::vector<Quality> fetch_all_qualities() {
         std::string op = row[2];
         std::string value = row[3];
 
-        Quality qual(asset_id, property, op, value);
+        Quality qual(asset_id, property, op, value, facts);
         qualities.push_back(qual);
     }
 
     return qualities;
 }
 
-std::vector<Topology> fetch_all_topologies() {
+std::vector<Topology> fetch_all_topologies(Keyvalue &facts) {
     std::vector<Topology> topologies;
 
     std::vector<Row> rows = db.exec("SELECT * FROM topology;");
@@ -514,7 +514,7 @@ std::vector<Topology> fetch_all_topologies() {
         std::string op = row[4];
         std::string value = row[5];
 
-        Topology t(from_asset, to_asset, dir, property, op, value);
+        Topology t(from_asset, to_asset, dir, property, op, value, facts);
         topologies.push_back(t);
     }
 
@@ -579,12 +579,12 @@ void save_ag_to_db(AGGenInstance &instance, bool save_keyvalue){
             for (auto qi : quals) {
                 if (sql_index == 0)
                     quality_sql_query += "(" + std::to_string(id) + "," +
-                                         std::to_string(qi.encode(factlist).enc) +
+                                         std::to_string(qi.get_encoding()) +
                                          ",'quality')";
 
                 else
                     quality_sql_query += ",(" + std::to_string(id) + "," +
-                                         std::to_string(qi.encode(factlist).enc) +
+                                         std::to_string(qi.get_encoding()) +
                                          ",'quality')";
                 ++sql_index;
             }
@@ -592,12 +592,12 @@ void save_ag_to_db(AGGenInstance &instance, bool save_keyvalue){
             for (auto ti : topo) {
                 if (sql_index == 0)
                     topology_sql_query += "(" + std::to_string(id) + "," +
-                                          std::to_string(ti.encode(factlist).enc) +
+                                          std::to_string(ti.get_encoding()) +
                                           ",'topology')";
 
                 else
                     topology_sql_query += ",(" + std::to_string(id) + "," +
-                                          std::to_string(ti.encode(factlist).enc) +
+                                          std::to_string(ti.get_encoding()) +
                                           ",'topology')";
                 ++sql_index;
             }

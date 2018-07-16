@@ -44,22 +44,26 @@ class Quality {
     std::string op;
     std::string value;
 
+    size_t encoded;
+
+    EncodedQuality encode(const Keyvalue &kv_facts) const;
+
     friend class Factbase;
 
   public:
     Quality(int assetId, std::string qualName, std::string op,
-            std::string qualValue);
+            std::string qualValue, Keyvalue &facts);
 
     int get_asset_id() const;
     std::string get_name() const;
     std::string get_op() const;
     std::string get_value() const;
 
+    const size_t get_encoding() const;
+
     void set_value(std::string &val);
 
     void print() const;
-
-    EncodedQuality encode(const Keyvalue &kv_facts) const;
 
     bool operator==(const Quality &rhs) const;
     bool operator<(const Quality &rhs) const;

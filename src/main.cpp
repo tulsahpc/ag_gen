@@ -9,6 +9,7 @@
 #include <fstream>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <boost/graph/adjacency_list.hpp>
@@ -28,6 +29,7 @@
 #include "util/hash.h"
 #include "util/list.h"
 #include "util/mem.h"
+#include "util/redis_manager.h"
 
 template<typename GraphEdge>
 class ag_visitor : public boost::default_dfs_visitor {
@@ -330,12 +332,20 @@ void print_usage() {
     std::cout << "\t-d\tPerform a depth first search to remove cycles" << std::endl;
     std::cout << "\t-n\tNetwork model file used for generation" << std::endl;
     std::cout << "\t-x\tExploit pattern file used for generation" << std::endl;
+    std::cout << "\t-r\tUse redis for generation" << std::endl;
     std::cout << "\t-h\tThis help menu." << std::endl;
 }
 
 inline bool file_exists(const std::string &name) {
     struct stat buffer;
     return (stat (name.c_str(), &buffer) == 0);
+}
+
+const std::string read_file(const std::string fn) {
+    std::ifstream f(fn);
+    std::stringstream buffer;
+    buffer << f.rdbuf();
+    return buffer.str();
 }
 
 // the main function executes the command according to the given flag and throws
@@ -346,6 +356,12 @@ int main(int argc, char *argv[]) {
         print_usage();
         return 0;
     }
+    std::cout << "yo" << std::endl;
+
+    // cpp_redis::client client;
+    // client.connect("127.0.0.1", 6379);
+    // client.sadd("helloset", std::vector<std::string>{"420", "69"});
+    // client.sync_commit();
 
     std::string opt_nm;
     std::string opt_xp;
@@ -356,9 +372,10 @@ int main(int argc, char *argv[]) {
     bool should_graph = false;
     bool no_cycles = false;
     bool batch_process = false;
+    bool use_redis = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "b:g:dhc:n:x:")) != -1) {
+    while ((opt = getopt(argc, argv, "rb:g:dhc:n:x:")) != -1) {
         switch (opt) {
         case 'g':
             should_graph = true;
@@ -379,6 +396,9 @@ int main(int argc, char *argv[]) {
         case 'd':
             no_cycles = true;
             break;
+        case 'r':
+            use_redis = true;
+            break;
         case 'b':
             batch_process = true;
             opt_batch = optarg;
@@ -393,6 +413,13 @@ int main(int argc, char *argv[]) {
         default:
             fprintf(stderr, "Unknown option -%c.\n", optopt);
             print_usage();
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    if (use_redis) {
+        if (!file_exists("redis_scripts/collisions.lua")) {
+            fprintf(stderr, "File %s doesn't exist\n", "redis_scripts/collisions.lua");
             exit(EXIT_FAILURE);
         }
     }
@@ -435,6 +462,8 @@ int main(int argc, char *argv[]) {
     // cfg.lookupValue("database.username", username);
     // cfg.lookupValue("database.password", password);
 
+    std::cout << "yo2" << std::endl;
+
     init_db("postgresql://" + username + "@" + host + ":" + port + "/" +
                dbName);
 
@@ -465,20 +494,36 @@ int main(int argc, char *argv[]) {
     std::cout << "Done\n";
 
     AGGenInstance _instance;
-    _instance.initial_qualities = fetch_all_qualities();
-    _instance.initial_topologies = fetch_all_topologies();
-    _instance.assets = fetch_all_assets();
-    _instance.exploits = fetch_all_exploits();
     _instance.facts = fetch_facts();
+    _instance.initial_qualities = fetch_all_qualities(_instance.facts);
+    _instance.initial_topologies = fetch_all_topologies(_instance.facts);
+    _instance.assets = fetch_all_assets(_instance.facts);
+    _instance.exploits = fetch_all_exploits();
     auto ex = fetch_all_exploits();
 
     std::cout << "Assets: " << _instance.assets.size() << "\n";
     std::cout << "Exploits: " << _instance.exploits.size() << "\n";
     std::cout << "Facts: " << _instance.facts.size() << "\n";
 
-    std::cout << "Generating Attack Graph: " << std::flush;
-    AGGen gen(_instance);
-    AGGenInstance postinstance = gen.generate(batch_process, batch_size);
+    AGGenInstance postinstance;
+    if (use_redis) {
+        std::cout << "Reading redis scripts\n";
+
+        std::vector<std::pair<std::string, std::string>> sm;
+        sm.push_back(std::make_pair("collisions", read_file("redis_scripts/collisions.lua")));
+
+        RedisManager rman("127.0.0.1", 6379, sm);
+        std::cout << "Done\n";
+
+        std::cout << "Generating Attack Graph: " << std::flush;
+        AGGen gen(_instance, rman);
+        postinstance = gen.generate(batch_process, batch_size);
+    } else {
+        std::cout << "Generating Attack Graph: " << std::flush;
+        AGGen gen(_instance);
+        postinstance = gen.generate(batch_process, batch_size);
+    }
+
     std::cout << "Done\n";
 
     std::cout << "Total Time: " << postinstance.elapsed_seconds.count() << " seconds\n";

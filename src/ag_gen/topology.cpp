@@ -14,9 +14,9 @@
  * @param val The value of the Topology
  */
 Topology::Topology(int f_asset, int t_asset, DIRECTION_T dir, std::string property,
-                   std::string op, std::string val)
+                   std::string op, std::string val, Keyvalue &facts)
     : from_asset_id(f_asset), to_asset_id(t_asset), property(move(property)),
-      op(move(op)), value(move(val)), dir(std::move(dir)) {}
+      op(move(op)), value(move(val)), dir(std::move(dir)), encoded(encode(facts).enc) {}
 
 /**
  * @return The From Asset ID
@@ -37,6 +37,10 @@ std::string Topology::get_property() const { return property; }
  * @return The operation of the Topology
  */
 std::string Topology::get_op() const { return op; }
+
+const size_t Topology::get_encoding() const {
+    return encoded;
+}
 
 /**
  * @return The value of the Topology

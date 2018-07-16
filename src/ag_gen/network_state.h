@@ -11,6 +11,7 @@
 #include "topology.h"
 
 #include "util/keyvalue.h"
+#include "util/redis_manager.h"
 
 class Network;
 
@@ -45,6 +46,8 @@ class NetworkState {
 
     void delete_quality(Quality &q);
     void delete_topology(Topology &t);
+
+    int compare(std::string &hash, RedisManager* rman) const;
 };
 
 #endif

@@ -37,6 +37,8 @@ execute_process(COMMAND ${LSB_RELEASE} -is
 include_directories("/usr/include/postgresql")
 
 # Find packages
+include_directories("libs/cpp_redis/includes/cpp_redis")
+
 find_package(PkgConfig REQUIRED)
 find_package(PostgreSQL REQUIRED)
 find_package(OpenMP)
@@ -113,7 +115,7 @@ add_executable(ag_gen "${CMAKE_SOURCE_DIR}/src/main.cpp"
     ${FLEX_nm_scanner_OUTPUTS} ${BISON_nm_parser_OUTPUTS}
     ${FLEX_xp_scanner_OUTPUTS} ${BISON_xp_parser_OUTPUTS}
     ${ag_gen_src} ${utils_src})
-target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES})
+target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES} cpp_redis tacopie)
 
 add_executable(decode "${CMAKE_SOURCE_DIR}/src/tools/decode.cpp"
     ${ag_gen_src} ${utils_src})
@@ -128,3 +130,8 @@ target_link_libraries(dynstr_test ${CMOCKA_LIBRARIES})
 
 # Files to be added to build directory
 configure_file("config.ini" "config.ini" COPYONLY)
+
+add_custom_command(TARGET ag_gen PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/redis_scripts $<TARGET_FILE_DIR:ag_gen>/redis_scripts)
+

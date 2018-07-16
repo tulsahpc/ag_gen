@@ -1,6 +1,6 @@
 CREATE TABLE factbase (
   id SERIAL PRIMARY KEY,
-  hash TEXT UNIQUE
+  hash TEXT
 );
 
 CREATE TABLE factbase_item (
