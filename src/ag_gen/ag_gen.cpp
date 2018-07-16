@@ -37,9 +37,7 @@ AGGen::AGGen(AGGenInstance &_instance, RedisManager &_rman) : instance(_instance
     std::string hash = std::to_string(init_state.get_hash(instance.facts));
     // std::cout << "before init insertion" << std::endl;
     rman->insert_factbase(hash, init_id);
-    // rman->insert_qualities(hash, init_quals);
-    // rman->insert_topologies(hash, init_topos);
-    rman->insert_facts(hash, init_quals, init_topos);
+    // rman->insert_facts(hash, init_quals, init_topos);
     rman->commit();
     // std::cout << "after init insertion" << std::endl;
     // hash_map.insert(std::make_pair(init_state.get_hash(instance.facts), init_id));

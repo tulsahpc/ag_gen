@@ -14,15 +14,13 @@ class RedisManager {
 
     std::unordered_map<std::string, std::string> script_map;
 
-    std::string insert_collision_factbase(std::string &hash, int id);
+    // std::string insert_collision_factbase(std::string &hash, int id);
 
   public:
     RedisManager() {}
     RedisManager(std::string host, int port, std::vector<std::pair<std::string, std::string>> &sm);
 
-    // void insert_qualities(std::string &hash, std::vector<Quality> &quals);
-    // void insert_topologies(std::string &hash, std::vector<Topology> &topos);
-    void insert_facts(std::string &hash, std::vector<Quality> &quals, std::vector<Topology> &topos);
+    // void insert_facts(std::string &hash, std::vector<Quality> &quals, std::vector<Topology> &topos);
     void insert_factbase(std::string &hash, int id);
 
     void handle_collision(std::string &hash, int id, std::vector<Quality> &quals, std::vector<Topology> &topos);
@@ -31,12 +29,12 @@ class RedisManager {
 
     int get_factbase_id(std::string &hash);
 
-    int get_collision_count(std::string &hash);
+    // int get_collision_count(std::string &hash);
 
-    bool check_facts(std::string &hash, const std::vector<Quality> &quals, const std::vector<Topology> &topos);
+    // bool check_facts(std::string &hash, const std::vector<Quality> &quals, const std::vector<Topology> &topos);
     bool check_factbase_exists(std::string &hash);
 
-    bool check_collision(std::string &hash);
+    // bool check_collision(std::string &hash);
 
     inline void commit() { client.sync_commit(); }
 
