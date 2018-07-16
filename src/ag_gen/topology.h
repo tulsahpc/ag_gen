@@ -61,11 +61,15 @@ class Topology {
     std::string value;
     DIRECTION_T dir;
 
+    size_t encoded;
+
+    const EncodedTopology encode(const Keyvalue &kv_facts) const;
+
     friend class Factbase;
 
   public:
     Topology(int f_asset, int t_asset, DIRECTION_T dir, std::string property,
-             std::string op, std::string val);
+             std::string op, std::string val, Keyvalue &facts);
 
     int get_from_asset_id() const;
     int get_to_asset_id() const;
@@ -74,9 +78,9 @@ class Topology {
     std::string get_value() const;
     DIRECTION_T get_dir() const;
 
-    void print() const;
+    const size_t get_encoding() const;
 
-    const EncodedTopology encode(const Keyvalue &kv_facts) const;
+    void print() const;
 
     bool operator==(const Topology &rhs) const;
     bool operator<(const Topology &rhs) const;
