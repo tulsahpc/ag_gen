@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <tuple>
+#include <unordered_map>
 
 #include "ag_gen.h"
 
@@ -137,6 +138,17 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
     bool save_queued = false;
 
     std::cout << "Generating Attack Graph" << std::endl;
+
+    std::unordered_map<size_t, std::vector<std::vector<size_t>>> od_map;
+    size_t assets_size = instance.assets.size();
+    for (auto ex : exploit_list) {
+        size_t num_params = ex.get_num_params();
+        if (od_map.find(num_params) == od_map.end()) {
+            Odometer od(num_params, assets_size);
+            od_map[num_params] = od.get_all();
+        }
+    }
+
     while (!frontier.empty()) {
         if (batch_process && (save_queued || (counter+1) % batch_size == 0)) {
             save_ag_to_db(instance, false);
@@ -160,22 +172,23 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
         // std::cout << "Number of Exploits: " << esize << std::endl;
         // Get all applicable exploits with this network state
         for (size_t i = 0; i < esize; i++) {
-             auto e = exploit_list.at(i);
+            auto e = exploit_list.at(i);
             // std::cout << "Exploit: " << e.get_id() << std::endl;
 
-             auto num_params = e.get_num_params();
+            auto num_params = e.get_num_params();
             // std::cout << "\tNum Params: " << num_params << std::endl;
 
-             auto preconds_q = e.precond_list_q();
+            auto preconds_q = e.precond_list_q();
             // std::cout << "\tNum Precond Qualities: " << preconds_q.size() << std::endl;
 
-             auto preconds_t = e.precond_list_t();
+            auto preconds_t = e.precond_list_t();
             // std::cout << "\tNum Precond Topologies: " << preconds_t.size() << std::endl << std::endl;
 
-            Odometer od(num_params, instance.assets.size());
+            // Odometer od = od_map[num_params];
+            auto perms = od_map[num_params];
             std::vector<AssetGroup> asset_groups;
 
-            for (auto perm : od) {
+            for (auto perm : perms) {
                 std::vector<Quality> asset_group_quals;
                 std::vector<Topology> asset_group_topos;
 
