@@ -144,7 +144,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
     for (auto ex : exploit_list) {
         size_t num_params = ex.get_num_params();
         if (od_map.find(num_params) == od_map.end()) {
-            Odometer od(num_params, assets_size);
+            Odometer<size_t> od(num_params, assets_size);
             od_map[num_params] = od.get_all();
         }
     }
@@ -188,7 +188,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
             Odometer<size_t> od(num_params, instance.assets.size());
             std::vector<AssetGroup> asset_groups;
 
-            for (auto perm : perms) {
+            for (auto perm : od) {
                 std::vector<Quality> asset_group_quals;
                 std::vector<Topology> asset_group_topos;
 
