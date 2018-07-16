@@ -188,7 +188,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
             auto perms = od_map[num_params];
             std::vector<AssetGroup> asset_groups;
 
-            for (auto perm : perms) {
+            for (auto perm : od) {
                 std::vector<Quality> asset_group_quals;
                 std::vector<Topology> asset_group_topos;
 
