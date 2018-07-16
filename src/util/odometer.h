@@ -29,7 +29,8 @@ class Odometer {
             orig_perm[i] = 0;
         }
 
-        while (perm_idx < length()) {
+        auto len = length();
+        while (perm_idx < len) {
             std::vector<size_t> curr_perm(n);
             for (size_t i = 0; i < n; i++) {
                 curr_perm[i] = last_perm[i];
@@ -56,63 +57,63 @@ class Odometer {
         }
     }
 
-    void print() {
-        for (std::vector<size_t> perm : perms) {
-            for (auto num : perm) {
-                std::cout << num << " ";
-            }
-            std::cout << std::endl;
-        }
-    }
+    // void print() {
+    //     for (std::vector<size_t> perm : perms) {
+    //         for (auto num : perm) {
+    //             std::cout << num << " ";
+    //         }
+    //         std::cout << std::endl;
+    //     }
+    // }
 
-    unsigned long length() { return pow(k, n); }
+    inline unsigned long length() { return pow(k, n); }
 
-    std::vector<size_t> next() { return perms[idx_state++]; }
+    // std::vector<size_t> next() { return perms[idx_state++]; }
 
-    const std::vector<size_t> &operator[](int idx) const { return perms[idx]; }
+    // const std::vector<size_t> &operator[](int idx) const { return perms[idx]; }
 
-    void reset() { idx_state = 0; }
+    // void reset() { idx_state = 0; }
 
-    size_t perm_length() { return n; }
+    // size_t perm_length() { return n; }
 
     std::vector<std::vector<size_t>> get_all() { return perms; }
 
-    size_t get_size() { return perms.size(); }
+    // size_t get_size() { return perms.size(); }
 
-    std::vector<size_t> const &GetAt(size_t i) const {
+    // std::vector<size_t> const &GetAt(size_t i) const {
 
-        if (i < perms.size())
-            return perms[i];
-        throw std::out_of_range("index out of range");
-    }
+    //     if (i < perms.size())
+    //         return perms[i];
+    //     throw std::out_of_range("index out of range");
+    // }
 };
 
-class Odometer_iterator {
-    Odometer od;
-    size_t index;
+// class Odometer_iterator {
+//     Odometer od;
+//     size_t index;
 
-  public:
-    Odometer_iterator(Odometer _od, size_t const i) : od(_od), index(i) {}
+//   public:
+//     Odometer_iterator(Odometer _od, size_t const i) : od(_od), index(i) {}
 
-    bool operator!=(Odometer_iterator const &other) const {
+//     bool operator!=(Odometer_iterator const &other) const {
 
-        return index != other.index;
-    }
+//         return index != other.index;
+//     }
 
-    std::vector<size_t> const &operator*() const { return od.GetAt(index); }
+//     std::vector<size_t> const &operator*() const { return od.GetAt(index); }
 
-    Odometer_iterator const &operator++() {
+//     Odometer_iterator const &operator++() {
 
-        ++index;
-        return *this;
-    }
-};
+//         ++index;
+//         return *this;
+//     }
+// };
 
-inline Odometer_iterator begin(Odometer od) { return Odometer_iterator(od, 0); }
+// inline Odometer_iterator begin(Odometer od) { return Odometer_iterator(od, 0); }
 
-inline Odometer_iterator end(Odometer od) {
+// inline Odometer_iterator end(Odometer od) {
 
-    return Odometer_iterator(od, od.get_size());
-}
+//     return Odometer_iterator(od, od.get_size());
+// }
 
 #endif // UTIL_ODOMETER_HPP
