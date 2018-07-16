@@ -159,7 +159,6 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
         // std::cout << "Number of Exploits: " << esize << std::endl;
         // Get all applicable exploits with this network state
-        #pragma omp parallel for
         for (size_t i = 0; i < esize; i++) {
              auto e = exploit_list.at(i);
             // std::cout << "Exploit: " << e.get_id() << std::endl;
@@ -205,7 +204,6 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
             auto assetgroup_size = asset_groups.size();
 
-            #pragma omp parallel for
             for (size_t j = 0; j < assetgroup_size; j++) {
                 auto asset_group = asset_groups.at(j);
 
