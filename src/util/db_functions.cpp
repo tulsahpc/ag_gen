@@ -47,6 +47,13 @@ std::vector<std::string> fetch_keyvalues() {
     return kvs;
 }
 
+Keyvalue fetch_kv() {
+    auto kv_raw = fetch_keyvalues();
+    Keyvalue kv{};
+    kv.populate(kv_raw);
+    return kv;
+}
+
 void delete_edges(std::vector<int> edge_ids) {
     std::ostringstream ss;
 

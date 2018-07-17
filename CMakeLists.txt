@@ -119,7 +119,7 @@ target_link_libraries(ag_gen ${PostgreSQL_LIBRARIES} cpp_redis tacopie)
 
 add_executable(decode "${CMAKE_SOURCE_DIR}/src/tools/decode.cpp"
     ${ag_gen_src} ${utils_src})
-target_link_libraries(decode ${PostgreSQL_LIBRARIES})
+target_link_libraries(decode ${PostgreSQL_LIBRARIES} cpp_redis tacopie)
 
 ################
 ### Unit Testing

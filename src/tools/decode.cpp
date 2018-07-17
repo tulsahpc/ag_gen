@@ -60,7 +60,8 @@ std::string find_one_impl(std::vector<std::string> &str_vector, int index) {
         }
     }
 
-    std::vector<Asset> assets = fetch_all_assets();
+    Keyvalue kv = fetch_kv();
+    std::vector<Asset> assets = fetch_all_assets(kv);
     output << index << ":";
 
     while(!pqq.empty()) {
@@ -75,7 +76,8 @@ std::string find_one_impl(std::vector<std::string> &str_vector, int index) {
         std::string attr = str_vector[qual.dec.attr];
         std::string val = str_vector[qual.dec.val];
 
-        output << attr << "=" << val << "\n";
+        output << attr << "=" << val;
+        output << " : " << qual.enc << "\n";
 
     }
 
@@ -93,7 +95,8 @@ std::string find_one_impl(std::vector<std::string> &str_vector, int index) {
         std::string prop = str_vector[topo.dec.property];
         std::string val = str_vector[topo.dec.value];
 
-        output << prop << "=" << val << "\n";
+        output << prop << "=" << val;
+        output << " : " << topo.enc << "\n";
     }
 
     output << std::endl;

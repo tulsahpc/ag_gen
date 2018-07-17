@@ -44,6 +44,7 @@ std::vector<std::vector<std::pair<size_t, std::string>>> fetch_all_factbase_item
 std::vector<std::pair<size_t, std::string>> fetch_one_factbase_items(int index);
 
 std::vector<std::string> fetch_keyvalues();
+Keyvalue fetch_kv();
 std::vector<std::string> fetch_unique_values();
 std::vector<std::string> fetch_quality_attributes();
 std::vector<std::string> fetch_quality_values();
