@@ -1,3 +1,4 @@
+#ifdef REDIS
 
 #ifndef REDIS_MANAGER_H
 #define REDIS_MANAGER_H
@@ -42,4 +43,5 @@ class RedisManager {
 
 };
 
+#endif
 #endif

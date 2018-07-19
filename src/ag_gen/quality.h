@@ -5,8 +5,9 @@
 #ifndef AG_GEN_QUALITY_H
 #define AG_GEN_QUALITY_H
 
-#include "util/keyvalue.h"
 #include <string>
+
+#include "util/keyvalue.h"
 
 union EncodedQuality {
     struct {

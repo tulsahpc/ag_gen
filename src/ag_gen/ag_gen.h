@@ -16,7 +16,10 @@
 #include "network_state.h"
 
 #include "util/keyvalue.h"
+
+#ifdef REDIS
 #include "util/redis_manager.h"
+#endif
 
 using FactbaseItems =
     std::tuple<std::tuple<std::vector<Quality>, std::vector<Topology>>, int>;
@@ -52,14 +55,22 @@ class AGGen {
     AGGenInstance instance;
     std::deque<NetworkState> frontier;               //!< Unexplored states
     std::unordered_map<size_t, int> hash_map{};      //!< Map of hashes to Factbase ID
-    RedisManager *rman;
 
+#ifdef REDIS
+    RedisManager *rman;
+    inline void redis_save();
+#endif
+    inline void state_save();
     bool use_redis;
 
   public:
-    ~AGGen();
     AGGen(AGGenInstance &_instance);
+
+#ifdef REDIS
     AGGen(AGGenInstance &_instance, RedisManager &_rman);
+    ~AGGen();
+#endif
+
     AGGenInstance &generate(bool batch_process, int batch_num);
 };
 

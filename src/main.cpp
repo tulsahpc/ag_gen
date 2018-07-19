@@ -29,7 +29,10 @@
 #include "util/hash.h"
 #include "util/list.h"
 #include "util/mem.h"
+
+#ifdef REDIS
 #include "util/redis_manager.h"
+#endif // REDIS
 
 template<typename GraphEdge>
 class ag_visitor : public boost::default_dfs_visitor {
@@ -416,28 +419,16 @@ int main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
     }
-
+#ifdef REDIS
     if (use_redis) {
         if (!file_exists("redis_scripts/collisions.lua")) {
             fprintf(stderr, "File %s doesn't exist\n", "redis_scripts/collisions.lua");
             exit(EXIT_FAILURE);
         }
     }
+#endif // REDIS
 
     std::string config_section = (opt_config.empty()) ? "default" : opt_config;
-
-    // libconfig::Config cfg;
-
-    // try {
-    //     cfg.readFile("ag_gen.cfg");
-    // } catch (const libconfig::FileIOException &e) {
-    //     std::cerr << "Cannot read config file: ./ag_gen.cfg" << std::endl;
-    //     exit(1);
-    // } catch (const libconfig::ParseException &e) {
-    //     std::cerr << "Parse error at " << e.getFile() << ":" << e.getLine() << " - "
-    //          << e.getError() << std::endl;
-    //     exit(1);
-    // }
 
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini("config.ini", pt);
@@ -447,20 +438,6 @@ int main(int argc, char *argv[]) {
     std::string dbName = pt.get<std::string>(config_section + ".db");
     std::string username = pt.get<std::string>(config_section + ".username");
     std::string password = pt.get<std::string>(config_section + ".password");
-
-    // std::string new_db_string;
-
-    // std::string host{"localhost"};
-    // std::string port{"5432"};
-    // std::string dbName{"ag_gen2"};
-    // std::string username{};
-    // std::string password{};
-
-    // cfg.lookupValue("database.host", host);
-    // cfg.lookupValue("database.port", port);
-    // cfg.lookupValue("database.db", dbName);
-    // cfg.lookupValue("database.username", username);
-    // cfg.lookupValue("database.password", password);
 
     std::cout << "yo2" << std::endl;
 
@@ -506,6 +483,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Facts: " << _instance.facts.size() << "\n";
 
     AGGenInstance postinstance;
+#ifdef REDIS
     if (use_redis) {
         std::cout << "Reading redis scripts\n";
 
@@ -519,10 +497,13 @@ int main(int argc, char *argv[]) {
         AGGen gen(_instance, rman);
         postinstance = gen.generate(batch_process, batch_size);
     } else {
+#endif // REDIS
         std::cout << "Generating Attack Graph: " << std::flush;
         AGGen gen(_instance);
         postinstance = gen.generate(batch_process, batch_size);
+#ifdef REDIS
     }
+#endif // REDIS
 
     std::cout << "Done\n";
 

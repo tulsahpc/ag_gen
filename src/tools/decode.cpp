@@ -10,8 +10,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
-#include <ag_gen/quality.h>
-#include <ag_gen/topology.h>
 
 #include "ag_gen/asset.h"
 #include "ag_gen/quality.h"

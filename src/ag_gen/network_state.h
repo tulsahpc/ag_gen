@@ -47,7 +47,9 @@ class NetworkState {
     void delete_quality(Quality &q);
     void delete_topology(Topology &t);
 
+#ifdef REDIS
     int compare(std::string &hash, RedisManager* rman) const;
+#endif
 };
 
 #endif
