@@ -137,9 +137,7 @@ class DB {
 
     void execAsync(const std::string &sql) {
         try {
-            std::cout << "DB WAIT" << std::endl;
             conn.execAsync(sql);
-            std::cout << "DB DONE" << std::endl;
         } catch (DBException &e) {
             std::cerr << "Database Exception: " << e.what() << std::endl;
             abort();

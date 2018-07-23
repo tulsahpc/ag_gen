@@ -29,7 +29,7 @@ execute_process(COMMAND ${LSB_RELEASE} -is
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-#include_directories("/usr/include/postgresql")
+include_directories("/usr/include/postgresql")
 
 # Find packages
 #include_directories("libs/cpp_redis/includes/cpp_redis")

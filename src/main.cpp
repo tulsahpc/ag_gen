@@ -133,73 +133,106 @@ extern "C" {
 std::string parse_nm(std::string filename) {
     FILE *file = fopen(filename.c_str(), "r");
 
-    networkmodel nm;
-    nm.asset_tab = new_hashtable(101);
+    if(!file) {
+        fprintf(stderr, "Cannot open file.\n");
+    }
 
+    struct networkmodel nm;
+    nm.assets = list_new();
+
+    //yydebug = 1;
     nmin = file;
     do {
         nmparse(&nm);
     } while(!feof(nmin));
 
-    str_array* qualities = new_str_array();
-    str_array* topologies = new_str_array();
-
-    for(size_t i=0; i<nm.facts->used; i++) {
-        char* current = nm.facts->arr[i];
-        char* copy = getstr(strlen(current));
-
-        strncpy(copy, current, strlen(current));
-
-        char* type = strsep(&copy, ":");
-        if(strncmp(type, "q", 1) == 0) {
-            add_str(qualities, copy);
-        } else {
-            add_str(topologies, copy);
-        }
-    }
-
-//    FILE *out = stdout;
+    // FILE *out = stdout;
     std::string output;
 
-    const char* assetheader = "INSERT INTO asset VALUES";
-    output += assetheader;
+    //print_xp_list(xplist);
 
-    for(size_t i=0; i<nm.assets->used-1; i++) {
-        const char* nextstring = nm.assets->arr[i];
-        output += nextstring;
-    }
-    char* stripped = nm.assets->arr[nm.assets->used-1];
-    stripped[strlen(stripped)-1] = '\n';
-    output += stripped;
-    output += "ON CONFLICT DO NOTHING;";
+    /////////////////////////
+    // ASSETS
+    /////////////////////////
 
-    const char* qualityheader = "\nINSERT INTO quality VALUES";
-    output += qualityheader;
-    for(size_t i=0; i<qualities->used-1; i++) {
-        const char* nextstring = qualities->arr[i];
-        output += nextstring;
-    }
-    stripped = qualities->arr[qualities->used-1];
-    stripped[strlen(stripped)-1] = '\n';
-    output += stripped;
-    output += "ON CONFLICT DO NOTHING;";
+    hashtable *asset_ids = new_hashtable(101);
+    nm.asset_tab = asset_ids;
 
-    if(topologies->used > 0) {
-        const char *topologyheader = "\nINSERT INTO topology VALUES";
-        output += topologyheader;
-        for (size_t i = 0; i < topologies->used - 1; i++) {
-            const char *nextstring = topologies->arr[i];
-            output += nextstring;
+    // Preload buffer with SQL prelude
+    size_t bufsize = INITIALBUFSIZE;
+    char *buf = static_cast<char *>(getcmem(bufsize));
+    strcat(buf, "INSERT INTO asset VALUES\n");
+
+    // Iterate over each exploit in the list
+    // Generate an "exploit_instance" which contains
+    // the generated exploit id and the sql for
+    // for the exploit.
+    for(size_t i=0; i<nm.assets->size; i++) {
+        char *asset = static_cast<char *>(list_get_idx(nm.assets, i));
+        add_hashtable(asset_ids, asset, i);
+        asset_instance *ai = make_asset(asset);
+        while(bufsize < strlen(buf) + strlen(ai->sql)) {
+            buf = static_cast<char *>(realloc(buf, (bufsize *= 2)));
         }
-        stripped = topologies->arr[topologies->used - 1];
-        stripped[strlen(stripped) - 1] = '\n';
-        output += stripped;
-
-        output += "ON CONFLICT DO NOTHING;";
+        strcat(buf, ai->sql);
     }
-    free_hashtable(nm.asset_tab);
 
-    // printf("%s\n", output.c_str());
+    // Replace the last comma with a semicolon
+    char *last = strrchr(buf, ',');
+    *last = ';';
+    // fprintf(out, "%s\n", buf);
+    output += std::string(buf);
+
+    /////////////////////////
+    // FACTS
+    /////////////////////////
+
+    // Preload buffer with SQL prelude
+    bufsize = INITIALBUFSIZE;
+    buf = static_cast<char *>(getcmem(bufsize));
+    strcat(buf, "INSERT INTO quality VALUES\n");
+    printf("%s", buf);
+
+    size_t buf2size = INITIALBUFSIZE;
+    char *buf2 = static_cast<char *>(getcmem(buf2size));
+    strcat(buf2, "INSERT INTO topology VALUES\n");
+
+    // Iterate over each exploit. We then iterate
+    // over each f in the exploit and generate
+    // the sql for it.
+    for(size_t i=0; i<nm.facts->size; i++) {
+        fact *fct = static_cast<fact *>(list_get_idx(nm.facts, i));
+        char *sqlqual,*sqltopo;
+
+        size_t assetFrom = static_cast<size_t>(get_hashtable(asset_ids, fct->from));
+
+        switch(fct->type) {
+        case QUALITY_T:
+            sqlqual = make_quality(assetFrom, fct->st);
+            while(bufsize < (strlen(buf) + strlen(sqlqual))) {
+                buf = static_cast<char *>(realloc(buf, (bufsize*=2)));
+            }
+            strcat(buf, sqlqual);
+            break;
+        case TOPOLOGY_T:
+            size_t assetTo = static_cast<size_t>(get_hashtable(asset_ids, fct->to));
+            sqltopo = make_topology(assetFrom, assetTo, fct->dir, fct->st);
+            while(buf2size < (strlen(buf2) + strlen(sqltopo))) {
+                buf2 = static_cast<char *>(realloc(buf2, (buf2size*=2)));
+            }
+            strcat(buf2, sqltopo);
+            break;
+        }
+    }
+
+    last = strrchr(buf, ',');
+    *last = ';';
+
+    char *last2 = strrchr(buf2, ',');
+    *last2 = ';';
+
+    output += std::string(buf);
+    output += std::string(buf2);
 
     return output;
 }
@@ -359,12 +392,6 @@ int main(int argc, char *argv[]) {
         print_usage();
         return 0;
     }
-    std::cout << "yo" << std::endl;
-
-    // cpp_redis::client client;
-    // client.connect("127.0.0.1", 6379);
-    // client.sadd("helloset", std::vector<std::string>{"420", "69"});
-    // client.sync_commit();
 
     std::string opt_nm;
     std::string opt_xp;
@@ -439,9 +466,7 @@ int main(int argc, char *argv[]) {
     std::string username = pt.get<std::string>(config_section + ".username");
     std::string password = pt.get<std::string>(config_section + ".password");
 
-    std::cout << "yo2" << std::endl;
-
-    init_db("postgresql://" + username + "@" + host + ":" + port + "/" +
+    init_db("postgresql://" + username + ":" + password + "@" + host + ":" + port + "/" +
                dbName);
 
     std::string parsednm;

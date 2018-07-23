@@ -81,9 +81,7 @@ parameters: parameters COMMA IDENTIFIER {
 | { $$ = NULL; }
 ;
 
-preconditions: PRECONDITIONS COLON preconditionslist {
-    $$ = $3;
-}
+preconditions: PRECONDITIONS COLON preconditionslist { $$ = $3; }
 ;
 
 preconditionslist: { $$ = NULL; }

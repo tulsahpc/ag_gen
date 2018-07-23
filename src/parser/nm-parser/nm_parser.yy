@@ -24,18 +24,19 @@
 
 %union {
     struct str_array* arr;
+    struct list* lst;
     struct networkmodel* model;
     struct statement* st;
+    struct fact *fct;
     char* string;
 }
 
 %parse-param { struct networkmodel* nm }
 
-%type <arr> assetlist assets
-%type <arr> factlist facts
+%type <lst> factlist
+%type <fct> f
 
 %type <string> asset
-%type <string> f
 %type <string> relop operator direction number value
 
 %type <st> statement
@@ -48,74 +49,69 @@
 
 %%
 
-root: NETWORK IDENTIFIER EQ assets facts tags PERIOD {
-    nm->assets = $4;
-    nm->facts = $5;
+root: NETWORK IDENTIFIER EQ assets facts tags PERIOD {}
+;
+
+assets: ASSETS COLON assetlist {}
+;
+
+assetlist: {}
+| assetlist asset {
+    list_add(nm->assets, $2);
   }
 ;
 
-assets: ASSETS COLON assetlist { $$ = $3; }
-
-assetlist: { $$ = NULL; }
-| assetlist asset {
-    if($1 == NULL) {
-        add_hashtable(nm->asset_tab, $2, assetcount);
-        $$ = new_str_array();
-        char* sql = make_asset($2);
-        add_str($$, sql);
-    } else {
-        add_hashtable(nm->asset_tab, $2, assetcount);
-        char* sql = make_asset($2);
-        add_str($1, sql);
-        $$ = $1;
-    }
-  }
-
 asset: IDENTIFIER SEMI { $$ = $1; }
+;
 
 tags: {}
 | TAGS COLON {}
+;
 
-facts: FACTS COLON factlist { $$ = $3; }
+facts: FACTS COLON factlist { nm->facts = $3; }
+;
 
 factlist: { $$ = NULL; }
 | factlist f {
     if($1 == NULL) {
-        $$ = new_str_array();
-        add_str($$, $2);
+        $$ = list_new();
+        list_add($$, $2);
     } else {
-        add_str($$, $2);
+        list_add($$, $2);
         $$ = $1;
     }
   }
 ;
 
-f:
-  QUALITY COLON IDENTIFIER COMMA statement SEMI {
-    int assetid = get_hashtable(nm->asset_tab, $3);
-    char* sql = make_quality(assetid, $5);
+f: QUALITY COLON IDENTIFIER COMMA statement SEMI {
+    statement *st = getmem(sizeof(struct statement));
+    st->obj = $5->obj;
+    st->op = $5->op;
+    st->val = $5->val;
 
-    size_t typesql_len = strlen(sql)+3;
-    char* typesql = getmem(typesql_len);
-    strncat(typesql, "q:", 3);
-    strncat(typesql, sql, typesql_len);
+    struct fact *fct = getmem(sizeof(struct fact));
+    fct->type = QUALITY_T;
+    fct->from = $3;
+    fct->dir = NULL;
+    fct->to = NULL;
+    fct->st = st;
 
-    $$ = typesql;
+    $$ = fct;
   }
 | TOPOLOGY COLON IDENTIFIER direction IDENTIFIER COMMA statement SEMI {
-    int fromasset = get_hashtable(nm->asset_tab, $3);
-    int toasset = get_hashtable(nm->asset_tab, $5);
-
     struct statement* st = $7;
+    st->obj = $7->obj;
+    st->op = $7->op;
+    st->val = $7->val;
 
-    char* sql = make_topology(fromasset, toasset, $4, st);
+    struct fact *fct = getmem(sizeof(struct fact));
+    fct->type = TOPOLOGY_T;
+    fct->from = $3;
+    fct->dir = $4;
+    fct->to = $5;
+    fct->st = st;
 
-    size_t typesql_len = strlen(sql)+3;
-    char* typesql = getmem(typesql_len);
-    strncat(typesql, "t:", 3);
-    strncat(typesql, sql, typesql_len);
-
-    $$ = typesql;
+    $$ = fct;
   }
 ;
 

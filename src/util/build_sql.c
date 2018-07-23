@@ -21,22 +21,29 @@ const char *sqlExploit = "\t(%d, '%s', %d),\n";
 const char *sqlPrecondition = "\t(%d, %d, %d, %d, %d, '%s', '%s', '%s', '%s'),\n";
 const char *sqlPostcondition = "\t(%d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s'),\n";
 
-char *make_asset(char *as) {
-    size_t mystringlen = strlen(sqlAsset) + strlen(as);
-    char *mystring = getstr(mystringlen);
-    sprintf(mystring, sqlAsset, assetcount++, as);
-    return mystring;
+static int asset_curr_id = 0;
+asset_instance *make_asset(char *asset) {
+    size_t len = strlen(sqlAsset) + strlen(asset) + BUFSPACE;
+
+    char *buf = malloc(len);
+    sprintf(buf, sqlAsset, asset_curr_id, asset);
+
+    asset_instance *ai = getmem(sizeof(struct asset_instance));
+    ai->id = asset_curr_id++;
+    ai->sql = buf;
+
+    return ai;
 }
 
-char *make_quality(int assetid, statement *st) {
-    size_t mystringlen =
-        32 + strlen(st->obj) + strlen(st->op) + strlen(st->val);
+char *make_quality(size_t assetid, statement *st) {
+    size_t mystringlen = strlen(sqlQuality) +
+        strlen(st->obj) + strlen(st->op) + strlen(st->val) + BUFSPACE;
     char *mystring = getstr(mystringlen);
     sprintf(mystring, sqlQuality, assetid, st->obj, st->op, st->val);
     return mystring;
 }
 
-char *make_topology(int fromasset, int toasset, char *dir,
+char *make_topology(size_t fromasset, size_t toasset, char *dir,
                     statement *st) {
     char *prop = st->obj;
     char *op = st->op;

@@ -21,13 +21,15 @@ typedef enum ACTION_T {
 } ACTION_T;
 
 typedef struct networkmodel {
-    str_array* assets;
-
+    list* assets;
+    list* facts;
     hashtable* asset_tab;
-    int numassets;
-
-    str_array* facts;
 } networkmodel;
+
+typedef struct asset_instance {
+    int id;
+    char *sql;
+} asset_instance;
 
 typedef struct exploit_instance {
     int id;
@@ -60,9 +62,9 @@ typedef struct postcondition {
     fact *f;
 } postcondition;
 
-char *make_asset(char *as);
-char *make_quality(int assetid, statement *st);
-char *make_topology(int fromasset, int toasset, char *dir, statement *st);
+asset_instance *make_asset(char *asset);
+char *make_quality(size_t assetid, statement *st);
+char *make_topology(size_t fromasset, size_t toasset, char *dir, statement *st);
 
 void print_fact(fact *fct);
 
