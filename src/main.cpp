@@ -191,7 +191,6 @@ std::string parse_nm(std::string filename) {
     bufsize = INITIALBUFSIZE;
     buf = static_cast<char *>(getcmem(bufsize));
     strcat(buf, "INSERT INTO quality VALUES\n");
-    printf("%s", buf);
 
     size_t buf2size = INITIALBUFSIZE;
     char *buf2 = static_cast<char *>(getcmem(buf2size));
