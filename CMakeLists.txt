@@ -36,7 +36,7 @@ include_directories("/usr/include/postgresql")
 
 # Apple has a different openssl directory when using brew
 if(APPLE)
-    set(BISON_EXECUTABLE "/usr/local/bin/bison")
+    set(BISON_EXECUTABLE "/usr/local/opt/bison/bin")
     set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
 endif()
 
