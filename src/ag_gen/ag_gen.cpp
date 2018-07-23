@@ -113,15 +113,6 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group, Keyvalue &facts) {
     return make_tuple(postconds_q, postconds_t);
 }
 
-#ifdef REDIS
-inline void AGGen::redis_save() {
-
-}
-#endif
-
-inline void AGGen::state_save() {
-}
-
 /**
  * @brief Generate attack graph
  * @details Begin the generation of the attack graph. The algorithm is as
