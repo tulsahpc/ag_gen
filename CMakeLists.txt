@@ -36,7 +36,7 @@ include_directories("/usr/include/postgresql")
 
 # Apple has a different openssl directory when using brew
 if(APPLE)
-    set(BISON_EXECUTABLE "/usr/local/opt/bison/bin")
+    set(BISON_EXECUTABLE "/usr/local/opt/bison/bin/bison")
     set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
 endif()
 
@@ -125,7 +125,7 @@ target_link_libraries(decode ${PostgreSQL_LIBRARIES})
 if(CPPREDIS_FOUND)
     #include_directories("${CPPREDIS_INCLUDE_DIRS}")
     link_directories("${CPPREDIS_LIBRARY_DIRS}")
-    
+
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DREDIS")
 
     target_link_libraries(ag_gen cpp_redis tacopie)
