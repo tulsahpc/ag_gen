@@ -23,7 +23,6 @@ class Factbase {
     std::vector<Topology> topologies;
 
     Factbase(std::vector<Quality> q, std::vector<Topology> t);
-    void set_parent(const NetworkState &ns);
 
     friend class NetworkState;
 
@@ -42,9 +41,6 @@ class Factbase {
 
     void delete_quality(Quality &q);
     void delete_topology(Topology &t);
-
-    void update_quality(Quality &q);
-    void update_topology(Topology &t);
 
     void print() const;
     void set_id();

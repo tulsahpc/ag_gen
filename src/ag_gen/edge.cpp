@@ -7,8 +7,6 @@
 #include "edge.h"
 #include "util/db.h"
 
-using namespace std;
-
 /**
  * @brief Constructor for Edge
  * @details Initializes information with given parameters and initializes id to
@@ -55,9 +53,9 @@ int Edge::get_exploit_id()
 /**
  * @return The Edge information as a string for SQL
  */
-string Edge::get_query() {
-    return to_string(from_node) + "," + to_string(to_node) + "," +
-           to_string(exploit.get_id()) + ")";
+std::string Edge::get_query() {
+    return std::to_string(from_node) + "," + std::to_string(to_node) + "," +
+           std::to_string(exploit.get_id()) + ")";
 }
 
 /**
@@ -75,18 +73,18 @@ int Edge::edge_current_id = 0;
 /**
  * @return The Assets as a string for SQL
  */
-string Edge::get_asset_query() {
+std::string Edge::get_asset_query() {
     auto current_perm = assetGroup.get_perm();
-    string sql = "";
+    std::string sql;
     for (size_t i = 0; i < current_perm.size(); ++i) {
 
         if (i == 0)
-            sql += "(" + to_string(id) + "," + to_string(i) + "," +
-                   to_string(current_perm[i]) + ")";
+            sql += "(" + std::to_string(id) + "," + std::to_string(i) + "," +
+                   std::to_string(current_perm[i]) + ")";
 
         else
-            sql += ",(" + to_string(id) + "," + to_string(i) + "," +
-                   to_string(current_perm[i]) + ")";
+            sql += ",(" + std::to_string(id) + "," + std::to_string(i) + "," +
+                   std::to_string(current_perm[i]) + ")";
     }
     return sql;
 }

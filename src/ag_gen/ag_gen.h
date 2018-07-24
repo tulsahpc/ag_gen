@@ -57,18 +57,15 @@ class AGGen {
     std::unordered_map<size_t, int> hash_map{};      //!< Map of hashes to Factbase ID
 
 #ifdef REDIS
-    RedisManager *rman;
-    inline void redis_save();
-#endif
-    inline void state_save();
     bool use_redis;
+    RedisManager *rman;
+#endif
 
   public:
-    AGGen(AGGenInstance &_instance);
+    explicit AGGen(AGGenInstance &_instance);
 
 #ifdef REDIS
     AGGen(AGGenInstance &_instance, RedisManager &_rman);
-    ~AGGen();
 #endif
 
     AGGenInstance &generate(bool batch_process, int batch_num);

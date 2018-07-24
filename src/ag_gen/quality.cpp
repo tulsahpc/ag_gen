@@ -3,8 +3,6 @@
 
 #include "ag_gen.h"
 
-using namespace std;
-
 /**
  * @brief Constructor for Quality
  *
@@ -13,20 +11,20 @@ using namespace std;
  * @param o The operation
  * @param qualValue The value of the Quality
  */
-Quality::Quality(int asset, string qualName, string o, string qualValue, Keyvalue &facts)
-    : asset_id(asset), name(move(qualName)), op(o), value(move(qualValue)), encoded(encode(facts).enc) {}
+Quality::Quality(int asset, std::string qualName, std::string o, std::string qualValue, Keyvalue &facts)
+    : asset_id(asset), name(std::move(qualName)), op(std::move(o)), value(std::move(qualValue)), encoded(encode(facts).enc) {}
 
 int Quality::get_asset_id() const { return asset_id; }
 
 /**
  * @return The name of the Quality
  */
-string Quality::get_name() const { return name; }
+std::string Quality::get_name() const { return name; }
 
 /**
  * @return The operation
  */
-string Quality::get_op() const { return op; }
+std::string Quality::get_op() const { return op; }
 
 std::string Quality::get_value() const { return value; }
 
@@ -42,7 +40,7 @@ void Quality::set_value(std::string &val) {
  * @brief Prints the Quality
  */
 void Quality::print() const {
-    std::cout << to_string(asset_id) << ": " << name << op << value
+    std::cout << std::to_string(asset_id) << ": " << name << op << value
               << std::endl;
 }
 
@@ -63,18 +61,9 @@ EncodedQuality Quality::encode(const Keyvalue &kv_facts) const {
 }
 
 bool Quality::operator==(const Quality &rhs) const {
-    if (this->asset_id != rhs.asset_id)
-        return false;
-    if (this->name != rhs.name)
-        return false;
-    if (this->value != rhs.value)
-        return false;
-    return true;
+    return this->asset_id == rhs.asset_id && this->name == rhs.name && this->value == rhs.value;
 }
 
 bool Quality::operator<(const Quality &rhs) const {
-    if(this->asset_id < rhs.asset_id)
-        return true;
-    else
-        return false;
+    return this->asset_id < rhs.asset_id;
 }

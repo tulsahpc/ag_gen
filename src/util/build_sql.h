@@ -27,12 +27,12 @@ typedef struct networkmodel {
 } networkmodel;
 
 typedef struct asset_instance {
-    int id;
+    size_t id;
     char *sql;
 } asset_instance;
 
 typedef struct exploit_instance {
-    int id;
+    size_t id;
     char *sql;
 } exploit_instance;
 

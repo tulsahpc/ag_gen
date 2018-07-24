@@ -31,9 +31,6 @@ execute_process(COMMAND ${LSB_RELEASE} -is
 
 include_directories("/usr/include/postgresql")
 
-# Find packages
-#include_directories("libs/cpp_redis/includes/cpp_redis")
-
 # Apple has a different openssl directory when using brew
 if(APPLE)
     set(BISON_EXECUTABLE "/usr/local/opt/bison/bin/bison")

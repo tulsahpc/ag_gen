@@ -50,6 +50,8 @@ struct ParameterizedTopology {
     }
 };
 
+using PostconditionTopology = std::tuple<ParameterizedTopology, std::string>;
+
 /** Topology class
  * @brief Holds information for the Topology
  */

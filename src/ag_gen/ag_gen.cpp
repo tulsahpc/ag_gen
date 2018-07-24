@@ -14,10 +14,6 @@
 #include "util/db_functions.h"
 
 #ifdef REDIS
-AGGen::~AGGen() {
-    if (!use_redis)
-        delete rman;
-}
 
 /**
  * @brief Constructor for generator
@@ -46,6 +42,7 @@ AGGen::AGGen(AGGenInstance &_instance, RedisManager &_rman) : instance(_instance
     frontier.push_back(init_state);
     use_redis = true;
 }
+
 #endif
 
 AGGen::AGGen(AGGenInstance &_instance) : instance(_instance) {
@@ -93,7 +90,7 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group, Keyvalue &facts) {
 
         Quality q(perm[fact.get_param_num()], fact.name, "=",
                   fact.value, facts);
-        postconds_q.push_back(std::make_tuple(action, q));
+        postconds_q.emplace_back(action, q);
     }
 
     for (auto &postcond : param_postconds_t) {
@@ -107,7 +104,7 @@ createPostConditions(std::tuple<Exploit, AssetGroup> &group, Keyvalue &facts) {
 
         Topology t(perm[fact.get_from_param()],
                    perm[fact.get_to_param()], dir, prop, op, val, facts);
-        postconds_t.push_back(std::make_tuple(action, t));
+        postconds_t.emplace_back(action, t);
     }
 
     return make_tuple(postconds_q, postconds_t);
@@ -143,7 +140,7 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
     std::unordered_map<size_t, PermSet<size_t>> od_map;
     size_t assets_size = instance.assets.size();
-    for (auto ex : exploit_list) {
+    for (const auto &ex : exploit_list) {
         size_t num_params = ex.get_num_params();
         if (od_map.find(num_params) == od_map.end()) {
             Odometer<size_t> od(num_params, assets_size);
@@ -193,6 +190,9 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
             for (auto perm : perms) {
                 std::vector<Quality> asset_group_quals;
                 std::vector<Topology> asset_group_topos;
+
+                asset_group_quals.reserve(preconds_q.size());
+                asset_group_topos.reserve(preconds_t.size());
 
                 for (auto &precond : preconds_q) {
                     asset_group_quals.emplace_back(
@@ -336,18 +336,18 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
                     frontier.emplace_front(new_state);
 
-                    Edge e(current_state.get_id(), new_state.get_id(), exploit, assetGroup);
-                    e.set_id();
+                    Edge ed(current_state.get_id(), new_state.get_id(), exploit, assetGroup);
+                    ed.set_id();
 
-                    instance.edges.push_back(e);
+                    instance.edges.push_back(ed);
                     counter++;
                 } else {
                     int id = rman->get_factbase_id(hash);
 
-                    Edge e(current_state.get_id(), id, exploit, assetGroup);
-                    e.set_id();
+                    Edge ed(current_state.get_id(), id, exploit, assetGroup);
+                    ed.set_id();
 
-                    instance.edges.push_back(e);
+                    instance.edges.push_back(ed);
                 }
             } else {
 #endif // REDIS
@@ -365,18 +365,18 @@ AGGenInstance &AGGen::generate(bool batch_process, int batch_size) {
 
                     frontier.emplace_front(new_state);
 
-                    Edge e(current_state.get_id(), new_state.get_id(), exploit, assetGroup);
-                    e.set_id();
+                    Edge ed(current_state.get_id(), new_state.get_id(), exploit, assetGroup);
+                    ed.set_id();
 
-                    instance.edges.push_back(e);
+                    instance.edges.push_back(ed);
                     if (counter % 1000 == 0) std::cout << "State: " << counter << std::endl;
                     counter++;
                 } else {
                     int id = hash_map[hash_num];
 
-                    Edge e(current_state.get_id(), id, exploit, assetGroup);
-                    e.set_id();
-                    instance.edges.push_back(e);
+                    Edge ed(current_state.get_id(), id, exploit, assetGroup);
+                    ed.set_id();
+                    instance.edges.push_back(ed);
                 }
 #ifdef REDIS
             }

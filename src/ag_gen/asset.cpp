@@ -20,7 +20,7 @@ using namespace std;
  * @param q The vector of qualities to associate with the Asset
  */
 Asset::Asset(std::string nname, std::vector<Quality> q)
-    : name(move(nname)), qualities(q) {}
+    : name(move(nname)), qualities(std::move(q)) {}
 
 std::string Asset::get_name()
 {

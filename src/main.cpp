@@ -10,8 +10,9 @@
 #include <string>
 #include <tuple>
 #include <unordered_map>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/stat.h>
+
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/graphviz.hpp>
@@ -19,8 +20,6 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/graph/visitors.hpp>
 #include <boost/graph/depth_first_search.hpp>
-
-// #include <libconfig.h++>
 
 #include "ag_gen/ag_gen.h"
 #include "util/db_functions.h"
@@ -38,7 +37,7 @@ template<typename GraphEdge>
 class ag_visitor : public boost::default_dfs_visitor {
     std::vector<std::pair<GraphEdge, int>> &to_delete;
   public:
-    ag_visitor(std::vector<std::pair<GraphEdge, int>> &_to_delete) : to_delete(_to_delete) {}
+    explicit ag_visitor(std::vector<std::pair<GraphEdge, int>> &_to_delete) : to_delete(_to_delete) {}
 
     template <typename Graph>
     void back_edge(GraphEdge e, Graph g) {
@@ -51,29 +50,27 @@ class ag_visitor : public boost::default_dfs_visitor {
     }
 };
 
-void graph_ag(std::string filename, bool should_graph, bool no_cycles) {
-    if (!should_graph && !no_cycles) return;
+typedef boost::property<boost::edge_name_t, std::string,
+    boost::property<boost::edge_index_t, int>> EdgeProperties;
+typedef boost::property<boost::vertex_name_t, int> VertexNameProperty;
 
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
+    VertexNameProperty, EdgeProperties> Graph;
+
+typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
+typedef boost::graph_traits<Graph>::edge_descriptor GraphEdge;
+
+Graph graph_init() {
     GraphInfo info = fetch_graph_info();
 
     auto factbase_ids = info.first;
     auto edges = info.second;
-
-    typedef boost::property<boost::edge_name_t, std::string,
-            boost::property<boost::edge_index_t, int>> EdgeProperties;
-    typedef boost::property<boost::vertex_name_t, int> VertexNameProperty;
-
-    typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
-                           VertexNameProperty, EdgeProperties> Graph;
 
     Graph g;
 
     boost::property_map<Graph, boost::vertex_name_t>::type Factbase_ID = boost::get(boost::vertex_name, g);
     boost::property_map<Graph, boost::edge_name_t>::type Exploit_ID = boost::get(boost::edge_name, g);
     boost::property_map<Graph, boost::edge_index_t>::type Edge_Index = boost::get(boost::edge_index, g);
-
-    typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-    typedef boost::graph_traits<Graph>::edge_descriptor GraphEdge;
 
     std::unordered_map<int, Vertex> vertex_map;
 
@@ -97,32 +94,31 @@ void graph_ag(std::string filename, bool should_graph, bool no_cycles) {
         Edge_Index[e] = eid;
     }
 
-    if (no_cycles) {
-        std::vector<std::pair<GraphEdge, int>> to_delete;
+    return g;
+}
 
-        // ag_visitor<GraphEdge> vis(edges, to_delete);
-        ag_visitor<GraphEdge> vis(to_delete);
-        boost::depth_first_search(g, boost::visitor(vis));
+void remove_cycles(Graph &g) {
+    std::vector<std::pair<GraphEdge, int>> to_delete;
 
-        std::vector<int> delete_edge_ids;
-        delete_edge_ids.resize(to_delete.size());
+    // ag_visitor<GraphEdge> vis(edges, to_delete);
+    ag_visitor<GraphEdge> vis(to_delete);
+    boost::depth_first_search(g, boost::visitor(vis));
 
-        for (int i = 0; i < to_delete.size(); ++i) {
-            boost::remove_edge(to_delete[i].first, g);
-            delete_edge_ids[i] = to_delete[i].second;
-        }
+    std::vector<int> delete_edge_ids;
+    delete_edge_ids.resize(to_delete.size());
 
-        delete_edges(delete_edge_ids);
-
+    for (int i = 0; i < to_delete.size(); ++i) {
+        boost::remove_edge(to_delete[i].first, g);
+        delete_edge_ids[i] = to_delete[i].second;
     }
 
-    if (should_graph) {
-        std::ofstream gout;
-        gout.open(filename);
-        boost::write_graphviz(gout, g, boost::default_writer(), boost::make_label_writer(boost::get(boost::edge_name, g)));
-    }
-    //boost::write_graphviz(gout, g);
+    delete_edges(delete_edge_ids);
+}
 
+void graph_ag(Graph &g, std::string &filename) {
+    std::ofstream gout;
+    gout.open(filename);
+    boost::write_graphviz(gout, g, boost::default_writer(), boost::make_label_writer(boost::get(boost::edge_name, g)));
 }
 
 extern "C" {
@@ -130,14 +126,14 @@ extern "C" {
     extern int nmparse(networkmodel *nm);
 }
 
-std::string parse_nm(std::string filename) {
+std::string parse_nm(std::string &filename) {
     FILE *file = fopen(filename.c_str(), "r");
 
     if(!file) {
         fprintf(stderr, "Cannot open file.\n");
     }
 
-    struct networkmodel nm;
+    networkmodel nm;
     nm.assets = list_new();
 
     //yydebug = 1;
@@ -160,7 +156,7 @@ std::string parse_nm(std::string filename) {
 
     // Preload buffer with SQL prelude
     size_t bufsize = INITIALBUFSIZE;
-    char *buf = static_cast<char *>(getcmem(bufsize));
+    auto buf = static_cast<char *>(getcmem(bufsize));
     strcat(buf, "INSERT INTO asset VALUES\n");
 
     // Iterate over each exploit in the list
@@ -168,7 +164,7 @@ std::string parse_nm(std::string filename) {
     // the generated exploit id and the sql for
     // for the exploit.
     for(size_t i=0; i<nm.assets->size; i++) {
-        char *asset = static_cast<char *>(list_get_idx(nm.assets, i));
+        auto asset = static_cast<char *>(list_get_idx(nm.assets, i));
         add_hashtable(asset_ids, asset, i);
         asset_instance *ai = make_asset(asset);
         while(bufsize < strlen(buf) + strlen(ai->sql)) {
@@ -193,17 +189,17 @@ std::string parse_nm(std::string filename) {
     strcat(buf, "INSERT INTO quality VALUES\n");
 
     size_t buf2size = INITIALBUFSIZE;
-    char *buf2 = static_cast<char *>(getcmem(buf2size));
+    auto buf2 = static_cast<char *>(getcmem(buf2size));
     strcat(buf2, "INSERT INTO topology VALUES\n");
 
     // Iterate over each exploit. We then iterate
     // over each f in the exploit and generate
     // the sql for it.
     for(size_t i=0; i<nm.facts->size; i++) {
-        fact *fct = static_cast<fact *>(list_get_idx(nm.facts, i));
+        auto fct = static_cast<fact *>(list_get_idx(nm.facts, i));
         char *sqlqual,*sqltopo;
 
-        size_t assetFrom = static_cast<size_t>(get_hashtable(asset_ids, fct->from));
+        auto assetFrom = static_cast<size_t>(get_hashtable(asset_ids, fct->from));
 
         switch(fct->type) {
         case QUALITY_T:
@@ -214,7 +210,7 @@ std::string parse_nm(std::string filename) {
             strcat(buf, sqlqual);
             break;
         case TOPOLOGY_T:
-            size_t assetTo = static_cast<size_t>(get_hashtable(asset_ids, fct->to));
+            auto assetTo = static_cast<size_t>(get_hashtable(asset_ids, fct->to));
             sqltopo = make_topology(assetFrom, assetTo, fct->dir, fct->st);
             while(buf2size < (strlen(buf2) + strlen(sqltopo))) {
                 buf2 = static_cast<char *>(realloc(buf2, (buf2size*=2)));
@@ -241,7 +237,7 @@ extern "C" {
     extern int xpparse(list *xpplist);
 }
 
-std::string parse_xp(std::string filename) {
+std::string parse_xp(std::string &filename) {
     FILE *file = fopen(filename.c_str(), "r");
 
     if(!file) {
@@ -269,7 +265,7 @@ std::string parse_xp(std::string filename) {
 
     // Preload buffer with SQL prelude
     size_t bufsize = INITIALBUFSIZE;
-    char *buf = static_cast<char *>(getcmem(bufsize));
+    auto buf = static_cast<char *>(getcmem(bufsize));
     strcat(buf, "INSERT INTO exploit VALUES\n");
 
     // Iterate over each exploit in the list
@@ -277,7 +273,7 @@ std::string parse_xp(std::string filename) {
     // the generated exploit id and the sql for
     // for the exploit.
     for(size_t i=0; i<xplist->size; i++) {
-        exploitpattern *xp = static_cast<exploitpattern *>(list_get_idx(xplist, i));
+        auto xp = static_cast<exploitpattern *>(list_get_idx(xplist, i));
         exploit_instance *ei = make_exploit(xp);
         add_hashtable(exploit_ids, xp->name, ei->id);
         // printf("%s - %d\n", xp->name, get_hashtable(exploit_ids, xp->name));
@@ -306,9 +302,9 @@ std::string parse_xp(std::string filename) {
     // over each f in the exploit and generate
     // the sql for it.
     for(size_t i=0; i<xplist->size; i++) {
-        exploitpattern *xp = static_cast<exploitpattern *>(list_get_idx(xplist, i));
+        auto xp = static_cast<exploitpattern *>(list_get_idx(xplist, i));
         for(size_t j=0; j<xp->preconditions->size; j++) {
-            fact *fct = static_cast<fact *>(list_get_idx(xp->preconditions, j));
+            auto fct = static_cast<fact *>(list_get_idx(xp->preconditions, j));
             // printf("%s: %d\n", fct->from, get_hashtable(exploit_ids, fct->from));
             char *sqladd = make_precondition(exploit_ids, xp, fct);
             while(bufsize < strlen(buf) + strlen(sqladd)) {
@@ -336,9 +332,9 @@ std::string parse_xp(std::string filename) {
     // over each f in the exploit and generate
     // the sql for it.
     for(size_t i=0; i<xplist->size; i++) {
-        exploitpattern *xp = static_cast<exploitpattern *>(list_get_idx(xplist, i));
+        auto xp = static_cast<exploitpattern *>(list_get_idx(xplist, i));
         for(size_t j=0; j<xp->postconditions->size; j++) {
-            postcondition *pc = static_cast<postcondition *>(list_get_idx(xp->postconditions, j));
+            auto pc = static_cast<postcondition *>(list_get_idx(xp->postconditions, j));
             char *sqladd = make_postcondition(exploit_ids, xp, pc);
             while(bufsize < strlen(buf) + strlen(sqladd)) {
                 buf = static_cast<char *>(realloc(buf, (bufsize*=2)));
@@ -372,11 +368,11 @@ void print_usage() {
 }
 
 inline bool file_exists(const std::string &name) {
-    struct stat buffer;
-    return (stat (name.c_str(), &buffer) == 0);
+    struct stat buffer {};
+    return (stat(name.c_str(), &buffer) == 0);
 }
 
-const std::string read_file(const std::string fn) {
+const std::string read_file(const std::string &fn) {
     std::ifstream f(fn);
     std::stringstream buffer;
     buffer << f.rdbuf();
@@ -391,6 +387,10 @@ int main(int argc, char *argv[]) {
         print_usage();
         return 0;
     }
+
+#ifdef REDIS
+    printf("%s\n", "Redis is defined.");
+#endif
 
     std::string opt_nm;
     std::string opt_xp;
@@ -512,7 +512,8 @@ int main(int argc, char *argv[]) {
         std::cout << "Reading redis scripts\n";
 
         std::vector<std::pair<std::string, std::string>> sm;
-        sm.push_back(std::make_pair("collisions", read_file("redis_scripts/collisions.lua")));
+        //sm.push_back(std::make_pair("collisions", read_file("redis_scripts/collisions.lua")));
+        sm.emplace_back("collisions", read_file("redis_scripts/collisions.lua"));
 
         RedisManager rman("127.0.0.1", 6379, sm);
         std::cout << "Done\n";
@@ -521,7 +522,7 @@ int main(int argc, char *argv[]) {
         AGGen gen(_instance, rman);
         postinstance = gen.generate(batch_process, batch_size);
     } else {
-#endif // REDIS
+#endif
         std::cout << "Generating Attack Graph: " << std::flush;
         AGGen gen(_instance);
         postinstance = gen.generate(batch_process, batch_size);
@@ -538,7 +539,17 @@ int main(int argc, char *argv[]) {
     save_ag_to_db(postinstance, true);
     std::cout << "Done\n";
 
-    std::cout << "Creating graph visualization: " << std::flush;
-    graph_ag(opt_graph, should_graph, no_cycles);
-    std::cout << "Done\n";
+    if(should_graph) {
+        Graph g = graph_init();
+
+        std::cout << "Creating graph visualization: " << std::flush;
+        graph_ag(g, opt_graph);
+        std::cout << "Done\n";
+
+        if(no_cycles) {
+            std::cout << "Removing cycles: " << std::flush;
+            remove_cycles(g);
+            std::cout << "Done\n";
+        }
+    }
 }

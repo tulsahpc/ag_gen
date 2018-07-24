@@ -86,13 +86,7 @@ const EncodedTopology Topology::encode(const Keyvalue &kv_facts) const {
 
 bool Topology::operator==(const Topology &rhs) const {
     if(this->dir != BIDIRECTION_T) {
-        if (this->from_asset_id != rhs.from_asset_id) {
-            return false;
-        }
-
-        if (this->to_asset_id != rhs.to_asset_id) {
-            return false;
-        }
+        return (this->from_asset_id == rhs.from_asset_id) || (this->to_asset_id == rhs.to_asset_id);
     } else {
         if(this->from_asset_id != rhs.from_asset_id && this->from_asset_id != rhs.to_asset_id) {
             return false;
@@ -111,16 +105,9 @@ bool Topology::operator==(const Topology &rhs) const {
         return false;
     }
 
-    if (this->value != rhs.value) {
-        return false;
-    }
-
-    return true;
+    return (this->value == rhs.value);
 }
 
 bool Topology::operator<(const Topology &rhs) const {
-    if(this->from_asset_id < rhs.from_asset_id)
-        return true;
-    else
-        return false;
+    return (this->from_asset_id < rhs.from_asset_id);
 }

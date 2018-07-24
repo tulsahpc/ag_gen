@@ -48,10 +48,7 @@ std::tuple<std::vector<Quality>, std::vector<Topology>> Factbase::get_facts_tupl
  * @param q Quality for which to search.
  */
 bool Factbase::find_quality(Quality &q) const {
-    if(std::find(qualities.begin(), qualities.end(), q) == qualities.end()) {
-        return false;
-    }
-    return true;
+    return std::find(qualities.begin(), qualities.end(), q) != qualities.end();
 }
 
 std::vector<Quality>::iterator Factbase::get_quality(Quality &q) {
@@ -65,10 +62,7 @@ std::vector<Quality>::iterator Factbase::get_quality(Quality &q) {
  * @param t Topology for which to search.
  */
 bool Factbase::find_topology(Topology &t) const {
-    if (std::find(topologies.begin(), topologies.end(), t) == topologies.end()) {
-        return false;
-    }
-    return true;
+    return std::find(topologies.begin(), topologies.end(), t) != topologies.end();
 }
 
 std::vector<Topology>::iterator Factbase::get_topology(Topology &t) {

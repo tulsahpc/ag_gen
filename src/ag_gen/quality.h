@@ -36,6 +36,8 @@ struct ParameterizedQuality {
     }
 };
 
+using PostconditionQuality = std::tuple<ParameterizedQuality, std::string>;
+
 /** Quality class
  * @brief Holds information for the Quality
  */

@@ -16,7 +16,7 @@
  * @param t A vector of Topologies
  */
 NetworkState::NetworkState(std::vector<Quality> q, std::vector<Topology> t)
-    : factbase(Factbase(q, t)) {}
+    : factbase(Factbase(std::move(q), std::move(t))) {}
 
 /**
  * @brief Copy Constructor for NetworkState
@@ -25,7 +25,7 @@ NetworkState::NetworkState(std::vector<Quality> q, std::vector<Topology> t)
  *
  * @param ns The NetworkState from which to copy
  */
-NetworkState::NetworkState(const NetworkState &ns) : factbase(ns.factbase){}
+NetworkState::NetworkState(const NetworkState &ns) = default;
 
 /**
  * @brief Sets the ID of the Factbase
