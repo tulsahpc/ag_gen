@@ -12,7 +12,7 @@ extern "C" {
 
 typedef struct hashnode {
     char *key;
-    int val;
+    unsigned int val;
     struct hashnode *next;
 } hashnode;
 
@@ -25,7 +25,7 @@ typedef struct hashtable {
 uint64_t hash(char *str);
 
 hashtable *new_hashtable(int size);
-void init_hashtable(hashtable *t, int size);
+void init_hashtable(hashtable *t, unsigned int size);
 int get_hashtable(hashtable *t, char *key);
 void add_hashtable(hashtable *t, char *key, size_t val);
 void free_hashtable(hashtable *t);

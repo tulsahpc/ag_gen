@@ -23,7 +23,6 @@ typedef enum ACTION_T {
 typedef struct networkmodel {
     list* assets;
     list* facts;
-    hashtable* asset_tab;
 } networkmodel;
 
 typedef struct asset_instance {

@@ -31,7 +31,7 @@ void init_hashtable(hashtable *t, int size) {
     clearmem(t->arr, size * sizeof(hashnode *));
 }
 
-void add_hashtable(hashtable *t, char *key, size_t val) {
+void add_hashtable(hashtable *t, char *key, unsigned int val) {
     if (should_rehash(t))
         rehash(t);
     uint64_t idx = hash(key) % t->size;

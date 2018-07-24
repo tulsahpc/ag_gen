@@ -1,4 +1,4 @@
-/** \file db_util.h
+/** \file db.h
  * \author Kyle Cook <kylecook80@gmail.com>
  * \date June 2016
  * \copyright Copyright (C) The University of Tulsa - All Rights Reserved.
@@ -20,7 +20,6 @@
 #include <libpq-fe.h>
 
 class DB;
-// extern std::shared_ptr<DB> db;
 typedef std::vector<std::string> Row;
 
 class DBException : public std::runtime_error {
@@ -33,9 +32,7 @@ class DBException : public std::runtime_error {
 
 class Connection {
     bool connected = false;
-
     std::string ci;
-
     PGconn *conn_r;
 
     friend class DB;
@@ -121,7 +118,6 @@ class DB {
 
   public:
     DB() {}
-    // DB(const std::string &conninfo) : conn(conninfo) {};
 
     void connect(const std::string &conninfo) { conn.connect(conninfo); }
 

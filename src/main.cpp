@@ -152,7 +152,6 @@ std::string parse_nm(std::string &filename) {
     /////////////////////////
 
     hashtable *asset_ids = new_hashtable(101);
-    nm.asset_tab = asset_ids;
 
     // Preload buffer with SQL prelude
     size_t bufsize = INITIALBUFSIZE;
@@ -387,10 +386,6 @@ int main(int argc, char *argv[]) {
         print_usage();
         return 0;
     }
-
-#ifdef REDIS
-    printf("%s\n", "Redis is defined.");
-#endif
 
     std::string opt_nm;
     std::string opt_xp;
