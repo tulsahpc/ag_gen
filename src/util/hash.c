@@ -18,13 +18,13 @@ uint64_t hash(char *str) {
     return hash;
 }
 
-hashtable *new_hashtable(int size) {
+hashtable *new_hashtable(unsigned int size) {
     hashtable *t = (hashtable *)getmem(sizeof(hashtable));
     init_hashtable(t, size);
     return t;
 }
 
-void init_hashtable(hashtable *t, int size) {
+void init_hashtable(hashtable *t, unsigned int size) {
     t->arr = (hashnode **)getmem(size * sizeof(hashnode *));
     t->size = size;
     t->used = 0;

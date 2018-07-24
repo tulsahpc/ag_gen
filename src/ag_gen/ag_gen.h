@@ -56,8 +56,8 @@ class AGGen {
     std::deque<NetworkState> frontier;               //!< Unexplored states
     std::unordered_map<size_t, int> hash_map{};      //!< Map of hashes to Factbase ID
 
-#ifdef REDIS
     bool use_redis;
+#ifdef REDIS
     RedisManager *rman;
 #endif
 

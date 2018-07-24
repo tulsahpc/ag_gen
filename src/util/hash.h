@@ -24,10 +24,10 @@ typedef struct hashtable {
 
 uint64_t hash(char *str);
 
-hashtable *new_hashtable(int size);
+hashtable *new_hashtable(unsigned int size);
 void init_hashtable(hashtable *t, unsigned int size);
 int get_hashtable(hashtable *t, char *key);
-void add_hashtable(hashtable *t, char *key, size_t val);
+void add_hashtable(hashtable *t, char *key, unsigned int val);
 void free_hashtable(hashtable *t);
 
 #ifdef __cplusplus
