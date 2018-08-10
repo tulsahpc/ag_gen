@@ -16,7 +16,6 @@ network model =
         # Workstations
         workstation1;
         workstation2;
-        workstation3;
 
         # Wifi
         ap;
@@ -64,8 +63,6 @@ network model =
         topology:border_router<->workstation1,private_nat;
 
         topology:border_router<->workstation2,private_nat;
-
-        topology:border_router<->workstation3,private_nat;
 
         topology:border_router<->ap,private_nat;
 

@@ -9,15 +9,19 @@ This script supports debian based systems and Mac OSX (with homebrew)
 
 ### PostgreSQL
 
-You must have permission to be able to access Postgres from the C++ application.
-See: https://www.postgresql.org/docs/9.5/static/auth-pg-hba-conf.html
+#### Create a user
+
+Use the createuser and createdb scripts to create the necessary account and database in PostgreSQL.
+
+    createuser -d -l -P ag_gen
+    createdb -O ag_gen ag_gen
 
 #### Populate the database
 
 Use the `db_manage.sh` utility to populate the database (this will overwrite anything in the `ag_gen` database).
 An example use of this is:
 
-    ./db_manage.sh -s sql/schema.sql -i sql/test_data.sql -f
+    ./db_manage.sh -d ag_gen
 
 ## Building
 
@@ -25,35 +29,34 @@ This application uses CMake to build.
 
     mkdir build
     cd build
-    cmake ../
+
+For debug builds:
+
+    cmake -DCMAKE_BUILD_TYPE=Debug ../
+
+For release builds:
+
+    cmake -DCMAKE_BUILD_TYPE=Release ../
 
 Build the application:
 
-    make
+    make ag_gen
 
 ## Configuration
 
-Copy the `config_default.txt` to `config.txt`.
+RAGE uses an ini-style configuration, located in config.ini.
 
-- server: url to postgresql server
-- db: name of database to use
-- login: username to login with
-- password (optional): password to log into database with
+- name: name of the database
+- host: IP or hostname of the database server
+- port: port number of the database server
+- username: database user name
+- password (optional): database password
 
 ## Running
 
-    ./ag_gen -n home
+Execute example from the examples directory.
 
-This doesn't really do anything cool yet.
-`./ag_gen -h` for the help menu.
-
-## Tests
-
-Tests don't work currently.
-
-## Documentation
-
-Doxygen doesn't work either.
+    ./ag_gen -n ../examples/thesis_example.nm -x ../examples/thesis_example.xp
 
 ## Contributing
 
@@ -62,9 +65,5 @@ Doxygen doesn't work either.
 When contributing code, please install the "editorconfig" plugin for your text editor.
 
 - Adds extra newline to end of file if not already there.
-- Removes whitespace at of lines
+- Removes whitespace at end of lines
 - Automatically sets indentation to tabs set to 4 spaces
-
-### TODO
-
-- Pluggable architecture for different databases

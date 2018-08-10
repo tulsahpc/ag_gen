@@ -16,10 +16,6 @@ network model =
         # Workstations
         workstation1;
         workstation2;
-        workstation3;
-        workstation4;
-        workstation5;
-        workstation6;
 
         # Wifi
         ap;
@@ -71,22 +67,6 @@ network model =
         quality:workstation2,type=workstation;
         quality:workstation2,user_admin=true;
         topology:border_router<->workstation2,private_nat;
-
-        quality:workstation3,type=workstation;
-        quality:workstation3,user_admin=true;
-        topology:border_router<->workstation3,private_nat;
-
-        quality:workstation4,type=workstation;
-        quality:workstation4,user_admin=true;
-        topology:border_router<->workstation4,private_nat;
-
-        quality:workstation5,type=workstation;
-        quality:workstation5,user_admin=true;
-        topology:border_router<->workstation5,private_nat;
-
-        quality:workstation6,type=workstation;
-        quality:workstation6,user_admin=true;
-        topology:border_router<->workstation6,private_nat;
 
         topology:border_router<->ap,private_nat;
 

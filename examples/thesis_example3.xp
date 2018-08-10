@@ -76,7 +76,7 @@ exploit social_engineer_workstation(workstation)=
     preconditions:
         quality:workstation,type=workstation;
     postconditions:
-        add quality:workstation,malware_download=true;
+        insert quality:workstation,malware_download=true;
 .
 
 exploit malware_execute(workstation)=
@@ -84,5 +84,5 @@ exploit malware_execute(workstation)=
         quality:workstation,malware_download=true;
         quality:workstation,user_admin=true;
     postconditions:
-        add quality:workstation,root=true;
+        insert quality:workstation,root=true;
 .
